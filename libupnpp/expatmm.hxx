@@ -52,7 +52,7 @@ public:
                 expat_parser = NULL;
             }
             if(xml_buffer != NULL) {
-                delete xml_buffer;
+                delete [] xml_buffer;
                 xml_buffer = NULL;
             }
         }
