@@ -90,6 +90,14 @@ public:
         value = it->second;
         return true;
     }
+    const std::string& getprop(const std::string& name) const
+    {
+        std::map<std::string, std::string>::const_iterator it =
+            m_props.find(name);
+        if (it == m_props.end())
+            return nullstr;
+        return it->second;
+    }
 
     /** Get named property for resource 
      * Field names: "bitrate", "duration" (H:mm:ss.ms), "nrAudioChannels",
@@ -181,6 +189,7 @@ private:
     friend class UPnPDirParser;
     // didl text for element, sans header
     std::string m_didlfrag;
+    static std::string nullstr;
 };
 
 /**

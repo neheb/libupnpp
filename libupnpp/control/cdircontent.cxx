@@ -35,6 +35,8 @@ using namespace UPnPP;
 
 namespace UPnPClient {
 
+string UPnPDirObject::nullstr;
+
 // An XML parser which builds directory contents from DIDL-lite input.
 class UPnPDirParser : public inputRefXMLParser {
 public:
