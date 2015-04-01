@@ -17,13 +17,14 @@
 #ifndef _UPNPDEV_HXX_INCLUDED_
 #define _UPNPDEV_HXX_INCLUDED_
 
+#include "libupnpp/config.h"
+
 /**
  * UPnP Description phase: interpreting the device description which we
  * downloaded from the URL obtained by the discovery phase.
  */
 
 #include <vector>
-#include <unordered_map>
 #include <string>
 #include <sstream>
 
@@ -98,8 +99,8 @@ public:
         }
     };
     struct Parsed {
-        std::unordered_map<std::string, Action> actionList;
-        std::unordered_map<std::string, StateVariable> stateTable;
+        STD_UNORDERED_MAP<std::string, Action> actionList;
+        STD_UNORDERED_MAP<std::string, StateVariable> stateTable;
     };
     
     bool fetchAndParseDesc(const std::string&, Parsed& parsed) const;
@@ -146,7 +147,8 @@ public:
             "] friendlyName [" << friendlyName <<
             "] UDN [" << UDN <<
             "] URLBase [" << URLBase << "] Services:" << std::endl;
-        for (auto it = services.begin(); it != services.end(); it++) {
+        for (std::vector<UPnPServiceDesc>::const_iterator it = services.begin(); 
+             it != services.end(); it++) {
             os << "    " << it->dump();
         }
         os << "}" << std::endl;

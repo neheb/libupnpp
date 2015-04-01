@@ -167,15 +167,19 @@ public:
             " id [" << m_id << "] pid [" << m_pid <<
             "] title [" << m_title << "]" << std::endl;
         os << "Properties: " << std::endl;
-        for (auto it = m_props.begin(); it != m_props.end(); it++) {
+        for (std::map<std::string,std::string>::const_iterator it = 
+                 m_props.begin(); 
+             it != m_props.end(); it++) {
             os << "[" << it->first << "]->[" << it->second << "] " 
                << std::endl;
         }
         os << "Resources:" << std::endl;
-        for (auto it = m_resources.begin(); it != m_resources.end(); it++) {
+        for (std::vector<UPnPResource>::const_iterator it = 
+                 m_resources.begin(); it != m_resources.end(); it++) {
             os << "  Uri [" << it->m_uri << "]" << std::endl;
             os << "  Resource attributes:" << std::endl;
-            for (auto it1 = it->m_props.begin(); 
+            for (std::map<std::string, std::string>::const_iterator it1 = 
+                     it->m_props.begin(); 
                  it1 != it->m_props.end(); it1++) {
                 os << "    [" << it1->first << "]->[" << it1->second << "] " 
                    << std::endl;

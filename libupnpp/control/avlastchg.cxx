@@ -14,14 +14,12 @@
  *       Free Software Foundation, Inc.,
  *       59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
+#include "libupnpp/config.h"
 
 #include "libupnpp/control/avlastchg.hxx"
 
 #include <expat_external.h>             // for XML_Char
 #include <string.h>                     // for strcmp
-
-#include <string>                       // for string
-#include <unordered_map>                // for unordered_map, etc
 
 #include "libupnpp/expatmm.hxx"         // for inputRefXMLParser
 
@@ -33,7 +31,7 @@ namespace UPnPClient {
 
 class LastchangeParser : public inputRefXMLParser {
 public:
-    LastchangeParser(const string& input, unordered_map<string,string>& props)
+    LastchangeParser(const string& input, STD_UNORDERED_MAP<string,string>& props)
         : inputRefXMLParser(input), m_props(props)
         {}
 
@@ -49,12 +47,12 @@ protected:
         }
     }
 private:
-    unordered_map<string, string>& m_props;
+    STD_UNORDERED_MAP<string, string>& m_props;
 };
 
 
 bool decodeAVLastChange(const string& xml, 
-                        unordered_map<string, string>& props)
+                        STD_UNORDERED_MAP<string, string>& props)
 {
     LastchangeParser mparser(xml, props);
     if (!mparser.Parse())

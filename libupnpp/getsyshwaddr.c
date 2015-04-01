@@ -42,7 +42,7 @@
 #include <sys/sockio.h>
 #endif
 
-#include "config.h"
+#include "libupnpp/config.h"
 #if HAVE_GETIFADDRS
 #include <ifaddrs.h>
 #ifdef __linux__

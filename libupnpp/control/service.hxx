@@ -16,13 +16,13 @@
  */
 #ifndef _SERVICE_H_X_INCLUDED_
 #define _SERVICE_H_X_INCLUDED_
+#include "libupnpp/config.h"
 
 #include <upnp/upnp.h>                  // for UPNP_E_BAD_RESPONSE, etc
 
-#include <functional>                   // for function
 #include <iostream>                     // for basic_ostream, operator<<, etc
 #include <string>                       // for string, operator<<, etc
-#include <unordered_map>                // for unordered_map
+
 #include <vector>                       // for vector
 
 #include "libupnpp/control/cdircontent.hxx"  // for UPnPDirObject
@@ -44,6 +44,7 @@ class Service;
  */
 class VarEventReporter {
 public:
+    virtual ~VarEventReporter() {};
     // Using char * to avoid any issue with strings and concurrency
     virtual void changed(const char *nm, int val)  = 0;
     virtual void changed(const char *nm, const char *val) = 0;
@@ -55,7 +56,7 @@ public:
 };
 
 typedef 
-std::function<void (const std::unordered_map<std::string, std::string>&)> 
+STD_FUNCTION<void (const STD_UNORDERED_MAP<std::string, std::string>&)> 
 evtCBFunc;
 
 class Service {
@@ -98,10 +99,6 @@ public:
 
     virtual void installReporter(VarEventReporter* reporter);
 
-    // Can't copy these because this does not make sense for the
-    // member function callback.
-    Service(Service const&) = delete;
-    Service& operator=(Service const&) = delete;
 
 protected:
 
@@ -113,6 +110,11 @@ protected:
     void unregisterCallback();
 
 private:
+    // Can't copy these because this does not make sense for the
+    // member function callback.
+    Service(Service const&);
+    Service& operator=(Service const&);
+
     class Internal;
     Internal *m;
 

@@ -14,7 +14,7 @@
  *	 Free Software Foundation, Inc.,
  *	 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
-#include "config.h"
+#include "libupnpp/config.h"
 
 #include "libupnpp/control/cdirectory.hxx"
 
@@ -38,7 +38,7 @@
 #include "libupnpp/upnpp_p.hxx"         // for csvToStrings
 
 using namespace std;
-using namespace std::placeholders;
+using namespace STD_PLACEHOLDERS;
 using namespace UPnPP;
 
 namespace UPnPClient {
@@ -156,7 +156,8 @@ bool ContentDirectory::getServerByName(const string& fname, CDSH& server)
         return false;
 
     found = false;
-    for (auto it = ddesc.services.begin(); it != ddesc.services.end(); it++) {
+    for (std::vector<UPnPServiceDesc>::const_iterator it = 
+             ddesc.services.begin(); it != ddesc.services.end(); it++) {
         if (isCDService(it->serviceType)) {
             server = CDSH(new ContentDirectory(ddesc, *it));
             found = true;
@@ -186,7 +187,7 @@ static int asyncReaddirCB(Upnp_EventType et, void *vev, void *cookie)
     return -1;
 #endif
 
-void ContentDirectory::evtCallback(const unordered_map<string, string>&)
+void ContentDirectory::evtCallback(const STD_UNORDERED_MAP<string, string>&)
 {
 }
 

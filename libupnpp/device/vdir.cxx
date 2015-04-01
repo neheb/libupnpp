@@ -14,7 +14,7 @@
  *   Free Software Foundation, Inc.,
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
-#include "config.h"
+#include "libupnpp/config.h"
 
 #include "vdir.hxx"
 
@@ -162,7 +162,7 @@ bool VirtualDir::addFile(const string& _path, const string& name,
     //LOGDEB("VirtualDir::addFile: path " << path << " name " << name << endl);
 
     if (m_dirs.find(path) == m_dirs.end()) {
-        m_dirs[path] = unordered_map<string, VirtualDir::FileEnt>();
+        m_dirs[path] = STD_UNORDERED_MAP<string, VirtualDir::FileEnt>();
         UpnpAddVirtualDir(path.c_str());
     }
 
@@ -186,13 +186,13 @@ VirtualDir::FileEnt *VirtualDir::getFile(const string& _path,
 
     // LOGDEB("VirtualDir::getFile: path " << path << " name " << name << endl);
 
-    unordered_map<string, unordered_map<string, VirtualDir::FileEnt> >::iterator dir =
+    STD_UNORDERED_MAP<string, STD_UNORDERED_MAP<string, VirtualDir::FileEnt> >::iterator dir =
         m_dirs.find(path);
     if (dir == m_dirs.end()) {
         LOGERR("VirtualDir::getFile: no dir: " << path << endl);
         return 0;
     }
-    unordered_map<string, FileEnt>::iterator f = dir->second.find(name);
+    STD_UNORDERED_MAP<string, FileEnt>::iterator f = dir->second.find(name);
     if (f == dir->second.end()) {
         LOGERR("VirtualDir::getFile: no file: " << path << endl);
         return 0;

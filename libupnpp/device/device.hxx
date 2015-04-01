@@ -16,13 +16,12 @@
  */
 #ifndef _DEVICE_H_X_INCLUDED_
 #define _DEVICE_H_X_INCLUDED_
+#include "libupnpp/config.h"
 
 #include <pthread.h>                    // for pthread_cond_t
 #include <upnp/upnp.h>                  // for Upnp_EventType, etc
 
-#include <functional>                   // for function
 #include <string>                       // for string
-#include <unordered_map>                // for unordered_map, etc
 #include <vector>                       // for vector
 
 #include "libupnpp/ptmutex.hxx"         // for PTMutexInit
@@ -33,7 +32,7 @@ namespace UPnPProvider { class UpnpService; }
 
 namespace UPnPProvider {
 
-typedef std::function<int (const UPnPP::SoapIncoming&, UPnPP::SoapOutgoing&)> 
+typedef STD_FUNCTION<int (const UPnPP::SoapIncoming&, UPnPP::SoapOutgoing&)> 
     soapfun;
 
 // Definition of a virtual directory entry: data and mime type
@@ -60,7 +59,7 @@ public:
      *  (with URLBase added) will be served from '/'.
      */
     UpnpDevice(const std::string& deviceId, 
-               const std::unordered_map<std::string, VDirContent>& files);
+               const STD_UNORDERED_MAP<std::string, VDirContent>& files);
     ~UpnpDevice();
 
     void addService(UpnpService *, const std::string& serviceId);

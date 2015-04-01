@@ -14,7 +14,7 @@
  *	 Free Software Foundation, Inc.,
  *	 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
-#include "config.h"
+#include "libupnpp/config.h"
 
 #include "libupnpp/soaphelp.hxx"
 
@@ -305,7 +305,7 @@ IXML_Document *SoapOutgoing::buildSoapBody(bool isResponse) const
 //     </e:propertyset>
 
 bool decodePropertySet(IXML_Document *doc, 
-                       unordered_map<string,string>& out)
+                       STD_UNORDERED_MAP<string,string>& out)
 {
     bool ret = false;
     IXML_Node* topNode = ixmlNode_getFirstChild((IXML_Node *)doc);

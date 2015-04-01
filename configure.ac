@@ -34,6 +34,19 @@ LT_INIT
 
 AC_PROG_CXX
 
+# Check for where to find unordered_map etc.
+AC_LANG_PUSH([C++])
+AC_CHECK_HEADER(tr1/unordered_map,[AC_DEFINE([HAVE_TR1_UNORDERED],
+    [],["Have tr1"])],[])
+CPPFLAGS_=$CPPFLAGS
+CPPFLAGS=-std=c++0x
+export CPPFLAGS
+AC_CHECK_HEADER(unordered_map,[AC_DEFINE([HAVE_CXX0X_UNORDERED],
+    [],["Have C++0x"])],[])
+CPPFLAGS=$CPPFLAGS_
+export CPPFLAGS
+AC_LANG_POP([C++])
+
 # libupnp is configured with large file support, and we need to do the same,
 # else a difference in off_t size impacts struct File_Info and prevents the
 # vdir to work. This does make a difference, for exemple, for Raspbian

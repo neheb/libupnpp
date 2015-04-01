@@ -17,9 +17,9 @@
 #ifndef _AVTRANSPORT_HXX_INCLUDED_
 #define _AVTRANSPORT_HXX_INCLUDED_
 
-#include <memory>                       // for shared_ptr
+#include "libupnpp/config.h"
+
 #include <string>                       // for string
-#include <unordered_map>                // for unordered_map
 
 #include "libupnpp/control/cdircontent.hxx"  // for UPnPDirObject
 #include "libupnpp/control/service.hxx"  // for Service
@@ -30,7 +30,7 @@ namespace UPnPClient { class UPnPServiceDesc; }
 
 namespace UPnPClient {
 
-typedef std::shared_ptr<AVTransport> AVTH;
+typedef STD_SHARED_PTR<AVTransport> AVTH;
 
 /**
  * AVTransport Service client class.
@@ -150,7 +150,7 @@ protected:
     int CTAStringToBits(const std::string& actions, int& iacts);
 
 private:
-    void evtCallback(const std::unordered_map<std::string, std::string>&);
+    void evtCallback(const STD_UNORDERED_MAP<std::string, std::string>&);
     void registerCallback();
 
 };

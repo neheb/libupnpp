@@ -17,10 +17,10 @@
 #ifndef _UPNPDIR_HXX_INCLUDED_
 #define _UPNPDIR_HXX_INCLUDED_
 
-#include <memory>                       // for shared_ptr
+#include "libupnpp/config.h"
+
 #include <set>                          // for set
 #include <string>                       // for string
-#include <unordered_map>                // for unordered_map
 #include <vector>                       // for vector
 
 #include "libupnpp/control/service.hxx"  // for Service
@@ -32,7 +32,7 @@ namespace UPnPClient { class UPnPServiceDesc; }
 
 namespace UPnPClient {
 
-typedef std::shared_ptr<ContentDirectory> CDSH;
+typedef STD_SHARED_PTR<ContentDirectory> CDSH;
 
 /**
  * Content Directory Service client class.
@@ -150,7 +150,7 @@ private:
     int m_rdreqcnt; // Slice size to use when reading
     ServiceKind m_serviceKind;
 
-    void evtCallback(const std::unordered_map<std::string, std::string>&);
+    void evtCallback(const STD_UNORDERED_MAP<std::string, std::string>&);
     void registerCallback();
 };
 

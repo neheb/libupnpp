@@ -17,11 +17,12 @@
 #ifndef _SOAPHELP_H_X_INCLUDED_
 #define _SOAPHELP_H_X_INCLUDED_
 
+#include "libupnpp/config.h"
+
 #include <upnp/ixml.h>                  // for IXML_Document
 
 #include <map>                          // for map
 #include <string>                       // for string
-#include <unordered_map>                // for unordered_map
 #include <utility>                      // for pair
 #include <vector>                       // for vector
 
@@ -109,7 +110,7 @@ private:
  *     </e:propertyset>
  */
 extern bool decodePropertySet(IXML_Document *doc, 
-                       std::unordered_map<std::string,std::string>& out);
+                       STD_UNORDERED_MAP<std::string,std::string>& out);
 
 
 } // namespace UPnPP

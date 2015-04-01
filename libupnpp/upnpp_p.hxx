@@ -17,7 +17,7 @@
 
 #ifndef _UPNPP_H_X_INCLUDED_
 #define _UPNPP_H_X_INCLUDED_
-#include "config.h"
+#include "libupnpp/config.h"
 
 /* Private shared defs for the library. Clients need not and should
    not include this */

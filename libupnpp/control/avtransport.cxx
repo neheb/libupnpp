@@ -20,7 +20,6 @@
 #include <stdlib.h>                     // for atoi
 #include <upnp/upnp.h>                  // for UPNP_E_SUCCESS, etc
 
-#include <functional>                   // for _Bind, bind, _1
 #include <ostream>                      // for basic_ostream, endl, etc
 #include <string>                       // for string, basic_string, etc
 #include <utility>                      // for pair
@@ -34,7 +33,7 @@
 #include "libupnpp/upnpp_p.hxx"         // for stringuppercmp, etc
 
 using namespace std;
-using namespace std::placeholders;
+using namespace STD_PLACEHOLDERS;
 using namespace UPnPP;
 
 namespace UPnPClient {
@@ -107,10 +106,11 @@ static AVTransport::PlayMode stringToPlayMode(const string& s)
 }
 
 void AVTransport::evtCallback(
-    const std::unordered_map<std::string, std::string>& props)
+    const STD_UNORDERED_MAP<std::string, std::string>& props)
 {
     LOGDEB1("AVTransport::evtCallback:" << endl);
-    for (auto it = props.begin(); it != props.end(); it++) {
+    for (STD_UNORDERED_MAP<std::string, std::string>::const_iterator it = 
+             props.begin(); it != props.end(); it++) {
         if (it->first.compare("LastChange")) {
             LOGINF("AVTransport:event: var not lastchange: "
                    << it->first << " -> " << it->second << endl;);
@@ -119,13 +119,14 @@ void AVTransport::evtCallback(
         LOGDEB1("AVTransport:event: "
                 << it->first << " -> " << it->second << endl;);
 
-        std::unordered_map<std::string, std::string> props1;
+        STD_UNORDERED_MAP<std::string, std::string> props1;
         if (!decodeAVLastChange(it->second, props1)) {
             LOGERR("AVTransport::evtCallback: bad LastChange value: "
                    << it->second << endl);
             return;
         }
-        for (auto it1 = props1.begin(); it1 != props1.end(); it1++) {
+        for (STD_UNORDERED_MAP<std::string, std::string>::iterator it1 = 
+                 props1.begin(); it1 != props1.end(); it1++) {
             if (!getReporter()) {
                 LOGDEB1("AVTransport::evtCallback: " << it1->first << " -> " 
                        << it1->second << endl);
@@ -377,7 +378,7 @@ int AVTransport::CTAStringToBits(const string& actions, int& iacts)
         return UPNP_E_BAD_RESPONSE;
     }
     iacts = 0;
-    for (auto it = sacts.begin(); it != sacts.end(); it++) {
+    for (vector<string>::iterator it = sacts.begin(); it != sacts.end(); it++) {
         trimstring(*it);
         if (!it->compare("Next")) {
             iacts |= TPA_Next;

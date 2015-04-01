@@ -17,9 +17,9 @@
 #ifndef _OHPLAYLIST_HXX_INCLUDED_
 #define _OHPLAYLIST_HXX_INCLUDED_
 
-#include <memory>                       // for shared_ptr
+#include "libupnpp/config.h"
+
 #include <string>                       // for string
-#include <unordered_map>                // for unordered_map
 #include <vector>                       // for vector
 
 #include "cdircontent.hxx"              // for UPnPDirObject
@@ -31,7 +31,7 @@ namespace UPnPClient { class UPnPServiceDesc; }
 
 namespace UPnPClient {
 
-typedef std::shared_ptr<OHPlaylist> OHPLH;
+typedef STD_SHARED_PTR<OHPlaylist> OHPLH;
 
 /**
  * OHPlaylist Service client class.
@@ -95,7 +95,7 @@ protected:
     static const std::string SType;
 
 private:
-    void evtCallback(const std::unordered_map<std::string, std::string>&);
+    void evtCallback(const STD_UNORDERED_MAP<std::string, std::string>&);
     void registerCallback();
 };
 

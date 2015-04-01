@@ -17,7 +17,6 @@
 #ifndef _OHPRODUCT_HXX_INCLUDED_
 #define _OHPRODUCT_HXX_INCLUDED_
 
-#include <memory>                       // for shared_ptr
 #include <string>                       // for string
 #include <vector>                       // for vector
 
@@ -29,7 +28,7 @@ namespace UPnPClient { class UPnPServiceDesc; }
 
 namespace UPnPClient {
 
-typedef std::shared_ptr<OHProduct> OHPRH;
+typedef STD_SHARED_PTR<OHProduct> OHPRH;
 
 /**
  * OHProduct Service client class.

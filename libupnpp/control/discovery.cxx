@@ -14,7 +14,7 @@
  *       Free Software Foundation, Inc.,
  *       59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
-#include "config.h"
+#include "libupnpp/config.h"
 
 #include "discovery.hxx"
 
@@ -33,12 +33,10 @@
 #include <unistd.h>                     // for sleep
 #include <upnp/upnp.h>                  // for Upnp_Discovery, etc
 
-#include <functional>                   // for _Bind, bind, function, _1, etc
 #include <iostream>                     // for operator<<, basic_ostream, etc
 #include <map>                          // for _Rb_tree_iterator, map, etc
 #include <utility>                      // for pair
 #include <vector>                       // for vector
-#include <unordered_set>
 
 #include "description.hxx"              // for UPnPDeviceDesc, etc
 
@@ -50,7 +48,7 @@
 #include "libupnpp/control/httpdownload.hxx"
 
 using namespace std;
-using namespace std::placeholders;
+using namespace STD_PLACEHOLDERS;
 using namespace UPnPP;
 
 namespace UPnPClient {
@@ -100,7 +98,7 @@ public:
 // discovered object descriptors for processing by our dedicated
 // thread.
 static WorkQueue<DiscoveredTask*> discoveredQueue("DiscoveredQueue");
-static unordered_set<string> o_downloading;
+static STD_UNORDERED_SET<string> o_downloading;
 static PTMutexInit o_downloading_mutex;
 
 // This gets called in a libupnp thread context for all asynchronous
@@ -137,7 +135,8 @@ static int cluCallBack(Upnp_EventType et, void* evp, void*)
                 // simultaneous downloads of a slow one, to avoid
                 // tying up threads.
                 PTMutexLocker lock(o_downloading_mutex);
-                auto res = o_downloading.insert(tp->url);
+                pair<STD_UNORDERED_SET<string>::iterator,bool> res = 
+                    o_downloading.insert(tp->url);
                 if (!res.second) {
                     LOGDEB("discovery:cllb: already downloading " << 
                            tp->url << endl);
@@ -280,7 +279,8 @@ void *UPnPDeviceDirectory::discoExplorer(void *)
             }
             {
                 PTMutexLocker lock(o_callbacks_mutex);
-                for (auto cbp = o_callbacks.begin(); 
+                for (vector<UPnPDeviceDirectory::Visitor>::iterator cbp = 
+                         o_callbacks.begin(); 
                      cbp != o_callbacks.end(); cbp++) {
                     (*cbp)(d.device, UPnPServiceDesc());
                 }
@@ -324,7 +324,7 @@ void UPnPDeviceDirectory::expireDevices()
 UPnPDeviceDirectory::UPnPDeviceDirectory(time_t search_window)
     : m_ok(false), m_searchTimeout(search_window), m_lastSearch(0)
 {
-    addCallback(std::bind(&UPnPDeviceDirectory::deviceFound, this, _1, _2));
+    addCallback(STD_BIND(&UPnPDeviceDirectory::deviceFound, this, _1, _2));
 
     if (!discoveredQueue.start(1, discoExplorer, 0)) {
         m_reason = "Discover work queue start failed";
@@ -406,9 +406,10 @@ bool UPnPDeviceDirectory::traverse(UPnPDeviceDirectory::Visitor visit)
 
     PTMutexLocker lock(o_pool.m_mutex);
 
-    for (auto it = o_pool.m_devices.begin(); 
+    for (map<string, DeviceDescriptor>::iterator it = o_pool.m_devices.begin(); 
          it != o_pool.m_devices.end(); it++) {
-        for (auto it1 = it->second.device.services.begin();
+        for (vector<UPnPServiceDesc>::iterator it1 = 
+                 it->second.device.services.begin();
              it1 != it->second.device.services.end(); it1++) {
             if (!visit(it->second.device, *it1))
                 return false;
@@ -456,7 +457,8 @@ bool UPnPDeviceDirectory::getDevBySelector(bool cmp(const UPnPDeviceDesc& ddesc,
         PTMutexLocker lock(devWaitLock);
         {
             PTMutexLocker lock(o_pool.m_mutex);
-            for (auto it = o_pool.m_devices.begin(); 
+            for (map<string, DeviceDescriptor>::iterator it = 
+                     o_pool.m_devices.begin(); 
                  it != o_pool.m_devices.end(); it++) {
                 if (!cmp(it->second.device, value)) {
                     ddesc = it->second.device;

@@ -18,6 +18,8 @@
 #ifndef _VDIR_H_X_INCLUDED_
 #define _VDIR_H_X_INCLUDED_
 
+#include "libupnpp/config.h"
+
 /** An easy libupnp virtual directory handler, based on stl
     maps and strings. This is not part of the library interface, but for
     internal use by device.cxx
@@ -29,7 +31,6 @@
 #include <time.h>
 
 #include <string>
-#include <unordered_map>
 
 namespace UPnPProvider {
 
@@ -49,7 +50,7 @@ public:
 private:
     VirtualDir() {}
 
-    std::unordered_map<std::string, std::unordered_map<std::string, FileEnt> >
+    STD_UNORDERED_MAP<std::string, STD_UNORDERED_MAP<std::string, FileEnt> >
     m_dirs;
 };
 

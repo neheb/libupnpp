@@ -34,7 +34,7 @@
 #include "libupnpp/upnpp_p.hxx"         // for stringToBool
 
 using namespace std;
-using namespace std::placeholders;
+using namespace STD_PLACEHOLDERS;
 using namespace UPnPP;
 
 namespace UPnPClient {
@@ -56,7 +56,8 @@ RenderingControl::RenderingControl(const UPnPDeviceDesc& device,
 {
     UPnPServiceDesc::Parsed sdesc;
     if (service.fetchAndParseDesc(device.URLBase, sdesc)) {
-        auto it = sdesc.stateTable.find("Volume");
+        STD_UNORDERED_MAP<std::string, UPnPServiceDesc::StateVariable>::const_iterator it = 
+            sdesc.stateTable.find("Volume");
         if (it != sdesc.stateTable.end() && it->second.hasValueRange) {
             setVolParams(it->second.minimum, it->second.maximum,
                          it->second.step);
@@ -90,18 +91,20 @@ int RenderingControl::devVolTo0100(int dev_vol)
 }
 
 void RenderingControl::evtCallback(
-    const std::unordered_map<std::string, std::string>& props)
+    const STD_UNORDERED_MAP<std::string, std::string>& props)
 {
     LOGDEB1("RenderingControl::evtCallback: getReporter() " << getReporter() << endl);
-    for (auto it = props.begin(); it != props.end(); it++) {
+    for (STD_UNORDERED_MAP<std::string, std::string>::const_iterator it = 
+             props.begin(); it != props.end(); it++) {
         if (!it->first.compare("LastChange")) {
-            std::unordered_map<std::string, std::string> props1;
+            STD_UNORDERED_MAP<std::string, std::string> props1;
             if (!decodeAVLastChange(it->second, props1)) {
                 LOGERR("RenderingControl::evtCallback: bad LastChange value: "
                        << it->second << endl);
                 return;
             }
-            for (auto it1 = props1.begin(); it1 != props1.end(); it1++) {
+            for (STD_UNORDERED_MAP<std::string, std::string>::iterator it1 = 
+                     props1.begin(); it1 != props1.end(); it1++) {
                 LOGDEB1("    " << it1->first << " -> " << 
                         it1->second << endl);
                 if (!it1->first.compare("Volume")) {

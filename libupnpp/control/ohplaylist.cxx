@@ -36,7 +36,7 @@
 #include "libupnpp/upnpp_p.hxx"         // for stringToBool
 
 using namespace std;
-using namespace std::placeholders;
+using namespace STD_PLACEHOLDERS;
 using namespace UPnPP;
 
 namespace UPnPClient {
@@ -71,10 +71,11 @@ static int stringToTpState(const string& value, OHPlaylist::TPState *tpp)
 }
 
 void OHPlaylist::evtCallback(
-    const std::unordered_map<std::string, std::string>& props)
+    const STD_UNORDERED_MAP<std::string, std::string>& props)
 {
     LOGDEB1("OHPlaylist::evtCallback: getReporter(): " << getReporter() << endl);
-    for (auto it = props.begin(); it != props.end(); it++) {
+    for (STD_UNORDERED_MAP<std::string, std::string>::const_iterator it = 
+             props.begin(); it != props.end(); it++) {
         if (!getReporter()) {
             LOGDEB1("OHPlaylist::evtCallback: " << it->first << " -> " 
                     << it->second << endl);
@@ -289,7 +290,7 @@ int OHPlaylist::readList(const std::vector<int>& ids,
                          vector<TrackListEntry>* entsp)
 {
     string idsparam;
-    for (auto it = ids.begin(); it != ids.end(); it++) {
+    for (vector<int>::const_iterator it = ids.begin(); it != ids.end(); it++) {
         idsparam += SoapHelp::i2s(*it) + " ";
     }
     entsp->clear();

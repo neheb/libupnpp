@@ -14,7 +14,7 @@
  *	 Free Software Foundation, Inc.,
  *	 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
-#include "config.h"
+#include "libupnpp/config.h"
 
 #include "libupnpp/control/cdircontent.hxx"
 
@@ -23,7 +23,6 @@
 #include <string.h>                     // for strcmp
 
 #include <string>                       // for string, allocator, etc
-#include <unordered_map>                // for unordered_map, etc
 #include <vector>                       // for vector
 
 #include "libupnpp/expatmm.hxx"         // for inputRefXMLParser
@@ -57,7 +56,7 @@ protected:
         StackEl(const string& nm) : name(nm) {}
         string name;
         XML_Size sta;
-        unordered_map<string,string> attributes;
+        STD_UNORDERED_MAP<string,string> attributes;
         string data;
     };
 
@@ -158,7 +157,8 @@ protected:
                     // sampleFrequency="44100" nrAudioChannels="2">
                     UPnPResource res;
                     res.m_uri = m_path.back().data;
-                    for (auto it =  m_path.back().attributes.begin();
+                    for (STD_UNORDERED_MAP<string,string>::iterator it =  
+                             m_path.back().attributes.begin();
                         it !=  m_path.back().attributes.end(); it++) {
                         res.m_props[it->first] = it->second;
                     }

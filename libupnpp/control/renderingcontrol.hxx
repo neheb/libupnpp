@@ -17,9 +17,9 @@
 #ifndef _RENDERINGCONTROL_HXX_INCLUDED_
 #define _RENDERINGCONTROL_HXX_INCLUDED_
 
-#include <memory>                       // for shared_ptr
+#include "libupnpp/config.h"
+
 #include <string>                       // for string
-#include <unordered_map>                // for unordered_map
 
 #include "service.hxx"                  // for Service
 
@@ -29,7 +29,7 @@ namespace UPnPClient { class UPnPServiceDesc; }
 
 namespace UPnPClient {
 
-typedef std::shared_ptr<RenderingControl> RDCH;
+typedef STD_SHARED_PTR<RenderingControl> RDCH;
 
 /**
  * RenderingControl Service client class.
@@ -66,7 +66,7 @@ protected:
     int m_volstep;
 
 private:
-    void evtCallback(const std::unordered_map<std::string, std::string>&);
+    void evtCallback(const STD_UNORDERED_MAP<std::string, std::string>&);
     void registerCallback();
     /** Set volume parameters from service state variable table values */
     void setVolParams(int min, int max, int step);

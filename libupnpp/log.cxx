@@ -14,7 +14,7 @@
  *	 Free Software Foundation, Inc.,
  *	 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
-#include "config.h"
+#include "libupnpp/config.h"
 
 #include "log.hxx"
 
@@ -30,7 +30,7 @@ Logger::Logger(const std::string& fn)
     : m_tocerr(false), m_loglevel(LLDEB)
 {
     if (!fn.empty() && fn.compare("stderr")) {
-        m_stream.open(fn, std::fstream::out | std::ofstream::trunc);
+        m_stream.open(fn.c_str(), std::fstream::out | std::ofstream::trunc);
         if (!m_stream.is_open()) {
             cerr << "Logger::Logger: log open failed: for [" <<
                 fn << "] errno " << errno << endl;

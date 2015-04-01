@@ -29,7 +29,7 @@ namespace UPnPClient {
 class MediaServer;
 class UPnPDeviceDesc;
 
-typedef std::shared_ptr<MediaServer> MSRH;
+typedef STD_SHARED_PTR<MediaServer> MSRH;
 
 class MediaServer : public Device {
 public:

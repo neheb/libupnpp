@@ -17,9 +17,10 @@
 #ifndef _OHTIME_HXX_INCLUDED_
 #define _OHTIME_HXX_INCLUDED_
 
+#include "libupnpp/config.h"
+
 #include <memory>                       // for shared_ptr
 #include <string>                       // for string
-#include <unordered_map>                // for unordered_map
 #include <vector>                       // for vector
 
 #include "service.hxx"                  // for Service
@@ -30,7 +31,7 @@ namespace UPnPClient { class UPnPServiceDesc; }
 
 namespace UPnPClient {
 
-typedef std::shared_ptr<OHTime> OHTMH;
+typedef STD_SHARED_PTR<OHTime> OHTMH;
 
 /**
  * OHTime Service client class.
@@ -64,7 +65,7 @@ protected:
     static const std::string SType;
 
 private:
-    void evtCallback(const std::unordered_map<std::string, std::string>&);
+    void evtCallback(const STD_UNORDERED_MAP<std::string, std::string>&);
     void registerCallback();
 };
 

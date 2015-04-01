@@ -19,7 +19,7 @@
  * KIND, either express or implied.
  *
  ***************************************************************************/ 
-#include "config.h"
+#include "libupnpp/config.h"
 
 #include <stdio.h>
 #include <string>

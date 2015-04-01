@@ -14,14 +14,14 @@
  *       Free Software Foundation, Inc.,
  *       59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
+#include "libupnpp/config.h"
+
 #include "libupnpp/control/service.hxx"
 
 #include <upnp/upnp.h>                  // for Upnp_Event, UPNP_E_SUCCESS, etc
 #include <upnp/upnptools.h>             // for UpnpGetErrorMessage
 
-#include <functional>                   // for function
 #include <string>                       // for string, char_traits, etc
-#include <unordered_map>                // for unordered_map, operator!=, etc
 #include <utility>                      // for pair
 
 #include "libupnpp/control/description.hxx"  // for UPnPDeviceDesc, etc
@@ -32,7 +32,7 @@
 #include "libupnpp/upnpplib.hxx"        // for LibUPnP
 
 using namespace std;
-using namespace std::placeholders;
+using namespace STD_PLACEHOLDERS;
 using namespace UPnPP;
 
 namespace UPnPClient {
@@ -72,7 +72,7 @@ public:
  * device. The map allows the static function registered with
  * libupnp to call the appropriate object method when it receives
  * an event. */
-static std::unordered_map<std::string, evtCBFunc> o_calls;
+static STD_UNORDERED_MAP<std::string, evtCBFunc> o_calls;
 
 
 Service::Service(const UPnPDeviceDesc& devdesc,
@@ -253,7 +253,7 @@ int Service::srvCB(Upnp_EventType et, void* vevp, void*)
                 evp->Sid << " EventKey " << evp->EventKey << 
                 " changed " << ixmlwPrintDoc(evp->ChangedVariables) << endl);
         
-        unordered_map<string, string> props;
+        STD_UNORDERED_MAP<string, string> props;
         if (!decodePropertySet(evp->ChangedVariables, props)) {
             LOGERR("Service::srvCB: could not decode EVENT propertyset" <<endl);
             return UPNP_E_BAD_RESPONSE;
@@ -262,7 +262,7 @@ int Service::srvCB(Upnp_EventType et, void* vevp, void*)
         //LOGDEB("srvCB: " << entry.first << " -> " << entry.second << endl);
         //}
 
-        std::unordered_map<std::string, evtCBFunc>::iterator it = 
+        STD_UNORDERED_MAP<std::string, evtCBFunc>::iterator it = 
             o_calls.find(evp->Sid);
         if (it!= o_calls.end()) {
             (it->second)(props);
@@ -308,7 +308,7 @@ bool Service::initEvents()
 }
 
 //void Service::evtCallback(
-//    const std::unordered_map<std::string, std::string>*)
+//    const STD_UNORDERED_MAP<std::string, std::string>*)
 //{
 //    LOGDEB("Service::evtCallback!! service: " << m->serviceType << endl);
 //}

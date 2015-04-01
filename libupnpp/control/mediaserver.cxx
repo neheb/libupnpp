@@ -15,12 +15,12 @@
  *       59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
+#include "libupnpp/config.h"
+
 #include "libupnpp/control/mediaserver.hxx"
 
-#include <functional>                   // for _Bind, bind, _1, _2
 #include <ostream>                      // for endl
 #include <string>                       // for string
-#include <unordered_map>                // for unordered_map, etc
 #include <utility>                      // for pair
 #include <vector>                       // for vector
 
@@ -30,7 +30,7 @@
 #include "libupnpp/log.hxx"             // for LOGERR
 
 using namespace std;
-using namespace std::placeholders;
+using namespace STD_PLACEHOLDERS;
 using namespace UPnPP;
 
 namespace UPnPClient {
@@ -46,7 +46,7 @@ bool MediaServer::isMSDevice(const string& st)
     return !DType.compare(0, sz, st, 0, sz);
 }
 
-static bool MDAccum(unordered_map<string, UPnPDeviceDesc>* out,
+static bool MDAccum(STD_UNORDERED_MAP<string, UPnPDeviceDesc>* out,
                     const string& friendlyName,
                     const UPnPDeviceDesc& device, 
                     const UPnPServiceDesc& service)
@@ -65,12 +65,13 @@ static bool MDAccum(unordered_map<string, UPnPDeviceDesc>* out,
 bool MediaServer::getDeviceDescs(vector<UPnPDeviceDesc>& devices, 
                                    const string& friendlyName)
 {
-    unordered_map<string, UPnPDeviceDesc> mydevs;
+    STD_UNORDERED_MAP<string, UPnPDeviceDesc> mydevs;
 
     UPnPDeviceDirectory::Visitor visitor = bind(MDAccum, &mydevs, friendlyName,
                                                 _1, _2);
     UPnPDeviceDirectory::getTheDir()->traverse(visitor);
-    for (auto it = mydevs.begin(); it != mydevs.end(); it++)
+    for (STD_UNORDERED_MAP<string, UPnPDeviceDesc>::iterator it = mydevs.begin(); 
+         it != mydevs.end(); it++)
         devices.push_back(it->second);
     return !devices.empty();
 }
@@ -79,7 +80,8 @@ MediaServer::MediaServer(const UPnPDeviceDesc& desc)
     : Device(desc)
 {
     bool found = false;
-    for (auto it = desc.services.begin(); it != desc.services.end(); it++) {
+    for (vector<UPnPServiceDesc>::const_iterator it = desc.services.begin(); 
+         it != desc.services.end(); it++) {
         if (ContentDirectory::isCDService(it->serviceType)) {
             m_cds = CDSH(new ContentDirectory(desc, *it));
             found = true;

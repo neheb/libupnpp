@@ -14,7 +14,7 @@
  *	 Free Software Foundation, Inc.,
  *	 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
-#include "config.h"
+#include "libupnpp/config.h"
 
 #include "upnpplib.hxx"
 
@@ -254,7 +254,7 @@ int LibUPnP::o_callback(Upnp_EventType et, void* evp, void* cookie)
     }
     LOGDEB1("LibUPnP::o_callback: event type: " << evTypeAsString(et) << endl);
 
-    auto it = ulib->m->handlers.find(et);
+    map<Upnp_EventType, Internal::Handler>::iterator it = ulib->m->handlers.find(et);
     if (it != ulib->m->handlers.end()) {
         (it->second.handler)(et, evp, it->second.cookie);
     }

@@ -17,12 +17,13 @@
 #ifndef _WORKQUEUE_H_INCLUDED_
 #define _WORKQUEUE_H_INCLUDED_
 
+#include "libupnpp/config.h"
+
 #include <pthread.h>
 #include <time.h>
 
 #include <string>
 #include <queue>
-#include <unordered_map>
 
 #include "ptmutex.hxx"
 
@@ -200,7 +201,7 @@ public:
 		// Perform the thread joins and compute overall status
 		// Workers return (void*)1 if ok
 		void *statusall = (void*)1;
-		std::unordered_map<pthread_t,  WQTData>::iterator it;
+		STD_UNORDERED_MAP<pthread_t,  WQTData>::iterator it;
 		while (!m_worker_threads.empty()) {
 			void *status;
 			it = m_worker_threads.begin();
@@ -305,7 +306,7 @@ private:
 
 	// Per-thread data. The data is not used currently, this could be
 	// a set<pthread_t>
-	std::unordered_map<pthread_t, WQTData> m_worker_threads;
+	STD_UNORDERED_MAP<pthread_t, WQTData> m_worker_threads;
 
 	// Synchronization
 	std::queue<T> m_queue;

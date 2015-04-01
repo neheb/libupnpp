@@ -16,10 +16,10 @@
  */
 #ifndef _UPNPPDISC_H_X_INCLUDED_
 #define _UPNPPDISC_H_X_INCLUDED_
+#include "libupnpp/config.h"
 
 #include <time.h>                       // for time_t
 
-#include <functional>                   // for function
 #include <string>                       // for string
 
 namespace UPnPClient { class UPnPDeviceDesc; }
@@ -62,8 +62,8 @@ public:
     /** Clean up before exit. Do call this.*/
     static void terminate();
 
-    typedef std::function<bool (const UPnPDeviceDesc&, 
-                                const UPnPServiceDesc&)> Visitor;
+    typedef STD_FUNCTION<bool (const UPnPDeviceDesc&, 
+                               const UPnPServiceDesc&)> Visitor;
 
     /** Traverse the directory and call Visitor for each device/service pair */
     bool traverse(Visitor);
@@ -92,8 +92,8 @@ public:
 
 private:
     UPnPDeviceDirectory(time_t search_window);
-    UPnPDeviceDirectory(const UPnPDeviceDirectory &) = delete;
-    UPnPDeviceDirectory& operator=(const UPnPDeviceDirectory &) = delete;
+    UPnPDeviceDirectory(const UPnPDeviceDirectory &);
+    UPnPDeviceDirectory& operator=(const UPnPDeviceDirectory &);
 
     // Start UPnP search and record start of timeout
     bool search();

@@ -34,7 +34,7 @@ namespace UPnPClient {
 class MediaRenderer;
 class UPnPDeviceDesc;
 
-typedef std::shared_ptr<MediaRenderer> MRDH;
+typedef STD_SHARED_PTR<MediaRenderer> MRDH;
 
 class MediaRenderer : public Device {
 public:
@@ -61,12 +61,12 @@ public:
     static bool isMRDevice(const std::string& devicetype);
 
 protected:
-    std::weak_ptr<RenderingControl> m_rdc;
-    std::weak_ptr<AVTransport> m_avt;
-    std::weak_ptr<OHProduct> m_ohpr;
-    std::weak_ptr<OHPlaylist> m_ohpl;
-    std::weak_ptr<OHTime> m_ohtm;
-    std::weak_ptr<OHVolume> m_ohvl;
+    STD_WEAK_PTR<RenderingControl> m_rdc;
+    STD_WEAK_PTR<AVTransport> m_avt;
+    STD_WEAK_PTR<OHProduct> m_ohpr;
+    STD_WEAK_PTR<OHPlaylist> m_ohpl;
+    STD_WEAK_PTR<OHTime> m_ohtm;
+    STD_WEAK_PTR<OHVolume> m_ohvl;
 
     static const std::string DType;
 };

@@ -16,11 +16,9 @@
  */
 // An XML parser which constructs an UPnP device object from the
 // device descriptor
-#include "config.h"
+#include "libupnpp/config.h"
 
 #include "description.hxx"
-
-#include <unordered_map>
 
 #include <expat_external.h>             // for XML_Char
 #include <string.h>                     // for strcmp
@@ -151,7 +149,7 @@ protected:
         StackEl(const string& nm) : name(nm) {}
         string name;
         XML_Size sta;
-        unordered_map<string,string> attributes;
+        STD_UNORDERED_MAP<string,string> attributes;
         string data;
     };
 
@@ -178,7 +176,8 @@ protected:
         case 's':
             if (!strcmp(name, "stateVariable")) {
                 m_tvar.clear();
-                auto it = lastelt.attributes.find("sendEvents");
+                STD_UNORDERED_MAP<string,string>::iterator it = 
+                    lastelt.attributes.find("sendEvents");
                 if (it != lastelt.attributes.end()) {
                     stringToBool(it->second, &m_tvar.sendEvents);
                 }
