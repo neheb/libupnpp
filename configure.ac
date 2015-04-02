@@ -25,14 +25,13 @@ VERSION_INFO=1:0:0
 
 AC_PREREQ([2.53])
 AC_CONFIG_SRCDIR([libupnpp/upnpplib.hxx])
-AC_CONFIG_HEADERS([libupnpp/config.h])
-
 
 AM_INIT_AUTOMAKE([1.10 no-define subdir-objects foreign])
 AC_DISABLE_STATIC
 LT_INIT
 
 AC_PROG_CXX
+AC_PROG_LIBTOOL
 
 # Check for where to find unordered_map etc.
 AC_LANG_PUSH([C++])
