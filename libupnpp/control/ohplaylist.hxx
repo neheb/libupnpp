@@ -22,14 +22,15 @@
 #include <string>                       // for string
 #include <vector>                       // for vector
 
-#include "cdircontent.hxx"              // for UPnPDirObject
-#include "service.hxx"                  // for Service
+#include "libupnpp/control/service.hxx"
+#include "libupnpp/control/cdircontent.hxx"
 
-namespace UPnPClient { class OHPlaylist; }
-namespace UPnPClient { class UPnPDeviceDesc; }
-namespace UPnPClient { class UPnPServiceDesc; }
 
 namespace UPnPClient {
+
+class OHPlaylist;
+class UPnPDeviceDesc;
+class UPnPServiceDesc;
 
 typedef STD_SHARED_PTR<OHPlaylist> OHPLH;
 
@@ -89,6 +90,8 @@ public:
     int idArray(std::vector<int> *ids, int *tokp);
     int idArrayChanged(int token, bool *changed);
     int protocolInfo(std::string *proto);
+
+    static int stringToTpState(const std::string& va, TPState *tpp);
 
 protected:
     /* My service type string */

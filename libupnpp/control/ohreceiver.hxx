@@ -1,4 +1,4 @@
-/* Copyright (C) 2014 J.F.Dockes
+/* Copyright (C) 2015 J.F.Dockes
  *       This program is free software; you can redistribute it and/or modify
  *       it under the terms of the GNU General Public License as published by
  *       the Free Software Foundation; either version 2 of the License, or
@@ -14,56 +14,61 @@
  *       Free Software Foundation, Inc.,
  *       59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
-#ifndef _OHPRODUCT_HXX_INCLUDED_
-#define _OHPRODUCT_HXX_INCLUDED_
+#ifndef _OHRECEIVER_HXX_INCLUDED_
+#define _OHRECEIVER_HXX_INCLUDED_
+
+#include "libupnpp/config.h"
 
 #include <string>                       // for string
 #include <vector>                       // for vector
 
-#include "service.hxx"                  // for Service
+#include "libupnpp/control/service.hxx"
+#include "libupnpp/control/ohplaylist.hxx"
 
-namespace UPnPClient { class OHProduct; }
-namespace UPnPClient { class UPnPDeviceDesc; }
-namespace UPnPClient { class UPnPServiceDesc; }
 
 namespace UPnPClient {
 
-typedef STD_SHARED_PTR<OHProduct> OHPRH;
+class UPnPDeviceDesc;
+class UPnPServiceDesc;
+class OHReceiver;
+
+typedef STD_SHARED_PTR<OHReceiver> OHRCH;
 
 /**
- * OHProduct Service client class.
- *
+ * OHReceiver client class.
  */
-class OHProduct : public Service {
+class OHReceiver : public Service {
 public:
 
-    OHProduct(const UPnPDeviceDesc& device, const UPnPServiceDesc& service)
+    OHReceiver(const UPnPDeviceDesc& device, const UPnPServiceDesc& service)
         : Service(device, service) {
+        registerCallback();
+    }
+    virtual ~OHReceiver() {
+        unregisterCallback();
     }
 
-    OHProduct() {}
+    OHReceiver() {}
 
     /** Test service type from discovery message */
-    static bool isOHPrService(const std::string& st);
+    static bool isOHRcService(const std::string& st);
 
-    struct Source {
-        std::string name;
-        std::string type;
-        bool visible;
-        Source() : visible(false) {}
-        void clear() {name.clear(); type.clear(); visible = false;}
-    };
-
-    /** @ret 0 for success, upnp error else */
-    int getSources(std::vector<Source>& sources);
-    int sourceIndex(int *index);
-    int setSourceIndex(int index);
+    int play();
+    int stop();
+    int setSender(const std::string& uri, const std::string& meta);
+    int sender(std::string& uri, std::string& meta);
+    int protocolInfo(std::string *proto);
+    int transportState(OHPlaylist::TPState *tps);
 
 protected:
     /* My service type string */
     static const std::string SType;
+
+private:
+    void evtCallback(const STD_UNORDERED_MAP<std::string, std::string>&);
+    void registerCallback();
 };
 
 } // namespace UPnPClient
 
-#endif /* _OHPRODUCT_HXX_INCLUDED_ */
+#endif /* _OHRECEIVER_HXX_INCLUDED_ */

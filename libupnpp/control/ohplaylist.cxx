@@ -51,7 +51,7 @@ bool OHPlaylist::isOHPlService(const string& st)
     return !SType.compare(0, sz, st, 0, sz);
 }
 
-static int stringToTpState(const string& value, OHPlaylist::TPState *tpp)
+int OHPlaylist::stringToTpState(const string& value, OHPlaylist::TPState *tpp)
 {
     if (!value.compare("Buffering")) {
         *tpp = OHPlaylist::TPS_Buffering;

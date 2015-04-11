@@ -17,17 +17,18 @@
 #ifndef _MEDIARENDERER_HXX_INCLUDED_
 #define _MEDIARENDERER_HXX_INCLUDED_
 
-#include <memory>                       // for shared_ptr
-#include <string>                       // for string
-#include <vector>                       // for vector
+#include <memory>
+#include <string>
+#include <vector>
 
-#include "libupnpp/control/avtransport.hxx"  // for AVTH
-#include "libupnpp/control/device.hxx"  // for Device
-#include "libupnpp/control/ohplaylist.hxx"  // for OHPLH
-#include "libupnpp/control/ohproduct.hxx"  // for OHPRH
+#include "libupnpp/control/avtransport.hxx"
+#include "libupnpp/control/device.hxx"
+#include "libupnpp/control/ohplaylist.hxx"
+#include "libupnpp/control/ohproduct.hxx"
 #include "libupnpp/control/ohtime.hxx"
 #include "libupnpp/control/ohvolume.hxx"
-#include "libupnpp/control/renderingcontrol.hxx"  // for RDCH
+#include "libupnpp/control/renderingcontrol.hxx"
+#include "libupnpp/control/ohreceiver.hxx"
 
 namespace UPnPClient {
 
@@ -41,6 +42,8 @@ public:
     /** Build from device description */
     MediaRenderer(const UPnPDeviceDesc& desc);
 
+    ~MediaRenderer();
+
     /** Methods returning handles to the different services. May return null
         for unimplemented services. */
     RDCH rdc();
@@ -49,6 +52,7 @@ public:
     OHPLH ohpl();
     OHTMH ohtm();
     OHVLH ohvl();
+    OHRCH ohrc();
 
     bool hasOpenHome();
 
@@ -61,14 +65,11 @@ public:
     static bool isMRDevice(const std::string& devicetype);
 
 protected:
-    STD_WEAK_PTR<RenderingControl> m_rdc;
-    STD_WEAK_PTR<AVTransport> m_avt;
-    STD_WEAK_PTR<OHProduct> m_ohpr;
-    STD_WEAK_PTR<OHPlaylist> m_ohpl;
-    STD_WEAK_PTR<OHTime> m_ohtm;
-    STD_WEAK_PTR<OHVolume> m_ohvl;
 
     static const std::string DType;
+private:
+    class Internal;
+    Internal *m;
 };
 
 }

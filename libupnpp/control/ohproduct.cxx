@@ -125,4 +125,22 @@ int OHProduct::getSources(vector<Source>& sources)
     return UPNP_E_SUCCESS;
 }
 
+int OHProduct::sourceIndex(int *index)
+{
+    string value;
+    int ret;
+
+    if ((ret = runSimpleGet("SourceIndex", "Value", &value)))
+        return ret;
+
+    *index = atoi(value.c_str());
+    return 0;
+}
+
+int OHProduct::setSourceIndex(int index)
+{
+    return runSimpleAction("SetSourceIndex", "Value", index);
+}
+
+
 } // End namespace UPnPClient

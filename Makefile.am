@@ -31,6 +31,8 @@ libupnpp_la_SOURCES = \
     libupnpp/control/ohplaylist.hxx \
     libupnpp/control/ohproduct.cxx \
     libupnpp/control/ohproduct.hxx \
+    libupnpp/control/ohreceiver.cxx \
+    libupnpp/control/ohreceiver.hxx \
     libupnpp/control/ohtime.cxx \
     libupnpp/control/ohtime.hxx \
     libupnpp/control/ohvolume.cxx \
@@ -78,6 +80,7 @@ nobase_include_HEADERS = \
     libupnpp/control/mediaserver.hxx \
     libupnpp/control/ohplaylist.hxx \
     libupnpp/control/ohproduct.hxx \
+    libupnpp/control/ohreceiver.hxx \
     libupnpp/control/ohtime.hxx \
     libupnpp/control/ohvolume.hxx \
     libupnpp/control/renderingcontrol.hxx \

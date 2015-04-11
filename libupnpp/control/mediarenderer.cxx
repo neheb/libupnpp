@@ -38,6 +38,17 @@ namespace UPnPClient {
 const string 
 MediaRenderer::DType("urn:schemas-upnp-org:device:MediaRenderer:1");
 
+class MediaRenderer::Internal {
+public:
+    STD_WEAK_PTR<RenderingControl> rdc;
+    STD_WEAK_PTR<AVTransport> avt;
+    STD_WEAK_PTR<OHProduct> ohpr;
+    STD_WEAK_PTR<OHPlaylist> ohpl;
+    STD_WEAK_PTR<OHTime> ohtm;
+    STD_WEAK_PTR<OHVolume> ohvl;
+    STD_WEAK_PTR<OHReceiver> ohrc;
+};
+
 // We don't include a version in comparisons, as we are satisfied with
 // version 1
 bool MediaRenderer::isMRDevice(const string& st)
@@ -84,6 +95,15 @@ bool MediaRenderer::getDeviceDescs(vector<UPnPDeviceDesc>& devices,
 MediaRenderer::MediaRenderer(const UPnPDeviceDesc& desc)
     : Device(desc)
 {
+    if ((m = new Internal()) == 0) {
+        LOGERR("MediaRenderer::MediaRenderer: out of memory" << endl);
+        return;
+    }
+}
+
+MediaRenderer::~MediaRenderer()
+{
+    delete m;
 }
 
 bool MediaRenderer::hasOpenHome()
@@ -96,7 +116,7 @@ RDCH MediaRenderer::rdc()
     if (desc() == 0)
         return RDCH();
 
-    RDCH rdcl = m_rdc.lock();
+    RDCH rdcl = m->rdc.lock();
     if (rdcl)
         return rdcl;
     for (vector<UPnPServiceDesc>::const_iterator it = desc()->services.begin();
@@ -108,13 +128,13 @@ RDCH MediaRenderer::rdc()
     }
     if (!rdcl)
         LOGDEB("MediaRenderer: RenderingControl service not found" << endl);
-    m_rdc = rdcl;
+    m->rdc = rdcl;
     return rdcl;
 }
 
 AVTH MediaRenderer::avt() 
 {
-    AVTH avtl = m_avt.lock();
+    AVTH avtl = m->avt.lock();
     if (avtl)
         return avtl;
     for (vector<UPnPServiceDesc>::const_iterator it = desc()->services.begin();
@@ -126,13 +146,13 @@ AVTH MediaRenderer::avt()
     }
     if (!avtl)
         LOGDEB("MediaRenderer: AVTransport service not found" << endl);
-    m_avt = avtl;
+    m->avt = avtl;
     return avtl;
 }
 
 OHPRH MediaRenderer::ohpr() 
 {
-    OHPRH ohprl = m_ohpr.lock();
+    OHPRH ohprl = m->ohpr.lock();
     if (ohprl)
         return ohprl;
     for (vector<UPnPServiceDesc>::const_iterator it = desc()->services.begin();
@@ -144,13 +164,13 @@ OHPRH MediaRenderer::ohpr()
     }
     if (!ohprl)
         LOGDEB("MediaRenderer: OHProduct service not found" << endl);
-    m_ohpr = ohprl;
+    m->ohpr = ohprl;
     return ohprl;
 }
 
 OHPLH MediaRenderer::ohpl() 
 {
-    OHPLH ohpll = m_ohpl.lock();
+    OHPLH ohpll = m->ohpl.lock();
     if (ohpll)
         return ohpll;
     for (vector<UPnPServiceDesc>::const_iterator it = desc()->services.begin();
@@ -162,13 +182,31 @@ OHPLH MediaRenderer::ohpl()
     }
     if (!ohpll)
         LOGDEB("MediaRenderer: OHPlaylist service not found" << endl);
-    m_ohpl = ohpll;
+    m->ohpl = ohpll;
     return ohpll;
+}
+
+OHRCH MediaRenderer::ohrc() 
+{
+    OHRCH ohrcl = m->ohrc.lock();
+    if (ohrcl)
+        return ohrcl;
+    for (vector<UPnPServiceDesc>::const_iterator it = desc()->services.begin();
+         it != desc()->services.end();it++) {
+        if (OHReceiver::isOHRcService(it->serviceType)) {
+            ohrcl = OHRCH(new OHReceiver(*desc(), *it));
+            break;
+        }
+    }
+    if (!ohrcl)
+        LOGDEB("MediaRenderer: OHReceiver service not found" << endl);
+    m->ohrc = ohrcl;
+    return ohrcl;
 }
 
 OHTMH MediaRenderer::ohtm() 
 {
-    OHTMH ohtml = m_ohtm.lock();
+    OHTMH ohtml = m->ohtm.lock();
     if (ohtml)
         return ohtml;
     for (vector<UPnPServiceDesc>::const_iterator it = desc()->services.begin();
@@ -180,13 +218,13 @@ OHTMH MediaRenderer::ohtm()
     }
     if (!ohtml)
         LOGDEB("MediaRenderer: OHTime service not found" << endl);
-    m_ohtm = ohtml;
+    m->ohtm = ohtml;
     return ohtml;
 }
 
 OHVLH MediaRenderer::ohvl() 
 {
-    OHVLH ohvll = m_ohvl.lock();
+    OHVLH ohvll = m->ohvl.lock();
     if (ohvll)
         return ohvll;
     for (vector<UPnPServiceDesc>::const_iterator it = desc()->services.begin();
@@ -198,7 +236,7 @@ OHVLH MediaRenderer::ohvl()
     }
     if (!ohvll)
         LOGDEB("MediaRenderer: OHVolume service not found" << endl);
-    m_ohvl = ohvll;
+    m->ohvl = ohvll;
     return ohvll;
 }
 
