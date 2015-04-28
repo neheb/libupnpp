@@ -49,6 +49,7 @@ class UpnpDevice {
 public:
     /** Construct device object. Do not start it (this is done by the
      *   eventloop() call when everything is set up).
+     *
      * @param deviceId uuid for device: "uuid:UUIDvalue"
      * @param files list of path/content pairs to be added to the
      *   virtual directory root. The file paths must match the SCDPURL
@@ -56,7 +57,9 @@ public:
      *   The file paths should include a sub-directory component.
      *   The list must include the description document, but this will not
      *   be directly served out. Instead a version modified by libupnp 
-     *  (with URLBase added) will be served from '/'.
+     *  (with URLBase added) will be served from '/'. Of course, the
+     *  paths in description.xml must be consistent with the list.
+     * 
      */
     UpnpDevice(const std::string& deviceId, 
                const STD_UNORDERED_MAP<std::string, VDirContent>& files);
