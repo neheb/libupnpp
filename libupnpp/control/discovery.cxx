@@ -22,7 +22,6 @@
 #include <sched.h>                      // for sched_yield
 #include <stdlib.h>                     // for free
 #include <time.h>                       // for CLOCK_REALTIME
-#include <sys/time.h>
 #include <stdio.h>
  
 #ifdef __MACH__

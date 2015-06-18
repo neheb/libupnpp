@@ -220,13 +220,13 @@ bool RenderingControl::getMute(const string& channel)
     SoapIncoming data;
     int ret = runAction(args, data);
     if (ret != UPNP_E_SUCCESS) {
-        return ret;
+        return false;
     }
     bool mute;
     if (!data.get("CurrentMute", &mute)) {
         LOGERR("RenderingControl:getMute: missing CurrentMute in response" 
         << endl);
-        return UPNP_E_BAD_RESPONSE;
+        return false;
     }
     return mute;
 }

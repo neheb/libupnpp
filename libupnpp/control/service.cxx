@@ -319,7 +319,7 @@ bool Service::subscribe()
     LibUPnP* lib = LibUPnP::getLibUPnP();
     if (lib == 0) {
         LOGINF("Service::subscribe: no lib" << endl);
-        return UPNP_E_OUTOF_MEMORY;
+        return false;
     }
     int timeout = 1800;
     int ret = UpnpSubscribe(lib->getclh(), m->eventURL.c_str(),
@@ -339,7 +339,7 @@ bool Service::unSubscribe()
     LibUPnP* lib = LibUPnP::getLibUPnP();
     if (lib == 0) {
         LOGINF("Service::unSubscribe: no lib" << endl);
-        return UPNP_E_OUTOF_MEMORY;
+        return false;
     }
     if (m->SID[0]) {
         int ret = UpnpUnSubscribe(lib->getclh(), m->SID);
