@@ -1,6 +1,6 @@
 Summary:        C++ wrapper for libupnp
 Name:           libupnpp
-Version:        0.9.1
+Version:        0.11.0
 Release:        1%{?dist}
 Group:          Applications/Multimedia
 License:        GPLv2+
@@ -43,5 +43,10 @@ upmpdcli and upplay
 %{_libdir}/libupnpp.so
 
 %changelog
+* Tue May 05 2015 J.F. Dockes <jf@dockes.org> - 0.11.0
+- Control side interface to the OpenHome receiver service
+- API cleanups for a more stable ABI
+- More complete implementation of OpenHome services to support pure
+  OpenHome devices
 * Sun Oct 12 2014 J.F. Dockes <jf@dockes.org> - 0.8.4
 - Separation from upmpdcli
