@@ -1,3 +1,10 @@
+libupnpp2 (0.11.0-1) unstable; urgency=low
+
+  * Control-side interface to OpenHome Receiver service.
+  * Misc small improvements.
+
+ -- Jean-Francois Dockes <jf@dockes.org>  Tue, 05 May 2015 13:18:00 +0200
+
 libupnpp1 (0.10.0-1) unstable; urgency=low
 
   * Control: support pure OpenHome renderers like bubbleupnp server
