@@ -29,7 +29,6 @@
 #include <mach/mach.h>
 #endif
 
-#include <unistd.h>                     // for sleep
 #include <upnp/upnp.h>                  // for Upnp_Discovery, etc
 
 #include <iostream>                     // for operator<<, basic_ostream, etc
@@ -49,6 +48,25 @@
 using namespace std;
 using namespace STD_PLACEHOLDERS;
 using namespace UPnPP;
+
+
+// Set up timespec struct xx nanoseconds in the future
+static void wakeupTime(struct timespec* wkuptime, long long nanos_later)
+{
+#ifdef __MACH__ // Mac OS X does not have clock_gettime, use clock_get_time
+    clock_serv_t cclock;
+    mach_timespec_t mts;
+    host_get_clock_service(mach_host_self(), CALENDAR_CLOCK, &cclock);
+    clock_get_time(cclock, &mts);
+    mach_port_deallocate(mach_task_self(), cclock);
+    wkuptime->tv_sec = mts.tv_sec;
+    wkuptime->tv_nsec = mts.tv_nsec;
+#else
+    clock_gettime(CLOCK_REALTIME, wkuptime);
+#endif
+
+    UPnPP::timespec_addnanos(wkuptime, nanos_later);
+}
 
 namespace UPnPClient {
 
@@ -391,14 +409,24 @@ time_t UPnPDeviceDirectory::getRemainingDelay()
     return  m_searchTimeout - (now - m_lastSearch);
 }
 
+static PTMutexInit devWaitLock;
+static pthread_cond_t devWaitCond = PTHREAD_COND_INITIALIZER;
+
 bool UPnPDeviceDirectory::traverse(UPnPDeviceDirectory::Visitor visit)
 {
     //LOGDEB("UPnPDeviceDirectory::traverse" << endl);
     if (m_ok == false)
         return false;
-    int secs = getRemainingDelay();
-    if (secs > 0)
-        sleep(secs);
+    
+    do {
+        PTMutexLocker lock(devWaitLock);
+        struct timespec wkuptime;
+        long long nanos = getRemainingDelay() * 1000*1000*1000;
+        wakeupTime(&wkuptime, nanos);
+        if (nanos > 0) {
+            pthread_cond_timedwait(&devWaitCond, lock.getMutex(), &wkuptime);
+        }
+    } while (getRemainingDelay() > 0);
 
     // Has locking, do it before our own lock
     expireDevices();
@@ -417,9 +445,6 @@ bool UPnPDeviceDirectory::traverse(UPnPDeviceDirectory::Visitor visit)
     return true;
 }
 
-static PTMutexInit devWaitLock;
-static pthread_cond_t devWaitCond = PTHREAD_COND_INITIALIZER;
-
 bool UPnPDeviceDirectory::deviceFound(const UPnPDeviceDesc&, 
                                       const UPnPServiceDesc&)
 {
@@ -436,22 +461,6 @@ bool UPnPDeviceDirectory::getDevBySelector(bool cmp(const UPnPDeviceDesc& ddesc,
     // Has locking, do it before our own lock
     expireDevices();
 
-    struct timespec wkuptime;
-    long long nanos = getRemainingDelay() * 1000*1000*1000;
-    
-    #ifdef __MACH__ // Mac OS X does not have clock_gettime, use clock_get_time
-      clock_serv_t cclock;
-      mach_timespec_t mts;
-      host_get_clock_service(mach_host_self(), CALENDAR_CLOCK, &cclock);
-      clock_get_time(cclock, &mts);
-      mach_port_deallocate(mach_task_self(), cclock);
-      wkuptime.tv_sec = mts.tv_sec;
-      wkuptime.tv_nsec = mts.tv_nsec;
-    #else
-      clock_gettime(CLOCK_REALTIME, &wkuptime);
-    #endif
-
-    UPnPP::timespec_addnanos(&wkuptime, nanos);
     do {
         PTMutexLocker lock(devWaitLock);
         {
@@ -466,6 +475,9 @@ bool UPnPDeviceDirectory::getDevBySelector(bool cmp(const UPnPDeviceDesc& ddesc,
             }
         }
 
+        struct timespec wkuptime;
+        long long nanos = getRemainingDelay() * 1000*1000*1000;
+        wakeupTime(&wkuptime, nanos);
         if (nanos > 0) {
             pthread_cond_timedwait(&devWaitCond, lock.getMutex(), &wkuptime);
         }
