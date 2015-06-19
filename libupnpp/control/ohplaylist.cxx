@@ -16,7 +16,6 @@
  */
 #include "libupnpp/control/ohplaylist.hxx"
 
-#include <expat_external.h>             // for XML_Char
 #include <stdlib.h>                     // for atoi
 #include <string.h>                     // for strcmp
 #include <upnp/upnp.h>                  // for UPNP_E_BAD_RESPONSE, etc

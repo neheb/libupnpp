@@ -16,15 +16,12 @@
  */
 #include "libupnpp/config.h"
 
-#include "libupnpp/control/cdircontent.hxx"
-
-#include <expat.h>                      // for XML_GetCurrentByteIndex
-#include <expat_external.h>             // for XML_Char, XML_Size
 #include <string.h>                     // for strcmp
 
 #include <string>                       // for string, allocator, etc
 #include <vector>                       // for vector
 
+#include "libupnpp/control/cdircontent.hxx"
 #include "libupnpp/expatmm.hxx"         // for inputRefXMLParser
 #include "libupnpp/log.hxx"             // for LOGINF
 #include "libupnpp/upnpp_p.hxx"         // for trimstring

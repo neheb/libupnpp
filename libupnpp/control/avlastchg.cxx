@@ -16,11 +16,9 @@
  */
 #include "libupnpp/config.h"
 
-#include "libupnpp/control/avlastchg.hxx"
-
-#include <expat_external.h>             // for XML_Char
 #include <string.h>                     // for strcmp
 
+#include "libupnpp/control/avlastchg.hxx"
 #include "libupnpp/expatmm.hxx"         // for inputRefXMLParser
 
 using namespace std;

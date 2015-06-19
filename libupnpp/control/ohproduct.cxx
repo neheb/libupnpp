@@ -15,15 +15,15 @@
  *       59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
-#include "libupnpp/control/ohproduct.hxx"
+#include "libupnpp/config.h"
 
-#include <expat_external.h>             // for XML_Char
 #include <string.h>                     // for strcmp
 #include <upnp/upnp.h>                  // for UPNP_E_BAD_RESPONSE, etc
 #include <ostream>                      // for endl
 #include <string>                       // for string
 #include <vector>                       // for vector
 
+#include "libupnpp/control/ohproduct.hxx"
 #include "libupnpp/expatmm.hxx"         // for inputRefXMLParser
 #include "libupnpp/log.hxx"             // for LOGERR
 #include "libupnpp/soaphelp.hxx"        // for SoapIncoming, etc

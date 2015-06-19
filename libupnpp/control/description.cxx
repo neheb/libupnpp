@@ -20,7 +20,6 @@
 
 #include "description.hxx"
 
-#include <expat_external.h>             // for XML_Char
 #include <string.h>                     // for strcmp
 #include <upnp/upnp.h>                  // for UpnpDownload...
 
