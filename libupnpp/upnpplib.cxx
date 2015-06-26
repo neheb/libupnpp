@@ -16,12 +16,14 @@
  */
 #include "libupnpp/config.h"
 
-#include "upnpplib.hxx"
-
 #include <ctype.h>                      // for toupper
 #include <stdio.h>                      // for sprintf
 #include <string.h>                     // for strncpy
 #include <time.h>                       // for timespec
+#ifdef __MACH__
+#include <mach/clock.h>
+#include <mach/mach.h>
+#endif
 
 #include <upnp/ixml.h>                  // for ixmlRelaxParser
 #include <upnp/upnptools.h>             // for UpnpGetErrorMessage
@@ -35,12 +37,12 @@
 #include <utility>                      // for pair
 #include <vector>                       // for vector
 
-#include "getsyshwaddr.h"               // for getsyshwaddr
-
+#include "libupnpp/getsyshwaddr.h"               // for getsyshwaddr
 #include "libupnpp/ptmutex.hxx"         // for PTMutexLocker
-
-#include "log.hxx"                      // for LOGERR, LOGDEB1, LOGDEB, etc
-#include "md5.hxx"                      // for MD5String
+#include "libupnpp/log.hxx"                      // for LOGERR, LOGDEB1, LOGDEB, etc
+#include "libupnpp/md5.hxx"                      // for MD5String
+#include "libupnpp/upnpp_p.hxx"
+#include "libupnpp/upnpplib.hxx"
 
 using namespace std;
 
@@ -503,18 +505,100 @@ int stringuppercmp(const string & s1, const string& s2)
     }
 }
 
-static const long long BILLION = 1000 * 1000 * 1000;
+#ifdef WIN32
+// Note: struct timespec is defined by pthread.h (from pthreads-w32)
+#ifndef CLOCK_REALTIME
+#define CLOCK_REALTIME 0
+#endif
+
+LARGE_INTEGER getFILETIMEoffset()
+{
+	SYSTEMTIME s;
+	FILETIME f;
+	LARGE_INTEGER t;
+
+	s.wYear = 1970;
+	s.wMonth = 1;
+	s.wDay = 1;
+	s.wHour = 0;
+	s.wMinute = 0;
+	s.wSecond = 0;
+	s.wMilliseconds = 0;
+	SystemTimeToFileTime(&s, &f);
+	t.QuadPart = f.dwHighDateTime;
+	t.QuadPart <<= 32;
+	t.QuadPart |= f.dwLowDateTime;
+	return (t);
+}
+
+int clock_gettime(int X, struct timespec *tv)
+{
+	LARGE_INTEGER           t;
+	FILETIME            f;
+	double                  microseconds;
+	static LARGE_INTEGER    offset;
+	static double           frequencyToMicroseconds;
+	static int              initialized = 0;
+	static BOOL             usePerformanceCounter = 0;
+
+	if (!initialized) {
+		LARGE_INTEGER performanceFrequency;
+		initialized = 1;
+		usePerformanceCounter = QueryPerformanceFrequency(&performanceFrequency);
+		if (usePerformanceCounter) {
+			QueryPerformanceCounter(&offset);
+			frequencyToMicroseconds = (double)performanceFrequency.QuadPart / 1000000.;
+		}
+		else {
+			offset = getFILETIMEoffset();
+			frequencyToMicroseconds = 10.;
+		}
+	}
+	if (usePerformanceCounter) QueryPerformanceCounter(&t);
+	else {
+		GetSystemTimeAsFileTime(&f);
+		t.QuadPart = f.dwHighDateTime;
+		t.QuadPart <<= 32;
+		t.QuadPart |= f.dwLowDateTime;
+	}
+
+	t.QuadPart -= offset.QuadPart;
+	microseconds = (double)t.QuadPart / frequencyToMicroseconds;
+	t.QuadPart = (long long)microseconds;
+	tv->tv_sec = t.QuadPart / 1000000;
+	tv->tv_nsec = (t.QuadPart % 1000000) * 1000;
+	return (0);
+}
+#endif
+
+void timespec_now(struct timespec *tsp)
+{
+#ifdef __MACH__ // Mac OS X does not have clock_gettime, use clock_get_time
+	clock_serv_t cclock;
+	mach_timespec_t mts;
+	host_get_clock_service(mach_host_self(), CALENDAR_CLOCK, &cclock);
+	clock_get_time(cclock, &mts);
+	mach_port_deallocate(mach_task_self(), cclock);
+	tsp->tv_sec = mts.tv_sec;
+	tsp->tv_nsec = mts.tv_nsec;
+#else
+	clock_gettime(CLOCK_REALTIME, tsp);
+#endif
+}
+
+
+static const int BILLION = 1000 * 1000 * 1000;
 
 void timespec_addnanos(struct timespec *ts, long long nanos)
 {
     nanos = nanos + ts->tv_nsec;
-    int secs = 0;
+    long long secs = 0;
     if (nanos > BILLION) {
         secs = nanos / BILLION;
         nanos -= secs * BILLION;
     } 
     ts->tv_sec += secs;
-    ts->tv_nsec = nanos;
+    ts->tv_nsec = long(nanos);
 }
 
 }

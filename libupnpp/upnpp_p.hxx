@@ -22,6 +22,8 @@
 /* Private shared defs for the library. Clients need not and should
    not include this */
 
+#include <pthread.h>
+#include <time.h>
 #include <string>
 
 namespace UPnPP {
@@ -41,6 +43,8 @@ extern bool stringToBool(const std::string& s, bool *v);
 
 // Case-insensitive ascii string compare where s1 is already upper-case
 int stringuppercmp(const std::string &s1, const std::string& s2);
+
+extern void timespec_now(struct timespec *ts);
 
 } // namespace
 

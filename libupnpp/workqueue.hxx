@@ -37,6 +37,34 @@ public:
 	struct timespec wstart;
 };
 
+#ifdef WIN32
+// We use pthread_t as a map key, but it is a struct in pthread-win32, so there
+// are no default hash and compare functions. Posix does not specify that
+// pthread_t is a scalar, so this may happen on other systems too. Actually, the
+// right change would be to replace the map with a list, we don't need a map.
+template <class T> class MyHash;
+template<> class MyHash<pthread_t> {
+public:
+	std::size_t operator()(pthread_t const& v) const
+	{
+		std::size_t out = 0;
+		for (int i = 0; i < sizeof(pthread_t) / sizeof(unsigned long); i++) {
+			out ^= std::hash<std::size_t>()(((unsigned long *)&v)[i]) << 1;
+		}
+		return out;
+	}
+};
+template <class T> class MyEq;
+template<> class MyEq<pthread_t> {
+public:
+	bool operator()(pthread_t const& l, pthread_t const& r) const
+	{
+		return memcmp(&r, &l, sizeof(pthread_t)) == 0;
+	}
+};
+
+#endif /* WIN32 */
+
 /**
  * A WorkQueue manages the synchronisation around a queue of work items,
  * where a number of client threads queue tasks and a number of worker
@@ -201,7 +229,7 @@ public:
 		// Perform the thread joins and compute overall status
 		// Workers return (void*)1 if ok
 		void *statusall = (void*)1;
-		STD_UNORDERED_MAP<pthread_t,  WQTData>::iterator it;
+		thread_iterator_type it;
 		while (!m_worker_threads.empty()) {
 			void *status;
 			it = m_worker_threads.begin();
@@ -306,7 +334,13 @@ private:
 
 	// Per-thread data. The data is not used currently, this could be
 	// a set<pthread_t>
+#ifndef WIN32
 	STD_UNORDERED_MAP<pthread_t, WQTData> m_worker_threads;
+	typedef STD_UNORDERED_MAP<pthread_t, WQTData>::iterator thread_iterator_type;
+#else
+	 STD_UNORDERED_MAP<pthread_t, WQTData, MyHash<pthread_t>, MyEq<pthread_t>> m_worker_threads;
+	 typedef typename STD_UNORDERED_MAP<pthread_t, WQTData, MyHash<pthread_t>, MyEq<pthread_t>>::iterator thread_iterator_type;
+#endif
 
 	// Synchronization
 	std::queue<T> m_queue;

@@ -16,19 +16,12 @@
  */
 #include "libupnpp/config.h"
 
-#include "discovery.hxx"
-
 #include <pthread.h>                    // for pthread_cond_broadcast, etc
 #include <sched.h>                      // for sched_yield
 #include <stdlib.h>                     // for free
 #include <time.h>                       // for CLOCK_REALTIME
 #include <stdio.h>
  
-#ifdef __MACH__
-#include <mach/clock.h>
-#include <mach/mach.h>
-#endif
-
 #include <upnp/upnp.h>                  // for Upnp_Discovery, etc
 
 #include <iostream>                     // for operator<<, basic_ostream, etc
@@ -36,14 +29,15 @@
 #include <utility>                      // for pair
 #include <vector>                       // for vector
 
-#include "description.hxx"              // for UPnPDeviceDesc, etc
-
 #include "libupnpp/log.hxx"             // for LOGDEB1, LOGERR, LOGDEB
 #include "libupnpp/ptmutex.hxx"         // for PTMutexLocker, PTMutexInit
 #include "libupnpp/upnpplib.hxx"        // for LibUPnP
+#include "libupnpp/upnpp_p.hxx"
 #include "libupnpp/upnpputils.hxx"      // for timespec_addnanos
 #include "libupnpp/workqueue.hxx"       // for WorkQueue
 #include "libupnpp/control/httpdownload.hxx"
+#include "libupnpp/control/description.hxx"              // for UPnPDeviceDesc, etc
+#include "libupnpp/control/discovery.hxx"
 
 using namespace std;
 using namespace STD_PLACEHOLDERS;
@@ -53,18 +47,7 @@ using namespace UPnPP;
 // Set up timespec struct xx nanoseconds in the future
 static void wakeupTime(struct timespec* wkuptime, long long nanos_later)
 {
-#ifdef __MACH__ // Mac OS X does not have clock_gettime, use clock_get_time
-    clock_serv_t cclock;
-    mach_timespec_t mts;
-    host_get_clock_service(mach_host_self(), CALENDAR_CLOCK, &cclock);
-    clock_get_time(cclock, &mts);
-    mach_port_deallocate(mach_task_self(), cclock);
-    wkuptime->tv_sec = mts.tv_sec;
-    wkuptime->tv_nsec = mts.tv_nsec;
-#else
-    clock_gettime(CLOCK_REALTIME, wkuptime);
-#endif
-
+	UPnPP::timespec_now(wkuptime);
     UPnPP::timespec_addnanos(wkuptime, nanos_later);
 }
 
@@ -339,7 +322,7 @@ void UPnPDeviceDirectory::expireDevices()
 // This means that you have to wait for the specified period before
 // the results are complete.
 UPnPDeviceDirectory::UPnPDeviceDirectory(time_t search_window)
-    : m_ok(false), m_searchTimeout(search_window), m_lastSearch(0)
+    : m_ok(false), m_searchTimeout(int(search_window)), m_lastSearch(0)
 {
     addCallback(STD_BIND(&UPnPDeviceDirectory::deviceFound, this, _1, _2));
 
@@ -487,7 +470,7 @@ bool UPnPDeviceDirectory::getDevBySelector(bool cmp(const UPnPDeviceDesc& ddesc,
 
 static bool cmpFName(const UPnPDeviceDesc& ddesc, const string& fname)
 {
-    return ddesc.friendlyName.compare(fname);
+    return ddesc.friendlyName.compare(fname) != 0;
 }
 
 bool UPnPDeviceDirectory::getDevByFName(const string& fname, 
@@ -498,7 +481,7 @@ bool UPnPDeviceDirectory::getDevByFName(const string& fname,
 
 static bool cmpUDN(const UPnPDeviceDesc& ddesc, const string& value)
 {
-    return ddesc.UDN.compare(value);
+    return ddesc.UDN.compare(value) != 0;
 }
 
 bool UPnPDeviceDirectory::getDevByUDN(const string& value, 

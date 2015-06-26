@@ -19,7 +19,11 @@
 #include "libupnpp/control/cdirectory.hxx"
 
 #include <sys/types.h>
+#ifndef WIN32
 #include <regex.h>
+#else
+#include <regex>
+#endif
 
 #include <upnp/upnp.h>                  // for UPNP_E_SUCCESS, etc
 #include <upnp/upnptools.h>             // for UpnpGetErrorMessage
@@ -46,6 +50,7 @@ namespace UPnPClient {
 // The service type string for Content Directories:
 const string ContentDirectory::SType("urn:schemas-upnp-org:service:ContentDirectory:1");
 
+#ifndef WIN32
 class SimpleRegexp {
 public:
     SimpleRegexp(const string& exp, int flags) : m_ok(false) {
@@ -74,6 +79,30 @@ private:
     bool m_ok;
     regex_t m_expr;
 };
+#else
+class SimpleRegexp {
+public:
+	SimpleRegexp(const string& exp, int flags)
+		: m_expr(exp, basic_regex<char>::flag_type(flags)), m_ok(true) {}
+	
+	bool simpleMatch(const string& val) const {
+		if (!ok())
+			return false;
+		return regex_match(val, m_expr);
+	}
+	bool operator() (const string& val) const {
+		return simpleMatch(val);
+	}
+
+	bool ok() const { return m_ok; }
+private:
+	basic_regex<char> m_expr;
+	bool m_ok;
+};
+#define REG_ICASE std::regex_constants::icase
+#define REG_NOSUB std::regex_constants::nosubs
+
+#endif
 
 /*
   manufacturer: Bubblesoft model BubbleUPnP Media Server

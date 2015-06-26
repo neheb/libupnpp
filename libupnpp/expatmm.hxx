@@ -26,6 +26,10 @@
 #include <string.h>
 #include <expat.h>
 
+#ifdef WIN32
+#define ssize_t int
+#endif
+
 namespace UPnPP {
 
 class ExpatXMLParser {

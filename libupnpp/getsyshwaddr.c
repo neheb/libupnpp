@@ -26,9 +26,13 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  */
+#include "libupnpp/config.h"
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+
+#ifndef WIN32
 #include <unistd.h>
 #include <sys/ioctl.h>
 #include <sys/types.h>
@@ -38,11 +42,11 @@
 #include <netinet/in.h>
 #include <netdb.h>
 #include <errno.h>
+
 #if defined(sun)
 #include <sys/sockio.h>
 #endif
 
-#include "libupnpp/config.h"
 #if HAVE_GETIFADDRS
 #include <ifaddrs.h>
 #ifdef __linux__
@@ -54,7 +58,13 @@
 #endif
 #endif
 
-#include "getsyshwaddr.h"
+#else /* WIN32-> */
+// Needs iphlpapi.lib
+#include <Windows.h>
+#include <Iphlpapi.h>
+#endif
+
+#include "libupnpp/getsyshwaddr.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -74,9 +84,15 @@ int getsyshwaddr(const char *iface, char *ip, int ilen, char *buf, int hlen)
 {
 	unsigned char mac[6];
 	int ret = -1;
+	int ifnamelen = 0;
+
+	if (iface && *iface) {
+		ifnamelen = strnlen(iface, 200);
+	}
 
 	memset(&mac, 0, sizeof(mac));
 
+#ifndef WIN32
 #if HAVE_GETIFADDRS
 	struct ifaddrs *ifap, *p;
 
@@ -92,8 +108,7 @@ int getsyshwaddr(const char *iface, char *ip, int ilen, char *buf, int hlen)
 			struct sockaddr_in *addr_in;
 			uint8_t a;
 
-			if (iface && *iface && 
-				strncmp(iface, p->ifa_name, strnlen(iface, 20)) != 0 )
+			if (ifnamelen && strncmp(iface, p->ifa_name, ifnamelen) != 0 )
 				continue;
 
 			addr_in = (struct sockaddr_in *)p->ifa_addr;
@@ -119,7 +134,7 @@ int getsyshwaddr(const char *iface, char *ip, int ilen, char *buf, int hlen)
 			}
 			memcpy(mac, ifr.ifr_hwaddr.sa_data, 6);
 			close(fd);
-#else
+#else  /* ! __linux__ -> */
 			struct sockaddr_dl *sdl;
 			sdl = (struct sockaddr_dl*)p->ifa_addr;
 			memcpy(mac, LLADDR(sdl), sdl->sdl_alen);
@@ -132,7 +147,7 @@ int getsyshwaddr(const char *iface, char *ip, int ilen, char *buf, int hlen)
 	}
 	freeifaddrs(ifap);
 
-#else
+#else /* ! HAVE_GETIFADDRS -> */
 
 	struct if_nameindex *ifaces, *if_idx;
 	struct ifreq ifr;
@@ -149,8 +164,7 @@ int getsyshwaddr(const char *iface, char *ip, int ilen, char *buf, int hlen)
 
 	for (if_idx = ifaces; if_idx->if_index; if_idx++)
 	{
-		if (iface && *iface && 
-			strncmp(name, if_idx->if_name, strnlen(name, 20)) != 0 )
+		if (ifnamelen && strncmp(name, if_idx->if_name, ifnamelen) != 0 )
 			continue;
 
 		strncpy(ifr.ifr_name, if_idx->if_name, IFNAMSIZ);
@@ -176,15 +190,70 @@ int getsyshwaddr(const char *iface, char *ip, int ilen, char *buf, int hlen)
 	}
 	if_freenameindex(ifaces);
 	close(fd);
+#endif /* GETIFADDRS */
+
+#else /* WIN32 -> */
+
+    DWORD dwBufLen = sizeof(IP_ADAPTER_INFO);
+	PIP_ADAPTER_INFO pAdapterInfo = (IP_ADAPTER_INFO *)malloc(dwBufLen);
+    if (pAdapterInfo == NULL) {
+        return -1;
+    }
+
+    // Make an initial call to GetAdaptersInfo to get the necessary
+    // size into the dwBufLen variable
+    if (GetAdaptersInfo(pAdapterInfo, &dwBufLen) == ERROR_BUFFER_OVERFLOW) {
+        pAdapterInfo = (IP_ADAPTER_INFO *)realloc(pAdapterInfo, dwBufLen);
+        if (pAdapterInfo == NULL) {
+            return -1;
+        }
+    }
+
+	// Get the full list and walk it
+    if (GetAdaptersInfo(pAdapterInfo, &dwBufLen) != NO_ERROR) {
+        PIP_ADAPTER_INFO pAdapter = pAdapterInfo;
+
+        while (pAdapter) {
+			/* If the interface name was specified, check it */
+			if (ifnamelen && 
+				strncmp(iface, pAdapter->AdapterName, ifnamelen) != 0)
+				continue;
+
+			/* CurrentIpAddress->IpAddress.String stores the IPv4 address 
+			   as a char string in dotted notation */
+			/* Skip localhost ? */
+			if (!strncmp("127.0.0", 
+						 pAdapter->CurrentIpAddress->IpAddress.String, 7))
+				continue;
+			/* Store the IP address in dotted notation format */
+			if (ip) {
+				strncpy(ip, pAdapter->CurrentIpAddress->IpAddress.String, ilen);
+				ip[ilen-1] = 0;
+			}
+
+			/* The MAC is in the pAdapter->Address char array */
+			memcpy(mac, pAdapter->Address, 6);
+
+			if (!MACADDR_IS_ZERO(mac)) {
+				ret = 0;
+				break;
+			}
+
+			pAdapter = pAdapter->Next;
+        } 
+    }
+    if (pAdapterInfo)
+        free(pAdapterInfo);
+
 #endif
 
 	if (ret == 0)
 	{
-		if (ilen > 12)
+		if (hlen > 12)
 			sprintf(buf, "%02x%02x%02x%02x%02x%02x",
 			        mac[0]&0xFF, mac[1]&0xFF, mac[2]&0xFF,
 			        mac[3]&0xFF, mac[4]&0xFF, mac[5]&0xFF);
-		else if (ilen == 6)
+		else if (hlen == 6)
 			memmove(buf, mac, 6);
 	}
 	return ret;

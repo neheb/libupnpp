@@ -28,7 +28,6 @@
  */
 #ifndef __GETIFADDR_H__
 #define __GETIFADDR_H__
-#include <arpa/inet.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -37,10 +36,11 @@ extern "C" {
 /** 
  * Retrieve hardware (ethernet) network address for this host.
  * @param iface if not null or empty, use this interface, else first found.
- * @param[output] ip return IP address.
+ * @param[output] ip IP address in dotted string notation.
  * @param ilen size in bytes of the ip buffer.
- * @param[output] buf return hardware address.
- * @param hlen size in bytes of the buf buffer.
+ * @param[output] buf in which to return the hardware address.
+ * @param hlen size in bytes of the buf buffer. Caller should use 6 for binary
+ *        or > 12 for ascii return.
  */
 int getsyshwaddr(const char *iface, char *ip, int ilen, char *buf, int hlen);
 

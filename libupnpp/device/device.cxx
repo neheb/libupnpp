@@ -16,10 +16,8 @@
  */
 #include "libupnpp/config.h"
 
-#include "device.hxx"
 
 #include <errno.h>                      // for ETIMEDOUT, errno
-#include <sys/time.h>                   // for CLOCK_REALTIME
 #include <time.h>                       // for timespec, clock_gettime
 
 #include <iostream>                     // for endl, operator<<, etc
@@ -31,6 +29,7 @@
 #include "libupnpp/upnpputils.hxx"      // for timespec_addnanos
 #include "libupnpp/upnpp_p.hxx"
 #include "vdir.hxx"                     // for VirtualDir
+#include "device.hxx"
 
 using namespace std;
 using namespace UPnPP;
@@ -428,20 +427,6 @@ int timespec_diffms(const struct timespec& old, const struct timespec& recent)
         (recent.tv_nsec - old.tv_nsec) / (1000 * 1000);
 }
 
-#ifndef CLOCK_REALTIME
-// Mac OS X for one does not have clock_gettime. Gettimeofday is more than
-// enough for our needs.
-#define CLOCK_REALTIME 0
-int clock_gettime(int /*clk_id*/, struct timespec* t) {
-    struct timeval now;
-    int rv = gettimeofday(&now, NULL);
-    if (rv) return rv;
-    t->tv_sec  = now.tv_sec;
-    t->tv_nsec = now.tv_usec * 1000;
-    return 0;
-}
-#endif // ! CLOCK_REALTIME
-
 // Loop on services, and poll each for changed data. Generate event
 // only if changed data exists. Every now and then, we generate an
 // artificial event with all the current state. This is normally run
@@ -467,8 +452,7 @@ void UpnpDevice::eventloop()
     bool didearly = false;
 
     for (;;) {
-        clock_gettime(CLOCK_REALTIME, &wkuptime);
-
+        timespec_now(&wkuptime);
         timespec_addnanos(&wkuptime, loopwait_ms * 1000 * 1000);
 
         //LOGDEB("eventloop: now " << time(0) << " wkup at "<< 

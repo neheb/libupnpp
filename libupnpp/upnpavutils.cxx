@@ -14,14 +14,18 @@
  *       Free Software Foundation, Inc.,
  *       59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
-#include "libupnpp/upnpavutils.hxx"
-
+#include "libupnpp/config.h"
+#ifndef WIN32
 #include <netinet/in.h>                 // for ntohl
+#else
+#include "Winsock2.h"
+#endif
 
 #include <cstdio>
 #include <string>
 
-#include "base64.hxx"
+#include "libupnpp/upnpavutils.hxx"
+#include "libupnpp/base64.hxx"
 
 using namespace std;
 
