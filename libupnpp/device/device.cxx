@@ -21,6 +21,7 @@
 #include <time.h>                       // for timespec, clock_gettime
 
 #include <iostream>                     // for endl, operator<<, etc
+#include <sstream>
 #include <utility>                      // for pair
 
 #include "libupnpp/log.hxx"             // for LOGERR, LOGFAT, LOGDEB, etc
@@ -405,8 +406,14 @@ void UpnpDevice::Internal::notifyEvent(const string& serviceId,
                                          const vector<string>& names, 
                                          const vector<string>& values)
 {
+//    LOGDEB1("UpnpDevice::notifyEvent " << serviceId << " " <<
+//           (names.empty() ? "Empty names??" : names[0]) << endl);
+    stringstream ss;
+    for (unsigned int i = 0; i < names.size() && i < values.size(); i++) {
+        ss << names[i] << "=" << values[i] << " ";
+    }
     LOGDEB1("UpnpDevice::notifyEvent " << serviceId << " " <<
-           (names.empty()?"Empty names??":names[0]) << endl);
+            (names.empty() ? "Empty names??" : ss.str()) << endl);
     if (names.empty())
         return;
     vector<const char *> cnames, cvalues;
