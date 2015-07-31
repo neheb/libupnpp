@@ -59,14 +59,25 @@ AC_DEFINE([_FILE_OFFSET_BITS], [64], [File Offset size])
 
 AC_CHECK_LIB([rt], [clock_gettime], [], [])
 AC_CHECK_LIB([pthread], [pthread_create], [], [])
+
+# The 2 following checks for libthreadutil and libixml are normally
+# unnecessary and even problematic. libupnpp does not use them directly,
+# and they should be used automatically because libupnpp is linked with them.
+# Still you may need them to include them on some systems where the
+# automatic link does not work.
+dnl AC_CHECK_LIB([threadutil], [TimerThreadRemove], [],
+dnl     AC_MSG_ERROR([libthreadutil (part of libupnp) not found]))
+dnl AC_CHECK_LIB([ixml], [ixmlDocument_getElementsByTagName], [], 
+dnl     AC_MSG_ERROR([libixml (part of libupnp) not found]))
+
 AC_CHECK_LIB([upnp], [UpnpInit], [], AC_MSG_ERROR([libupnp not found]))
 AC_CHECK_LIB([curl], [curl_easy_init], [], AC_MSG_ERROR([libcurl not found]))
-AC_CHECK_LIB([ixml], [ixmlDocument_getElementsByTagName], [], 
-		     AC_MSG_ERROR([libixml (usually installed as part of libupnp) not found]))
 AC_CHECK_FUNCS([getifaddrs] [UpnpSetLogLevel])
 AC_CHECK_LIB([expat], [XML_ParserCreate], [], 
 		      AC_MSG_ERROR([libexpat not found]))
 LIBUPNPP_LIBS="$LIBS"
+
+echo "LIBUPNPP_LIBS $LIBUPNPP_LIBS"
 
 LIBS=""
                      
