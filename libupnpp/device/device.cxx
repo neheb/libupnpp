@@ -424,7 +424,8 @@ void UpnpDevice::Internal::notifyEvent(const string& serviceId,
                          serviceId.c_str(), &cnames[0], &cvalues[0],
                          int(cnames.size()));
     if (ret != UPNP_E_SUCCESS) {
-        LOGERR(lib->errAsString("UpnpDevice::notifyEvent", ret) << endl);
+        LOGERR(lib->errAsString("UpnpDevice::notifyEvent: id", ret) << 
+               " for " << serviceId << endl);
     }
 }
 
@@ -514,14 +515,15 @@ void UpnpDevice::eventloop()
         for (vector<string>::iterator it = m->serviceids.begin(); 
              it != m->serviceids.end(); it++) {
             vector<string> names, values;
+            UpnpService* serv = m->servicemap[*it];
             {
                 PTMutexLocker lock(m->devlock);
-                UpnpService* serv = m->servicemap[*it];
                 if (!serv->getEventData(all, names, values) || names.empty()) {
                     continue;
                 }
             }
-            m->notifyEvent(*it, names, values);
+            if (!serv->noevents())
+                m->notifyEvent(*it, names, values);
         }
     }
 }
@@ -546,6 +548,12 @@ void UpnpDevice::shouldExit()
 }
 
 
+struct UpnpService::Internal {
+    Internal(bool noevs) 
+    : noevents(noevs) {
+    }
+    bool noevents;
+};
 
 UpnpService::UpnpService(const std::string& stp,
                          const std::string& sid, UpnpDevice *dev)
@@ -554,8 +562,24 @@ UpnpService::UpnpService(const std::string& stp,
     dev->addService(this, sid);
 }
 
+UpnpService::UpnpService(const std::string& stp,
+                         const std::string& sid, UpnpDevice *dev, bool noevs)
+    : m_serviceType(stp), m_serviceId(sid), m(new Internal(noevs))
+{
+    dev->addService(this, sid);
+}
+
 UpnpService::~UpnpService() 
 {
+    if (m) {
+        delete m;
+        m = 0;
+    }
+}
+
+bool UpnpService::noevents()
+{
+    return m && m->noevents;
 }
 
 bool UpnpService::getEventData(bool all, std::vector<std::string>& names, 
