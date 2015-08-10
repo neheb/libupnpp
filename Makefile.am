@@ -67,7 +67,6 @@ libupnpp_la_SOURCES = \
     libupnpp/workqueue.hxx
 
 nobase_include_HEADERS = \
-    libupnpp/config.h \
     libupnpp/conf_post.h \
     libupnpp/base64.hxx \
     libupnpp/control/avtransport.hxx \
