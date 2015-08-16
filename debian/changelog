@@ -1,3 +1,9 @@
+libupnpp2 (0.12.1-1) unstable; urgency=low
+
+  * Add forgotten include file in dist
+
+ -- Jean-Francois Dockes <jf@dockes.org>  Mon, 10 Aug 2015 11:01:00 +0200
+
 libupnpp2 (0.12.0-1) unstable; urgency=low
 
   * Windows port
