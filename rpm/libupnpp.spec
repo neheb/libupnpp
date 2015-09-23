@@ -1,6 +1,6 @@
 Summary:        C++ wrapper for libupnp
 Name:           libupnpp
-Version:        0.11.0
+Version:        0.12.1
 Release:        1%{?dist}
 Group:          Applications/Multimedia
 License:        GPLv2+
@@ -13,6 +13,7 @@ Requires(postun): systemd
 BuildRequires:  libupnp-devel
 BuildRequires:  libmpdclient-devel
 BuildRequires:  expat-devel
+BuildRequires:  libcurl-devel
 BuildRequires:  systemd-units
 BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
@@ -39,10 +40,11 @@ upmpdcli and upplay
 %files
 %defattr(-, root, root, -)
 %{_includedir}/libupnpp
-%{_libdir}/libupnpp-%{version}.so*
-%{_libdir}/libupnpp.so
+%{_libdir}/libupnpp.so*
 
 %changelog
+* Mon Aug 17 2015 J.F. Dockes <jf@dockes.org> - 0.12.1
+- Make it easier to create pure openhome devices
 * Tue May 05 2015 J.F. Dockes <jf@dockes.org> - 0.11.0
 - Control side interface to the OpenHome receiver service
 - API cleanups for a more stable ABI
