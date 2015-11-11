@@ -114,21 +114,42 @@ private:
 class UpnpService {
 public:
     UpnpService(const std::string& stp,const std::string& sid, UpnpDevice *dev);
+    /** 
+     * Constructor added to avoid changing the ABI when the noevents
+     * parameter was needed.
+     * 
+     * @param noevents if set, the service will function normally except that
+     *                 no calls will be made to libupnp to broadcast events.
+     *                 This allows a service object to retain its possible 
+     *                 internal functions without being externally visible
+     *                 (in conjunction with a description doc edit).
+     */
+    UpnpService(const std::string& stp,const std::string& sid, 
+                UpnpDevice *dev, bool noevents);
 
     virtual ~UpnpService();
 
     /** 
-     * Poll to retrieve evented data changed since last call.
+     * Poll to retrieve evented data changed since last call (see 
+     * Device::eventLoop).
      *
-     * To be implemented by the derived class.
-     * Called by the library when a control point subscribes, to
+     * To be implemented by the derived class if it does generate event data.
+     * Also called by the library when a control point subscribes, to
      * retrieve eventable data. 
      * Return name/value pairs for changed variables in the data arrays.
+     *
+     * @param all if true, treat all state variable as changed (return 
+     *            full state) 
+     * @param names names of returned state variable
+     * @param values array parallel to names, holding the values.
      */
     virtual bool getEventData(bool all, std::vector<std::string>& names, 
                               std::vector<std::string>& values);
     virtual const std::string& getServiceType() const;
     virtual const std::string& getServiceId() const;
+
+    /** Get value of the noevents property */
+    bool noevents();
 
 protected:
     const std::string m_serviceType;

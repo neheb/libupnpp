@@ -20,6 +20,7 @@
 
 #include <string>                       // for string, allocator, etc
 #include <vector>                       // for vector
+#include <iostream>
 
 #include "libupnpp/control/cdircontent.hxx"
 #include "libupnpp/expatmm.hxx"         // for inputRefXMLParser
@@ -144,8 +145,11 @@ protected:
                    !parentname.compare("container")) {
             switch (name[0]) {
             case 'd':
-                if (!strcmp(name, "dc:title"))
+                if (!strcmp(name, "dc:title")) {
                     m_tobj.m_title = m_path.back().data;
+                } else {
+                    m_tobj.m_props[name] = m_path.back().data;
+                }
                 break;
             case 'r':
                 if (!strcmp(name, "res")) {
@@ -160,6 +164,8 @@ protected:
                         res.m_props[it->first] = it->second;
                     }
                     m_tobj.m_resources.push_back(res);
+                } else {
+                    m_tobj.m_props[name] = m_path.back().data;
                 }
                 break;
             default:
