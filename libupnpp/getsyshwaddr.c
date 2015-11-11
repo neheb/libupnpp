@@ -60,6 +60,7 @@
 
 #else /* WIN32-> */
 // Needs iphlpapi.lib
+#include <winsock2.h>
 #include <Windows.h>
 #include <Iphlpapi.h>
 #endif

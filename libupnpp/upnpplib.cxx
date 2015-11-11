@@ -505,7 +505,7 @@ int stringuppercmp(const string & s1, const string& s2)
     }
 }
 
-#ifdef WIN32
+#ifdef _MSC_VER
 // Note: struct timespec is defined by pthread.h (from pthreads-w32)
 #ifndef CLOCK_REALTIME
 #define CLOCK_REALTIME 0
