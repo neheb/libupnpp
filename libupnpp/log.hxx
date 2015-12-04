@@ -25,6 +25,7 @@ namespace UPnPP {
 
     class Logger {
     public:
+        /** Initialize logging to file name. Use "stderr" for stderr output */
         static Logger *getTheLog(const std::string& fn);
         std::ostream& getstream() {
             return m_tocerr ? std::cerr : m_stream;
