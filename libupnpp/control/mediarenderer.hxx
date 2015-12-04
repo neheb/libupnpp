@@ -29,6 +29,7 @@
 #include "libupnpp/control/ohvolume.hxx"
 #include "libupnpp/control/renderingcontrol.hxx"
 #include "libupnpp/control/ohreceiver.hxx"
+#include "libupnpp/control/ohradio.hxx"
 
 namespace UPnPClient {
 
@@ -53,7 +54,8 @@ public:
     OHTMH ohtm();
     OHVLH ohvl();
     OHRCH ohrc();
-
+    OHRDH ohrd();
+    
     bool hasOpenHome();
 
     /** Retrieve device descriptions for devices looking like media
