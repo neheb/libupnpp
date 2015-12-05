@@ -50,26 +50,7 @@ bool OHRadio::isOHRdService(const string& st)
     return !SType.compare(0, sz, st, 0, sz);
 }
 
-int OHRadio::stringToTpState(const string& value, OHRadio::TPState *tpp)
-{
-    if (!value.compare("Buffering")) {
-        *tpp = OHRadio::TPS_Buffering;
-        return 0;
-    } else if (!value.compare("Paused")) {
-        *tpp = OHRadio::TPS_Paused;
-        return 0;
-    } else if (!value.compare("Playing")) {
-        *tpp = OHRadio::TPS_Playing;
-        return 0;
-    } else if (!value.compare("Stopped")) {
-        *tpp = OHRadio::TPS_Stopped;
-        return 0;
-    }
-    *tpp = OHRadio::TPS_Unknown;
-    return UPNP_E_BAD_RESPONSE;
-}
-
-static int decodeMetadata(const string &rawdidl, UPnPDirObject *dirent)
+int OHRadio::decodeMetadata(const string &rawdidl, UPnPDirObject *dirent)
 {
     const string didl = SoapHelp::xmlUnquote(rawdidl);
 
@@ -79,8 +60,8 @@ static int decodeMetadata(const string &rawdidl, UPnPDirObject *dirent)
         return UPNP_E_BAD_RESPONSE;
     }
     if (dir.m_items.size() != 1) {
-        LOGERR("OHRadio::Read: " << dir.m_items.size() << " in response!" <<
-               endl);
+        LOGERR("OHRadio::decodeMetadata: " << dir.m_items.size()
+               << " items in response: [" << rawdidl << "]" << endl);
         return UPNP_E_BAD_RESPONSE;
     }
     *dirent = dir.m_items[0];
@@ -113,11 +94,14 @@ void OHRadio::evtCallback(
         } else if (!it->first.compare("Metadata")) {
             /* Metadata is a didl-lite string */
             UPnPDirObject dirent;
-            if (decodeMetadata(it->second, &dirent) == 0) 
+            if (decodeMetadata(it->second, &dirent) == 0) {
                 getReporter()->changed(it->first.c_str(), dirent);
+            } else {
+                LOGDEB("OHRadio:evtCallback: bad metadata in event\n");
+            }
         } else if (!it->first.compare("TransportState")) {
-            TPState tp;
-            stringToTpState(it->second, &tp);
+            OHPlaylist::TPState tp;
+            OHPlaylist::stringToTpState(it->second, &tp);
             getReporter()->changed(it->first.c_str(), int(tp));
         } else {
             LOGERR("OHRadio event: unknown variable: name [" <<
@@ -238,20 +222,7 @@ int OHRadio::read(int id, UPnPDirObject *dirent)
         LOGERR("OHRadio::Read: missing Metadata in response" << endl);
         return UPNP_E_BAD_RESPONSE;
     }
-    didl = SoapHelp::xmlUnquote(didl);
-
-    UPnPDirContent dir;
-    if (!dir.parse(didl)) {
-        LOGERR("OHRadio::Read: didl parse failed: " << didl << endl);
-        return UPNP_E_BAD_RESPONSE;
-    }
-    if (dir.m_items.size() != 1) {
-        LOGERR("OHRadio::Read: " << dir.m_items.size() << " in response!" <<
-               endl);
-        return UPNP_E_BAD_RESPONSE;
-    }
-    *dirent = dir.m_items[0];
-    return 0;
+    return decodeMetadata(didl, dirent);
 }
     
 // Tracklist format
@@ -267,7 +238,7 @@ int OHRadio::read(int id, UPnPDirObject *dirent)
 class OHTrackListParser : public inputRefXMLParser {
 public:
     OHTrackListParser(const string& input, 
-                      vector<OHRadio::TrackListEntry>* vp)
+                      vector<OHPlaylist::TrackListEntry>* vp)
         : inputRefXMLParser(input), m_v(vp)
         {
             //LOGDEB("OHTrackListParser: input: " << input << endl);
@@ -310,14 +281,14 @@ protected:
     }
 
 private:
-    vector<OHRadio::TrackListEntry>* m_v;
+    vector<OHPlaylist::TrackListEntry>* m_v;
     std::vector<std::string> m_path;
-    OHRadio::TrackListEntry m_tt;
+    OHPlaylist::TrackListEntry m_tt;
     string m_tdidl;
 };
 
 int OHRadio::readList(const std::vector<int>& ids, 
-                         vector<TrackListEntry>* entsp)
+                      vector<OHPlaylist::TrackListEntry>* entsp)
 {
     string idsparam;
     for (vector<int>::const_iterator it = ids.begin(); it != ids.end(); it++) {
@@ -366,7 +337,7 @@ int OHRadio::stop()
     return runTrivialAction("Stop");
 }
 
-int OHRadio::transportState(TPState* tpp)
+int OHRadio::transportState(OHPlaylist::TPState* tpp)
 {
     string value;
     int ret;
@@ -374,7 +345,7 @@ int OHRadio::transportState(TPState* tpp)
     if ((ret = runSimpleGet("TransportState", "Value", &value)))
         return ret;
 
-    return stringToTpState(value, tpp);
+    return OHPlaylist::stringToTpState(value, tpp);
 }
 
 } // End namespace UPnPClient

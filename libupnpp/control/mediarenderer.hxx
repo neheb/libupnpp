@@ -30,6 +30,7 @@
 #include "libupnpp/control/renderingcontrol.hxx"
 #include "libupnpp/control/ohreceiver.hxx"
 #include "libupnpp/control/ohradio.hxx"
+#include "libupnpp/control/ohinfo.hxx"
 
 namespace UPnPClient {
 
@@ -55,6 +56,7 @@ public:
     OHVLH ohvl();
     OHRCH ohrc();
     OHRDH ohrd();
+    OHIFH ohif();
     
     bool hasOpenHome();
 

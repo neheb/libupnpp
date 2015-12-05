@@ -24,7 +24,7 @@
 
 #include "libupnpp/control/service.hxx"
 #include "libupnpp/control/cdircontent.hxx"
-
+#include "ohplaylist.hxx"
 
 namespace UPnPClient {
 
@@ -63,22 +63,15 @@ public:
     int play();
     int protocolInfo(std::string *proto);
     int read(int id, UPnPDirObject *dirent);
-    struct TrackListEntry {
-        int id;
-        std::string url;
-        UPnPDirObject dirent;
-        void clear() {id = -1; url.clear(); dirent.clear();}
-    };
     int readList(const std::vector<int>& ids, 
-                 std::vector<TrackListEntry>* entsp);
+                 std::vector<OHPlaylist::TrackListEntry>* entsp);
     int setChannel(const std::string& uri, const std::string& didl);
     int setId(int id, const std::string& uri);
     int stop();
-    enum TPState {TPS_Unknown, TPS_Buffering, TPS_Paused, TPS_Playing,
-                  TPS_Stopped};
-    int transportState(TPState *tps);
+    int transportState(OHPlaylist::TPState *tps);
 
-    static int stringToTpState(const std::string& va, TPState *tpp);
+    // This is for the benefit of ohinfo, no outside use
+    static int decodeMetadata(const std::string &rawdidl, UPnPDirObject *de);
 
 protected:
     /* My service type string */
