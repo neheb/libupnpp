@@ -30,7 +30,10 @@
 #include "libupnpp/upnpp_p.hxx"         // for stringToBool, trimstring
 
 using namespace std;
+using namespace STD_PLACEHOLDERS;
 using namespace UPnPP;
+
+namespace UPnPClient {
 
 // SourceList XML format
 // <SourceList>
@@ -49,8 +52,6 @@ using namespace UPnPP;
 // - Analog - Specifies an analog external input
 // - Digital - Specifies a digital external input
 // - Hdmi - Specifies a HDMI external input
-
-namespace UPnPClient {
 class OHSourceParser : public inputRefXMLParser {
 public:
     OHSourceParser(const string& input, vector<OHProduct::Source>& sources)
@@ -105,6 +106,34 @@ bool OHProduct::isOHPrService(const string& st)
     return !SType.compare(0, sz, st, 0, sz);
 }
 
+
+void OHProduct::evtCallback(
+    const STD_UNORDERED_MAP<std::string, std::string>& props)
+{
+    LOGDEB1("OHProduct::evtCallback: getReporter(): " << getReporter() << endl);
+    for (STD_UNORDERED_MAP<std::string, std::string>::const_iterator it = 
+             props.begin(); it != props.end(); it++) {
+        if (!getReporter()) {
+            LOGDEB1("OHProduct::evtCallback: " << it->first << " -> " 
+                    << it->second << endl);
+            continue;
+        }
+        if (!it->first.compare("SourceIndex")) {
+            getReporter()->changed(it->first.c_str(),
+                                   atoi(it->second.c_str()));
+        } else {
+            LOGDEB1("OHProduct event: unknown variable: name [" <<
+                    it->first << "] value [" << it->second << endl);
+            getReporter()->changed(it->first.c_str(), it->second.c_str());
+        }
+    }
+}
+
+void OHProduct::registerCallback()
+{
+    Service::registerCallback(bind(&OHProduct::evtCallback, this, _1));
+}
+    
 int OHProduct::getSources(vector<Source>& sources)
 {
     SoapOutgoing args(getServiceType(), "SourceXml");

@@ -39,9 +39,12 @@ public:
 
     OHProduct(const UPnPDeviceDesc& device, const UPnPServiceDesc& service)
         : Service(device, service) {
+        registerCallback();
     }
-
     OHProduct() {}
+    ~OHProduct() {
+        unregisterCallback();
+    }
 
     /** Test service type from discovery message */
     static bool isOHPrService(const std::string& st);
@@ -62,6 +65,9 @@ public:
 protected:
     /* My service type string */
     static const std::string SType;
+private:
+    void evtCallback(const STD_UNORDERED_MAP<std::string, std::string>&);
+    void registerCallback();
 };
 
 } // namespace UPnPClient
