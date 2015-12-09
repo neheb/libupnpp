@@ -119,8 +119,11 @@ void OHProduct::evtCallback(
             continue;
         }
         if (!it->first.compare("SourceIndex")) {
-            getReporter()->changed(it->first.c_str(),
-                                   atoi(it->second.c_str()));
+            getReporter()->changed(it->first.c_str(), atoi(it->second.c_str()));
+        } else if (!it->first.compare("Standby")) {
+            bool val = false;
+            stringToBool(it->second, &val);
+            getReporter()->changed(it->first.c_str(), val ? 1 : 0);
         } else {
             LOGDEB1("OHProduct event: unknown variable: name [" <<
                     it->first << "] value [" << it->second << endl);
@@ -171,5 +174,15 @@ int OHProduct::setSourceIndex(int index)
     return runSimpleAction("SetSourceIndex", "Value", index);
 }
 
+int OHProduct::standby(bool *value)
+{
+    return runSimpleGet("Standby", "Value", value);
+}
+
+int OHProduct::setStanby(bool value)
+{
+    return runSimpleAction("SetStandby", "Value", value);
+}
+    
 
 } // End namespace UPnPClient

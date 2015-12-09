@@ -61,7 +61,9 @@ public:
     int getSources(std::vector<Source>& sources);
     int sourceIndex(int *index);
     int setSourceIndex(int index);
-
+    int standby(bool *value);
+    int setStanby(bool value);
+    
 protected:
     /* My service type string */
     static const std::string SType;
