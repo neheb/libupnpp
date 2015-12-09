@@ -49,6 +49,7 @@ public:
     STD_WEAK_PTR<OHReceiver> ohrc;
     STD_WEAK_PTR<OHRadio> ohrd;
     STD_WEAK_PTR<OHInfo> ohif;
+    STD_WEAK_PTR<OHSender> ohsn;
 };
 
 // We don't include a version in comparisons, as we are satisfied with
@@ -239,6 +240,24 @@ OHIFH MediaRenderer::ohif()
     if (!handle)
         LOGDEB("MediaRenderer: OHInfo service not found" << endl);
     m->ohif = handle;
+    return handle;
+}
+
+OHSNH MediaRenderer::ohsn() 
+{
+    OHSNH handle = m->ohsn.lock();
+    if (handle)
+        return handle;
+    for (vector<UPnPServiceDesc>::const_iterator it = desc()->services.begin();
+         it != desc()->services.end();it++) {
+        if (OHSender::isOHSenderService(it->serviceType)) {
+            handle = OHSNH(new OHSender(*desc(), *it));
+            break;
+        }
+    }
+    if (!handle)
+        LOGDEB("MediaRenderer: OHSender service not found" << endl);
+    m->ohsn = handle;
     return handle;
 }
 
