@@ -40,6 +40,11 @@ class UPnPDeviceDesc;
 
 typedef STD_SHARED_PTR<MediaRenderer> MRDH;
 
+/**
+ * The MediaRenderer class mostly holds a bunch of convenience functions to 
+ * create the different services (and cache handles to them). There is
+ * actually not much that it does that could not be done by normal functions.
+ */
 class MediaRenderer : public Device {
 public:
     /** Build from device description */
@@ -49,16 +54,16 @@ public:
 
     /** Methods returning handles to the different services. May return null
         for unimplemented services. */
-    RDCH rdc();
-    AVTH avt();
-    OHPRH ohpr();
-    OHPLH ohpl();
-    OHTMH ohtm();
-    OHVLH ohvl();
-    OHRCH ohrc();
-    OHRDH ohrd();
-    OHIFH ohif();
-    OHSNH ohsn();
+    RDCH rdc();  // Rendering control
+    AVTH avt();  // AVTransport
+    OHPRH ohpr(); // OpenHome Product
+    OHPLH ohpl(); // OpenHome Playlist
+    OHTMH ohtm(); // OpenHome Time
+    OHVLH ohvl(); // OpenHome Volume
+    OHRCH ohrc(); // OpenHome Receiver
+    OHRDH ohrd(); // OpenHome Radio
+    OHIFH ohif(); // OpenHome Info
+    OHSNH ohsn(); // OpenHome Sender
     
     bool hasOpenHome();
 
@@ -71,7 +76,6 @@ public:
     static bool isMRDevice(const std::string& devicetype);
 
 protected:
-
     static const std::string DType;
 private:
     class Internal;
