@@ -23,6 +23,8 @@ libupnpp_la_SOURCES = \
     libupnpp/control/discovery.hxx \
     libupnpp/control/httpdownload.cxx \
     libupnpp/control/httpdownload.hxx \
+    libupnpp/control/linnsongcast.cxx \
+    libupnpp/control/linnsongcast.hxx \
     libupnpp/control/mediarenderer.cxx \
     libupnpp/control/mediarenderer.hxx \
     libupnpp/control/mediaserver.cxx \
@@ -82,6 +84,7 @@ nobase_include_HEADERS = \
     libupnpp/control/description.hxx \
     libupnpp/control/device.hxx \
     libupnpp/control/discovery.hxx \
+    libupnpp/control/linnsongcast.hxx \
     libupnpp/control/mediarenderer.hxx \
     libupnpp/control/mediaserver.hxx \
     libupnpp/control/ohinfo.hxx \
