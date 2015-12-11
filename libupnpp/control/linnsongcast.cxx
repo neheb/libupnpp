@@ -21,6 +21,7 @@
 #include <algorithm>
 
 #include "libupnpp/soaphelp.hxx"
+#include "libupnpp/log.hxx"
 #include "libupnpp/control/discovery.hxx"
 #include "libupnpp/control/ohproduct.hxx"
 #include "libupnpp/control/mediarenderer.hxx"
@@ -40,7 +41,7 @@ static MRDH getRenderer(const string& name)
     } else if (UPnPDeviceDirectory::getTheDir()->getDevByFName(name, ddesc)) {
         return MRDH(new MediaRenderer(ddesc));
     } 
-    cerr << "getDevByFname failed for " << name << endl;
+    LOGERR("getRenderer: getDevByFname failed for " << name << endl);
     return MRDH();
 }
 
@@ -52,7 +53,7 @@ static DVCH getDevice(const string& name)
     } else if (UPnPDeviceDirectory::getTheDir()->getDevByFName(name, ddesc)) {
         return DVCH(new MediaRenderer(ddesc));
     } 
-    cerr << "getDevByFname failed for " << name << endl;
+    LOGERR("getDevice: getDevByFname failed for " << name << endl);
     return DVCH();
 }
 
@@ -198,8 +199,9 @@ out:
     return;
 }
 
-void listReceivers(vector<ReceiverState>& vscs)
+void listReceivers(vector<ReceiverState>& vreceivers)
 {
+    vreceivers.clear();
     vector<UPnPDeviceDesc> vdds;
     if (!MediaRenderer::getDeviceDescs(vdds)) {
         cerr << "listReceivers::getDeviceDescs failed" << endl;
@@ -212,7 +214,7 @@ void listReceivers(vector<ReceiverState>& vscs)
         if (st.state == ReceiverState::SCRS_NOTRECEIVER || 
             st.state == ReceiverState::SCRS_PLAYING ||
             st.state == ReceiverState::SCRS_STOPPED) {
-            vscs.push_back(st);
+            vreceivers.push_back(st);
         }
     }
 }
@@ -229,8 +231,9 @@ static bool lookForSenders(vector<string>* sndudns,
     return true;
 }
 
-void listSenders(vector<SenderState>& vscs)
+void listSenders(vector<SenderState>& vsenders)
 {
+    vsenders.clear();
     // Search the directory for all devices with a Sender service
     vector<string> sndudns;
     UPnPDeviceDirectory::Visitor visitor =
@@ -245,17 +248,21 @@ void listSenders(vector<SenderState>& vscs)
         string udn = sndudns[i];
         getSenderState(udn, st, false);
         if (st.has_sender) {
-            vscs.push_back(st);
+            vsenders.push_back(st);
         }
     }
 }
 
-bool setReceiverPlaying(ReceiverState& st,
+bool setReceiverPlaying(ReceiverState st,
                         const string& uri, const string& meta)
 {
     if (!st.rcv || !st.prod) {
-        st.reason = st.nm + " : null handle ??";
-        return false;
+        string uuid = st.UDN;
+        getReceiverState(uuid, st, true);
+        if (!st.rcv || !st.prod) {
+            st.reason = st.nm + " : can't connect";
+            return false;
+        }
     }
 
     if (st.rcv->setSender(uri, meta)) {
@@ -276,9 +283,14 @@ bool setReceiverPlaying(ReceiverState& st,
 
 bool stopReceiver(ReceiverState st)
 {
+    LOGDEB("stopReceiver: st.nm " << st.nm << " st.UDN " << st.UDN << endl);
     if (!st.rcv || !st.prod) {
-        st.reason = st.nm + " : null handle ??";
-        return false;
+        string uuid = st.UDN;
+        getReceiverState(uuid, st, true);
+        if (!st.rcv || !st.prod) {
+            st.reason = st.nm + " : can't connect";
+            return false;
+        }
     }
     if (st.rcv->stop()) {
         st.reason = st.nm + " Receiver::play() failed";

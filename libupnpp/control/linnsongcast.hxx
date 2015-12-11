@@ -45,7 +45,7 @@ extern OHSNH senderService(DVCH dev);
  * Find device with given name (try friendly, then uuid), and
  * return the result of senderService()
  */
-extern OHSNH getSender(const std::string& nm, const std::string& reason);
+extern OHSNH getSender(const std::string& nm, std::string& reason);
 
 /** Everything you need to know about a Sender */    
 struct SenderState {
@@ -113,12 +113,13 @@ struct ReceiverState {
 extern void getReceiverState(const std::string& nm, ReceiverState& st,
                              bool live = true); 
 /** Get status for all found Receiver services */
-void listReceivers(std::vector<ReceiverState>& vscs);
+extern void listReceivers(std::vector<ReceiverState>& vscs);
 
-extern bool setReceiverPlaying(ReceiverState& st,
+extern bool setReceiverPlaying(ReceiverState st,
                                const std::string& uri,
                                const std::string& meta);
 extern bool stopReceiver(ReceiverState st);
+    
 extern void setReceiversFromSender(const std::string& sendernm,
                                    const std::vector<std::string>&
                                    rcvnms);
