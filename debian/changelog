@@ -1,3 +1,11 @@
+libupnpp2 (0.13.0-1) unstable; urgency=low
+
+  * Added utility methods for managing Songcast Senders and Receivers
+  * Interface to OpenHome Sender service
+  * Added or improved interfaces to OpenHome services: Product, Info, Radio, 
+
+ -- Jean-Francois Dockes <jf@dockes.org>  Mon, 10 Aug 2015 11:01:00 +0200
+
 libupnpp2 (0.12.1-1) unstable; urgency=low
 
   * Add forgotten include file in dist

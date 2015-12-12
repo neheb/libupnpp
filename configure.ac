@@ -2,7 +2,7 @@
 # Software version. There is no direct link with the library version_info
 # except that we sort or promise that no api and abi incompatibilities
 # occur with revision (3rd number) changes.
-AC_INIT([libupnpp], [0.12.1], [jfd@lesbonscomptes.com],
+AC_INIT([libupnpp], [0.13.0], [jfd@lesbonscomptes.com],
              [libupnpp], [http://www.lesbonscomptes.com/upmpdcli])
 
 # Lib version info. See:
@@ -21,7 +21,7 @@ AC_INIT([libupnpp], [0.12.1], [jfd@lesbonscomptes.com],
 #   release, then set age to 0 AND CHANGE PACKAGE NAME. 
 # libupnpp packages are named libupnppX where X is the c number above. This
 # allows packages for multiple incompatible ABIs to be installed
-VERSION_INFO=3:0:1
+VERSION_INFO=4:0:2
 
 AC_PREREQ([2.53])
 AC_CONFIG_SRCDIR([libupnpp/upnpplib.hxx])
@@ -71,6 +71,7 @@ dnl AC_CHECK_LIB([ixml], [ixmlDocument_getElementsByTagName], [],
 dnl     AC_MSG_ERROR([libixml (part of libupnp) not found]))
 
 AC_CHECK_LIB([upnp], [UpnpInit], [], AC_MSG_ERROR([libupnp not found]))
+AC_CHECK_LIB([ixml], [ixmlPrintDocument], [], AC_MSG_ERROR([libixml not found]))
 AC_CHECK_LIB([curl], [curl_easy_init], [], AC_MSG_ERROR([libcurl not found]))
 AC_CHECK_FUNCS([getifaddrs] [UpnpSetLogLevel])
 AC_CHECK_LIB([expat], [XML_ParserCreate], [], 

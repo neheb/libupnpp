@@ -109,6 +109,3 @@ libupnpp_la_LDFLAGS = -version-info $(VERSION_INFO)
 
 libupnpp_la_LIBADD = $(LIBUPNPP_LIBS)
 
-dist-hook:
-	test -z "`git status -s | grep -v libupnpp-$(VERSION)`"
-	git tag -f -a libupnpp-v$(VERSION) -m 'version $(VERSION)'
