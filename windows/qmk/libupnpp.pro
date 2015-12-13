@@ -39,7 +39,6 @@ contains(QMAKE_CC, cl){
 }
 
 SOURCES += \
-../../libupnpp/getsyshwaddr.c \
 ../../libupnpp/base64.cxx \
 ../../libupnpp/control/avlastchg.cxx \
 ../../libupnpp/control/avtransport.cxx \
@@ -49,17 +48,22 @@ SOURCES += \
 ../../libupnpp/control/device.cxx \
 ../../libupnpp/control/discovery.cxx \
 ../../libupnpp/control/httpdownload.cxx \
+../../libupnpp/control/linnsongcast.cxx \
 ../../libupnpp/control/mediarenderer.cxx \
 ../../libupnpp/control/mediaserver.cxx \
+../../libupnpp/control/ohinfo.cxx \
 ../../libupnpp/control/ohplaylist.cxx \
 ../../libupnpp/control/ohproduct.cxx \
+../../libupnpp/control/ohradio.cxx \
 ../../libupnpp/control/ohreceiver.cxx \
+../../libupnpp/control/ohsender.cxx \
 ../../libupnpp/control/ohtime.cxx \
 ../../libupnpp/control/ohvolume.cxx \
 ../../libupnpp/control/renderingcontrol.cxx \
 ../../libupnpp/control/service.cxx \
 ../../libupnpp/device/device.cxx \
 ../../libupnpp/device/vdir.cxx \
+../../libupnpp/getsyshwaddr.c \
 ../../libupnpp/ixmlwrap.cxx \
 ../../libupnpp/log.cxx \
 ../../libupnpp/md5.cxx \
