@@ -130,8 +130,8 @@ void getReceiverState(const string& nm, ReceiverState& st, bool live)
         st.reason =  nm + ": device has no OHProduct service";
         return;
     }
-    int index;
-    if (prod->sourceIndex(&index)) {
+    int currentindex;
+    if (prod->sourceIndex(&currentindex)) {
         st.reason = nm + " : sourceIndex failed";
         return;
     }
@@ -143,7 +143,7 @@ void getReceiverState(const string& nm, ReceiverState& st, bool live)
     }
     unsigned int rcvi = 0;
     for (; rcvi < sources.size(); rcvi++) {
-        if (!sources[rcvi].name.compare("Receiver"))
+        if (!sources[rcvi].type.compare("Receiver"))
             break;
     }
     if (rcvi == sources.size()) {
@@ -153,8 +153,8 @@ void getReceiverState(const string& nm, ReceiverState& st, bool live)
     }
     st.receiverSourceIndex = int(rcvi);
 
-    if (index < 0 || index >= int(sources.size())) {
-        st.reason = nm +  ": bad index " + SoapHelp::i2s(index) +
+    if (currentindex < 0 || currentindex >= int(sources.size())) {
+        st.reason = nm +  ": bad index " + SoapHelp::i2s(currentindex) +
             " not inside sources of size " +  SoapHelp::i2s(sources.size());
         return;
     }
@@ -163,8 +163,9 @@ void getReceiverState(const string& nm, ReceiverState& st, bool live)
     // handle for it.
     OHRCH rcv = rdr->ohrc();
 
-    string sname = sources[index].name;
-    if (sname.compare("Receiver")) {
+    if (sources[currentindex].type.compare("Receiver") &&
+        // Special case for upmpdcli in unix Sender + Receiver mode, yes ugly...
+        sources[currentindex].name.compare("SenderReceiver")) {
         st.state = ReceiverState::SCRS_NOTRECEIVER;
         st.reason = nm +  " not in receiver mode ";
         goto out;
