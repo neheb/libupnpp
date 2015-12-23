@@ -1,6 +1,6 @@
 Summary:        C++ wrapper for libupnp
 Name:           libupnpp
-Version:        0.13.0
+Version:        0.13.1
 Release:        1%{?dist}
 Group:          Applications/Multimedia
 License:        GPLv2+
@@ -43,6 +43,8 @@ upmpdcli and upplay
 %{_libdir}/libupnpp.so*
 
 %changelog
+* Wed Dec 22 2015 J.F. Dockes <jf@dockes.org> - 0.13.1
+- Help managing upmpdcli in SenderReceiver mode
 * Mon Dec 14 2015 J.F. Dockes <jf@dockes.org> - 0.13.0
 - Support more OpenHome services (Sender, Radio, Info). Songcast utils.
 * Mon Aug 17 2015 J.F. Dockes <jf@dockes.org> - 0.12.1
