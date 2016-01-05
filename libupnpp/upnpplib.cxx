@@ -116,25 +116,20 @@ LibUPnP::LibUPnP(bool serveronly, string* hwaddr,
     // If our caller wants to retrieve an ethernet address (typically
     // for uuid purposes), or has specified an interface we have to
     // look at the network config.
-    const int ipalen(100);
-    char ip_address[ipalen];
-    ip_address[0] = 0;
+    string ip_address;
     if (hwaddr || !ifname.empty()) {
-        char mac[20];
-        if (getsyshwaddr(ifname.c_str(), ip_address, ipalen, mac, 13) < 0) {
+        if (getsyshwaddr(ifname, &ip_address, hwaddr) < 0) {
             LOGERR("LibUPnP::LibUPnP: failed retrieving addr" << endl);
             return;
         }
-        if (hwaddr)
-            *hwaddr = string(mac);
     }
 
     // If the interface name was not specified, we possibly use the
     // supplied IP address.
     if (ifname.empty())
-        strncpy(ip_address, inip.c_str(), ipalen);
+        ip_address.assign(inip);
 
-    m->init_error = UpnpInit(ip_address[0] ? ip_address : 0, port);
+    m->init_error = UpnpInit(ip_address.empty() ? ip_address.c_str() : 0, port);
 
     if (m->init_error != UPNP_E_SUCCESS) {
         LOGERR(errAsString("UpnpInit", m->init_error) << endl);
@@ -599,6 +594,11 @@ void timespec_addnanos(struct timespec *ts, long long nanos)
     } 
     ts->tv_sec += secs;
     ts->tv_nsec = long(nanos);
+}
+
+bool getAdapterNames(vector<string>& names)
+{
+    return getsyshwaddr("!?#@", 0, 0, &names) == 0;
 }
 
 }

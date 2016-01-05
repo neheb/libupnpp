@@ -56,7 +56,7 @@ libupnpp_la_SOURCES = \
     libupnpp/base64.hxx \
     libupnpp/base64.cxx \
     libupnpp/expatmm.hxx \
-    libupnpp/getsyshwaddr.c \
+    libupnpp/getsyshwaddr.cxx \
     libupnpp/getsyshwaddr.h \
     libupnpp/ixmlwrap.cxx \
     libupnpp/ixmlwrap.hxx \
