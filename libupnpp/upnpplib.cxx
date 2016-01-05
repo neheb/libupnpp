@@ -129,7 +129,7 @@ LibUPnP::LibUPnP(bool serveronly, string* hwaddr,
     if (ifname.empty())
         ip_address.assign(inip);
 
-    m->init_error = UpnpInit(ip_address.empty() ? ip_address.c_str() : 0, port);
+    m->init_error = UpnpInit(ip_address.empty() ? 0: ip_address.c_str(), port);
 
     if (m->init_error != UPNP_E_SUCCESS) {
         LOGERR(errAsString("UpnpInit", m->init_error) << endl);
