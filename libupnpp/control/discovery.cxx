@@ -16,38 +16,37 @@
  */
 #include "libupnpp/config.h"
 
-#include <pthread.h>                    // for pthread_cond_broadcast, etc
-#include <sched.h>                      // for sched_yield
-#include <stdlib.h>                     // for free
-#include <time.h>                       // for CLOCK_REALTIME
+#include <pthread.h>
+#include <sched.h>
+#include <stdlib.h>
+#include <time.h>
 #include <stdio.h>
  
-#include <upnp/upnp.h>                  // for Upnp_Discovery, etc
+#include <upnp/upnp.h>
 
-#include <iostream>                     // for operator<<, basic_ostream, etc
-#include <map>                          // for _Rb_tree_iterator, map, etc
-#include <utility>                      // for pair
-#include <vector>                       // for vector
+#include <iostream>
+#include <map>
+#include <utility>
+#include <vector>
 
-#include "libupnpp/log.hxx"             // for LOGDEB1, LOGERR, LOGDEB
-#include "libupnpp/ptmutex.hxx"         // for PTMutexLocker, PTMutexInit
-#include "libupnpp/upnpplib.hxx"        // for LibUPnP
+#include "libupnpp/log.hxx"
+#include "libupnpp/ptmutex.hxx"
+#include "libupnpp/upnpplib.hxx"
 #include "libupnpp/upnpp_p.hxx"
-#include "libupnpp/upnpputils.hxx"      // for timespec_addnanos
-#include "libupnpp/workqueue.hxx"       // for WorkQueue
+#include "libupnpp/upnpputils.hxx"
+#include "libupnpp/workqueue.hxx"
 #include "libupnpp/control/httpdownload.hxx"
-#include "libupnpp/control/description.hxx"              // for UPnPDeviceDesc, etc
+#include "libupnpp/control/description.hxx"
 #include "libupnpp/control/discovery.hxx"
 
 using namespace std;
 using namespace STD_PLACEHOLDERS;
 using namespace UPnPP;
 
-
 // Set up timespec struct xx nanoseconds in the future
 static void wakeupTime(struct timespec* wkuptime, long long nanos_later)
 {
-	UPnPP::timespec_now(wkuptime);
+    UPnPP::timespec_now(wkuptime);
     UPnPP::timespec_addnanos(wkuptime, nanos_later);
 }
 
@@ -98,6 +97,8 @@ public:
 // discovered object descriptors for processing by our dedicated
 // thread.
 static WorkQueue<DiscoveredTask*> discoveredQueue("DiscoveredQueue");
+
+// Set of currently downloading URIs (for avoiding multiple downloads)    
 static STD_UNORDERED_SET<string> o_downloading;
 static PTMutexInit o_downloading_mutex;
 
@@ -115,56 +116,59 @@ static int cluCallBack(Upnp_EventType et, void* evp, void*)
     case UPNP_DISCOVERY_ADVERTISEMENT_ALIVE:
     {
         struct Upnp_Discovery *disco = (struct Upnp_Discovery *)evp;
+
         // Devices send multiple messages for themselves, their subdevices and 
         // services. AFAIK they all point to the same description.xml document,
         // which has all the interesting data. So let's try to only process
         // one message per device: the one which probably correspond to the 
         // upnp "root device" message and has empty service and device types:
-        if (!disco->DeviceType[0] && !disco->ServiceType[0]) {
-            LOGDEB1("discovery:cllb:ALIVE: " << cluDiscoveryToStr(disco) 
-                   << endl);
-            // Device signals its existence and well-being. Perform the
-            // UPnP "description" phase by downloading and decoding the
-            // description document.
+        if (disco->DeviceType[0] || disco->ServiceType[0]) {
+            return UPNP_E_SUCCESS;
+        }
 
-            DiscoveredTask *tp = new DiscoveredTask(1, disco);
+        LOGDEB1("discovery:cllb:ALIVE: " << cluDiscoveryToStr(disco) << endl);
 
-            {
-                // Note that this does not prevent multiple successive
-                // downloads of a normal url, just multiple
-                // simultaneous downloads of a slow one, to avoid
-                // tying up threads.
-                PTMutexLocker lock(o_downloading_mutex);
-                pair<STD_UNORDERED_SET<string>::iterator,bool> res = 
-                    o_downloading.insert(tp->url);
-                if (!res.second) {
-                    LOGDEB("discovery:cllb: already downloading " << 
-                           tp->url << endl);
-                    return UPNP_E_SUCCESS;
-                }
-            }
+        // Device signals its existence and well-being. Perform the
+        // UPnP "description" phase by downloading and decoding the
+        // description document.
 
-            LOGDEB("discoExplorer: downloading " << tp->url << endl);
-            string sdesc;
-            if (!downloadUrlWithCurl(tp->url, tp->description, 5)) {
-                LOGERR("discovery:cllb: downloadUrlWithCurl error for: " << 
+        DiscoveredTask *tp = new DiscoveredTask(1, disco);
+
+        {
+            // Note that this does not prevent multiple successive
+            // downloads of a normal url, just multiple
+            // simultaneous downloads of a slow one, to avoid
+            // tying up threads.
+            PTMutexLocker lock(o_downloading_mutex);
+            pair<STD_UNORDERED_SET<string>::iterator,bool> res = 
+                o_downloading.insert(tp->url);
+            if (!res.second) {
+                LOGDEB("discovery:cllb: already downloading " <<
                        tp->url << endl);
-                {PTMutexLocker lock(o_downloading_mutex);
-                    o_downloading.erase(tp->url);
-                }
                 delete tp;
                 return UPNP_E_SUCCESS;
             }
-            LOGDEB1("discovery:cllb: downloaded description document of " <<
-                    tp->description.size() << " bytes" << endl);
+        }
 
+        LOGDEB("discoExplorer: downloading " << tp->url << endl);
+        if (!downloadUrlWithCurl(tp->url, tp->description, 5)) {
+            LOGERR("discovery:cllb: downloadUrlWithCurl error for: " << 
+                   tp->url << endl);
             {PTMutexLocker lock(o_downloading_mutex);
                 o_downloading.erase(tp->url);
             }
+            delete tp;
+            return UPNP_E_SUCCESS;
+        }
+        LOGDEB1("discovery:cllb: downloaded description document of " <<
+                tp->description.size() << " bytes" << endl);
 
-            if (discoveredQueue.put(tp)) {
-                return UPNP_E_FINISH;
-            }
+        {PTMutexLocker lock(o_downloading_mutex);
+            o_downloading.erase(tp->url);
+        }
+
+        if (!discoveredQueue.put(tp)) {
+            LOGERR("discovery:cllb: queue.put failed\n");
         }
         break;
     }
@@ -173,8 +177,8 @@ static int cluCallBack(Upnp_EventType et, void* evp, void*)
         struct Upnp_Discovery *disco = (struct Upnp_Discovery *)evp;
         //LOGDEB("discovery:cllB:BYEBYE: " << cluDiscoveryToStr(disco) << endl);
         DiscoveredTask *tp = new DiscoveredTask(0, disco);
-        if (discoveredQueue.put(tp)) {
-            return UPNP_E_FINISH;
+        if (!discoveredQueue.put(tp)) {
+            LOGERR("discovery:cllb: queue.put failed\n");
         }
         break;
     }
@@ -261,7 +265,8 @@ void *UPnPDeviceDirectory::discoExplorer(void *)
             }
         } else {
             // Update or insert the device
-            DeviceDescriptor d(tsk->url, tsk->description, time(0), tsk->expires);
+            DeviceDescriptor d(tsk->url, tsk->description, time(0),
+                               tsk->expires);
             if (!d.device.ok) {
                 LOGERR("discoExplorer: description parse failed for " << 
                        tsk->deviceId << endl);
