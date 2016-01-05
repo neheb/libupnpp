@@ -1,18 +1,18 @@
-/*	 Copyright (C) 2012 J.F.Dockes
- *	 This program is free software; you can redistribute it and/or modify
- *	 it under the terms of the GNU General Public License as published by
- *	 the Free Software Foundation; either version 2 of the License, or
- *	 (at your option) any later version.
+/*       Copyright (C) 2012 J.F.Dockes
+ *       This program is free software; you can redistribute it and/or modify
+ *       it under the terms of the GNU General Public License as published by
+ *       the Free Software Foundation; either version 2 of the License, or
+ *       (at your option) any later version.
  *
- *	 This program is distributed in the hope that it will be useful,
- *	 but WITHOUT ANY WARRANTY; without even the implied warranty of
- *	 MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *	 GNU General Public License for more details.
+ *       This program is distributed in the hope that it will be useful,
+ *       but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *       MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *       GNU General Public License for more details.
  *
- *	 You should have received a copy of the GNU General Public License
- *	 along with this program; if not, write to the
- *	 Free Software Foundation, Inc.,
- *	 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+ *       You should have received a copy of the GNU General Public License
+ *       along with this program; if not, write to the
+ *       Free Software Foundation, Inc.,
+ *       59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 #ifndef _WORKQUEUE_H_INCLUDED_
 #define _WORKQUEUE_H_INCLUDED_
@@ -49,20 +49,18 @@ public:
     /** Create a WorkQueue
      * @param name for message printing
      * @param hi number of tasks on queue before clients blocks. Default 0
-     *	  meaning no limit. hi == -1 means that the queue is disabled.
+     *    meaning no limit. hi == -1 means that the queue is disabled.
      * @param lo minimum count of tasks before worker starts. Default 1.
      */
     WorkQueue(const std::string& name, size_t hi = 0, size_t lo = 1)
         : m_name(name), m_high(hi), m_low(lo),
           m_workers_exited(0), m_clients_waiting(0), m_workers_waiting(0),
-          m_tottasks(0), m_nowake(0), m_workersleeps(0), m_clientsleeps(0)
-    {
+          m_tottasks(0), m_nowake(0), m_workersleeps(0), m_clientsleeps(0) {
         m_ok = (pthread_cond_init(&m_ccond, 0) == 0) &&
-               (pthread_cond_init(&m_wcond, 0) == 0);
+            (pthread_cond_init(&m_wcond, 0) == 0);
     }
 
-    ~WorkQueue()
-    {
+    ~WorkQueue() {
         if (!m_worker_threads.empty())
             setTerminateAndWait();
     }
@@ -71,14 +69,13 @@ public:
      *
      * @param nworkers number of threads copies to start.
      * @param start_routine thread function. It should loop
-     *		taking (QueueWorker::take()) and executing tasks.
+     *          taking (QueueWorker::take()) and executing tasks.
      * @param arg initial parameter to thread function.
      * @return true if ok.
      */
-    bool start(int nworkers, void *(*workproc)(void *), void *arg)
-    {
+    bool start(int nworkers, void *(*workproc)(void *), void *arg) {
         PTMutexLocker lock(m_mutex);
-        for	 (int i = 0; i < nworkers; i++) {
+        for (int i = 0; i < nworkers; i++) {
             int err;
             pthread_t thr;
             if ((err = pthread_create(&thr, 0, workproc, arg))) {
@@ -93,8 +90,7 @@ public:
      *
      * Sleeps if there are already too many.
      */
-    bool put(T t, bool flushprevious = false)
-    {
+    bool put(T t, bool flushprevious = false) {
         PTMutexLocker lock(m_mutex);
         if (!lock.ok() || !ok()) {
             return false;
@@ -141,8 +137,7 @@ public:
      * of suspend condition was set on the queue by waitIdle(), to be reset by
      * some kind of "resume" call. Not currently the case.
      */
-    bool waitIdle()
-    {
+    bool waitIdle() {
         PTMutexLocker lock(m_mutex);
         if (!lock.ok() || !ok()) {
             return false;
@@ -170,8 +165,7 @@ public:
      * Does not bother about tasks possibly remaining on the queue, so
      * should be called after waitIdle() for an orderly shutdown.
      */
-    void* setTerminateAndWait()
-    {
+    void* setTerminateAndWait() {
         PTMutexLocker lock(m_mutex);
 
         if (m_worker_threads.empty()) {
@@ -206,7 +200,7 @@ public:
 
         // Reset to start state.
         m_workers_exited = m_clients_waiting = m_workers_waiting =
-                m_tottasks = m_nowake = m_workersleeps = m_clientsleeps = 0;
+            m_tottasks = m_nowake = m_workersleeps = m_clientsleeps = 0;
         m_ok = true;
 
         return statusall;
@@ -217,8 +211,7 @@ public:
      * Sleeps if there are not enough. Signal if we go to sleep on empty
      * queue: client may be waiting for our going idle.
      */
-    bool take(T* tp, size_t *szp = 0)
-    {
+    bool take(T* tp, size_t *szp = 0) {
         PTMutexLocker lock(m_mutex);
         if (!lock.ok() || !ok()) {
             return false;
@@ -258,33 +251,29 @@ public:
      * false by the shutdown code anyway). The thread must return/exit
      * immediately after calling this.
      */
-    void workerExit()
-    {
+    void workerExit() {
         PTMutexLocker lock(m_mutex);
         m_workers_exited++;
         m_ok = false;
         pthread_cond_broadcast(&m_ccond);
     }
 
-    size_t qsize()
-    {
+    size_t qsize() {
         PTMutexLocker lock(m_mutex);
         size_t sz = m_queue.size();
         return sz;
     }
 
 private:
-    bool ok()
-    {
+    bool ok() {
         bool isok = m_ok && m_workers_exited == 0 && !m_worker_threads.empty();
         return isok;
     }
 
     long long nanodiff(const struct timespec& older,
-                       const struct timespec& newer)
-    {
+                       const struct timespec& newer) {
         return (newer.tv_sec - older.tv_sec) * 1000000000LL
-               + newer.tv_nsec - older.tv_nsec;
+            + newer.tv_nsec - older.tv_nsec;
     }
 
     // Configuration
