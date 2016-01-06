@@ -29,20 +29,26 @@
 #ifndef __GETIFADDR_H__
 #define __GETIFADDR_H__
 
-#include <string>
-#include <vector>
+#ifdef __cplusplus
+extern "C" {
+#endif
 
+typedef void (*type_ifreporter)(void *, const char *);
 /** 
  * Retrieve hardware (ethernet) network address for this host.
- * @param iface if not empty, use this interface, else first found.
- * @param[output] ip if not 0 IP address in dotted string notation.
- * @param[output] hwaddr if not 0 hardware address in ascii.
- * @param[output] ifaces if not 0 list of all interface names. Will only be 
- *   complete if iface is not empty and nonsensical so that we have to walk 
- *   the whole list (e.g. getsyshwaddr("?!@", 0, 0, &ifaces);
+ * @param iface if not null or empty, use this interface, else first found.
+ * @param[output] ip IP address in dotted string notation.
+ * @param ilen size in bytes of the ip buffer.
+ * @param[output] buf in which to return the hardware address.
+ * @param hlen size in bytes of the buf buffer. Caller should use 6 for binary
+ *        or > 12 for ascii return.
  */
-int getsyshwaddr(const std::string& iface,
-                 std::string *ip, std::string *hwaddr,
-                 std::vector<std::string>* ifaces = 0);
+int getsyshwaddr(const char *iface, char *ip, int ilen, char *buf, int hlen,
+                 type_ifreporter cback, void *tok);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif
+

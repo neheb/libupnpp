@@ -67,6 +67,10 @@
 
 #include "libupnpp/getsyshwaddr.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #define MACADDR_IS_ZERO(x)                      \
     ((x[0] == 0x00) &&                          \
      (x[1] == 0x00) &&                          \
@@ -77,12 +81,16 @@
 
 #define DPRINTF(A,B,C,D) 
 
-int getsyshwaddr(const std::string& iface,
-                 std::string *ip, std::string *hwaddr,
-                 std::vector<std::string> *ifaces)
+int getsyshwaddr(const char *iface, char *ip, int ilen, char *buf, int hlen,
+                 type_ifreporter ifreporter, void *tok)
 {
     unsigned char mac[6];
     int ret = -1;
+    int ifnamelen = 0;
+
+    if (iface && *iface) {
+        ifnamelen = strnlen(iface, 200);
+    }
 
     //fprintf(stderr, "getsyshwaddr: iface [%s], ip %p, hwaddr %p, ifaces %p\n",
     //      iface.c_str(), ip, hwaddr, ifaces);
@@ -104,10 +112,12 @@ int getsyshwaddr(const std::string& iface,
         {
             struct sockaddr_in *addr_in;
             uint8_t a;
-            if (ifaces && strcmp(p->ifa_name , "lo")) {
-                ifaces->push_back(p->ifa_name);
+
+            if (ifreporter && strcmp(p->ifa_name , "lo")) {
+                ifreporter(tok, p->ifa_name);
             }
-            if (iface.size() && iface.compare(p->ifa_name))
+
+            if (ifnamelen && strncmp(iface, p->ifa_name, ifnamelen) != 0 )
                 continue;
 
             addr_in = (struct sockaddr_in *)p->ifa_addr;
@@ -115,12 +125,9 @@ int getsyshwaddr(const std::string& iface,
             if (a == 127)
                 continue;
 
-            if (ip) {
-                char ipbuf[100];
+            if (ip)
                 inet_ntop(AF_INET, (const void *) &(addr_in->sin_addr), 
-                          ipbuf, 99);
-                ip->assign(ipbuf);
-            }
+                          ip, ilen);
 
 #ifdef __linux__
             struct ifreq ifr;
@@ -166,10 +173,10 @@ int getsyshwaddr(const std::string& iface,
 
     for (if_idx = ifaces; if_idx->if_index; if_idx++)
     {
-        if (ifaces && strcmp(if_idx->if_name , "lo")) {
-            ifaces->push_back(if_idx->if_name);
+        if (ifreporter && strcmp(if_idx->if_name , "lo")) {
+            ifreporter(tok, if_idx->if_name);
         }
-        if (iface.size() && iface.compare(if_idx->if_name))
+        if (ifnamelen && strncmp(name, if_idx->if_name, ifnamelen) != 0 )
             continue;
 
         strncpy(ifr.ifr_name, if_idx->if_name, IFNAMSIZ);
@@ -215,10 +222,11 @@ int getsyshwaddr(const std::string& iface,
             return -1;
         }
     }
+
     // Get the full list and walk it
     if (GetAdaptersInfo(pAdapterInfo, &dwBufLen) == NO_ERROR) {
-        for (PIP_ADAPTER_INFO pAdapter = pAdapterInfo; pAdapter != NULL;
-             pAdapter = pAdapter->Next) {
+		PIP_ADAPTER_INFO pAdapter = pAdapterInfo;
+        for (; pAdapter != NULL; pAdapter = pAdapter->Next) {
 
             //fprintf(stderr, "Testing adapter name [%s] Description [%s] "
 			// "against input [%s]\n", pAdapter->AdapterName,
@@ -235,18 +243,20 @@ int getsyshwaddr(const std::string& iface,
             // Note: AdapterName is a GUID which as far as I can see
             // appears nowhere in the GUI. Description is something
             // like "Intel Pro 100 #2", better.
-            std::string desc(pAdapter->Description);
 
-            if (ifaces) {
-                ifaces->push_back(desc);
+            if (ifreporter) {
+                ifreporter(tok, pAdapter->Description);
             }
 
-            if (!iface.empty() && iface.compare(desc))
+            /* If the interface name was specified, check it */
+            if (ifnamelen && 
+                strncmp(iface, pAdapter->Description, ifnamelen) != 0)
                 continue;
             
             /* Store the IP address in dotted notation format */
             if (ip) {
-                ip->assign(pAdapter->CurrentIpAddress->IpAddress.String);
+                strncpy(ip, pAdapter->CurrentIpAddress->IpAddress.String, ilen);
+                ip[ilen-1] = 0;
             }
 
             /* The MAC is in the pAdapter->Address char array */
@@ -265,15 +275,20 @@ int getsyshwaddr(const std::string& iface,
 
 #endif
 
-    if (ret == 0 && hwaddr) {
-        char buf[100];
-        sprintf(buf, "%02x%02x%02x%02x%02x%02x",
-                mac[0]&0xFF, mac[1]&0xFF, mac[2]&0xFF,
-                mac[3]&0xFF, mac[4]&0xFF, mac[5]&0xFF);
-        hwaddr->assign(buf);
+    if (ret == 0 && buf) {
+        if (hlen > 12)
+            sprintf(buf, "%02x%02x%02x%02x%02x%02x",
+                    mac[0]&0xFF, mac[1]&0xFF, mac[2]&0xFF,
+                    mac[3]&0xFF, mac[4]&0xFF, mac[5]&0xFF);
+        else if (hlen == 6)
+            memmove(buf, mac, 6);
     }
     return ret;
 }
+
+#ifdef __cplusplus
+}
+#endif
 
 /* Local Variables: */
 /* mode: c++ */
