@@ -77,15 +77,16 @@
 
 #define DPRINTF(A,B,C,D) 
 
-using namespace std;
-
-int getsyshwaddr(const string& iface,
-                 string *ip, string *hwaddr,
-                 vector<string> *ifaces)
+int getsyshwaddr(const std::string& iface,
+                 std::string *ip, std::string *hwaddr,
+                 std::vector<std::string> *ifaces)
 {
     unsigned char mac[6];
     int ret = -1;
 
+    //fprintf(stderr, "getsyshwaddr: iface [%s], ip %p, hwaddr %p, ifaces %p\n",
+    //      iface.c_str(), ip, hwaddr, ifaces);
+    
     memset(&mac, 0, sizeof(mac));
 
 #ifndef WIN32
@@ -115,11 +116,11 @@ int getsyshwaddr(const string& iface,
                 continue;
 
             if (ip) {
-				char ipbuf[100];
+                char ipbuf[100];
                 inet_ntop(AF_INET, (const void *) &(addr_in->sin_addr), 
                           ipbuf, 99);
-				ip->assign(ipbuf);
-			}
+                ip->assign(ipbuf);
+            }
 
 #ifdef __linux__
             struct ifreq ifr;
@@ -214,23 +215,14 @@ int getsyshwaddr(const string& iface,
             return -1;
         }
     }
-
     // Get the full list and walk it
     if (GetAdaptersInfo(pAdapterInfo, &dwBufLen) == NO_ERROR) {
-        PIP_ADAPTER_INFO pAdapter = pAdapterInfo;
+        for (PIP_ADAPTER_INFO pAdapter = pAdapterInfo; pAdapter != NULL;
+             pAdapter = pAdapter->Next) {
 
-        for (;pAdapter != NULL; pAdapter = pAdapter->Next) {
-			//fprintf(stderr, "Testing adapter name [%s] Description [%s] "
-			// "against input [%s]\n",
-			// pAdapter->AdapterName, pAdapter->Description, iface);
-            // Note: AdapterName is a GUID which as far as I can see appears
-            // nowhere in the GUI. Description is sthing like
-            // "Intel Pro 100 #2", better.
-            if (ifaces) {
-                ifaces->push_back(pAdapter->Description);
-            }
-            if (iface.size() && iface.compare(pAdapter->Description))
-				continue;
+            //fprintf(stderr, "Testing adapter name [%s] Description [%s] "
+			// "against input [%s]\n", pAdapter->AdapterName,
+			// pAdapter->Description, iface.c_str());
 
             /* CurrentIpAddress->IpAddress.String stores the IPv4 address 
                as a char string in dotted notation */
@@ -239,6 +231,19 @@ int getsyshwaddr(const string& iface,
                          pAdapter->CurrentIpAddress->IpAddress.String, 7)) {
                 continue;
             }
+
+            // Note: AdapterName is a GUID which as far as I can see
+            // appears nowhere in the GUI. Description is something
+            // like "Intel Pro 100 #2", better.
+            std::string desc(pAdapter->Description);
+
+            if (ifaces) {
+                ifaces->push_back(desc);
+            }
+
+            if (!iface.empty() && iface.compare(desc))
+                continue;
+            
             /* Store the IP address in dotted notation format */
             if (ip) {
                 ip->assign(pAdapter->CurrentIpAddress->IpAddress.String);
@@ -251,7 +256,7 @@ int getsyshwaddr(const string& iface,
                 ret = 0;
                 break;
             }
-        } 
+        }
     } else {
         fprintf(stderr, "getsyshwaddr: GetAdaptersInfo (call 2) failed\n");
     }
@@ -261,11 +266,11 @@ int getsyshwaddr(const string& iface,
 #endif
 
     if (ret == 0 && hwaddr) {
-		char buf[100];
-		sprintf(buf, "%02x%02x%02x%02x%02x%02x",
-				mac[0]&0xFF, mac[1]&0xFF, mac[2]&0xFF,
-				mac[3]&0xFF, mac[4]&0xFF, mac[5]&0xFF);
-		hwaddr->assign(buf);
+        char buf[100];
+        sprintf(buf, "%02x%02x%02x%02x%02x%02x",
+                mac[0]&0xFF, mac[1]&0xFF, mac[2]&0xFF,
+                mac[3]&0xFF, mac[4]&0xFF, mac[5]&0xFF);
+        hwaddr->assign(buf);
     }
     return ret;
 }
