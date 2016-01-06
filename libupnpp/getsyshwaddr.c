@@ -91,9 +91,9 @@ int getsyshwaddr(const char *iface, char *ip, int ilen, char *buf, int hlen,
     if (iface && *iface) {
         ifnamelen = strnlen(iface, 200);
     }
+//	fprintf(stderr, "getsyshwaddr: [%s](%d), ilen %d hlen %d, ifreporter %p\n",
+//			iface, ifnamelen, ilen, hlen, ifreporter);
 
-    //fprintf(stderr, "getsyshwaddr: iface [%s], ip %p, hwaddr %p, ifaces %p\n",
-    //      iface.c_str(), ip, hwaddr, ifaces);
     
     memset(&mac, 0, sizeof(mac));
 
@@ -117,7 +117,7 @@ int getsyshwaddr(const char *iface, char *ip, int ilen, char *buf, int hlen,
                 ifreporter(tok, p->ifa_name);
             }
 
-            if (ifnamelen && strncmp(iface, p->ifa_name, ifnamelen) != 0 )
+            if (ifnamelen && strcmp(iface, p->ifa_name))
                 continue;
 
             addr_in = (struct sockaddr_in *)p->ifa_addr;
@@ -176,7 +176,7 @@ int getsyshwaddr(const char *iface, char *ip, int ilen, char *buf, int hlen,
         if (ifreporter && strcmp(if_idx->if_name , "lo")) {
             ifreporter(tok, if_idx->if_name);
         }
-        if (ifnamelen && strncmp(name, if_idx->if_name, ifnamelen) != 0 )
+        if (ifnamelen && strcmp(name, if_idx->if_name))
             continue;
 
         strncpy(ifr.ifr_name, if_idx->if_name, IFNAMSIZ);
@@ -227,16 +227,24 @@ int getsyshwaddr(const char *iface, char *ip, int ilen, char *buf, int hlen,
     if (GetAdaptersInfo(pAdapterInfo, &dwBufLen) == NO_ERROR) {
 		PIP_ADAPTER_INFO pAdapter = pAdapterInfo;
         for (; pAdapter != NULL; pAdapter = pAdapter->Next) {
-
-            //fprintf(stderr, "Testing adapter name [%s] Description [%s] "
-			// "against input [%s]\n", pAdapter->AdapterName,
-			// pAdapter->Description, iface.c_str());
+			if (pAdapter == NULL)
+				break;
+//            fprintf(stderr, "Adapter name [%s] Description [%s] "
+//					"input [%s]\n", pAdapter->AdapterName,
+//					pAdapter->Description,	iface);
 
             /* CurrentIpAddress->IpAddress.String stores the IPv4 address 
                as a char string in dotted notation */
             /* Skip localhost ? */
-            if (!strncmp("127.0.0", 
-                         pAdapter->CurrentIpAddress->IpAddress.String, 7)) {
+			const char *firstipstr = pAdapter->IpAddressList.IpAddress.String;
+#if 0
+			IP_ADDR_STRING *nextip = &pAdapter->IpAddressList;
+			while (nextip != 0) {
+				fprintf(stderr, "IP: [%s]\n", nextip->IpAddress.String);
+				nextip = nextip->Next;
+			}
+#endif
+            if (!strncmp("127.0.0", firstipstr, 7)) {
                 continue;
             }
 
@@ -249,13 +257,12 @@ int getsyshwaddr(const char *iface, char *ip, int ilen, char *buf, int hlen,
             }
 
             /* If the interface name was specified, check it */
-            if (ifnamelen && 
-                strncmp(iface, pAdapter->Description, ifnamelen) != 0)
+            if (ifnamelen && strcmp(iface, pAdapter->Description))
                 continue;
             
             /* Store the IP address in dotted notation format */
             if (ip) {
-                strncpy(ip, pAdapter->CurrentIpAddress->IpAddress.String, ilen);
+                strncpy(ip, firstipstr, ilen);
                 ip[ilen-1] = 0;
             }
 

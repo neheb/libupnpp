@@ -63,10 +63,10 @@ SOURCES += \
 ../../libupnpp/control/service.cxx \
 ../../libupnpp/device/device.cxx \
 ../../libupnpp/device/vdir.cxx \
-../../libupnpp/getsyshwaddr.c \
 ../../libupnpp/ixmlwrap.cxx \
 ../../libupnpp/log.cxx \
 ../../libupnpp/md5.cxx \
 ../../libupnpp/soaphelp.cxx \
 ../../libupnpp/upnpavutils.cxx \
-../../libupnpp/upnpplib.cxx
+../../libupnpp/upnpplib.cxx \
+    ../../libupnpp/getsyshwaddr.c

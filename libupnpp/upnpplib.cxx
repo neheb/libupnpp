@@ -130,7 +130,8 @@ LibUPnP::LibUPnP(bool serveronly, string* hwaddr,
     }
 
     // If the interface name was not specified, we possibly use the
-    // supplied IP address.
+    // supplied IP address. If this is empty too, libupnp will choose
+    // by itself (the first adapter).
     if (ifname.empty())
         strncpy(ip_address, inip.c_str(), ipalen);
 
