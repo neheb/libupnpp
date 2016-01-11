@@ -47,11 +47,9 @@ public:
         : Service(device, service) {
         registerCallback();
     }
-    virtual ~AVTransport() {
-        unregisterCallback();
-    }
-        
+
     AVTransport() {}
+    virtual ~AVTransport() { }
     
     int setAVTransportURI(const std::string& uri, const std::string& metadata,
                           int instanceID=0)

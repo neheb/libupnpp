@@ -42,7 +42,6 @@ public:
         registerCallback();
     }
     virtual ~OHSender() {
-        unregisterCallback();
     }
 
     OHSender() {}

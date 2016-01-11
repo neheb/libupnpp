@@ -46,7 +46,6 @@ public:
         registerCallback();
     }
     virtual ~OHRadio() {
-        unregisterCallback();
     }
 
     OHRadio() {}

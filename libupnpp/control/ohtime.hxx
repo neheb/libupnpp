@@ -45,7 +45,6 @@ public:
         registerCallback();
     }
     virtual ~OHTime() {
-        unregisterCallback();
     }
 
     OHTime() {}

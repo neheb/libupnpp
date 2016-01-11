@@ -43,7 +43,6 @@ public:
     }
     OHProduct() {}
     ~OHProduct() {
-        unregisterCallback();
     }
 
     /** Test service type from discovery message */

@@ -91,7 +91,8 @@ Service::Service(const UPnPDeviceDesc& devdesc,
     m->friendlyName = devdesc.friendlyName;
     m->manufacturer = devdesc.manufacturer;
     m->modelName = devdesc.modelName;
-
+    m->SID[0] = 0;
+    
     // Only does anything the first time
     initEvents();
 }
@@ -107,7 +108,9 @@ Service::Service()
 
 Service::~Service()
 {
-    LOGDEB("Service::~Service: " << m->serviceType << " SID " << m->SID << endl);
+    LOGDEB("Service::~Service: " << m->serviceType << " SID " <<
+           m->SID << endl);
+    unregisterCallback();
     delete m;
     m = 0;
 }
@@ -364,12 +367,39 @@ void Service::registerCallback(evtCBFunc c)
 
 void Service::unregisterCallback()
 {
-    PTMutexLocker lock(cblock);
     LOGDEB1("Service::unregisterCallback: " << m->SID << endl);
-    o_calls.erase(m->SID);
-    unSubscribe();
+    if (m->SID[0]) {
+        unSubscribe();
+        PTMutexLocker lock(cblock);
+        o_calls.erase(m->SID);
+    }
 }
 
+#if 0
+void Service::reSubscribe()
+{
+    LOGDEB("Service::reSubscribe()------------------------\n");
+    if (m->SID[0] == 0) {
+        LOGINF("Service::reSubscribe: no subscription (null SID)\n");
+        return;
+    }
+    evtCBFunc c;
+    {
+        PTMutexLocker lock(cblock);
+        STD_UNORDERED_MAP<std::string, evtCBFunc>::iterator it =
+            o_calls.find(m->SID);
+        if (it == o_calls.end()) {
+            LOGINF("Service::reSubscribe: no callback found for m->SID " <<
+                   m->SID << endl);
+            return;
+        }
+        c = it->second;
+    }
+    unregisterCallback();
+    registerCallback(c);
+}
+#endif
+    
 template int Service::runSimpleAction<int>(string const&, string const&, int);
 template int Service::runSimpleGet<int>(string const&, string const&, int*);
 template int Service::runSimpleGet<bool>(string const&, string const&, bool*);

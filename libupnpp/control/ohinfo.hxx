@@ -42,7 +42,6 @@ public:
     }
 
     ~OHInfo() {
-        unregisterCallback();
     }
 
     OHInfo() {}

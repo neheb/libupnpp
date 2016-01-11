@@ -51,7 +51,6 @@ public:
         registerCallback();
     }
     virtual ~OHVolume() {
-        unregisterCallback();
     }
 
     OHVolume() {}
