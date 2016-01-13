@@ -84,6 +84,12 @@ LibUPnP *LibUPnP::getLibUPnP(bool serveronly, string* hwaddr,
     return theLib;
 }
 
+string LibUPnP::versionString()
+{
+    return string("libupnpp ") + PACKAGE_VERSION + " libupnp " +
+        UPNP_VERSION_STRING;
+}
+
 UpnpClient_Handle LibUPnP::getclh()
 {
     return m->clh;

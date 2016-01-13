@@ -52,6 +52,9 @@ public:
                                const std::string ip = std::string(),
                                unsigned short port = 0);
 
+    /** Returns something like "libupnpp 0.14.0 libupnp x.y.z" */
+    static std::string versionString();
+    
     /** Set libupnp log file name and activate logging.
      * This does nothing if libupnp was built with logging disabled.
      *
