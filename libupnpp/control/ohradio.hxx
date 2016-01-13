@@ -70,7 +70,8 @@ public:
     int transportState(OHPlaylist::TPState *tps);
 
     // This is for the benefit of ohinfo, no outside use
-    static int decodeMetadata(const std::string &rawdidl, UPnPDirObject *de);
+    static int decodeMetadata(const std::string& fromwho,
+                              const std::string &rawdidl, UPnPDirObject *de);
 
 protected:
     /* My service type string */

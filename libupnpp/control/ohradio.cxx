@@ -50,17 +50,19 @@ bool OHRadio::isOHRdService(const string& st)
     return !SType.compare(0, sz, st, 0, sz);
 }
 
-int OHRadio::decodeMetadata(const string &rawdidl, UPnPDirObject *dirent)
+int OHRadio::decodeMetadata(const string& who,
+                            const string &rawdidl, UPnPDirObject *dirent)
 {
     const string didl = SoapHelp::xmlUnquote(rawdidl);
 
     UPnPDirContent dir;
     if (!dir.parse(didl)) {
-        LOGERR("OHRadio::Read: didl parse failed: " << didl << endl);
+        LOGERR("OHRadio::decodeMetadata: " << who << ": didl parse failed: "
+               << didl << endl);
         return UPNP_E_BAD_RESPONSE;
     }
     if (dir.m_items.size() != 1) {
-        LOGERR("OHRadio::decodeMetadata: " << dir.m_items.size()
+        LOGERR("OHRadio::decodeMetadata: " << who << ": " << dir.m_items.size()
                << " items in response: [" << rawdidl << "]" << endl);
         return UPNP_E_BAD_RESPONSE;
     }
@@ -94,7 +96,7 @@ void OHRadio::evtCallback(
         } else if (!it->first.compare("Metadata")) {
             /* Metadata is a didl-lite string */
             UPnPDirObject dirent;
-            if (decodeMetadata(it->second, &dirent) == 0) {
+            if (decodeMetadata("evt", it->second, &dirent) == 0) {
                 getReporter()->changed(it->first.c_str(), dirent);
             } else {
                 LOGDEB("OHRadio:evtCallback: bad metadata in event\n");
@@ -133,7 +135,7 @@ int OHRadio::channel(std::string* urip, UPnPDirObject *dirent)
         LOGERR("OHRadio::Read: missing Uri in response" << endl);
         return UPNP_E_BAD_RESPONSE;
     }
-    return decodeMetadata(didl, dirent);
+    return decodeMetadata("channel", didl, dirent);
 }
 
 int OHRadio::channelsMax(int *value)
@@ -222,7 +224,7 @@ int OHRadio::read(int id, UPnPDirObject *dirent)
         LOGERR("OHRadio::Read: missing Metadata in response" << endl);
         return UPNP_E_BAD_RESPONSE;
     }
-    return decodeMetadata(didl, dirent);
+    return decodeMetadata("read", didl, dirent);
 }
     
 // Tracklist format

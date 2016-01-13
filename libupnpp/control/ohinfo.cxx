@@ -59,7 +59,8 @@ void OHInfo::evtCallback(
         if (!it->first.compare("Metatext")) {
             /* Metadata is a didl-lite string */
             UPnPDirObject dirent;
-            if (OHRadio::decodeMetadata(it->second, &dirent) == 0) {
+            if (OHRadio::decodeMetadata("OHInfo:evt",
+                                        it->second, &dirent) == 0) {
                 getReporter()->changed(it->first.c_str(), dirent);
             } else {
                 LOGDEB("OHInfo:evtCallback: bad metadata in event\n");
@@ -91,7 +92,7 @@ int OHInfo::metatext(UPnPDirObject *dirent)
         LOGERR("OHInfo::Read: missing Value in response" << endl);
         return UPNP_E_BAD_RESPONSE;
     }
-    return OHRadio::decodeMetadata(didl, dirent);
+    return OHRadio::decodeMetadata("OHInfo::metatext", didl, dirent);
 }
 
 } // End namespace UPnPClient
