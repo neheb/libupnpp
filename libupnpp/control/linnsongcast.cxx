@@ -165,7 +165,7 @@ void getReceiverState(const string& nm, ReceiverState& st, bool live)
 
     if (sources[currentindex].type.compare("Receiver") &&
         // Special case for upmpdcli in unix Sender + Receiver mode, yes ugly...
-        sources[currentindex].name.compare("SenderReceiver")) {
+        sources[currentindex].name.compare(0, 14, "SenderReceiver")) {
         st.state = ReceiverState::SCRS_NOTRECEIVER;
         st.reason = nm +  " not in receiver mode ";
         goto out;
