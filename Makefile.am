@@ -66,6 +66,7 @@ libupnpp_la_SOURCES = \
     libupnpp/md5.cxx \
     libupnpp/md5.hxx \
     libupnpp/ptmutex.hxx \
+    libupnpp/workqueue.hxx \
     libupnpp/soaphelp.cxx \
     libupnpp/soaphelp.hxx \
     libupnpp/upnpavutils.cxx \
@@ -104,7 +105,8 @@ nobase_include_HEADERS = \
     libupnpp/soaphelp.hxx \
     libupnpp/upnpavutils.hxx \
     libupnpp/upnpplib.hxx \
-    libupnpp/upnpputils.hxx
+    libupnpp/upnpputils.hxx \
+    libupnpp/workqueue.hxx
 
 libupnpp_la_LDFLAGS = -version-info $(VERSION_INFO)
 
