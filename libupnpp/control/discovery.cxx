@@ -150,7 +150,7 @@ static int cluCallBack(Upnp_EventType et, void* evp, void*)
             }
         }
 
-        LOGDEB("discoExplorer: downloading " << tp->url << endl);
+        LOGDEB1("discoExplorer: downloading " << tp->url << endl);
         if (!downloadUrlWithCurl(tp->url, tp->description, 5)) {
             LOGERR("discovery:cllb: downloadUrlWithCurl error for: " << 
                    tp->url << endl);
