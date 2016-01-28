@@ -51,10 +51,8 @@ bool OHRadio::isOHRdService(const string& st)
 }
 
 int OHRadio::decodeMetadata(const string& who,
-                            const string &rawdidl, UPnPDirObject *dirent)
+                            const string &didl, UPnPDirObject *dirent)
 {
-    const string didl = SoapHelp::xmlUnquote(rawdidl);
-
     UPnPDirContent dir;
     if (!dir.parse(didl)) {
         LOGERR("OHRadio::decodeMetadata: " << who << ": didl parse failed: "
@@ -63,7 +61,7 @@ int OHRadio::decodeMetadata(const string& who,
     }
     if (dir.m_items.size() != 1) {
         LOGERR("OHRadio::decodeMetadata: " << who << ": " << dir.m_items.size()
-               << " items in response: [" << rawdidl << "]" << endl);
+               << " items in response: [" << didl << "]" << endl);
         return UPNP_E_BAD_RESPONSE;
     }
     *dirent = dir.m_items[0];
