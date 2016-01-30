@@ -436,9 +436,11 @@ int timespec_diffms(const struct timespec& old, const struct timespec& recent)
 }
 
 // Loop on services, and poll each for changed data. Generate event
-// only if changed data exists. Every now and then, we generate an
-// artificial event with all the current state. This is normally run
-// by the main thread.
+// only if changed data exists.
+// We used to generate an artificial event with all the current state
+// every 10 S or so. This does not seem to be necessary, and we do not
+// do it any more.
+// This is normally run by the main thread.
 void UpnpDevice::eventloop()
 {
     if (!m->start()) {
@@ -517,6 +519,14 @@ void UpnpDevice::eventloop()
             vector<string> names, values;
             UpnpService* serv = m->servicemap[*it];
             {
+
+                // We don't generate periodic full event data any more
+                // by default. Code kept around for easier switch back
+                // on in case it's needed again
+#ifndef LIBUPNPP_PERIODIC_FULL_DEVICE_EVENTS
+                all = false;
+#endif
+                
                 PTMutexLocker lock(m->devlock);
                 if (!serv->getEventData(all, names, values) || names.empty()) {
                     continue;
