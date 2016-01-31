@@ -108,8 +108,8 @@ Service::Service()
 
 Service::~Service()
 {
-    LOGDEB("Service::~Service: " << m->serviceType << " SID " <<
-           m->SID << endl);
+    //LOGDEB("Service::~Service: " << m->serviceType << " SID " <<
+    // m->SID << endl);
     unregisterCallback();
     delete m;
     m = 0;
