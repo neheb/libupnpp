@@ -163,25 +163,32 @@ void getReceiverState(const string& nm, ReceiverState& st, bool live)
     // handle for it.
     OHRCH rcv = rdr->ohrc();
 
-    if (sources[currentindex].type.compare("Receiver") &&
-        // Special case for upmpdcli in unix Sender + Receiver mode, yes ugly...
-        sources[currentindex].name.compare(0, 14, "SenderReceiver")) {
-        st.state = ReceiverState::SCRS_NOTRECEIVER;
-        st.reason = nm +  " not in receiver mode ";
-        goto out;
-    }
-
+    // We used to check if the active source was the receiver service
+    // here. But the Receiver can be active (connected to a sender)
+    // without being the current source, and it forced playing tricks
+    // with source names to handle upmpdcli in SenderReceiver mode. So
+    // we don't do it any more and just query the Receiver state and 
+    // list the Receiver as available if it has no connected Uri
+    
     if (!rcv) {
         st.reason = nm +  ": no receiver service??";
         goto out;
     }
     if (rcv->sender(st.uri, st.meta)) {
+        cerr << "SENDER() failed\n";
         st.reason = nm +  ": Receiver::Sender failed";
+        goto out;
+    }
+
+    if (st.uri.empty()) {
+        st.state = ReceiverState::SCRS_NOTRECEIVER;
+        st.reason = nm +  " not in receiver mode ";
         goto out;
     }
 
     OHPlaylist::TPState tpst;
     if (rcv->transportState(&tpst)) {
+        cerr << "TRANSPORTSTATE failed\n";
         st.reason = nm +  ": Receiver::transportState() failed";
         goto out;
     }
