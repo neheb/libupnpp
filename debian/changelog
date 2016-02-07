@@ -1,8 +1,25 @@
+libupnpp2 (0.14.1-1) unstable; urgency=low
+
+  * Fix bug which could lead to crash after a failed init of the Radio
+    service (e.g. if Python2 was not found).
+
+ -- Jean-Francois Dockes <jf@dockes.org>  07 Feb 2016 09:17:00 +0100
+ 
+libupnpp2 (0.14.0-1) unstable; urgency=low
+
+  * No broadcasting of full state every 10S
+  * Songcast:  look at Receiver service state even if it is not
+    the current Source
+  * Remove excess unquote for radio metadata (issues with special chars)
+  * Add interface to retrieve version info
+
+ -- Jean-Francois Dockes <jf@dockes.org>  04 Feb 2016 17:55:00 +0100
+
 libupnpp2 (0.13.1-1) unstable; urgency=low
 
   * Small hack to help managing upmpdcli Renderers in SenderReceiver mode
 
- -- Jean-Francois Dockes <jf@dockes.org>  23 Dec 2015 10:19:00 +0200
+ -- Jean-Francois Dockes <jf@dockes.org>  23 Dec 2015 10:19:00 +0100
 
 libupnpp2 (0.13.0-1) unstable; urgency=low
 
@@ -10,7 +27,7 @@ libupnpp2 (0.13.0-1) unstable; urgency=low
   * Interface to OpenHome Sender service
   * Added or improved interfaces to OpenHome services: Product, Info, Radio, 
 
- -- Jean-Francois Dockes <jf@dockes.org>  Sat, 12 Dec 2015 11:01:00 +0200
+ -- Jean-Francois Dockes <jf@dockes.org>  Sat, 12 Dec 2015 11:01:00 +0100
 
 libupnpp2 (0.12.1-1) unstable; urgency=low
 

@@ -1,6 +1,6 @@
 Summary:        C++ wrapper for libupnp
 Name:           libupnpp
-Version:        0.13.1
+Version:        0.14.1
 Release:        1%{?dist}
 Group:          Applications/Multimedia
 License:        GPLv2+
@@ -43,6 +43,11 @@ upmpdcli and upplay
 %{_libdir}/libupnpp.so*
 
 %changelog
+* Sun Feb 07 2016 J.F. Dockes <jf@dockes.org> - 0.14.1
+- Fix bug leading to possible upmpdcli crash when radio service failed to
+  init (e.g.: because of no python2)
+* Fri Feb 05 2016 J.F. Dockes <jf@dockes.org> - 0.14.0
+- No systematic broadcasting of state info
 * Wed Dec 22 2015 J.F. Dockes <jf@dockes.org> - 0.13.1
 - Help managing upmpdcli in SenderReceiver mode
 * Mon Dec 14 2015 J.F. Dockes <jf@dockes.org> - 0.13.0
