@@ -65,7 +65,10 @@ public:
                const STD_UNORDERED_MAP<std::string, VDirContent>& files);
     ~UpnpDevice();
 
+    // We only ever keep one instance of a serviceId. Multiple calls will
+    // only keep the last one.
     void addService(UpnpService *, const std::string& serviceId);
+    void forgetService(const std::string& serviceId);
 
     /**
      * Add mapping from service+action-name to handler function.

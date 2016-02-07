@@ -17,19 +17,20 @@
 #include "libupnpp/config.h"
 
 
-#include <errno.h>                      // for ETIMEDOUT, errno
-#include <time.h>                       // for timespec, clock_gettime
+#include <errno.h>
+#include <time.h>
 
-#include <iostream>                     // for endl, operator<<, etc
+#include <iostream>
 #include <sstream>
-#include <utility>                      // for pair
+#include <utility>
+#include <algorithm>
 
-#include "libupnpp/log.hxx"             // for LOGERR, LOGFAT, LOGDEB, etc
+#include "libupnpp/log.hxx"
 #include "libupnpp/ixmlwrap.hxx"
-#include "libupnpp/upnpplib.hxx"        // for LibUPnP
-#include "libupnpp/upnpputils.hxx"      // for timespec_addnanos
+#include "libupnpp/upnpplib.hxx"
+#include "libupnpp/upnpputils.hxx"
 #include "libupnpp/upnpp_p.hxx"
-#include "vdir.hxx"                     // for VirtualDir
+#include "vdir.hxx"
 #include "device.hxx"
 
 using namespace std;
@@ -388,9 +389,31 @@ int UpnpDevice::Internal::callBack(Upnp_EventType et, void* evp)
 
 void UpnpDevice::addService(UpnpService *serv, const std::string& serviceId)
 {
+    LOGDEB("UpnpDevice::addService: " << serviceId << endl);
     PTMutexLocker lock(m->devlock);
+    
     m->servicemap[serviceId] = serv;
+    vector<string>::iterator it =
+        std::find(m->serviceids.begin(), m->serviceids.end(), serviceId);
+    if (it != m->serviceids.end())
+        m->serviceids.erase(it);
     m->serviceids.push_back(serviceId);
+}
+
+void UpnpDevice::forgetService(const std::string& serviceId)
+{
+    LOGDEB("UpnpDevice::forgetService: " << serviceId << endl);
+    PTMutexLocker lock(m->devlock);
+
+    STD_UNORDERED_MAP<string, UpnpService*>::iterator servit = 
+        m->servicemap.find(serviceId);
+    if (servit != m->servicemap.end()) {
+        m->servicemap.erase(servit);
+    }
+    vector<string>::iterator it =
+        std::find(m->serviceids.begin(), m->serviceids.end(), serviceId);
+    if (it != m->serviceids.end())
+        m->serviceids.erase(it);
 }
 
 void UpnpDevice::addActionMapping(const UpnpService* serv,
@@ -560,15 +583,17 @@ void UpnpDevice::shouldExit()
 
 struct UpnpService::Internal {
     Internal(bool noevs) 
-    : noevents(noevs) {
+        : noevents(noevs), dev(0) {
     }
     bool noevents;
+    UpnpDevice *dev;
 };
 
 UpnpService::UpnpService(const std::string& stp,
                          const std::string& sid, UpnpDevice *dev)
-    : m_serviceType(stp), m_serviceId(sid), m(0)
+    : m_serviceType(stp), m_serviceId(sid), m(new Internal(false))
 {
+    m->dev = dev;
     dev->addService(this, sid);
 }
 
@@ -576,12 +601,15 @@ UpnpService::UpnpService(const std::string& stp,
                          const std::string& sid, UpnpDevice *dev, bool noevs)
     : m_serviceType(stp), m_serviceId(sid), m(new Internal(noevs))
 {
+    m->dev = dev;
     dev->addService(this, sid);
 }
 
 UpnpService::~UpnpService() 
 {
     if (m) {
+        if (m->dev)
+            m->dev->forgetService(m_serviceId);
         delete m;
         m = 0;
     }
