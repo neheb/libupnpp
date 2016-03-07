@@ -29,8 +29,12 @@
 #include "libupnpp/log.hxx"             // for LOGERR
 #include "libupnpp/soaphelp.hxx"        // for SoapIncoming, etc
 
-namespace UPnPClient { class UPnPDeviceDesc; }
-namespace UPnPClient { class UPnPServiceDesc; }
+namespace UPnPClient {
+class UPnPDeviceDesc;
+}
+namespace UPnPClient {
+class UPnPServiceDesc;
+}
 
 //using namespace UPnPP;
 
@@ -44,26 +48,26 @@ class Service;
  */
 class VarEventReporter {
 public:
-    virtual ~VarEventReporter() {};
+    virtual ~VarEventReporter() {}
     // Using char * to avoid any issue with strings and concurrency
     virtual void changed(const char *nm, int val)  = 0;
     virtual void changed(const char *nm, const char *val) = 0;
     // Used for track metadata (parsed as content directory entry). Not always
     // needed.
-    virtual void changed(const char * /*nm*/, UPnPDirObject /*meta*/) {};
+    virtual void changed(const char * /*nm*/, UPnPDirObject /*meta*/) {}
     // Used by ohplaylist. Not always needed
-    virtual void changed(const char * /*nm*/, std::vector<int> /*ids*/) {};
+    virtual void changed(const char * /*nm*/, std::vector<int> /*ids*/) {}
 };
 
-typedef 
-STD_FUNCTION<void (const STD_UNORDERED_MAP<std::string, std::string>&)> 
+typedef
+STD_FUNCTION<void (const STD_UNORDERED_MAP<std::string, std::string>&)>
 evtCBFunc;
 
 class Service {
 public:
     /** Construct by copying data from device and service objects.
      */
-    Service(const UPnPDeviceDesc& device, const UPnPServiceDesc& service); 
+    Service(const UPnPDeviceDesc& device, const UPnPServiceDesc& service);
 
     /** An empty one */
     Service();
@@ -82,7 +86,7 @@ public:
     const std::string& getModelName() const;
     const std::string& getManufacturer() const;
 
-    virtual int runAction(const UPnPP::SoapOutgoing& args, 
+    virtual int runAction(const UPnPP::SoapOutgoing& args,
                           UPnPP::SoapIncoming& data);
 
     /** Run trivial action where there are neither input parameters
@@ -91,12 +95,12 @@ public:
 
     /* Run action where there are no input parameters and a single
        named value is to be retrieved from the result */
-    template <class T> int runSimpleGet(const std::string& actnm, 
+    template <class T> int runSimpleGet(const std::string& actnm,
                                         const std::string& valnm,
                                         T *valuep);
 
     /* Run action with a single input parameter and no return data */
-    template <class T> int runSimpleAction(const std::string& actnm, 
+    template <class T> int runSimpleAction(const std::string& actnm,
                                            const std::string& valnm,
                                            T value);
 
@@ -109,7 +113,7 @@ protected:
 
     /** Used by a derived class to register its callback method. This
      * creates an entry in the static map, using m_SID, which was
-     * obtained by subscribe() during construction 
+     * obtained by subscribe() during construction
      */
     void registerCallback(evtCBFunc c);
     void unregisterCallback();

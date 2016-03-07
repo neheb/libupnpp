@@ -16,33 +16,34 @@
  */
 #include "libupnpp/config.h"
 
-#include <ctype.h>                      // for toupper
-#include <stdio.h>                      // for sprintf
-#include <string.h>                     // for strncpy
-#include <time.h>                       // for timespec
+#include <ctype.h>
+#include <stdio.h>
+#include <string.h>
+#include <time.h>
 #ifdef __MACH__
 #include <mach/clock.h>
 #include <mach/mach.h>
 #endif
 
-#include <upnp/ixml.h>                  // for ixmlRelaxParser
-#include <upnp/upnptools.h>             // for UpnpGetErrorMessage
+#include <upnp/ixml.h>
+#include <upnp/upnptools.h>
 #include <upnp/upnpdebug.h>
 
-#include <iostream>                     // for operator<<, basic_ostream, etc
-#include <map>                          // for map, _Rb_tree_iterator, etc
-#include <set>                          // for set
-#include <sstream>                      // for ostringstream
-#include <string>                       // for string, basic_string, etc
-#include <utility>                      // for pair
-#include <vector>                       // for vector
+#include <iostream>
+#include <map>
+#include <set>
+#include <sstream>
+#include <string>
+#include <utility>
+#include <vector>
 
-#include "libupnpp/getsyshwaddr.h"               // for getsyshwaddr
-#include "libupnpp/ptmutex.hxx"         // for PTMutexLocker
-#include "libupnpp/log.hxx"                      // for LOGERR, LOGDEB1, LOGDEB, etc
-#include "libupnpp/md5.hxx"                      // for MD5String
+#include "libupnpp/getsyshwaddr.h"
+#include "libupnpp/ptmutex.hxx"
+#include "libupnpp/log.hxx"
+#include "libupnpp/md5.hxx"
 #include "libupnpp/upnpp_p.hxx"
 #include "libupnpp/upnpplib.hxx"
+#include "libupnpp/upnpputils.hxx"
 
 using namespace std;
 
@@ -87,7 +88,7 @@ LibUPnP *LibUPnP::getLibUPnP(bool serveronly, string* hwaddr,
 string LibUPnP::versionString()
 {
     return string("libupnpp ") + PACKAGE_VERSION + " libupnp " +
-        UPNP_VERSION_STRING;
+           UPNP_VERSION_STRING;
 }
 
 UpnpClient_Handle LibUPnP::getclh()
@@ -109,8 +110,8 @@ LibUPnP::LibUPnP(bool serveronly, string* hwaddr,
                  const string ifname, const string inip, unsigned short port)
 {
     LOGDEB1("LibUPnP: serveronly " << serveronly << " &hwaddr " << hwaddr <<
-           " ifname [" << ifname << "] inip [" << inip << "] port " << port 
-           << endl);
+            " ifname [" << ifname << "] inip [" << inip << "] port " << port
+            << endl);
 
     if ((m = new Internal()) == 0) {
         LOGERR("LibUPnP::LibUPnP: out of memory" << endl);
@@ -149,7 +150,7 @@ LibUPnP::LibUPnP(bool serveronly, string* hwaddr,
     }
     setMaxContentLength(2000*1024);
 
-    LOGDEB("LibUPnP: Using IP " << UpnpGetServerIpAddress() << " port " << 
+    LOGDEB("LibUPnP: Using IP " << UpnpGetServerIpAddress() << " port " <<
            UpnpGetServerPort() << endl);
 
 #if defined(HAVE_UPNPSETLOGLEVEL)
@@ -162,7 +163,7 @@ LibUPnP::LibUPnP(bool serveronly, string* hwaddr,
         m->ok = true;
     } else {
         m->init_error = UpnpRegisterClient(o_callback, (void *)this, &m->clh);
-		
+
         if (m->init_error == UPNP_E_SUCCESS) {
             m->ok = true;
         } else {
@@ -177,11 +178,11 @@ LibUPnP::LibUPnP(bool serveronly, string* hwaddr,
 int LibUPnP::setupWebServer(const string& description, UpnpDevice_Handle *dvh)
 {
     int res = UpnpRegisterRootDevice2(
-        UPNPREG_BUF_DESC,
-        description.c_str(), 
-        description.size(), /* Desc filename len, ignored */
-        1, /* config_baseURL */
-        o_callback, (void *)this, dvh);
+                  UPNPREG_BUF_DESC,
+                  description.c_str(),
+                  description.size(), /* Desc filename len, ignored */
+                  1, /* config_baseURL */
+                  o_callback, (void *)this, dvh);
 
     if (res != UPNP_E_SUCCESS) {
         LOGERR(errAsString("UpnpRegisterRootDevice2", res) << " description " <<
@@ -192,7 +193,7 @@ int LibUPnP::setupWebServer(const string& description, UpnpDevice_Handle *dvh)
 
 void LibUPnP::setMaxContentLength(int bytes)
 {
-    UpnpSetMaxContentLength(bytes);
+    UpnpSetMaxContentLength(size_t(bytes));
 }
 
 bool LibUPnP::setLogFileName(const std::string& fn, LogLevel level)
@@ -220,13 +221,13 @@ bool LibUPnP::setLogLevel(LogLevel level)
 {
 #if defined(HAVE_UPNPSETLOGLEVEL)
     switch (level) {
-    case LogLevelNone: 
+    case LogLevelNone:
         setLogFileName("", LogLevelNone);
         break;
-    case LogLevelError: 
+    case LogLevelError:
         UpnpSetLogLevel(UPNP_CRITICAL);
         break;
-    case LogLevelDebug: 
+    case LogLevelDebug:
         UpnpSetLogLevel(UPNP_ALL);
         break;
     }
@@ -302,27 +303,38 @@ string LibUPnP::makeDevUUID(const std::string& name, const std::string& hw)
 string LibUPnP::evTypeAsString(Upnp_EventType et)
 {
     switch (et) {
-    case UPNP_CONTROL_ACTION_REQUEST: return "UPNP_CONTROL_ACTION_REQUEST";
-    case UPNP_CONTROL_ACTION_COMPLETE: return "UPNP_CONTROL_ACTION_COMPLETE";
-    case UPNP_CONTROL_GET_VAR_REQUEST: return "UPNP_CONTROL_GET_VAR_REQUEST";
-    case UPNP_CONTROL_GET_VAR_COMPLETE: return "UPNP_CONTROL_GET_VAR_COMPLETE";
+    case UPNP_CONTROL_ACTION_REQUEST:
+        return "UPNP_CONTROL_ACTION_REQUEST";
+    case UPNP_CONTROL_ACTION_COMPLETE:
+        return "UPNP_CONTROL_ACTION_COMPLETE";
+    case UPNP_CONTROL_GET_VAR_REQUEST:
+        return "UPNP_CONTROL_GET_VAR_REQUEST";
+    case UPNP_CONTROL_GET_VAR_COMPLETE:
+        return "UPNP_CONTROL_GET_VAR_COMPLETE";
     case UPNP_DISCOVERY_ADVERTISEMENT_ALIVE:
         return "UPNP_DISCOVERY_ADVERTISEMENT_ALIVE";
     case UPNP_DISCOVERY_ADVERTISEMENT_BYEBYE:
         return "UPNP_DISCOVERY_ADVERTISEMENT_BYEBYE";
-    case UPNP_DISCOVERY_SEARCH_RESULT: return "UPNP_DISCOVERY_SEARCH_RESULT";
-    case UPNP_DISCOVERY_SEARCH_TIMEOUT: return "UPNP_DISCOVERY_SEARCH_TIMEOUT";
+    case UPNP_DISCOVERY_SEARCH_RESULT:
+        return "UPNP_DISCOVERY_SEARCH_RESULT";
+    case UPNP_DISCOVERY_SEARCH_TIMEOUT:
+        return "UPNP_DISCOVERY_SEARCH_TIMEOUT";
     case UPNP_EVENT_SUBSCRIPTION_REQUEST:
         return "UPNP_EVENT_SUBSCRIPTION_REQUEST";
-    case UPNP_EVENT_RECEIVED: return "UPNP_EVENT_RECEIVED";
-    case UPNP_EVENT_RENEWAL_COMPLETE: return "UPNP_EVENT_RENEWAL_COMPLETE";
-    case UPNP_EVENT_SUBSCRIBE_COMPLETE: return "UPNP_EVENT_SUBSCRIBE_COMPLETE";
+    case UPNP_EVENT_RECEIVED:
+        return "UPNP_EVENT_RECEIVED";
+    case UPNP_EVENT_RENEWAL_COMPLETE:
+        return "UPNP_EVENT_RENEWAL_COMPLETE";
+    case UPNP_EVENT_SUBSCRIBE_COMPLETE:
+        return "UPNP_EVENT_SUBSCRIBE_COMPLETE";
     case UPNP_EVENT_UNSUBSCRIBE_COMPLETE:
         return "UPNP_EVENT_UNSUBSCRIBE_COMPLETE";
-    case UPNP_EVENT_AUTORENEWAL_FAILED: return "UPNP_EVENT_AUTORENEWAL_FAILED";
+    case UPNP_EVENT_AUTORENEWAL_FAILED:
+        return "UPNP_EVENT_AUTORENEWAL_FAILED";
     case UPNP_EVENT_SUBSCRIPTION_EXPIRED:
         return "UPNP_EVENT_SUBSCRIPTION_EXPIRED";
-    default: return "UPNP UNKNOWN EVENT";
+    default:
+        return "UPNP UNKNOWN EVENT";
     }
 }
 
@@ -474,7 +486,7 @@ bool stringToBool(const string& s, bool *value)
 {
     if (s[0] == 'F' ||s[0] == 'f' ||s[0] == 'N' || s[0] == 'n' ||s[0] == '0') {
         *value = false;
-    } else if (s[0] == 'T'|| s[0] == 't' ||s[0] == 'Y' ||s[0] == 'y' || 
+    } else if (s[0] == 'T'|| s[0] == 't' ||s[0] == 'Y' ||s[0] == 'y' ||
                s[0] == '1') {
         *value = true;
     } else {
@@ -484,31 +496,33 @@ bool stringToBool(const string& s, bool *value)
 }
 
 //  s1 is already uppercase
-int stringuppercmp(const string & s1, const string& s2) 
+int stringuppercmp(const string & s1, const string& s2)
 {
     string::const_iterator it1 = s1.begin();
     string::const_iterator it2 = s2.begin();
-    int size1 = s1.length(), size2 = s2.length();
-    char c2;
+    string::size_type size1 = s1.length(), size2 = s2.length();
+    int c2;
 
     if (size1 > size2) {
-	while (it1 != s1.end()) { 
-	    c2 = ::toupper(*it2);
-	    if (*it1 != c2) {
-		return *it1 > c2 ? 1 : -1;
-	    }
-	    ++it1; ++it2;
-	}
-	return size1 == size2 ? 0 : 1;
+        while (it1 != s1.end()) {
+            c2 = ::toupper(*it2);
+            if (*it1 != c2) {
+                return *it1 > c2 ? 1 : -1;
+            }
+            ++it1;
+            ++it2;
+        }
+        return size1 == size2 ? 0 : 1;
     } else {
-	while (it2 != s2.end()) { 
-	    c2 = ::toupper(*it2);
-	    if (*it1 != c2) {
-		return *it1 > c2 ? 1 : -1;
-	    }
-	    ++it1; ++it2;
-	}
-	return size1 == size2 ? 0 : -1;
+        while (it2 != s2.end()) {
+            c2 = ::toupper(*it2);
+            if (*it1 != c2) {
+                return *it1 > c2 ? 1 : -1;
+            }
+            ++it1;
+            ++it2;
+        }
+        return size1 == size2 ? 0 : -1;
     }
 }
 
@@ -520,76 +534,76 @@ int stringuppercmp(const string & s1, const string& s2)
 
 LARGE_INTEGER getFILETIMEoffset()
 {
-	SYSTEMTIME s;
-	FILETIME f;
-	LARGE_INTEGER t;
+    SYSTEMTIME s;
+    FILETIME f;
+    LARGE_INTEGER t;
 
-	s.wYear = 1970;
-	s.wMonth = 1;
-	s.wDay = 1;
-	s.wHour = 0;
-	s.wMinute = 0;
-	s.wSecond = 0;
-	s.wMilliseconds = 0;
-	SystemTimeToFileTime(&s, &f);
-	t.QuadPart = f.dwHighDateTime;
-	t.QuadPart <<= 32;
-	t.QuadPart |= f.dwLowDateTime;
-	return (t);
+    s.wYear = 1970;
+    s.wMonth = 1;
+    s.wDay = 1;
+    s.wHour = 0;
+    s.wMinute = 0;
+    s.wSecond = 0;
+    s.wMilliseconds = 0;
+    SystemTimeToFileTime(&s, &f);
+    t.QuadPart = f.dwHighDateTime;
+    t.QuadPart <<= 32;
+    t.QuadPart |= f.dwLowDateTime;
+    return (t);
 }
 
 int clock_gettime(int X, struct timespec *tv)
 {
-	LARGE_INTEGER           t;
-	FILETIME            f;
-	double                  microseconds;
-	static LARGE_INTEGER    offset;
-	static double           frequencyToMicroseconds;
-	static int              initialized = 0;
-	static BOOL             usePerformanceCounter = 0;
+    LARGE_INTEGER           t;
+    FILETIME            f;
+    double                  microseconds;
+    static LARGE_INTEGER    offset;
+    static double           frequencyToMicroseconds;
+    static int              initialized = 0;
+    static BOOL             usePerformanceCounter = 0;
 
-	if (!initialized) {
-		LARGE_INTEGER performanceFrequency;
-		initialized = 1;
-		usePerformanceCounter = QueryPerformanceFrequency(&performanceFrequency);
-		if (usePerformanceCounter) {
-			QueryPerformanceCounter(&offset);
-			frequencyToMicroseconds = (double)performanceFrequency.QuadPart / 1000000.;
-		}
-		else {
-			offset = getFILETIMEoffset();
-			frequencyToMicroseconds = 10.;
-		}
-	}
-	if (usePerformanceCounter) QueryPerformanceCounter(&t);
-	else {
-		GetSystemTimeAsFileTime(&f);
-		t.QuadPart = f.dwHighDateTime;
-		t.QuadPart <<= 32;
-		t.QuadPart |= f.dwLowDateTime;
-	}
+    if (!initialized) {
+        LARGE_INTEGER performanceFrequency;
+        initialized = 1;
+        usePerformanceCounter = QueryPerformanceFrequency(&performanceFrequency);
+        if (usePerformanceCounter) {
+            QueryPerformanceCounter(&offset);
+            frequencyToMicroseconds = (double)performanceFrequency.QuadPart / 1000000.;
+        }
+        else {
+            offset = getFILETIMEoffset();
+            frequencyToMicroseconds = 10.;
+        }
+    }
+    if (usePerformanceCounter) QueryPerformanceCounter(&t);
+    else {
+        GetSystemTimeAsFileTime(&f);
+        t.QuadPart = f.dwHighDateTime;
+        t.QuadPart <<= 32;
+        t.QuadPart |= f.dwLowDateTime;
+    }
 
-	t.QuadPart -= offset.QuadPart;
-	microseconds = (double)t.QuadPart / frequencyToMicroseconds;
-	t.QuadPart = (long long)microseconds;
-	tv->tv_sec = t.QuadPart / 1000000;
-	tv->tv_nsec = (t.QuadPart % 1000000) * 1000;
-	return (0);
+    t.QuadPart -= offset.QuadPart;
+    microseconds = (double)t.QuadPart / frequencyToMicroseconds;
+    t.QuadPart = (long long)microseconds;
+    tv->tv_sec = t.QuadPart / 1000000;
+    tv->tv_nsec = (t.QuadPart % 1000000) * 1000;
+    return (0);
 }
 #endif
 
 void timespec_now(struct timespec *tsp)
 {
 #ifdef __MACH__ // Mac OS X does not have clock_gettime, use clock_get_time
-	clock_serv_t cclock;
-	mach_timespec_t mts;
-	host_get_clock_service(mach_host_self(), CALENDAR_CLOCK, &cclock);
-	clock_get_time(cclock, &mts);
-	mach_port_deallocate(mach_task_self(), cclock);
-	tsp->tv_sec = mts.tv_sec;
-	tsp->tv_nsec = mts.tv_nsec;
+    clock_serv_t cclock;
+    mach_timespec_t mts;
+    host_get_clock_service(mach_host_self(), CALENDAR_CLOCK, &cclock);
+    clock_get_time(cclock, &mts);
+    mach_port_deallocate(mach_task_self(), cclock);
+    tsp->tv_sec = mts.tv_sec;
+    tsp->tv_nsec = mts.tv_nsec;
 #else
-	clock_gettime(CLOCK_REALTIME, tsp);
+    clock_gettime(CLOCK_REALTIME, tsp);
 #endif
 }
 
@@ -603,7 +617,7 @@ void timespec_addnanos(struct timespec *ts, long long nanos)
     if (nanos > BILLION) {
         secs = nanos / BILLION;
         nanos -= secs * BILLION;
-    } 
+    }
     ts->tv_sec += secs;
     ts->tv_nsec = long(nanos);
 }

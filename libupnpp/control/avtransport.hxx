@@ -24,9 +24,15 @@
 #include "libupnpp/control/cdircontent.hxx"  // for UPnPDirObject
 #include "libupnpp/control/service.hxx"  // for Service
 
-namespace UPnPClient { class AVTransport; }
-namespace UPnPClient { class UPnPDeviceDesc; }
-namespace UPnPClient { class UPnPServiceDesc; }
+namespace UPnPClient {
+class AVTransport;
+}
+namespace UPnPClient {
+class UPnPDeviceDesc;
+}
+namespace UPnPClient {
+class UPnPServiceDesc;
+}
 
 namespace UPnPClient {
 
@@ -50,7 +56,7 @@ public:
 
     AVTransport() {}
     virtual ~AVTransport() { }
-    
+
     int setAVTransportURI(const std::string& uri, const std::string& metadata,
                           int instanceID=0)
     {
@@ -64,8 +70,9 @@ public:
     }
 
 
-    enum PlayMode {PM_Unknown, PM_Normal, PM_Shuffle, PM_RepeatOne, 
-                   PM_RepeatAll, PM_Random, PM_Direct1};
+    enum PlayMode {PM_Unknown, PM_Normal, PM_Shuffle, PM_RepeatOne,
+                   PM_RepeatAll, PM_Random, PM_Direct1
+                  };
     int setPlayMode(PlayMode pm, int instanceID=0);
 
     struct MediaInfo {
@@ -81,9 +88,10 @@ public:
     };
     int getMediaInfo(MediaInfo& info, int instanceID=0);
 
-    enum TransportState {Unknown, Stopped, Playing, Transitioning, 
-                         PausedPlayback, PausedRecording, Recording, 
-                         NoMediaPresent};
+    enum TransportState {Unknown, Stopped, Playing, Transitioning,
+                         PausedPlayback, PausedRecording, Recording,
+                         NoMediaPresent
+                        };
     enum TransportStatus {TPS_Unknown, TPS_Ok, TPS_Error};
     struct TransportInfo {
         TransportState tpstate;
@@ -122,10 +130,11 @@ public:
     int play(int speed = 1, int instanceID = 0);
 
     enum SeekMode {SEEK_TRACK_NR, SEEK_ABS_TIME, SEEK_REL_TIME, SEEK_ABS_COUNT,
-                   SEEK_REL_COUNT, SEEK_CHANNEL_FREQ, SEEK_TAPE_INDEX, 
-                   SEEK_FRAME};
+                   SEEK_REL_COUNT, SEEK_CHANNEL_FREQ, SEEK_TAPE_INDEX,
+                   SEEK_FRAME
+                  };
     // Target in seconds for times.
-    int seek(SeekMode mode, int target, int instanceID=0); 
+    int seek(SeekMode mode, int target, int instanceID=0);
 
     // These are for multitrack medium like a CD. No meaning for electronic
     // tracks where set(next)AVTransportURI() is used
@@ -133,7 +142,8 @@ public:
     int previous(int instanceID=0);
 
     enum TransportActions {TPA_Next = 1, TPA_Pause = 2, TPA_Play = 4,
-                           TPA_Previous = 8, TPA_Seek = 16, TPA_Stop = 32};
+                           TPA_Previous = 8, TPA_Seek = 16, TPA_Stop = 32
+                          };
     int getCurrentTransportActions(int& actions, int instanceID=0);
 
     /** Test service type from discovery message */

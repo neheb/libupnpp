@@ -39,7 +39,7 @@ using namespace UPnPP;
 
 namespace UPnPClient {
 
-const string 
+const string
 RenderingControl::SType("urn:schemas-upnp-org:service:RenderingControl:1");
 
 // Check serviceType string (while walking the descriptions. We don't
@@ -56,7 +56,7 @@ RenderingControl::RenderingControl(const UPnPDeviceDesc& device,
 {
     UPnPServiceDesc::Parsed sdesc;
     if (service.fetchAndParseDesc(device.URLBase, sdesc)) {
-        STD_UNORDERED_MAP<std::string, UPnPServiceDesc::StateVariable>::const_iterator it = 
+        STD_UNORDERED_MAP<std::string, UPnPServiceDesc::StateVariable>::const_iterator it =
             sdesc.stateTable.find("Volume");
         if (it != sdesc.stateTable.end() && it->second.hasValueRange) {
             setVolParams(it->second.minimum, it->second.maximum,
@@ -94,8 +94,8 @@ void RenderingControl::evtCallback(
     const STD_UNORDERED_MAP<std::string, std::string>& props)
 {
     LOGDEB1("RenderingControl::evtCallback: getReporter() " << getReporter() << endl);
-    for (STD_UNORDERED_MAP<std::string, std::string>::const_iterator it = 
-             props.begin(); it != props.end(); it++) {
+    for (STD_UNORDERED_MAP<std::string, std::string>::const_iterator it =
+                props.begin(); it != props.end(); it++) {
         if (!it->first.compare("LastChange")) {
             STD_UNORDERED_MAP<std::string, std::string> props1;
             if (!decodeAVLastChange(it->second, props1)) {
@@ -103,9 +103,9 @@ void RenderingControl::evtCallback(
                        << it->second << endl);
                 return;
             }
-            for (STD_UNORDERED_MAP<std::string, std::string>::iterator it1 = 
-                     props1.begin(); it1 != props1.end(); it1++) {
-                LOGDEB1("    " << it1->first << " -> " << 
+            for (STD_UNORDERED_MAP<std::string, std::string>::iterator it1 =
+                        props1.begin(); it1 != props1.end(); it1++) {
+                LOGDEB1("    " << it1->first << " -> " <<
                         it1->second << endl);
                 if (!it1->first.compare("Volume")) {
                     int vol = devVolTo0100(atoi(it1->second.c_str()));
@@ -130,7 +130,7 @@ void RenderingControl::registerCallback()
     Service::registerCallback(bind(&RenderingControl::evtCallback, this, _1));
 }
 
-void RenderingControl::setVolParams(int min, int max, int step) 
+void RenderingControl::setVolParams(int min, int max, int step)
 {
     LOGDEB("RenderingControl::setVolParams: min " << min << " max " << max <<
            " step " << step << endl);
@@ -160,8 +160,8 @@ int RenderingControl::setVolume(int ivol, const string& channel)
         // Round up when going up, down when going down. Else the user
         // will be surprised by the GUI control going back if he does
         // not go a full step
-        desiredVolume = m_volmin + 
-            goingUp ? int(ceil(ivol * fact)) : int(floor(ivol * fact));
+        desiredVolume = m_volmin +
+                        (goingUp ? int(ceil(ivol * fact)) : int(floor(ivol * fact)));
     }
     // Insure integer number of steps (are there devices where step != 1?)
     int remainder = (desiredVolume - m_volmin) % m_volstep;
@@ -172,14 +172,14 @@ int RenderingControl::setVolume(int ivol, const string& channel)
             desiredVolume -= remainder;
     }
 
-    LOGDEB("RenderingControl::setVolume: ivol " << ivol << 
+    LOGDEB("RenderingControl::setVolume: ivol " << ivol <<
            " m_volmin " << m_volmin << " m_volmax " << m_volmax <<
-           " m_volstep " << m_volstep << " computed desiredVolume " << 
+           " m_volstep " << m_volstep << " computed desiredVolume " <<
            desiredVolume << endl);
 
     SoapOutgoing args(getServiceType(), "SetVolume");
     args("InstanceID", "0")("Channel", channel)
-        ("DesiredVolume", SoapHelp::i2s(desiredVolume));
+    ("DesiredVolume", SoapHelp::i2s(desiredVolume));
     SoapIncoming data;
     return runAction(args, data);
 }
@@ -195,8 +195,8 @@ int RenderingControl::getVolume(const string& channel)
     }
     int dev_volume;
     if (!data.get("CurrentVolume", &dev_volume)) {
-        LOGERR("RenderingControl:getVolume: missing CurrentVolume in response" 
-        << endl);
+        LOGERR("RenderingControl:getVolume: missing CurrentVolume in response"
+               << endl);
         return UPNP_E_BAD_RESPONSE;
     }
 
@@ -208,7 +208,7 @@ int RenderingControl::setMute(bool mute, const string& channel)
 {
     SoapOutgoing args(getServiceType(), "SetMute");
     args("InstanceID", "0")("Channel", channel)
-        ("DesiredMute", SoapHelp::i2s(mute?1:0));
+    ("DesiredMute", SoapHelp::i2s(mute?1:0));
     SoapIncoming data;
     return runAction(args, data);
 }
@@ -224,8 +224,8 @@ bool RenderingControl::getMute(const string& channel)
     }
     bool mute;
     if (!data.get("CurrentMute", &mute)) {
-        LOGERR("RenderingControl:getMute: missing CurrentMute in response" 
-        << endl);
+        LOGERR("RenderingControl:getMute: missing CurrentMute in response"
+               << endl);
         return false;
     }
     return mute;

@@ -67,21 +67,21 @@ int OHRadio::decodeMetadata(const string& who,
     *dirent = dir.m_items[0];
     return 0;
 }
-    
+
 void OHRadio::evtCallback(
     const STD_UNORDERED_MAP<std::string, std::string>& props)
 {
     LOGDEB1("OHRadio::evtCallback: getReporter(): " << getReporter() << endl);
-    for (STD_UNORDERED_MAP<std::string, std::string>::const_iterator it = 
-             props.begin(); it != props.end(); it++) {
+    for (STD_UNORDERED_MAP<std::string, std::string>::const_iterator it =
+                props.begin(); it != props.end(); it++) {
         if (!getReporter()) {
-            LOGDEB1("OHRadio::evtCallback: " << it->first << " -> " 
+            LOGDEB1("OHRadio::evtCallback: " << it->first << " -> "
                     << it->second << endl);
             continue;
         }
 
         if (!it->first.compare("Id") ||
-            !it->first.compare("ChannelsMax")) {
+                !it->first.compare("ChannelsMax")) {
             getReporter()->changed(it->first.c_str(), atoi(it->second.c_str()));
         } else if (!it->first.compare("IdArray")) {
             // Decode IdArray. See how we call the client
@@ -224,7 +224,7 @@ int OHRadio::read(int id, UPnPDirObject *dirent)
     }
     return decodeMetadata("read", didl, dirent);
 }
-    
+
 // Tracklist format
 // <TrackList>
 //   <Entry>
@@ -237,12 +237,12 @@ int OHRadio::read(int id, UPnPDirObject *dirent)
 
 class OHTrackListParser : public inputRefXMLParser {
 public:
-    OHTrackListParser(const string& input, 
+    OHTrackListParser(const string& input,
                       vector<OHPlaylist::TrackListEntry>* vp)
         : inputRefXMLParser(input), m_v(vp)
-        {
-            //LOGDEB("OHTrackListParser: input: " << input << endl);
-        }
+    {
+        //LOGDEB("OHTrackListParser: input: " << input << endl);
+    }
 
 protected:
     virtual void StartElement(const XML_Char *name, const XML_Char **) {
@@ -252,12 +252,12 @@ protected:
         if (!strcmp(name, "Entry")) {
             UPnPDirContent dir;
             if (!dir.parse(m_tdidl)) {
-                LOGERR("OHRadio::ReadList: didl parse failed: " 
+                LOGERR("OHRadio::ReadList: didl parse failed: "
                        << m_tdidl << endl);
                 return;
             }
             if (dir.m_items.size() != 1) {
-                LOGERR("OHRadio::ReadList: " << dir.m_items.size() 
+                LOGERR("OHRadio::ReadList: " << dir.m_items.size()
                        << " in response!" << endl);
                 return;
             }
@@ -287,7 +287,7 @@ private:
     string m_tdidl;
 };
 
-int OHRadio::readList(const std::vector<int>& ids, 
+int OHRadio::readList(const std::vector<int>& ids,
                       vector<OHPlaylist::TrackListEntry>* entsp)
 {
     string idsparam;
@@ -318,7 +318,7 @@ int OHRadio::setChannel(const std::string& uri, const std::string& didl)
 {
     SoapOutgoing args(getServiceType(), "SetChannel");
     args("Uri", uri)
-        ("Metadata", didl);
+    ("Metadata", didl);
     SoapIncoming data;
     return runAction(args, data);
 }
@@ -327,7 +327,7 @@ int OHRadio::setId(int id, const std::string& uri)
 {
     SoapOutgoing args(getServiceType(), "SetId");
     args("Value", SoapHelp::val2s(id))
-        ("Uri", uri);
+    ("Uri", uri);
     SoapIncoming data;
     return runAction(args, data);
 }

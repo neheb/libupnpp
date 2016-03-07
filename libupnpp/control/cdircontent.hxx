@@ -27,8 +27,8 @@
 
 namespace UPnPClient {
 
-/** 
- * UPnP resource. A resource describes one of the entities associated with 
+/**
+ * UPnP resource. A resource describes one of the entities associated with
  * a directory entry. This would be typically the audio file URI, and
  * its characteristics (sample rate etc.) as attributes, but there can
  * be several resources associated to one entry, for example for
@@ -57,8 +57,9 @@ public:
     // items are special to us, and so should playlists, but I've not
     // seen one of the latter yet (servers seem to use containers for
     // playlists).
-    enum ItemClass {ITC_audioItem_musicTrack, ITC_audioItem_playlist, 
-                    ITC_unknown};
+    enum ItemClass {ITC_audioItem_musicTrack, ITC_audioItem_playlist,
+                    ITC_unknown
+                   };
 
     std::string m_id; // ObjectId
     std::string m_pid; // Parent ObjectId
@@ -75,10 +76,10 @@ public:
     std::vector<UPnPResource> m_resources;
 
     /** Get named property
-     * @param property name (e.g. upnp:artist, upnp:album,
+     * @param name (e.g. upnp:artist, upnp:album,
      *     upnp:originalTrackNumber, upnp:genre). Use m_title instead
      *     for dc:title.
-     * @param[out] value
+     * @param[out] value the parameter value if found
      * @return true if found.
      */
     bool getprop(const std::string& name, std::string& value) const
@@ -99,11 +100,11 @@ public:
         return it->second;
     }
 
-    /** Get named property for resource 
+    /** Get named property for resource
      * Field names: "bitrate", "duration" (H:mm:ss.ms), "nrAudioChannels",
      * "protocolInfo", "sampleFrequency" (Hz), "size" (bytes)
      */
-    bool getrprop(unsigned int ridx, const std::string& nm, std::string& val) 
+    bool getrprop(unsigned int ridx, const std::string& nm, std::string& val)
     const
     {
         if (ridx >= m_resources.size())
@@ -140,7 +141,7 @@ public:
         return UPnPP::upnpdurationtos(sdur);
     }
 
-    /** 
+    /**
      * Get a DIDL document suitable for sending to a mediaserver. Only
      * works for items, not containers. The idea is that we may have
      * missed useful stuff while parsing the data from the content
@@ -163,25 +164,25 @@ public:
     std::string dump() const
     {
         std::ostringstream os;
-        os << "UPnPDirObject: " << (m_type == item ? "item" : "container") << 
-            " id [" << m_id << "] pid [" << m_pid <<
-            "] title [" << m_title << "]" << std::endl;
+        os << "UPnPDirObject: " << (m_type == item ? "item" : "container") <<
+           " id [" << m_id << "] pid [" << m_pid <<
+           "] title [" << m_title << "]" << std::endl;
         os << "Properties: " << std::endl;
-        for (std::map<std::string,std::string>::const_iterator it = 
-                 m_props.begin(); 
-             it != m_props.end(); it++) {
-            os << "[" << it->first << "]->[" << it->second << "] " 
+        for (std::map<std::string,std::string>::const_iterator it =
+                    m_props.begin();
+                it != m_props.end(); it++) {
+            os << "[" << it->first << "]->[" << it->second << "] "
                << std::endl;
         }
         os << "Resources:" << std::endl;
-        for (std::vector<UPnPResource>::const_iterator it = 
-                 m_resources.begin(); it != m_resources.end(); it++) {
+        for (std::vector<UPnPResource>::const_iterator it =
+                    m_resources.begin(); it != m_resources.end(); it++) {
             os << "  Uri [" << it->m_uri << "]" << std::endl;
             os << "  Resource attributes:" << std::endl;
-            for (std::map<std::string, std::string>::const_iterator it1 = 
-                     it->m_props.begin(); 
-                 it1 != it->m_props.end(); it1++) {
-                os << "    [" << it1->first << "]->[" << it1->second << "] " 
+            for (std::map<std::string, std::string>::const_iterator it1 =
+                        it->m_props.begin();
+                    it1 != it->m_props.end(); it1++) {
+                os << "    [" << it1->first << "]->[" << it1->second << "] "
                    << std::endl;
             }
         }
@@ -205,8 +206,8 @@ public:
     std::vector<UPnPDirObject> m_containers;
     std::vector<UPnPDirObject> m_items;
 
-    void clear() 
-    { 
+    void clear()
+    {
         m_containers.clear();
         m_items.clear();
     }

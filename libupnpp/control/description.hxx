@@ -57,11 +57,11 @@ public:
     {
         std::ostringstream os;
         os << "SERVICE {serviceType [" << serviceType <<
-            "] serviceId [" << serviceId <<
-            "] SCPDURL [" << SCPDURL <<
-            "] controlURL [" << controlURL <<
-            "] eventSubURL [" << eventSubURL <<
-            "] }" << std::endl;
+           "] serviceId [" << serviceId <<
+           "] SCPDURL [" << SCPDURL <<
+           "] controlURL [" << controlURL <<
+           "] eventSubURL [" << eventSubURL <<
+           "] }" << std::endl;
         return os.str();
     }
 
@@ -102,7 +102,7 @@ public:
         STD_UNORDERED_MAP<std::string, Action> actionList;
         STD_UNORDERED_MAP<std::string, StateVariable> stateTable;
     };
-    
+
     bool fetchAndParseDesc(const std::string&, Parsed& parsed) const;
 };
 
@@ -144,11 +144,11 @@ public:
     {
         std::ostringstream os;
         os << "DEVICE " << " {deviceType [" << deviceType <<
-            "] friendlyName [" << friendlyName <<
-            "] UDN [" << UDN <<
-            "] URLBase [" << URLBase << "] Services:" << std::endl;
-        for (std::vector<UPnPServiceDesc>::const_iterator it = services.begin(); 
-             it != services.end(); it++) {
+           "] friendlyName [" << friendlyName <<
+           "] UDN [" << UDN <<
+           "] URLBase [" << URLBase << "] Services:" << std::endl;
+        for (std::vector<UPnPServiceDesc>::const_iterator it = services.begin();
+                it != services.end(); it++) {
             os << "    " << it->dump();
         }
         os << "}" << std::endl;

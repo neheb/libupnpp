@@ -53,10 +53,10 @@ void OHSender::evtCallback(
     const STD_UNORDERED_MAP<std::string, std::string>& props)
 {
     LOGDEB1("OHSender::evtCallback:getReporter(): " << getReporter() << endl);
-    for (STD_UNORDERED_MAP<std::string, std::string>::const_iterator it = 
-             props.begin(); it != props.end(); it++) {
+    for (STD_UNORDERED_MAP<std::string, std::string>::const_iterator it =
+                props.begin(); it != props.end(); it++) {
         if (!getReporter()) {
-            LOGDEB1("OHSender::evtCallback: " << it->first << " -> " 
+            LOGDEB1("OHSender::evtCallback: " << it->first << " -> "
                     << it->second << endl);
             continue;
         }

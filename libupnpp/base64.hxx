@@ -32,7 +32,7 @@ inline std::string base64_decode(const std::string& in)
 {
     std::string o;
     if (base64_decode(in, o))
-	return o;
+        return o;
     return std::string();
 }
 

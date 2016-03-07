@@ -31,7 +31,7 @@ using namespace STD_PLACEHOLDERS;
 using namespace UPnPP;
 
 namespace UPnPClient {
-    namespace Songcast {
+namespace Songcast {
 
 static MRDH getRenderer(const string& name)
 {
@@ -40,7 +40,7 @@ static MRDH getRenderer(const string& name)
         return MRDH(new MediaRenderer(ddesc));
     } else if (UPnPDeviceDirectory::getTheDir()->getDevByFName(name, ddesc)) {
         return MRDH(new MediaRenderer(ddesc));
-    } 
+    }
     LOGERR("getRenderer: getDevByFname failed for " << name << endl);
     return MRDH();
 }
@@ -52,17 +52,17 @@ static DVCH getDevice(const string& name)
         return DVCH(new MediaRenderer(ddesc));
     } else if (UPnPDeviceDirectory::getTheDir()->getDevByFName(name, ddesc)) {
         return DVCH(new MediaRenderer(ddesc));
-    } 
+    }
     LOGERR("getDevice: getDevByFname failed for " << name << endl);
     return DVCH();
 }
 
-OHSNH senderService(DVCH dev) 
+OHSNH senderService(DVCH dev)
 {
     OHSNH handle;
     for (vector<UPnPServiceDesc>::const_iterator it =
-             dev->desc()->services.begin();
-         it != dev->desc()->services.end();it++) {
+                dev->desc()->services.begin();
+            it != dev->desc()->services.end(); it++) {
         if (OHSender::isOHSenderService(it->serviceType)) {
             handle = OHSNH(new OHSender(*(dev->desc()), *it));
             break;
@@ -155,11 +155,11 @@ void getReceiverState(const string& nm, ReceiverState& st, bool live)
 
     if (currentindex < 0 || currentindex >= int(sources.size())) {
         st.reason = nm +  ": bad index " + SoapHelp::i2s(currentindex) +
-            " not inside sources of size " +  SoapHelp::i2s(sources.size());
+                    " not inside sources of size " +  SoapHelp::i2s(sources.size());
         return;
     }
 
-    // Looks like the device has a receiver service. We may have to return a 
+    // Looks like the device has a receiver service. We may have to return a
     // handle for it.
     OHRCH rcv = rdr->ohrc();
 
@@ -167,9 +167,9 @@ void getReceiverState(const string& nm, ReceiverState& st, bool live)
     // here. But the Receiver can be active (connected to a sender)
     // without being the current source, and it forced playing tricks
     // with source names to handle upmpdcli in SenderReceiver mode. So
-    // we don't do it any more and just query the Receiver state and 
+    // we don't do it any more and just query the Receiver state and
     // list the Receiver as available if it has no connected Uri
-    
+
     if (!rcv) {
         st.reason = nm +  ": no receiver service??";
         goto out;
@@ -203,7 +203,7 @@ out:
         st.prod = prod;
         st.rcv = rcv;
     }
-        
+
     return;
 }
 
@@ -219,9 +219,9 @@ void listReceivers(vector<ReceiverState>& vreceivers)
     for (auto& entry : vdds) {
         ReceiverState st;
         getReceiverState(entry.UDN, st, false);
-        if (st.state == ReceiverState::SCRS_NOTRECEIVER || 
-            st.state == ReceiverState::SCRS_PLAYING ||
-            st.state == ReceiverState::SCRS_STOPPED) {
+        if (st.state == ReceiverState::SCRS_NOTRECEIVER ||
+                st.state == ReceiverState::SCRS_PLAYING ||
+                st.state == ReceiverState::SCRS_STOPPED) {
             vreceivers.push_back(st);
         }
     }
@@ -230,7 +230,7 @@ void listReceivers(vector<ReceiverState>& vreceivers)
 // Look at all service descriptions and store udns of parent devices
 // for Sender services.
 static bool lookForSenders(vector<string>* sndudns,
-                           const UPnPDeviceDesc& device, 
+                           const UPnPDeviceDesc& device,
                            const UPnPServiceDesc& service)
 {
     if (OHSender::isOHSenderService(service.serviceType)) {
@@ -279,7 +279,7 @@ bool setReceiverPlaying(ReceiverState st,
     }
     if (st.prod->setSourceIndex(st.receiverSourceIndex)) {
         st.reason = st.nm + " : can't set source index to " +
-            SoapHelp::i2s(st.receiverSourceIndex);
+                    SoapHelp::i2s(st.receiverSourceIndex);
         return false;
     }
     if (st.rcv->play()) {
@@ -306,7 +306,7 @@ bool stopReceiver(ReceiverState st)
     }
     if (st.prod->setSourceIndex(0)) {
         st.reason = st.nm + " : can't set source index to " +
-            SoapHelp::i2s(st.receiverSourceIndex);
+                    SoapHelp::i2s(st.receiverSourceIndex);
         return false;
     }
     return true;
@@ -346,7 +346,7 @@ void setReceiversFromSender(const string& sendernm, const vector<string>& rcvs)
         case ReceiverState::SCRS_PLAYING:
             cerr << sl << ": already in receiver mode" << endl;
             continue;
-        case ReceiverState::SCRS_NOTRECEIVER: 
+        case ReceiverState::SCRS_NOTRECEIVER:
             if (setReceiverPlaying(sstate, uri, meta)) {
                 cerr << sl << " set up for playing " << uri << endl;
             } else {
@@ -384,7 +384,7 @@ void setReceiversFromReceiver(const string& masterName,
         case ReceiverState::SCRS_PLAYING:
             cerr << sl << ": already in receiver mode" << endl;
             continue;
-        case ReceiverState::SCRS_NOTRECEIVER: 
+        case ReceiverState::SCRS_NOTRECEIVER:
             if (setReceiverPlaying(sstate, mstate.uri, mstate.meta)) {
                 cerr << sl << " set up for playing " << mstate.uri << endl;
             } else {
@@ -406,7 +406,7 @@ void stopReceivers(const vector<string>& slaves)
         case ReceiverState::SCRS_NOOH:
             cerr << sl << sstate.reason << endl;
             continue;
-        case ReceiverState::SCRS_NOTRECEIVER: 
+        case ReceiverState::SCRS_NOTRECEIVER:
             cerr << sl << ": not in receiver mode" << endl;
             continue;
         case ReceiverState::SCRS_STOPPED:

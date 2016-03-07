@@ -73,10 +73,10 @@ void OHPlaylist::evtCallback(
     const STD_UNORDERED_MAP<std::string, std::string>& props)
 {
     LOGDEB1("OHPlaylist::evtCallback: getReporter(): " << getReporter() << endl);
-    for (STD_UNORDERED_MAP<std::string, std::string>::const_iterator it = 
-             props.begin(); it != props.end(); it++) {
+    for (STD_UNORDERED_MAP<std::string, std::string>::const_iterator it =
+                props.begin(); it != props.end(); it++) {
         if (!getReporter()) {
-            LOGDEB1("OHPlaylist::evtCallback: " << it->first << " -> " 
+            LOGDEB1("OHPlaylist::evtCallback: " << it->first << " -> "
                     << it->second << endl);
             continue;
         }
@@ -87,8 +87,8 @@ void OHPlaylist::evtCallback(
             getReporter()->changed(it->first.c_str(), int(tp));
 
         } else if (!it->first.compare("ProtocolInfo")) {
-            getReporter()->changed(it->first.c_str(), 
-                                it->second.c_str());
+            getReporter()->changed(it->first.c_str(),
+                                   it->second.c_str());
 
         } else if (!it->first.compare("Repeat") ||
                    !it->first.compare("Shuffle")) {
@@ -99,8 +99,8 @@ void OHPlaylist::evtCallback(
         } else if (!it->first.compare("Id") ||
                    !it->first.compare("TracksMax")) {
             getReporter()->changed(it->first.c_str(),
-                                atoi(it->second.c_str()));
-            
+                                   atoi(it->second.c_str()));
+
         } else if (!it->first.compare("IdArray")) {
             // Decode IdArray. See how we call the client
             vector<int> v;
@@ -110,7 +110,7 @@ void OHPlaylist::evtCallback(
         } else {
             LOGERR("OHPlaylist event: unknown variable: name [" <<
                    it->first << "] value [" << it->second << endl);
-                getReporter()->changed(it->first.c_str(), it->second.c_str());
+            getReporter()->changed(it->first.c_str(), it->second.c_str());
         }
     }
 }
@@ -235,12 +235,12 @@ int OHPlaylist::read(int id, std::string* urip, UPnPDirObject *dirent)
 
 class OHTrackListParser : public inputRefXMLParser {
 public:
-    OHTrackListParser(const string& input, 
+    OHTrackListParser(const string& input,
                       vector<OHPlaylist::TrackListEntry>* vp)
         : inputRefXMLParser(input), m_v(vp)
-        {
-            //LOGDEB("OHTrackListParser: input: " << input << endl);
-        }
+    {
+        //LOGDEB("OHTrackListParser: input: " << input << endl);
+    }
 
 protected:
     virtual void StartElement(const XML_Char *name, const XML_Char **) {
@@ -250,12 +250,12 @@ protected:
         if (!strcmp(name, "Entry")) {
             UPnPDirContent dir;
             if (!dir.parse(m_tdidl)) {
-                LOGERR("OHPlaylist::ReadList: didl parse failed: " 
+                LOGERR("OHPlaylist::ReadList: didl parse failed: "
                        << m_tdidl << endl);
                 return;
             }
             if (dir.m_items.size() != 1) {
-                LOGERR("OHPlaylist::ReadList: " << dir.m_items.size() 
+                LOGERR("OHPlaylist::ReadList: " << dir.m_items.size()
                        << " in response!" << endl);
                 return;
             }
@@ -285,7 +285,7 @@ private:
     string m_tdidl;
 };
 
-int OHPlaylist::readList(const std::vector<int>& ids, 
+int OHPlaylist::readList(const std::vector<int>& ids,
                          vector<TrackListEntry>* entsp)
 {
     string idsparam;
@@ -312,13 +312,13 @@ int OHPlaylist::readList(const std::vector<int>& ids,
     return 0;
 }
 
-int OHPlaylist::insert(int afterid, const string& uri, const string& didl, 
+int OHPlaylist::insert(int afterid, const string& uri, const string& didl,
                        int *nid)
 {
     SoapOutgoing args(getServiceType(), "Insert");
     args("AfterId", SoapHelp::i2s(afterid))
-        ("Uri", uri)
-        ("Metadata", didl);
+    ("Uri", uri)
+    ("Metadata", didl);
     SoapIncoming data;
     int ret = runAction(args, data);
     if (ret != UPNP_E_SUCCESS) {

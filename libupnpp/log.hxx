@@ -23,31 +23,31 @@
 
 namespace UPnPP {
 
-    class Logger {
-    public:
-        /** Initialize logging to file name. Use "stderr" for stderr output */
-        static Logger *getTheLog(const std::string& fn);
-        std::ostream& getstream() {
-            return m_tocerr ? std::cerr : m_stream;
-        }
-        enum LogLevel {LLNON, LLFAT, LLERR, LLINF, LLDEB, LLDEB1};
-        void setLogLevel(LogLevel level) {
-            m_loglevel = level;
-        }
-        int getloglevel() {
-            return m_loglevel;
-        }
-        
-    private:
-        bool m_tocerr;
-        int m_loglevel;
-        std::ofstream m_stream;
-        
-        Logger(const std::string& fn);
-	Logger(const Logger &);
-	Logger& operator=(const Logger &);
-    };
-        
+class Logger {
+public:
+    /** Initialize logging to file name. Use "stderr" for stderr output */
+    static Logger *getTheLog(const std::string& fn);
+    std::ostream& getstream() {
+        return m_tocerr ? std::cerr : m_stream;
+    }
+    enum LogLevel {LLNON, LLFAT, LLERR, LLINF, LLDEB, LLDEB1};
+    void setLogLevel(LogLevel level) {
+        m_loglevel = level;
+    }
+    int getloglevel() {
+        return m_loglevel;
+    }
+
+private:
+    bool m_tocerr;
+    int m_loglevel;
+    std::ofstream m_stream;
+
+    Logger(const std::string& fn);
+    Logger(const Logger &);
+    Logger& operator=(const Logger &);
+};
+
 #define DEBOUT (Logger::getTheLog("")->getstream())
 #ifndef LOCAL_LOGINC
 #define LOCAL_LOGINC 0
@@ -73,7 +73,7 @@ namespace UPnPP {
         {                                                               \
             DEBOUT << __FILE__ << ":" << __LINE__<< "::"; DEBOUT << X;  \
         }                                                               \
-    }                                                                   
+    }
 
 #define LOGERR(X) {                                                     \
         if (LOGLEVEL >= Logger::LLERR)                      \

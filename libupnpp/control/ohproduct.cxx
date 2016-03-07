@@ -56,7 +56,7 @@ class OHSourceParser : public inputRefXMLParser {
 public:
     OHSourceParser(const string& input, vector<OHProduct::Source>& sources)
         : inputRefXMLParser(input), m_sources(sources)
-        {}
+    {}
 
 protected:
     virtual void StartElement(const XML_Char *name, const XML_Char **) {
@@ -111,10 +111,10 @@ void OHProduct::evtCallback(
     const STD_UNORDERED_MAP<std::string, std::string>& props)
 {
     LOGDEB1("OHProduct::evtCallback: getReporter(): " << getReporter() << endl);
-    for (STD_UNORDERED_MAP<std::string, std::string>::const_iterator it = 
-             props.begin(); it != props.end(); it++) {
+    for (STD_UNORDERED_MAP<std::string, std::string>::const_iterator it =
+                props.begin(); it != props.end(); it++) {
         if (!getReporter()) {
-            LOGDEB1("OHProduct::evtCallback: " << it->first << " -> " 
+            LOGDEB1("OHProduct::evtCallback: " << it->first << " -> "
                     << it->second << endl);
             continue;
         }
@@ -136,7 +136,7 @@ void OHProduct::registerCallback()
 {
     Service::registerCallback(bind(&OHProduct::evtCallback, this, _1));
 }
-    
+
 int OHProduct::getSources(vector<Source>& sources)
 {
     SoapOutgoing args(getServiceType(), "SourceXml");
@@ -183,6 +183,6 @@ int OHProduct::setStanby(bool value)
 {
     return runSimpleAction("SetStandby", "Value", value);
 }
-    
+
 
 } // End namespace UPnPClient

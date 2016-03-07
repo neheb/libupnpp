@@ -22,9 +22,15 @@
 
 #include "service.hxx"                  // for Service
 
-namespace UPnPClient { class OHInfo; }
-namespace UPnPClient { class UPnPDeviceDesc; }
-namespace UPnPClient { class UPnPServiceDesc; }
+namespace UPnPClient {
+class OHInfo;
+}
+namespace UPnPClient {
+class UPnPDeviceDesc;
+}
+namespace UPnPClient {
+class UPnPServiceDesc;
+}
 
 namespace UPnPClient {
 
@@ -51,7 +57,7 @@ public:
     static bool isOHInfoService(const std::string& st);
 
     int metatext(UPnPDirObject *dirent);
-    
+
 protected:
     /* My service type string */
     static const std::string SType;

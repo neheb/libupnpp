@@ -56,7 +56,7 @@ int upnpdurationtos(const string& dur)
 {
     int hours, minutes, seconds;
     if (sscanf(dur.c_str(), "%d:%d:%d", &hours, &minutes, &seconds) != 3) {
-	return 0;
+        return 0;
     }
     return 3600 * hours + 60 * minutes + seconds;
 }
@@ -66,7 +66,7 @@ int upnpdurationtos(const string& dur)
 // device side too, so it's more convenient to have it here than in
 // the control ohplaylist
 bool ohplIdArrayToVec(const string& _data, vector<int> *ids)
-{    
+{
     string data;
     if (!base64_decode(_data, data)) {
         return false;

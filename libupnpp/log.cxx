@@ -26,14 +26,14 @@ using namespace std;
 
 namespace UPnPP {
 
-Logger::Logger(const std::string& fn) 
+Logger::Logger(const std::string& fn)
     : m_tocerr(false), m_loglevel(LLDEB)
 {
     if (!fn.empty() && fn.compare("stderr")) {
         m_stream.open(fn.c_str(), std::fstream::out | std::ofstream::trunc);
         if (!m_stream.is_open()) {
             cerr << "Logger::Logger: log open failed: for [" <<
-                fn << "] errno " << errno << endl;
+                 fn << "] errno " << errno << endl;
             m_tocerr = true;
         }
     } else {

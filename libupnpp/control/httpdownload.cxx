@@ -18,7 +18,7 @@
  * This software is distributed on an "AS IS" basis, WITHOUT WARRANTY OF ANY
  * KIND, either express or implied.
  *
- ***************************************************************************/ 
+ ***************************************************************************/
 #include "libupnpp/config.h"
 
 #include <stdio.h>
@@ -36,11 +36,11 @@ using namespace UPnPP;
 static size_t
 write_callback(void *contents, size_t size, size_t nmemb, void *userp)
 {
-  size_t realsize = size * nmemb;
-  string* out = (string*)userp;
+    size_t realsize = size * nmemb;
+    string* out = (string*)userp;
 
-  out->append((const char *)contents, realsize);
-  return realsize;
+    out->append((const char *)contents, realsize);
+    return realsize;
 }
 
 
@@ -58,12 +58,12 @@ bool downloadUrlWithCurl(const string& url, string& out, long timeoutsecs)
 
     curl_easy_setopt(curl, CURLOPT_URL, url.c_str());
     curl_easy_setopt(curl, CURLOPT_TIMEOUT, timeoutsecs);
-    curl_easy_setopt(curl, CURLOPT_NOSIGNAL, 1); 
+    curl_easy_setopt(curl, CURLOPT_NOSIGNAL, 1);
     curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, write_callback);
-    curl_easy_setopt(curl, CURLOPT_WRITEDATA, &out); 
+    curl_easy_setopt(curl, CURLOPT_WRITEDATA, &out);
     res = curl_easy_perform(curl);
     if(res != CURLE_OK) {
-        LOGERR("downloadUrlWithCurl: curl_easy_perform(): " << 
+        LOGERR("downloadUrlWithCurl: curl_easy_perform(): " <<
                curl_easy_strerror(res) << endl);
     } else {
         ret = true;

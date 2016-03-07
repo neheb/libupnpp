@@ -49,17 +49,17 @@ void OHTime::evtCallback(
     const STD_UNORDERED_MAP<std::string, std::string>& props)
 {
     LOGDEB1("OHTime::evtCallback: getReporter(): " << getReporter() << endl);
-    for (STD_UNORDERED_MAP<std::string, std::string>::const_iterator it = 
-             props.begin(); it != props.end(); it++) {
+    for (STD_UNORDERED_MAP<std::string, std::string>::const_iterator it =
+                props.begin(); it != props.end(); it++) {
         if (!getReporter()) {
-            LOGDEB1("OHTime::evtCallback: " << it->first << " -> " 
+            LOGDEB1("OHTime::evtCallback: " << it->first << " -> "
                     << it->second << endl);
             continue;
         }
 
         if (!it->first.compare("TrackCount") ||
-            !it->first.compare("Duration") ||
-            !it->first.compare("Seconds")) {
+                !it->first.compare("Duration") ||
+                !it->first.compare("Seconds")) {
 
             getReporter()->changed(it->first.c_str(), atoi(it->second.c_str()));
 

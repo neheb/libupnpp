@@ -25,9 +25,15 @@
 
 #include "service.hxx"                  // for Service
 
-namespace UPnPClient { class OHTime; }
-namespace UPnPClient { class UPnPDeviceDesc; }
-namespace UPnPClient { class UPnPServiceDesc; }
+namespace UPnPClient {
+class OHTime;
+}
+namespace UPnPClient {
+class UPnPDeviceDesc;
+}
+namespace UPnPClient {
+class UPnPServiceDesc;
+}
 
 namespace UPnPClient {
 

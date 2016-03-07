@@ -23,7 +23,7 @@
 #include <string.h>                     // for strcmp
 #include <upnp/upnp.h>                  // for UpnpDownload...
 
-#include "libupnpp/upnpplib.hxx"        
+#include "libupnpp/upnpplib.hxx"
 #include "libupnpp/expatmm.hxx"         // for inputRefXMLParser
 #include "libupnpp/upnpp_p.hxx"         // for baseurl, trimstring
 #include "libupnpp/log.hxx"
@@ -37,70 +37,70 @@ class UPnPDeviceParser : public inputRefXMLParser {
 public:
     UPnPDeviceParser(const string& input, UPnPDeviceDesc& device)
         : inputRefXMLParser(input), m_device(device)
-        {}
+    {}
 
 protected:
     virtual void StartElement(const XML_Char *name, const XML_Char **)
-	{
-            m_tabs.push_back('\t');
-            m_path.push_back(name);
-	}
+    {
+        m_tabs.push_back('\t');
+        m_path.push_back(name);
+    }
     virtual void EndElement(const XML_Char *name)
-	{
-            if (!strcmp(name, "service")) {
-                m_device.services.push_back(m_tservice);
-                m_tservice.clear();
-            }
-            if (m_tabs.size())
-                m_tabs.erase(m_tabs.size()-1);
-            m_path.pop_back();
-	}
+    {
+        if (!strcmp(name, "service")) {
+            m_device.services.push_back(m_tservice);
+            m_tservice.clear();
+        }
+        if (m_tabs.size())
+            m_tabs.erase(m_tabs.size()-1);
+        m_path.pop_back();
+    }
     virtual void CharacterData(const XML_Char *s, int len)
-	{
-            if (s == 0 || *s == 0)
-                return;
-            string str(s, len);
-            trimstring(str);
-            switch (m_path.back()[0]) {
-            case 'c':
-                if (!m_path.back().compare("controlURL"))
-                    m_tservice.controlURL += str;
-                break;
-            case 'd':
-                if (!m_path.back().compare("deviceType"))
-                    m_device.deviceType += str;
-                break;
-            case 'e':
-                if (!m_path.back().compare("eventSubURL"))
-                    m_tservice.eventSubURL += str;
-                break;
-            case 'f':
-                if (!m_path.back().compare("friendlyName"))
-                    m_device.friendlyName += str;
-                break;
-            case 'm':
-                if (!m_path.back().compare("manufacturer"))
-                    m_device.manufacturer += str;
-                else if (!m_path.back().compare("modelName"))
-                    m_device.modelName += str;
-                break;
-            case 's':
-                if (!m_path.back().compare("serviceType"))
-                    m_tservice.serviceType = str;
-                else if (!m_path.back().compare("serviceId"))
-                    m_tservice.serviceId += str;
-            case 'S':
-                if (!m_path.back().compare("SCPDURL"))
-                    m_tservice.SCPDURL = str;
-                break;
-            case 'U':
-                if (!m_path.back().compare("UDN"))
-                    m_device.UDN = str;
-                else if (!m_path.back().compare("URLBase"))
-                    m_device.URLBase += str;
-                break;
-            }
-	}
+    {
+        if (s == 0 || *s == 0)
+            return;
+        string str(s, len);
+        trimstring(str);
+        switch (m_path.back()[0]) {
+        case 'c':
+            if (!m_path.back().compare("controlURL"))
+                m_tservice.controlURL += str;
+            break;
+        case 'd':
+            if (!m_path.back().compare("deviceType"))
+                m_device.deviceType += str;
+            break;
+        case 'e':
+            if (!m_path.back().compare("eventSubURL"))
+                m_tservice.eventSubURL += str;
+            break;
+        case 'f':
+            if (!m_path.back().compare("friendlyName"))
+                m_device.friendlyName += str;
+            break;
+        case 'm':
+            if (!m_path.back().compare("manufacturer"))
+                m_device.manufacturer += str;
+            else if (!m_path.back().compare("modelName"))
+                m_device.modelName += str;
+            break;
+        case 's':
+            if (!m_path.back().compare("serviceType"))
+                m_tservice.serviceType = str;
+            else if (!m_path.back().compare("serviceId"))
+                m_tservice.serviceId += str;
+        case 'S':
+            if (!m_path.back().compare("SCPDURL"))
+                m_tservice.SCPDURL = str;
+            break;
+        case 'U':
+            if (!m_path.back().compare("UDN"))
+                m_device.UDN = str;
+            else if (!m_path.back().compare("URLBase"))
+                m_device.URLBase += str;
+            break;
+        }
+    }
 
 private:
     UPnPDeviceDesc& m_device;
@@ -175,7 +175,7 @@ protected:
         case 's':
             if (!strcmp(name, "stateVariable")) {
                 m_tvar.clear();
-                STD_UNORDERED_MAP<string,string>::iterator it = 
+                STD_UNORDERED_MAP<string,string>::iterator it =
                     lastelt.attributes.find("sendEvents");
                 if (it != lastelt.attributes.end()) {
                     stringToBool(it->second, &m_tvar.sendEvents);
@@ -196,18 +196,18 @@ protected:
             parentname = m_path[m_path.size()-2].name;
         }
         StackEl& lastelt = m_path.back();
-        //LOGINF("ServiceDescriptionParser: Closing element " << name 
-        //<< " inside element " << parentname << 
+        //LOGINF("ServiceDescriptionParser: Closing element " << name
+        //<< " inside element " << parentname <<
         //" data " << m_path.back().data << endl);
 
-        switch (name[0]) { 
+        switch (name[0]) {
         case 'a':
-        if (!strcmp(name, "action")) {
-            m_parsed.actionList[m_tact.name] = m_tact;
-        } else if (!strcmp(name, "argument")) {
-            m_tact.argList.push_back(m_targ);
-        } 
-        break;
+            if (!strcmp(name, "action")) {
+                m_parsed.actionList[m_tact.name] = m_tact;
+            } else if (!strcmp(name, "argument")) {
+                m_tact.argList.push_back(m_targ);
+            }
+            break;
         case 'd':
             if (!strcmp(name, "direction")) {
                 if (!lastelt.data.compare("in")) {
@@ -247,7 +247,7 @@ protected:
             if (!strcmp(name, "relatedStateVariable")) {
                 m_targ.relatedVariable = lastelt.data;
                 trimstring(m_targ.relatedVariable);
-            } 
+            }
             break;
         case 's':
             if (!strcmp(name, "stateVariable")) {
@@ -277,7 +277,7 @@ private:
     UPnPServiceDesc::StateVariable m_tvar;
 };
 
-bool UPnPServiceDesc::fetchAndParseDesc(const string& urlbase, 
+bool UPnPServiceDesc::fetchAndParseDesc(const string& urlbase,
                                         Parsed& parsed) const
 {
     char *buf = 0;
@@ -285,7 +285,7 @@ bool UPnPServiceDesc::fetchAndParseDesc(const string& urlbase,
     string url = caturl(urlbase, SCPDURL);
     int code = UpnpDownloadUrlItem(url.c_str(), &buf, contentType);
     if (code != UPNP_E_SUCCESS) {
-        LOGERR("UPnPServiceDesc::fetchAndParseDesc: error fetching " << 
+        LOGERR("UPnPServiceDesc::fetchAndParseDesc: error fetching " <<
                url << " : " << LibUPnP::errAsString("", code) << endl);
         return false;
     }

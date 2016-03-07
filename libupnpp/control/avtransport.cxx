@@ -65,7 +65,7 @@ static AVTransport::TransportState stringToTpState(const string& s)
     } else if (!stringuppercmp("NO_MEDIA_PRESENT", s)) {
         return AVTransport::NoMediaPresent;
     } else {
-        LOGINF("AVTransport event: bad value for TransportState: " 
+        LOGINF("AVTransport event: bad value for TransportState: "
                << s << endl);
         return AVTransport::Unknown;
     }
@@ -78,7 +78,7 @@ static AVTransport::TransportStatus stringToTpStatus(const string& s)
     } else if (!stringuppercmp("ERROR_OCCURRED", s)) {
         return  AVTransport::TPS_Error;
     } else {
-        LOGERR("AVTransport event: bad value for TransportStatus: " 
+        LOGERR("AVTransport event: bad value for TransportStatus: "
                << s << endl);
         return  AVTransport::TPS_Unknown;
     }
@@ -99,7 +99,7 @@ static AVTransport::PlayMode stringToPlayMode(const string& s)
     } else if (!stringuppercmp("DIRECT_1", s)) {
         return AVTransport::PM_Direct1;
     } else {
-        LOGERR("AVTransport event: bad value for PlayMode: " 
+        LOGERR("AVTransport event: bad value for PlayMode: "
                << s << endl);
         return AVTransport::PM_Unknown;
     }
@@ -109,8 +109,8 @@ void AVTransport::evtCallback(
     const STD_UNORDERED_MAP<std::string, std::string>& props)
 {
     LOGDEB1("AVTransport::evtCallback:" << endl);
-    for (STD_UNORDERED_MAP<std::string, std::string>::const_iterator it = 
-             props.begin(); it != props.end(); it++) {
+    for (STD_UNORDERED_MAP<std::string, std::string>::const_iterator it =
+                props.begin(); it != props.end(); it++) {
         if (it->first.compare("LastChange")) {
             LOGINF("AVTransport:event: var not lastchange: "
                    << it->first << " -> " << it->second << endl;);
@@ -125,25 +125,25 @@ void AVTransport::evtCallback(
                    << it->second << endl);
             return;
         }
-        for (STD_UNORDERED_MAP<std::string, std::string>::iterator it1 = 
-                 props1.begin(); it1 != props1.end(); it1++) {
+        for (STD_UNORDERED_MAP<std::string, std::string>::iterator it1 =
+                    props1.begin(); it1 != props1.end(); it1++) {
             if (!getReporter()) {
-                LOGDEB1("AVTransport::evtCallback: " << it1->first << " -> " 
-                       << it1->second << endl);
+                LOGDEB1("AVTransport::evtCallback: " << it1->first << " -> "
+                        << it1->second << endl);
                 continue;
             }
 
             if (!it1->first.compare("TransportState")) {
-                getReporter()->changed(it1->first.c_str(), 
-                                    stringToTpState(it1->second));
+                getReporter()->changed(it1->first.c_str(),
+                                       stringToTpState(it1->second));
 
             } else if (!it1->first.compare("TransportStatus")) {
-                getReporter()->changed(it1->first.c_str(), 
-                                    stringToTpStatus(it1->second));
+                getReporter()->changed(it1->first.c_str(),
+                                       stringToTpStatus(it1->second));
 
             } else if (!it1->first.compare("CurrentPlayMode")) {
-                getReporter()->changed(it1->first.c_str(), 
-                                    stringToPlayMode(it1->second));
+                getReporter()->changed(it1->first.c_str(),
+                                       stringToPlayMode(it1->second));
 
             } else if (!it1->first.compare("CurrentTransportActions")) {
                 int iacts;
@@ -153,8 +153,8 @@ void AVTransport::evtCallback(
             } else if (!it1->first.compare("CurrentTrackURI") ||
                        !it1->first.compare("AVTransportURI") ||
                        !it1->first.compare("NextAVTransportURI")) {
-                getReporter()->changed(it1->first.c_str(), 
-                                    it1->second.c_str());
+                getReporter()->changed(it1->first.c_str(),
+                                       it1->second.c_str());
 
             } else if (!it1->first.compare("TransportPlaySpeed") ||
                        !it1->first.compare("CurrentTrack") ||
@@ -163,14 +163,14 @@ void AVTransport::evtCallback(
                        !it1->first.compare("AbsoluteCounterPosition") ||
                        !it1->first.compare("InstanceID")) {
                 getReporter()->changed(it1->first.c_str(),
-                                    atoi(it1->second.c_str()));
+                                       atoi(it1->second.c_str()));
 
             } else if (!it1->first.compare("CurrentMediaDuration") ||
                        !it1->first.compare("CurrentTrackDuration") ||
                        !it1->first.compare("RelativeTimePosition") ||
                        !it1->first.compare("AbsoluteTimePosition")) {
                 getReporter()->changed(it1->first.c_str(),
-                                    upnpdurationtos(it1->second));
+                                       upnpdurationtos(it1->second));
 
             } else if (!it1->first.compare("AVTransportURIMetaData") ||
                        !it1->first.compare("NextAVTransportURIMetaData") ||
@@ -183,8 +183,8 @@ void AVTransport::evtCallback(
                     LOGDEB1("AVTransport event: good metadata: [" <<
                             it1->second << "]" << endl);
                     if (meta.m_items.size() > 0) {
-                        getReporter()->changed(it1->first.c_str(), 
-                                            meta.m_items[0]);
+                        getReporter()->changed(it1->first.c_str(),
+                                               meta.m_items[0]);
                     }
                 }
             } else if (!it1->first.compare("PlaybackStorageMedium") ||
@@ -193,7 +193,7 @@ void AVTransport::evtCallback(
                        !it1->first.compare("PossibleRecordStorageMedia") ||
                        !it1->first.compare("RecordMediumWriteStatus") ||
                        !it1->first.compare("CurrentRecordQualityMode") ||
-                       !it1->first.compare("PossibleRecordQualityModes")){
+                       !it1->first.compare("PossibleRecordQualityModes")) {
                 getReporter()->changed(it1->first.c_str(),it1->second.c_str());
 
             } else {
@@ -210,10 +210,10 @@ int AVTransport::setURI(const string& uri, const string& metadata,
                         int instanceID, bool next)
 {
     SoapOutgoing args(getServiceType(), next ? "SetNextAVTransportURI" :
-                         "SetAVTransportURI");
+                      "SetAVTransportURI");
     args("InstanceID", SoapHelp::i2s(instanceID))
-        (next ? "NextURI" : "CurrentURI", uri)
-        (next ? "NextURIMetaData" : "CurrentURIMetaData", metadata);
+    (next ? "NextURI" : "CurrentURI", uri)
+    (next ? "NextURIMetaData" : "CurrentURIMetaData", metadata);
 
     SoapIncoming data;
     return runAction(args, data);
@@ -224,17 +224,31 @@ int AVTransport::setPlayMode(PlayMode pm, int instanceID)
     SoapOutgoing args(getServiceType(), "SetPlayMode");
     string playmode;
     switch (pm) {
-    case PM_Normal: playmode = "NORMAL"; break;
-    case PM_Shuffle: playmode = "SHUFFLE"; break;
-    case PM_RepeatOne: playmode = "REPEAT_ONE"; break;
-    case PM_RepeatAll: playmode = "REPEAT_ALL"; break;
-    case PM_Random: playmode = "RANDOM"; break;
-    case PM_Direct1: playmode = "DIRECT_1"; break;
-    default: playmode = "NORMAL"; break;
+    case PM_Normal:
+        playmode = "NORMAL";
+        break;
+    case PM_Shuffle:
+        playmode = "SHUFFLE";
+        break;
+    case PM_RepeatOne:
+        playmode = "REPEAT_ONE";
+        break;
+    case PM_RepeatAll:
+        playmode = "REPEAT_ALL";
+        break;
+    case PM_Random:
+        playmode = "RANDOM";
+        break;
+    case PM_Direct1:
+        playmode = "DIRECT_1";
+        break;
+    default:
+        playmode = "NORMAL";
+        break;
     }
 
     args("InstanceID", SoapHelp::i2s(instanceID))
-        ("NewPlayMode", playmode);
+    ("NewPlayMode", playmode);
 
     SoapIncoming data;
     return runAction(args, data);
@@ -306,9 +320,9 @@ int AVTransport::getPositionInfo(PositionInfo& info, int instanceID)
     meta.parse(s);
     if (meta.m_items.size() > 0) {
         info.trackmeta = meta.m_items[0];
-        LOGDEB1("AVTransport::getPositionInfo: size " << 
-               meta.m_items.size() << " current title: " 
-               << meta.m_items[0].m_title << endl);
+        LOGDEB1("AVTransport::getPositionInfo: size " <<
+                meta.m_items.size() << " current title: "
+                << meta.m_items[0].m_title << endl);
     }
     data.get("TrackURI", &info.trackuri);
     data.get("RelTime", &s);
@@ -422,7 +436,7 @@ int AVTransport::play(int speed, int instanceID)
 {
     SoapOutgoing args(getServiceType(), "Play");
     args("InstanceID", SoapHelp::i2s(instanceID))
-        ("Speed", SoapHelp::i2s(speed));
+    ("Speed", SoapHelp::i2s(speed));
     SoapIncoming data;
     return runAction(args, data);
 }
@@ -432,22 +446,40 @@ int AVTransport::seek(SeekMode mode, int target, int instanceID)
     string sm;
     string value = SoapHelp::i2s(target);
     switch (mode) {
-    case SEEK_TRACK_NR: sm = "TRACK_NR"; break;
-    case SEEK_ABS_TIME: sm = "ABS_TIME";value = upnpduration(target*1000);break;
-    case SEEK_REL_TIME: sm = "REL_TIME";value = upnpduration(target*1000);break;
-    case SEEK_ABS_COUNT: sm = "ABS_COUNT"; break;
-    case SEEK_REL_COUNT: sm = "REL_COUNT"; break;
-    case SEEK_CHANNEL_FREQ: sm = "CHANNEL_FREQ"; break;
-    case SEEK_TAPE_INDEX: sm = "TAPE-INDEX"; break;
-    case SEEK_FRAME: sm = "FRAME"; break;
+    case SEEK_TRACK_NR:
+        sm = "TRACK_NR";
+        break;
+    case SEEK_ABS_TIME:
+        sm = "ABS_TIME";
+        value = upnpduration(target*1000);
+        break;
+    case SEEK_REL_TIME:
+        sm = "REL_TIME";
+        value = upnpduration(target*1000);
+        break;
+    case SEEK_ABS_COUNT:
+        sm = "ABS_COUNT";
+        break;
+    case SEEK_REL_COUNT:
+        sm = "REL_COUNT";
+        break;
+    case SEEK_CHANNEL_FREQ:
+        sm = "CHANNEL_FREQ";
+        break;
+    case SEEK_TAPE_INDEX:
+        sm = "TAPE-INDEX";
+        break;
+    case SEEK_FRAME:
+        sm = "FRAME";
+        break;
     default:
         return UPNP_E_INVALID_PARAM;
     }
 
     SoapOutgoing args(getServiceType(), "Seek");
     args("InstanceID", SoapHelp::i2s(instanceID))
-        ("Unit", sm)
-        ("Target", value);
+    ("Unit", sm)
+    ("Target", value);
     SoapIncoming data;
     return runAction(args, data);
 }

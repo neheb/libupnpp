@@ -45,10 +45,10 @@ public:
     IxmlCleaner(IXML_Document** _rqpp, IXML_Document **_rspp)
         : rqpp(_rqpp), rspp(_rspp) {}
     ~IxmlCleaner()
-     {
-         if (*rqpp) ixmlDocument_free(*rqpp);
-         if (*rspp) ixmlDocument_free(*rspp);
-     }
+    {
+        if (*rqpp) ixmlDocument_free(*rqpp);
+        if (*rspp) ixmlDocument_free(*rspp);
+    }
 };
 
 class Service::Internal {
@@ -77,7 +77,7 @@ static STD_UNORDERED_MAP<std::string, evtCBFunc> o_calls;
 
 Service::Service(const UPnPDeviceDesc& devdesc,
                  const UPnPServiceDesc& servdesc)
-{ 
+{
     if ((m = new Internal()) == 0) {
         LOGERR("Device::Device: out of memory" << endl);
         return;
@@ -92,12 +92,12 @@ Service::Service(const UPnPDeviceDesc& devdesc,
     m->manufacturer = devdesc.manufacturer;
     m->modelName = devdesc.modelName;
     m->SID[0] = 0;
-    
+
     // Only does anything the first time
     initEvents();
 }
 
-Service::Service() 
+Service::Service()
 {
     if ((m = new Internal()) == 0) {
         LOGERR("Device::Device: out of memory" << endl);
@@ -115,12 +115,12 @@ Service::~Service()
     m = 0;
 }
 
-const string& Service::getFriendlyName() const 
+const string& Service::getFriendlyName() const
 {
     return m->friendlyName;
 }
 
-const string& Service::getDeviceId() const 
+const string& Service::getDeviceId() const
 {
     return m->deviceId;
 }
@@ -173,19 +173,19 @@ int Service::runAction(const SoapOutgoing& args, SoapIncoming& data)
         return  UPNP_E_OUTOF_MEMORY;
     }
 
-    LOGDEB1("Service::runAction: rqst: [" << 
+    LOGDEB1("Service::runAction: rqst: [" <<
             ixmlwPrintDoc(request) << "]" << endl);
 
     int ret = UpnpSendAction(hdl, m->actionURL.c_str(), m->serviceType.c_str(),
                              0 /*devUDN*/, request, &response);
 
     if (ret != UPNP_E_SUCCESS) {
-        LOGINF("Service::runAction: UpnpSendAction failed: " << ret << 
-               " : " << UpnpGetErrorMessage(ret) << " for " << 
+        LOGINF("Service::runAction: UpnpSendAction failed: " << ret <<
+               " : " << UpnpGetErrorMessage(ret) << " for " <<
                ixmlwPrintDoc(request) << endl);
         return ret;
     }
-    LOGDEB1("Service::runAction: rslt: [" << 
+    LOGDEB1("Service::runAction: rslt: [" <<
             ixmlwPrintDoc(response) << "]" << endl);
 
     if (!data.decode(args.getName().c_str(), response)) {
@@ -196,16 +196,16 @@ int Service::runAction(const SoapOutgoing& args, SoapIncoming& data)
     return UPNP_E_SUCCESS;
 }
 
-int Service::runTrivialAction(const std::string& actionName) 
+int Service::runTrivialAction(const std::string& actionName)
 {
     SoapOutgoing args(m->serviceType, actionName);
     SoapIncoming data;
     return runAction(args, data);
 }
 
-template <class T> int Service::runSimpleGet(const std::string& actnm, 
-                                             const std::string& valnm,
-                                             T *valuep) 
+template <class T> int Service::runSimpleGet(const std::string& actnm,
+        const std::string& valnm,
+        T *valuep)
 {
     SoapOutgoing args(m->serviceType, actnm);
     SoapIncoming data;
@@ -214,16 +214,16 @@ template <class T> int Service::runSimpleGet(const std::string& actnm,
         return ret;
     }
     if (!data.get(valnm.c_str(), valuep)) {
-        LOGERR("Service::runSimpleAction: " << actnm << 
+        LOGERR("Service::runSimpleAction: " << actnm <<
                " missing " << valnm << " in response" << std::endl);
         return UPNP_E_BAD_RESPONSE;
     }
     return 0;
 }
 
-template <class T> int Service::runSimpleAction(const std::string& actnm, 
-                                                const std::string& valnm,
-                                                T value) 
+template <class T> int Service::runSimpleAction(const std::string& actnm,
+        const std::string& valnm,
+        T value)
 {
     SoapOutgoing args(m->serviceType, actnm);
     args(valnm, SoapHelp::val2s(value));
@@ -253,9 +253,9 @@ int Service::srvCB(Upnp_EventType et, void* vevp, void*)
     {
         struct Upnp_Event *evp = (struct Upnp_Event *)vevp;
         LOGDEB1("Service:srvCB: var change event: Sid: " <<
-                evp->Sid << " EventKey " << evp->EventKey << 
+                evp->Sid << " EventKey " << evp->EventKey <<
                 " changed " << ixmlwPrintDoc(evp->ChangedVariables) << endl);
-        
+
         STD_UNORDERED_MAP<string, string> props;
         if (!decodePropertySet(evp->ChangedVariables, props)) {
             LOGERR("Service::srvCB: could not decode EVENT propertyset" <<endl);
@@ -265,12 +265,12 @@ int Service::srvCB(Upnp_EventType et, void* vevp, void*)
         //LOGDEB("srvCB: " << entry.first << " -> " << entry.second << endl);
         //}
 
-        STD_UNORDERED_MAP<std::string, evtCBFunc>::iterator it = 
+        STD_UNORDERED_MAP<std::string, evtCBFunc>::iterator it =
             o_calls.find(evp->Sid);
         if (it!= o_calls.end()) {
             (it->second)(props);
         } else {
-            LOGINF("Service::srvCB: no callback found for sid " << evp->Sid << 
+            LOGINF("Service::srvCB: no callback found for sid " << evp->Sid <<
                    endl);
         }
         break;
@@ -278,7 +278,7 @@ int Service::srvCB(Upnp_EventType et, void* vevp, void*)
 
     default:
         // Ignore other events for now
-        LOGDEB("Service:srvCB: unprocessed evt type: [" << 
+        LOGDEB("Service:srvCB: unprocessed evt type: [" <<
                LibUPnP::evTypeAsString(et) << "]"  << endl);
         break;
     }
@@ -331,7 +331,7 @@ bool Service::subscribe()
         LOGERR("Service:subscribe: failed: " << ret << " : " <<
                UpnpGetErrorMessage(ret) << endl);
         return false;
-    } 
+    }
     LOGDEB1("Service::subscribe: sid: " << m->SID << endl);
     return true;
 }
@@ -350,7 +350,7 @@ bool Service::unSubscribe()
             LOGERR("Service:unSubscribe: failed: " << ret << " : " <<
                    UpnpGetErrorMessage(ret) << endl);
             return false;
-        } 
+        }
         m->SID[0] = 0;
     }
     return true;
@@ -358,7 +358,7 @@ bool Service::unSubscribe()
 
 void Service::registerCallback(evtCBFunc c)
 {
-    if (!subscribe()) 
+    if (!subscribe())
         return;
     PTMutexLocker lock(cblock);
     LOGDEB1("Service::registerCallback: " << m->SID << endl);
@@ -399,7 +399,7 @@ void Service::reSubscribe()
     registerCallback(c);
 }
 #endif
-    
+
 template int Service::runSimpleAction<int>(string const&, string const&, int);
 template int Service::runSimpleGet<int>(string const&, string const&, int*);
 template int Service::runSimpleGet<bool>(string const&, string const&, bool*);

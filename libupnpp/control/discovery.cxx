@@ -21,7 +21,7 @@
 #include <stdlib.h>
 #include <time.h>
 #include <stdio.h>
- 
+
 #include <upnp/upnp.h>
 
 #include <iostream>
@@ -84,7 +84,7 @@ public:
     DiscoveredTask(bool _alive, const struct Upnp_Discovery *disco)
         : alive(_alive), url(disco->Location), deviceId(disco->DeviceId),
           expires(disco->Expires)
-        {}
+    {}
 
     bool alive;
     string url;
@@ -98,7 +98,7 @@ public:
 // thread.
 static WorkQueue<DiscoveredTask*> discoveredQueue("DiscoveredQueue");
 
-// Set of currently downloading URIs (for avoiding multiple downloads)    
+// Set of currently downloading URIs (for avoiding multiple downloads)
 static STD_UNORDERED_SET<string> o_downloading;
 static PTMutexInit o_downloading_mutex;
 
@@ -117,10 +117,10 @@ static int cluCallBack(Upnp_EventType et, void* evp, void*)
     {
         struct Upnp_Discovery *disco = (struct Upnp_Discovery *)evp;
 
-        // Devices send multiple messages for themselves, their subdevices and 
+        // Devices send multiple messages for themselves, their subdevices and
         // services. AFAIK they all point to the same description.xml document,
         // which has all the interesting data. So let's try to only process
-        // one message per device: the one which probably correspond to the 
+        // one message per device: the one which probably correspond to the
         // upnp "root device" message and has empty service and device types:
         if (disco->DeviceType[0] || disco->ServiceType[0]) {
             return UPNP_E_SUCCESS;
@@ -140,7 +140,7 @@ static int cluCallBack(Upnp_EventType et, void* evp, void*)
             // simultaneous downloads of a slow one, to avoid
             // tying up threads.
             PTMutexLocker lock(o_downloading_mutex);
-            pair<STD_UNORDERED_SET<string>::iterator,bool> res = 
+            pair<STD_UNORDERED_SET<string>::iterator,bool> res =
                 o_downloading.insert(tp->url);
             if (!res.second) {
                 LOGDEB("discovery:cllb: already downloading " <<
@@ -152,9 +152,9 @@ static int cluCallBack(Upnp_EventType et, void* evp, void*)
 
         LOGDEB1("discoExplorer: downloading " << tp->url << endl);
         if (!downloadUrlWithCurl(tp->url, tp->description, 5)) {
-            LOGERR("discovery:cllb: downloadUrlWithCurl error for: " << 
+            LOGERR("discovery:cllb: downloadUrlWithCurl error for: " <<
                    tp->url << endl);
-            {PTMutexLocker lock(o_downloading_mutex);
+            {   PTMutexLocker lock(o_downloading_mutex);
                 o_downloading.erase(tp->url);
             }
             delete tp;
@@ -163,7 +163,7 @@ static int cluCallBack(Upnp_EventType et, void* evp, void*)
         LOGDEB1("discovery:cllb: downloaded description document of " <<
                 tp->description.size() << " bytes" << endl);
 
-        {PTMutexLocker lock(o_downloading_mutex);
+        {   PTMutexLocker lock(o_downloading_mutex);
             o_downloading.erase(tp->url);
         }
 
@@ -184,7 +184,7 @@ static int cluCallBack(Upnp_EventType et, void* evp, void*)
     }
     default:
         // Ignore other events for now
-        LOGDEB("discovery:cluCallBack: unprocessed evt type: [" << 
+        LOGDEB("discovery:cluCallBack: unprocessed evt type: [" <<
                LibUPnP::evTypeAsString(et) << "]"  << endl);
         break;
     }
@@ -219,9 +219,9 @@ public:
     DeviceDescriptor(const string& url, const string& description,
                      time_t last, int exp)
         : device(url, description), last_seen(last), expires(exp+20)
-        {}
+    {}
     DeviceDescriptor()
-        {}
+    {}
     UPnPDeviceDesc device;
     time_t last_seen;
     int expires; // seconds valid
@@ -260,7 +260,7 @@ void *UPnPDeviceDirectory::discoExplorer(void *)
             DevPoolIt it = o_pool.m_devices.find(tsk->deviceId);
             if (it != o_pool.m_devices.end()) {
                 o_pool.m_devices.erase(it);
-                //LOGDEB("discoExplorer: delete " << tsk->deviceId.c_str() << 
+                //LOGDEB("discoExplorer: delete " << tsk->deviceId.c_str() <<
                 // endl);
             }
         } else {
@@ -268,13 +268,13 @@ void *UPnPDeviceDirectory::discoExplorer(void *)
             DeviceDescriptor d(tsk->url, tsk->description, time(0),
                                tsk->expires);
             if (!d.device.ok) {
-                LOGERR("discoExplorer: description parse failed for " << 
+                LOGERR("discoExplorer: description parse failed for " <<
                        tsk->deviceId << endl);
                 delete tsk;
                 continue;
             }
-            LOGDEB1("discoExplorer: found id [" << tsk->deviceId  << "]" 
-                    << " name " << d.device.friendlyName 
+            LOGDEB1("discoExplorer: found id [" << tsk->deviceId  << "]"
+                    << " name " << d.device.friendlyName
                     << " devtype " << d.device.deviceType << endl);
             {
                 PTMutexLocker lock(o_pool.m_mutex);
@@ -284,9 +284,9 @@ void *UPnPDeviceDirectory::discoExplorer(void *)
             }
             {
                 PTMutexLocker lock(o_callbacks_mutex);
-                for (vector<UPnPDeviceDirectory::Visitor>::iterator cbp = 
-                         o_callbacks.begin(); 
-                     cbp != o_callbacks.end(); cbp++) {
+                for (vector<UPnPDeviceDirectory::Visitor>::iterator cbp =
+                            o_callbacks.begin();
+                        cbp != o_callbacks.end(); cbp++) {
                     (*cbp)(d.device, UPnPServiceDesc());
                 }
             }
@@ -305,11 +305,11 @@ void UPnPDeviceDirectory::expireDevices()
     bool didsomething = false;
 
     for (DevPoolIt it = o_pool.m_devices.begin();
-         it != o_pool.m_devices.end();) {
+            it != o_pool.m_devices.end();) {
         LOGDEB1("Dev in pool: type: " << it->second.device.deviceType <<
                 " friendlyName " << it->second.device.friendlyName << endl);
         if (now - it->second.last_seen > it->second.expires) {
-            //LOGDEB("expireDevices: deleting " <<  it->first.c_str() << " " << 
+            //LOGDEB("expireDevices: deleting " <<  it->first.c_str() << " " <<
             //   it->second.device.friendlyName.c_str() << endl);
             o_pool.m_devices.erase(it++);
             didsomething = true;
@@ -405,7 +405,7 @@ bool UPnPDeviceDirectory::traverse(UPnPDeviceDirectory::Visitor visit)
     //LOGDEB("UPnPDeviceDirectory::traverse" << endl);
     if (m_ok == false)
         return false;
-    
+
     do {
         PTMutexLocker lock(devWaitLock);
         struct timespec wkuptime;
@@ -421,11 +421,11 @@ bool UPnPDeviceDirectory::traverse(UPnPDeviceDirectory::Visitor visit)
 
     PTMutexLocker lock(o_pool.m_mutex);
 
-    for (map<string, DeviceDescriptor>::iterator it = o_pool.m_devices.begin(); 
-         it != o_pool.m_devices.end(); it++) {
-        for (vector<UPnPServiceDesc>::iterator it1 = 
-                 it->second.device.services.begin();
-             it1 != it->second.device.services.end(); it1++) {
+    for (map<string, DeviceDescriptor>::iterator it = o_pool.m_devices.begin();
+            it != o_pool.m_devices.end(); it++) {
+        for (vector<UPnPServiceDesc>::iterator it1 =
+                    it->second.device.services.begin();
+                it1 != it->second.device.services.end(); it1++) {
             if (!visit(it->second.device, *it1))
                 return false;
         }
@@ -433,7 +433,7 @@ bool UPnPDeviceDirectory::traverse(UPnPDeviceDirectory::Visitor visit)
     return true;
 }
 
-bool UPnPDeviceDirectory::deviceFound(const UPnPDeviceDesc&, 
+bool UPnPDeviceDirectory::deviceFound(const UPnPDeviceDesc&,
                                       const UPnPServiceDesc&)
 {
     PTMutexLocker lock(devWaitLock);
@@ -442,9 +442,9 @@ bool UPnPDeviceDirectory::deviceFound(const UPnPDeviceDesc&,
 }
 
 bool UPnPDeviceDirectory::getDevBySelector(bool cmp(const UPnPDeviceDesc& ddesc,
-                                                    const string&), 
-                                           const string& value,
-                                           UPnPDeviceDesc& ddesc)
+        const string&),
+        const string& value,
+        UPnPDeviceDesc& ddesc)
 {
     // Has locking, do it before our own lock
     expireDevices();
@@ -453,9 +453,9 @@ bool UPnPDeviceDirectory::getDevBySelector(bool cmp(const UPnPDeviceDesc& ddesc,
         PTMutexLocker lock(devWaitLock);
         {
             PTMutexLocker lock(o_pool.m_mutex);
-            for (map<string, DeviceDescriptor>::iterator it = 
-                     o_pool.m_devices.begin(); 
-                 it != o_pool.m_devices.end(); it++) {
+            for (map<string, DeviceDescriptor>::iterator it =
+                        o_pool.m_devices.begin();
+                    it != o_pool.m_devices.end(); it++) {
                 if (!cmp(it->second.device, value)) {
                     ddesc = it->second.device;
                     return true;
@@ -478,7 +478,7 @@ static bool cmpFName(const UPnPDeviceDesc& ddesc, const string& fname)
     return ddesc.friendlyName.compare(fname) != 0;
 }
 
-bool UPnPDeviceDirectory::getDevByFName(const string& fname, 
+bool UPnPDeviceDirectory::getDevByFName(const string& fname,
                                         UPnPDeviceDesc& ddesc)
 {
     return getDevBySelector(cmpFName, fname, ddesc);
@@ -489,7 +489,7 @@ static bool cmpUDN(const UPnPDeviceDesc& ddesc, const string& value)
     return ddesc.UDN.compare(value) != 0;
 }
 
-bool UPnPDeviceDirectory::getDevByUDN(const string& value, 
+bool UPnPDeviceDirectory::getDevByUDN(const string& value,
                                       UPnPDeviceDesc& ddesc)
 {
     return getDevBySelector(cmpUDN, value, ddesc);

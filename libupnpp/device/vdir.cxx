@@ -84,7 +84,7 @@ static int vdgetinfo(const char *fn, struct File_Info* info)
     return 0;
 }
 
-static UpnpWebFileHandle vdopen(const char* fn, enum UpnpOpenFileMode Mode)
+static UpnpWebFileHandle vdopen(const char* fn, enum UpnpOpenFileMode)
 {
     //LOGDEB("vdopen: " << fn << endl);
     VirtualDir::FileEnt *entry = vdgetentry(fn);
@@ -128,7 +128,7 @@ static int vdseek(UpnpWebFileHandle fileHnd, off_t offset, int origin)
     return offset;
 }
 
-static int vdwrite(UpnpWebFileHandle fileHnd, char* buf, size_t buflen)
+static int vdwrite(UpnpWebFileHandle, char*, size_t)
 {
     LOGERR("vdwrite" << endl);
     return -1;

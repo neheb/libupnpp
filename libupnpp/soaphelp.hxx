@@ -60,15 +60,21 @@ private:
 };
 
 namespace SoapHelp {
-    std::string xmlQuote(const std::string& in);
-    std::string xmlUnquote(const std::string& in);
-    std::string i2s(int val);
-    inline std::string val2s(const std::string& val) {return val;}
-    inline std::string val2s(int val) {return i2s(val);}
-    inline std::string val2s(bool val) {return i2s(int(val));}
-};
+std::string xmlQuote(const std::string& in);
+std::string xmlUnquote(const std::string& in);
+std::string i2s(int val);
+inline std::string val2s(const std::string& val) {
+    return val;
+}
+inline std::string val2s(int val) {
+    return i2s(val);
+}
+inline std::string val2s(bool val) {
+    return i2s(int(val));
+}
+}
 
-/** Store the values to be encoded in a SOAP response. 
+/** Store the values to be encoded in a SOAP response.
  *
  * The elements in the response must be in a defined order, so we
  * can't use a map as container, we use a vector of pairs instead.
@@ -109,8 +115,8 @@ private:
  *       <!-- Other variable names and values (if any) go here. -->
  *     </e:propertyset>
  */
-extern bool decodePropertySet(IXML_Document *doc, 
-                       STD_UNORDERED_MAP<std::string,std::string>& out);
+extern bool decodePropertySet(IXML_Document *doc,
+                              STD_UNORDERED_MAP<std::string,std::string>& out);
 
 
 } // namespace UPnPP

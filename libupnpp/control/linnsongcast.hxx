@@ -28,7 +28,7 @@
 
 /**
  * Helper functions for dealing with Linn Songcast Sender and Receiver
- * UPnP services. These deal with plumbing set up, and do not touch the 
+ * UPnP services. These deal with plumbing set up, and do not touch the
  * audio stream at all.
  */
 
@@ -36,7 +36,7 @@ namespace UPnPClient {
 namespace Songcast {
 
 /**
- * Search the device for a Sender service and, if found, create and 
+ * Search the device for a Sender service and, if found, create and
  * return a service object.
  */
 extern OHSNH senderService(DVCH dev);
@@ -47,7 +47,7 @@ extern OHSNH senderService(DVCH dev);
  */
 extern OHSNH getSender(const std::string& nm, std::string& reason);
 
-/** Everything you need to know about a Sender */    
+/** Everything you need to know about a Sender */
 struct SenderState {
     std::string nm;
     std::string UDN;
@@ -73,13 +73,14 @@ struct SenderState {
 extern void getSenderState(const std::string& nm, SenderState& st,
                            bool live = true);
 
-/** Retrieve status data for all found Senders */    
+/** Retrieve status data for all found Senders */
 extern void listSenders(std::vector<SenderState>& vscs);
 
 /** Everything you need to know about a Receiver */
 struct ReceiverState {
     enum SCState {SCRS_GENERROR, SCRS_NOOH, SCRS_NOTRECEIVER,
-                  SCRS_STOPPED, SCRS_PLAYING};
+                  SCRS_STOPPED, SCRS_PLAYING
+                 };
     SCState state;
     int receiverSourceIndex;
     std::string nm;
@@ -91,7 +92,7 @@ struct ReceiverState {
     OHPRH prod;
     OHRCH rcv;
 
-    ReceiverState() 
+    ReceiverState()
         : state(SCRS_GENERROR), receiverSourceIndex(-1) {
     }
 
@@ -111,7 +112,7 @@ struct ReceiverState {
  *    field will hold Service handles on return
  */
 extern void getReceiverState(const std::string& nm, ReceiverState& st,
-                             bool live = true); 
+                             bool live = true);
 /** Get status for all found Receiver services */
 extern void listReceivers(std::vector<ReceiverState>& vscs);
 
@@ -119,7 +120,7 @@ extern bool setReceiverPlaying(ReceiverState st,
                                const std::string& uri,
                                const std::string& meta);
 extern bool stopReceiver(ReceiverState st);
-    
+
 extern void setReceiversFromSender(const std::string& sendernm,
                                    const std::vector<std::string>&
                                    rcvnms);

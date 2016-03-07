@@ -26,7 +26,7 @@ using std::string;
 
 namespace UPnPP {
 
-#if notUsedAnyMore
+#if 0
 // Get the value for the first element in the document with the given name.
 // There should be only one such element for this to make any sense.
 string getFirstElementValue(IXML_Document *doc, const string& name)

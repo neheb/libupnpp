@@ -22,9 +22,15 @@
 
 #include "service.hxx"                  // for Service
 
-namespace UPnPClient { class OHProduct; }
-namespace UPnPClient { class UPnPDeviceDesc; }
-namespace UPnPClient { class UPnPServiceDesc; }
+namespace UPnPClient {
+class OHProduct;
+}
+namespace UPnPClient {
+class UPnPDeviceDesc;
+}
+namespace UPnPClient {
+class UPnPServiceDesc;
+}
 
 namespace UPnPClient {
 
@@ -53,7 +59,11 @@ public:
         std::string type;
         bool visible;
         Source() : visible(false) {}
-        void clear() {name.clear(); type.clear(); visible = false;}
+        void clear() {
+            name.clear();
+            type.clear();
+            visible = false;
+        }
     };
 
     /** @ret 0 for success, upnp error else */
@@ -62,7 +72,7 @@ public:
     int setSourceIndex(int index);
     int standby(bool *value);
     int setStanby(bool value);
-    
+
 protected:
     /* My service type string */
     static const std::string SType;

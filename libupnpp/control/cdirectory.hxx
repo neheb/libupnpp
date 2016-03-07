@@ -25,10 +25,18 @@
 
 #include "libupnpp/control/service.hxx"  // for Service
 
-namespace UPnPClient { class ContentDirectory; }  // lines 30-30
-namespace UPnPClient { class UPnPDeviceDesc; }
-namespace UPnPClient { class UPnPDirContent; }
-namespace UPnPClient { class UPnPServiceDesc; }
+namespace UPnPClient {
+class ContentDirectory;    // lines 30-30
+}
+namespace UPnPClient {
+class UPnPDeviceDesc;
+}
+namespace UPnPClient {
+class UPnPDirContent;
+}
+namespace UPnPClient {
+class UPnPServiceDesc;
+}
 
 namespace UPnPClient {
 
@@ -62,9 +70,12 @@ public:
     ContentDirectory() : m_rdreqcnt(200), m_serviceKind(CDSKIND_UNKNOWN) {}
 
     enum ServiceKind {CDSKIND_UNKNOWN, CDSKIND_BUBBLE, CDSKIND_MEDIATOMB,
-                      CDSKIND_MINIDLNA, CDSKIND_MINIM, CDSKIND_TWONKY};
+                      CDSKIND_MINIDLNA, CDSKIND_MINIM, CDSKIND_TWONKY
+                     };
 
-    ServiceKind getKind() {return m_serviceKind;}
+    ServiceKind getKind() {
+        return m_serviceKind;
+    }
 
     /** Test service type from discovery message */
     static bool isCDService(const std::string& st);
@@ -73,10 +84,10 @@ public:
     static bool getServices(std::vector<CDSH>&);
 
     /** Retrieve specific service designated by its friendlyName */
-    static bool getServerByName(const std::string& friendlyName, 
+    static bool getServerByName(const std::string& friendlyName,
                                 CDSH& server);
 
-    /** Read a full container's children list 
+    /** Read a full container's children list
      *
      * @param objectId the UPnP object Id for the container. Root has Id "0"
      * @param[out] dirbuf stores the entries we read.
@@ -91,7 +102,7 @@ public:
      * @param objectId the UPnP object Id for the container. Root has Id "0"
      * @param offset the offset of the first entry to read
      * @param count the maximum number of entries to read
-     * @param[out] dirbuf a place to store the entries we read. They are 
+     * @param[out] dirbuf a place to store the entries we read. They are
      *        appended to the existing ones.
      * @param[out] didread number of entries actually read.
      * @param[out] total total number of children.
@@ -120,7 +131,7 @@ public:
     int search(const std::string& objectId, const std::string& searchstring,
                UPnPDirContent& dirbuf);
     /** Same to search() as readDirSlice to readDir() */
-    int searchSlice(const std::string& objectId, 
+    int searchSlice(const std::string& objectId,
                     const std::string& searchstring,
                     int offset, int count, UPnPDirContent& dirbuf,
                     int *didread, int *total);

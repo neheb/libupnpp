@@ -22,8 +22,12 @@
 
 #include <string>                       // for string
 
-namespace UPnPClient { class UPnPDeviceDesc; }
-namespace UPnPClient { class UPnPServiceDesc; }
+namespace UPnPClient {
+class UPnPDeviceDesc;
+}
+namespace UPnPClient {
+class UPnPServiceDesc;
+}
 
 namespace UPnPClient {
 
@@ -32,8 +36,8 @@ namespace UPnPClient {
  *
  *
  * The service is initialize on the first call, starting
- * the message-handling thread, registering our message handlers, 
- * and initiating an asynchronous UPnP device search. 
+ * the message-handling thread, registering our message handlers,
+ * and initiating an asynchronous UPnP device search.
  *
  * The search implies a timeout period (the specified interval
  * over which the servers will send replies at random points). Any
@@ -62,7 +66,7 @@ public:
     /** Clean up before exit. Do call this.*/
     static void terminate();
 
-    typedef STD_FUNCTION<bool (const UPnPDeviceDesc&, 
+    typedef STD_FUNCTION<bool (const UPnPDeviceDesc&,
                                const UPnPServiceDesc&)> Visitor;
 
     /** Traverse the directory and call Visitor for each device/service pair */
@@ -71,7 +75,7 @@ public:
     /** Remaining time until current search complete */
     time_t getRemainingDelay();
 
-    /** Set a callback to be called when devices report their existence 
+    /** Set a callback to be called when devices report their existence
      *  The visitor will be called once per device, with an empty service.
      */
     static unsigned int addCallback(Visitor v);
@@ -79,16 +83,20 @@ public:
 
     /** Find device by friendlyName or UDN. Unlike traverse, this does
      * not necessarily wait for the initial timeout, it returns as
-     * soon as a device with this name reports (or the timeout expires). 
+     * soon as a device with this name reports (or the timeout expires).
      * Note that "friendly names" are not necessarily unique.
      */
     bool getDevByFName(const std::string& fname, UPnPDeviceDesc& ddesc);
     bool getDevByUDN(const std::string& udn, UPnPDeviceDesc& ddesc);
 
     /** My health */
-    bool ok() {return m_ok;}
+    bool ok() {
+        return m_ok;
+    }
     /** My diagnostic if health is bad */
-    const std::string getReason() {return m_reason;}
+    const std::string getReason() {
+        return m_reason;
+    }
 
 private:
     UPnPDeviceDirectory(time_t search_window);
@@ -105,9 +113,9 @@ private:
     // device.
     bool deviceFound(const UPnPDeviceDesc&, const UPnPServiceDesc&);
 
-    // Lookup a device in the pool. If not found and a search is active, 
+    // Lookup a device in the pool. If not found and a search is active,
     // use a cond_wait to wait for device events (awaken by deviceFound).
-    bool getDevBySelector(bool cmp(const UPnPDeviceDesc&, const std::string&), 
+    bool getDevBySelector(bool cmp(const UPnPDeviceDesc&, const std::string&),
                           const std::string& value, UPnPDeviceDesc& ddesc);
 
     static void *discoExplorer(void *);

@@ -33,9 +33,9 @@ namespace UPnPP {
 /* Base functions from original file */
 /* MD5 context. */
 typedef struct MD5Context {
-  unsigned int state[4];	/* state (ABCD) */
-  unsigned int count[2];	/* number of bits, modulo 2^64 (lsb first) */
-  unsigned char buffer[64];	/* input buffer */
+    unsigned int state[4];	/* state (ABCD) */
+    unsigned int count[2];	/* number of bits, modulo 2^64 (lsb first) */
+    unsigned char buffer[64];	/* input buffer */
 } MD5_CTX;
 
 extern void   MD5Init (MD5_CTX *);

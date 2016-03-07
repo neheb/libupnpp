@@ -27,13 +27,17 @@
 #include "libupnpp/ptmutex.hxx"         // for PTMutexInit
 #include "libupnpp/soaphelp.hxx"        // for SoapOutgoing, SoapIncoming
 
-namespace UPnPP { class LibUPnP; }
-namespace UPnPProvider { class UpnpService; }
+namespace UPnPP {
+class LibUPnP;
+}
+namespace UPnPProvider {
+class UpnpService;
+}
 
 namespace UPnPProvider {
 
-typedef STD_FUNCTION<int (const UPnPP::SoapIncoming&, UPnPP::SoapOutgoing&)> 
-    soapfun;
+typedef STD_FUNCTION<int (const UPnPP::SoapIncoming&, UPnPP::SoapOutgoing&)>
+soapfun;
 
 // Definition of a virtual directory entry: data and mime type
 struct VDirContent {
@@ -43,7 +47,7 @@ struct VDirContent {
     std::string mimetype;
 };
 
-/** Define an interface to link libupnp operations to a device implementation 
+/** Define an interface to link libupnp operations to a device implementation
  */
 class UpnpDevice {
 public:
@@ -53,15 +57,15 @@ public:
      * @param deviceId uuid for device: "uuid:UUIDvalue"
      * @param files list of path/content pairs to be added to the
      *   virtual directory root. The file paths must match the SCDPURL
-     *   values for the services in the description.xml document. 
+     *   values for the services in the description.xml document.
      *   The file paths should include a sub-directory component.
      *   The list must include the description document, but this will not
-     *   be directly served out. Instead a version modified by libupnp 
+     *   be directly served out. Instead a version modified by libupnp
      *  (with URLBase added) will be served from '/'. Of course, the
      *  paths in description.xml must be consistent with the list.
-     * 
+     *
      */
-    UpnpDevice(const std::string& deviceId, 
+    UpnpDevice(const std::string& deviceId,
                const STD_UNORDERED_MAP<std::string, VDirContent>& files);
     ~UpnpDevice();
 
@@ -73,11 +77,11 @@ public:
     /**
      * Add mapping from service+action-name to handler function.
      */
-    void addActionMapping(const UpnpService*, 
+    void addActionMapping(const UpnpService*,
                           const std::string& actName, soapfun);
 
-    /** 
-     * Main routine. To be called by main() when done with initialization. 
+    /**
+     * Main routine. To be called by main() when done with initialization.
      *
      * This loop mostly polls getEventData and generates an UPnP event if
      * there is anything to broadcast. The UPnP action calls happen in
@@ -85,7 +89,7 @@ public:
      */
     void eventloop();
 
-    /** 
+    /**
      * To be called from a service action callback to wake up the
      * event loop early if something needs to be broadcast without
      * waiting for the normal delay.
@@ -117,36 +121,36 @@ private:
 class UpnpService {
 public:
     UpnpService(const std::string& stp,const std::string& sid, UpnpDevice *dev);
-    /** 
+    /**
      * Constructor added to avoid changing the ABI when the noevents
      * parameter was needed.
-     * 
+     *
      * @param noevents if set, the service will function normally except that
      *                 no calls will be made to libupnp to broadcast events.
-     *                 This allows a service object to retain its possible 
+     *                 This allows a service object to retain its possible
      *                 internal functions without being externally visible
      *                 (in conjunction with a description doc edit).
      */
-    UpnpService(const std::string& stp,const std::string& sid, 
+    UpnpService(const std::string& stp,const std::string& sid,
                 UpnpDevice *dev, bool noevents);
 
     virtual ~UpnpService();
 
-    /** 
-     * Poll to retrieve evented data changed since last call (see 
+    /**
+     * Poll to retrieve evented data changed since last call (see
      * Device::eventLoop).
      *
      * To be implemented by the derived class if it does generate event data.
      * Also called by the library when a control point subscribes, to
-     * retrieve eventable data. 
+     * retrieve eventable data.
      * Return name/value pairs for changed variables in the data arrays.
      *
-     * @param all if true, treat all state variable as changed (return 
-     *            full state) 
+     * @param all if true, treat all state variable as changed (return
+     *            full state)
      * @param names names of returned state variable
      * @param values array parallel to names, holding the values.
      */
-    virtual bool getEventData(bool all, std::vector<std::string>& names, 
+    virtual bool getEventData(bool all, std::vector<std::string>& names,
                               std::vector<std::string>& values);
     virtual const std::string& getServiceType() const;
     virtual const std::string& getServiceId() const;

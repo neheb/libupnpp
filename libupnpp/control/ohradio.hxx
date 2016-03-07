@@ -62,7 +62,7 @@ public:
     int play();
     int protocolInfo(std::string *proto);
     int read(int id, UPnPDirObject *dirent);
-    int readList(const std::vector<int>& ids, 
+    int readList(const std::vector<int>& ids,
                  std::vector<OHPlaylist::TrackListEntry>* entsp);
     int setChannel(const std::string& uri, const std::string& didl);
     int setId(int id, const std::string& uri);

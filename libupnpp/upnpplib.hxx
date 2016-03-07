@@ -31,13 +31,13 @@ class LibUPnP {
 public:
     ~LibUPnP();
 
-    /** Retrieve the singleton LibUPnP object 
+    /** Retrieve the singleton LibUPnP object
      *
      * This initializes libupnp, possibly setting an address and port, possibly
      * registering a client if serveronly is false.
      *
      * @param serveronly no client init
-     * @param hwaddr returns the hardware address for the specified network 
+     * @param hwaddr returns the hardware address for the specified network
      *   interface, or the first one is ifname is empty. If the IP address is
      *   specified instead of the interface name, the hardware address
      *   returned is not necessarily the one matching the IP.
@@ -54,13 +54,13 @@ public:
 
     /** Returns something like "libupnpp 0.14.0 libupnp x.y.z" */
     static std::string versionString();
-    
+
+    enum LogLevel {LogLevelNone, LogLevelError, LogLevelDebug};
     /** Set libupnp log file name and activate logging.
      * This does nothing if libupnp was built with logging disabled.
      *
      * @param fn file name to use. Use empty string to turn logging off
      */
-    enum LogLevel {LogLevelNone, LogLevelError, LogLevelDebug};
     bool setLogFileName(const std::string& fn, LogLevel level = LogLevelError);
     bool setLogLevel(LogLevel level);
 
@@ -75,21 +75,21 @@ public:
 
     /** Build a unique persistent UUID for a root device. This uses a hash
         of the input name (e.g.: friendlyName), and the host Ethernet address */
-    static std::string makeDevUUID(const std::string& name, 
+    static std::string makeDevUUID(const std::string& name,
                                    const std::string& hw);
 
     /** Translate libupnp integer error code (UPNP_E_XXX) to string */
     static std::string errAsString(const std::string& who, int code);
 
 /////////////////////////////////////////////////////////////////////////////
-    /* The methods which follow are normally for use by the 
+    /* The methods which follow are normally for use by the
      * intermediate layers in libupnpp, such as the base device class
      * or the server directory, end-user code should not need them in
      * general.
      */
 
     /** Specify function to be called on given UPnP event. This will happen
-     * in the libupnp thread context. 
+     * in the libupnp thread context.
      */
     void registerHandler(Upnp_EventType et, Upnp_FunPtr handler, void *cookie);
 
@@ -104,7 +104,7 @@ private:
     class Internal;
     Internal *m;
 
-    LibUPnP(bool serveronly, std::string *hwaddr, 
+    LibUPnP(bool serveronly, std::string *hwaddr,
             const std::string ifname, const std::string ip,
             unsigned short port);
     LibUPnP(const LibUPnP &);

@@ -25,11 +25,11 @@ namespace UPnPClient {
 class Device;
 typedef STD_SHARED_PTR<Device> DVCH;
 
-/** 
- * For now, the Device class is just a holder for the description object. 
+/**
+ * For now, the Device class is just a holder for the description object.
  *
  * This is a pure data object, all the fun happens in the
- * Service class and its derived classes. 
+ * Service class and its derived classes.
  *
  * You don't even need to get the Device around once you have used it to create
  * the service, and you actually don't need it at all, you could use

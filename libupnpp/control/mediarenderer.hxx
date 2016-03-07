@@ -41,7 +41,7 @@ class UPnPDeviceDesc;
 typedef STD_SHARED_PTR<MediaRenderer> MRDH;
 
 /**
- * The MediaRenderer class mostly holds a bunch of convenience functions to 
+ * The MediaRenderer class mostly holds a bunch of convenience functions to
  * create the different services (and cache handles to them). There is
  * actually not much that it does that could not be done by normal functions.
  */
@@ -64,7 +64,7 @@ public:
     OHRDH ohrd(); // OpenHome Radio
     OHIFH ohif(); // OpenHome Info
     OHSNH ohsn(); // OpenHome Sender
-    
+
     bool hasOpenHome();
 
     /** Retrieve device descriptions for devices looking like media

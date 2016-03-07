@@ -36,29 +36,29 @@ public:
     std::map<std::string, std::string> args;
 };
 
-SoapIncoming::SoapIncoming() 
+SoapIncoming::SoapIncoming()
 {
     if ((m = new Internal()) == 0) {
         LOGERR("SoapIncoming::SoapIncoming: out of memory" << endl);
         return;
     }
 }
-SoapIncoming::~SoapIncoming() 
+SoapIncoming::~SoapIncoming()
 {
     delete m;
     m = 0;
 }
 
-/* Example Soap XML doc passed by libupnp is like: 
+/* Example Soap XML doc passed by libupnp is like:
    <ns0:SetMute>
      <InstanceID>0</InstanceID>
      <Channel>Master</Channel>
      <DesiredMute>False</DesiredMute>
    </ns0:SetMute>
-   
-   As the top node name is qualified by a namespace, it's easier to just use 
+
+   As the top node name is qualified by a namespace, it's easier to just use
    action name passed in the libupnp action callback.
-   
+
    This is used both for decoding action requests in the device and responses
    in the control point side
 */
@@ -72,7 +72,7 @@ bool SoapIncoming::decode(const char *callnm, IXML_Document *actReq)
         LOGERR("SoapIncoming: Empty Action request (no topNode) ??" << endl);
         return false;
     }
-    //LOGDEB("SoapIncoming: top node name: " << ixmlNode_getNodeName(topNode) 
+    //LOGDEB("SoapIncoming: top node name: " << ixmlNode_getNodeName(topNode)
     //       << endl);
 
     nl = ixmlNode_getChildNodes(topNode);
@@ -88,7 +88,7 @@ bool SoapIncoming::decode(const char *callnm, IXML_Document *actReq)
         if (cld == 0) {
             //LOGDEB1("SoapIncoming: got null node  from nodelist at index " <<
             // i << " ??" << endl);
-            // Seems to happen with empty arg list?? This looks like a bug, 
+            // Seems to happen with empty arg list?? This looks like a bug,
             // should we not get an empty node instead?
             if (i == 0) {
                 ret = true;
@@ -121,7 +121,7 @@ out:
     return ret;
 }
 
-const std::string& SoapIncoming::getName() const 
+const std::string& SoapIncoming::getName() const
 {
     return m->name;
 }
@@ -160,12 +160,23 @@ string SoapHelp::xmlQuote(const string& in)
     string out;
     for (unsigned int i = 0; i < in.size(); i++) {
         switch(in[i]) {
-        case '"': out += "&quot;";break;
-        case '&': out += "&amp;";break;
-        case '<': out += "&lt;";break;
-        case '>': out += "&gt;";break;
-        case '\'': out += "&apos;";break;
-        default: out += in[i];
+        case '"':
+            out += "&quot;";
+            break;
+        case '&':
+            out += "&amp;";
+            break;
+        case '<':
+            out += "&lt;";
+            break;
+        case '>':
+            out += "&gt;";
+            break;
+        case '\'':
+            out += "&apos;";
+            break;
+        default:
+            out += in[i];
         }
     }
     return out;
@@ -223,7 +234,7 @@ public:
     std::vector<std::pair<std::string, std::string> > data;
 };
 
-SoapOutgoing::SoapOutgoing() 
+SoapOutgoing::SoapOutgoing()
 {
     if ((m = new Internal()) == 0) {
         LOGERR("SoapOutgoing::SoapOutgoing: out of memory" << endl);
@@ -247,18 +258,18 @@ SoapOutgoing::~SoapOutgoing()
     m = 0;
 }
 
-const string& SoapOutgoing::getName() const 
+const string& SoapOutgoing::getName() const
 {
     return m->name;
 }
 
-SoapOutgoing& SoapOutgoing::addarg(const string& k, const string& v) 
+SoapOutgoing& SoapOutgoing::addarg(const string& k, const string& v)
 {
     m->data.push_back(pair<string, string>(k, v));
     return *this;
 }
 
-SoapOutgoing& SoapOutgoing::operator() (const string& k, const string& v) 
+SoapOutgoing& SoapOutgoing::operator() (const string& k, const string& v)
 {
     m->data.push_back(pair<string, string>(k, v));
     return *this;
@@ -275,22 +286,22 @@ IXML_Document *SoapOutgoing::buildSoapBody(bool isResponse) const
     if (isResponse)
         topname += "Response";
 
-    IXML_Element *top =  
-        ixmlDocument_createElementNS(doc, m->serviceType.c_str(), 
+    IXML_Element *top =
+        ixmlDocument_createElementNS(doc, m->serviceType.c_str(),
                                      topname.c_str());
     ixmlElement_setAttribute(top, "xmlns:u", m->serviceType.c_str());
 
     for (unsigned i = 0; i < m->data.size(); i++) {
-        IXML_Element *elt = 
+        IXML_Element *elt =
             ixmlDocument_createElement(doc, m->data[i].first.c_str());
-        IXML_Node* textnode = 
+        IXML_Node* textnode =
             ixmlDocument_createTextNode(doc, m->data[i].second.c_str());
         ixmlNode_appendChild((IXML_Node*)elt,(IXML_Node*)textnode);
         ixmlNode_appendChild((IXML_Node*)top,(IXML_Node*)elt);
     }
 
     ixmlNode_appendChild((IXML_Node*)doc,(IXML_Node*)top);
-    
+
     return doc;
 }
 
@@ -304,7 +315,7 @@ IXML_Document *SoapOutgoing::buildSoapBody(bool isResponse) const
 //       <!-- Other variable names and values (if any) go here. -->
 //     </e:propertyset>
 
-bool decodePropertySet(IXML_Document *doc, 
+bool decodePropertySet(IXML_Document *doc,
                        STD_UNORDERED_MAP<string,string>& out)
 {
     bool ret = false;
@@ -313,7 +324,7 @@ bool decodePropertySet(IXML_Document *doc,
         LOGERR("decodePropertySet: (no topNode) ??" << endl);
         return false;
     }
-    //LOGDEB("decodePropertySet: topnode name: " << 
+    //LOGDEB("decodePropertySet: topnode name: " <<
     //       ixmlNode_getNodeName(topNode) << endl);
 
     IXML_NodeList* nl = ixmlNode_getChildNodes(topNode);
@@ -326,7 +337,7 @@ bool decodePropertySet(IXML_Document *doc,
         if (cld == 0) {
             LOGDEB("decodePropertySet: got null node  from nlist at index " <<
                    i << " ??" << endl);
-            // Seems to happen with empty arg list?? This looks like a bug, 
+            // Seems to happen with empty arg list?? This looks like a bug,
             // should we not get an empty node instead?
             if (i == 0) {
                 ret = true;
@@ -334,7 +345,7 @@ bool decodePropertySet(IXML_Document *doc,
             goto out;
         }
         const char *name = ixmlNode_getNodeName(cld);
-        //LOGDEB("decodePropertySet: got node name:     " << 
+        //LOGDEB("decodePropertySet: got node name:     " <<
         //   ixmlNode_getNodeName(cld) << endl);
         if (cld == 0) {
             DOMString pnode = ixmlPrintNode(cld);
@@ -344,13 +355,13 @@ bool decodePropertySet(IXML_Document *doc,
         }
         IXML_Node *subnode = ixmlNode_getFirstChild(cld);
         name = ixmlNode_getNodeName(subnode);
-        //LOGDEB("decodePropertySet: got subnode name:         " << 
+        //LOGDEB("decodePropertySet: got subnode name:         " <<
         //   name << endl);
-        
+
         IXML_Node *txtnode = ixmlNode_getFirstChild(subnode);
-        //LOGDEB("decodePropertySet: got txtnode name:             " << 
+        //LOGDEB("decodePropertySet: got txtnode name:             " <<
         //   ixmlNode_getNodeName(txtnode) << endl);
-        
+
         const char *value = "";
         if (txtnode != 0) {
             value = ixmlNode_getNodeValue(txtnode);
@@ -359,7 +370,7 @@ bool decodePropertySet(IXML_Document *doc,
         if (value == 0)
             value = "";
         // ixml does the unquoting. Don't call xmlUnquote here
-        out[name] = value; 
+        out[name] = value;
     }
 
     ret = true;

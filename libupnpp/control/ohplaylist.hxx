@@ -67,7 +67,8 @@ public:
     int seekId(int value);
     int seekIndex(int value);
     enum TPState {TPS_Unknown, TPS_Buffering, TPS_Paused, TPS_Playing,
-                  TPS_Stopped};
+                  TPS_Stopped
+                 };
     int transportState(TPState *tps);
     int id(int *value);
     int read(int id, std::string* uri, UPnPDirObject *dirent);
@@ -76,12 +77,16 @@ public:
         int id;
         std::string url;
         UPnPDirObject dirent;
-        void clear() {id = -1; url.clear(); dirent.clear();}
+        void clear() {
+            id = -1;
+            url.clear();
+            dirent.clear();
+        }
     };
-    int readList(const std::vector<int>& ids, 
+    int readList(const std::vector<int>& ids,
                  std::vector<TrackListEntry>* entsp);
 
-    int insert(int afterid, const std::string& uri, const std::string& didl, 
+    int insert(int afterid, const std::string& uri, const std::string& didl,
                int *nid);
     int deleteId(int id);
     int deleteAll();

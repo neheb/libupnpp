@@ -31,7 +31,7 @@ class LastchangeParser : public inputRefXMLParser {
 public:
     LastchangeParser(const string& input, STD_UNORDERED_MAP<string,string>& props)
         : inputRefXMLParser(input), m_props(props)
-        {}
+    {}
 
 protected:
     virtual void StartElement(const XML_Char *name, const XML_Char **attrs)
@@ -49,7 +49,7 @@ private:
 };
 
 
-bool decodeAVLastChange(const string& xml, 
+bool decodeAVLastChange(const string& xml,
                         STD_UNORDERED_MAP<string, string>& props)
 {
     LastchangeParser mparser(xml, props);

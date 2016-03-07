@@ -127,7 +127,7 @@ protected:
         } else {
             parentname = m_path[m_path.size()-2].name;
         }
-        //LOGDEB("Closing element " << name << " inside element " << 
+        //LOGDEB("Closing element " << name << " inside element " <<
         //       parentname << " data " << m_path.back().data << endl);
         if (!strcmp(name, "container")) {
             if (checkobjok()) {
@@ -135,13 +135,13 @@ protected:
             }
         } else if (!strcmp(name, "item")) {
             if (checkobjok()) {
-                unsigned int len = XML_GetCurrentByteIndex(expat_parser) - 
-                    m_path.back().sta;
+                unsigned int len = XML_GetCurrentByteIndex(expat_parser) -
+                                   m_path.back().sta;
                 m_tobj.m_didlfrag = m_input.substr(m_path.back().sta, len)
-                    + "</item></DIDL-Lite>";
+                                    + "</item></DIDL-Lite>";
                 m_dir.m_items.push_back(m_tobj);
             }
-        } else if (!parentname.compare("item") || 
+        } else if (!parentname.compare("item") ||
                    !parentname.compare("container")) {
             switch (name[0]) {
             case 'd':
@@ -154,13 +154,13 @@ protected:
             case 'r':
                 if (!strcmp(name, "res")) {
                     // <res protocolInfo="http-get:*:audio/mpeg:*" size="517149"
-                    // bitrate="24576" duration="00:03:35" 
+                    // bitrate="24576" duration="00:03:35"
                     // sampleFrequency="44100" nrAudioChannels="2">
                     UPnPResource res;
                     res.m_uri = m_path.back().data;
-                    for (STD_UNORDERED_MAP<string,string>::iterator it =  
-                             m_path.back().attributes.begin();
-                        it !=  m_path.back().attributes.end(); it++) {
+                    for (STD_UNORDERED_MAP<string,string>::iterator it =
+                                m_path.back().attributes.begin();
+                            it !=  m_path.back().attributes.end(); it++) {
                         res.m_props[it->first] = it->second;
                     }
                     m_tobj.m_resources.push_back(res);
@@ -199,11 +199,11 @@ bool UPnPDirContent::parse(const std::string& input)
 }
 
 static const string didl_header(
-"<?xml version=\"1.0\" encoding=\"utf-8\"?>"
-"<DIDL-Lite xmlns=\"urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/\""
-" xmlns:dc=\"http://purl.org/dc/elements/1.1/\""
-" xmlns:upnp=\"urn:schemas-upnp-org:metadata-1-0/upnp/\""
-" xmlns:dlna=\"urn:schemas-dlna-org:metadata-1-0/\">");
+    "<?xml version=\"1.0\" encoding=\"utf-8\"?>"
+    "<DIDL-Lite xmlns=\"urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/\""
+    " xmlns:dc=\"http://purl.org/dc/elements/1.1/\""
+    " xmlns:upnp=\"urn:schemas-upnp-org:metadata-1-0/upnp/\""
+    " xmlns:dlna=\"urn:schemas-dlna-org:metadata-1-0/\">");
 
 // Maybe we'll do something about building didl from scratch if this
 // proves necessary.

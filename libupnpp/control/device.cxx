@@ -32,7 +32,7 @@ public:
 };
 
 
-Device::Device() 
+Device::Device()
 {
     if ((m = new Internal()) == 0) {
         LOGERR("Device::Device: out of memory" << endl);

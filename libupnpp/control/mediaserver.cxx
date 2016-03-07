@@ -35,7 +35,7 @@ using namespace UPnPP;
 
 namespace UPnPClient {
 
-const string 
+const string
 MediaServer::DType("urn:schemas-upnp-org:device:MediaServer:1");
 
 // We don't include a version in comparisons, as we are satisfied with
@@ -48,30 +48,30 @@ bool MediaServer::isMSDevice(const string& st)
 
 static bool MDAccum(STD_UNORDERED_MAP<string, UPnPDeviceDesc>* out,
                     const string& friendlyName,
-                    const UPnPDeviceDesc& device, 
+                    const UPnPDeviceDesc& device,
                     const UPnPServiceDesc& service)
 {
-    //LOGDEB("MDAccum: friendlyname: " << friendlyName << 
+    //LOGDEB("MDAccum: friendlyname: " << friendlyName <<
     //    " dev friendlyName " << device.friendlyName << endl);
     if (ContentDirectory::isCDService(service.serviceType) &&
-        (friendlyName.empty() ? true : 
-         !friendlyName.compare(device.friendlyName))) {
+            (friendlyName.empty() ? true :
+             !friendlyName.compare(device.friendlyName))) {
         //LOGDEB("MDAccum setting " << device.UDN << endl);
         (*out)[device.UDN] = device;
     }
     return true;
 }
 
-bool MediaServer::getDeviceDescs(vector<UPnPDeviceDesc>& devices, 
-                                   const string& friendlyName)
+bool MediaServer::getDeviceDescs(vector<UPnPDeviceDesc>& devices,
+                                 const string& friendlyName)
 {
     STD_UNORDERED_MAP<string, UPnPDeviceDesc> mydevs;
 
     UPnPDeviceDirectory::Visitor visitor = bind(MDAccum, &mydevs, friendlyName,
-                                                _1, _2);
+                                           _1, _2);
     UPnPDeviceDirectory::getTheDir()->traverse(visitor);
-    for (STD_UNORDERED_MAP<string, UPnPDeviceDesc>::iterator it = mydevs.begin(); 
-         it != mydevs.end(); it++)
+    for (STD_UNORDERED_MAP<string, UPnPDeviceDesc>::iterator it = mydevs.begin();
+            it != mydevs.end(); it++)
         devices.push_back(it->second);
     return !devices.empty();
 }
@@ -80,8 +80,8 @@ MediaServer::MediaServer(const UPnPDeviceDesc& desc)
     : Device(desc)
 {
     bool found = false;
-    for (vector<UPnPServiceDesc>::const_iterator it = desc.services.begin(); 
-         it != desc.services.end(); it++) {
+    for (vector<UPnPServiceDesc>::const_iterator it = desc.services.begin();
+            it != desc.services.end(); it++) {
         if (ContentDirectory::isCDService(it->serviceType)) {
             m_cds = CDSH(new ContentDirectory(desc, *it));
             found = true;

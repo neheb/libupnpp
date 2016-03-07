@@ -53,10 +53,10 @@ void OHReceiver::evtCallback(
     const STD_UNORDERED_MAP<std::string, std::string>& props)
 {
     LOGDEB1("OHReceiver::evtCallback:getReporter(): " << getReporter() << endl);
-    for (STD_UNORDERED_MAP<std::string, std::string>::const_iterator it = 
-             props.begin(); it != props.end(); it++) {
+    for (STD_UNORDERED_MAP<std::string, std::string>::const_iterator it =
+                props.begin(); it != props.end(); it++) {
         if (!getReporter()) {
-            LOGDEB1("OHReceiver::evtCallback: " << it->first << " -> " 
+            LOGDEB1("OHReceiver::evtCallback: " << it->first << " -> "
                     << it->second << endl);
             continue;
         }
@@ -66,13 +66,13 @@ void OHReceiver::evtCallback(
             OHPlaylist::stringToTpState(it->second, &tp);
             getReporter()->changed(it->first.c_str(), int(tp));
         } else if (!it->first.compare("Metadata")) {
-            getReporter()->changed(it->first.c_str(), 
+            getReporter()->changed(it->first.c_str(),
                                    it->second.c_str());
         } else if (!it->first.compare("Uri")) {
-            getReporter()->changed(it->first.c_str(), 
+            getReporter()->changed(it->first.c_str(),
                                    it->second.c_str());
         } else if (!it->first.compare("ProtocolInfo")) {
-            getReporter()->changed(it->first.c_str(), 
+            getReporter()->changed(it->first.c_str(),
                                    it->second.c_str());
         } else {
             LOGERR("OHReceiver event: unknown variable: name [" <<
@@ -100,7 +100,7 @@ int OHReceiver::setSender(const string& uri, const string& didl)
 {
     SoapOutgoing args(getServiceType(), "SetSender");
     args("Uri", uri)
-        ("Metadata", didl);
+    ("Metadata", didl);
     SoapIncoming data;
     return runAction(args, data);
 }

@@ -74,7 +74,9 @@ public:
         return simpleMatch(val);
     }
 
-    bool ok() const {return m_ok;}
+    bool ok() const {
+        return m_ok;
+    }
 private:
     bool m_ok;
     regex_t m_expr;
@@ -82,22 +84,24 @@ private:
 #else
 class SimpleRegexp {
 public:
-	SimpleRegexp(const string& exp, int flags)
-		: m_expr(exp, basic_regex<char>::flag_type(flags)), m_ok(true) {}
-	
-	bool simpleMatch(const string& val) const {
-		if (!ok())
-			return false;
-		return regex_match(val, m_expr);
-	}
-	bool operator() (const string& val) const {
-		return simpleMatch(val);
-	}
+    SimpleRegexp(const string& exp, int flags)
+        : m_expr(exp, basic_regex<char>::flag_type(flags)), m_ok(true) {}
 
-	bool ok() const { return m_ok; }
+    bool simpleMatch(const string& val) const {
+        if (!ok())
+            return false;
+        return regex_match(val, m_expr);
+    }
+    bool operator() (const string& val) const {
+        return simpleMatch(val);
+    }
+
+    bool ok() const {
+        return m_ok;
+    }
 private:
-	basic_regex<char> m_expr;
-	bool m_ok;
+    basic_regex<char> m_expr;
+    bool m_ok;
 };
 #define REG_ICASE std::regex_constants::icase
 #define REG_NOSUB std::regex_constants::nosubs
@@ -121,7 +125,7 @@ ContentDirectory::ContentDirectory(const UPnPDeviceDesc& device,
                                    const UPnPServiceDesc& service)
     : Service(device, service), m_rdreqcnt(200), m_serviceKind(CDSKIND_UNKNOWN)
 {
-    LOGERR("ContentDirectory::ContentDirectory: manufacturer: " << 
+    LOGERR("ContentDirectory::ContentDirectory: manufacturer: " <<
            getManufacturer() << " model " << getModelName() << endl);
 
     if (bubble_rx(getModelName())) {
@@ -142,7 +146,7 @@ ContentDirectory::ContentDirectory(const UPnPDeviceDesc& device,
     } else if (twonky_rx(getModelName())) {
         m_serviceKind = CDSKIND_TWONKY;
         LOGDEB1("ContentDirectory::ContentDirectory: TWONKY" << endl);
-    } 
+    }
     registerCallback();
 }
 ContentDirectory::~ContentDirectory()
@@ -159,7 +163,7 @@ bool ContentDirectory::isCDService(const string& st)
 }
 
 static bool DSAccum(vector<CDSH>* out,
-                    const UPnPDeviceDesc& device, 
+                    const UPnPDeviceDesc& device,
                     const UPnPServiceDesc& service)
 {
     if (ContentDirectory::isCDService(service.serviceType)) {
@@ -176,7 +180,7 @@ bool ContentDirectory::getServices(vector<CDSH>& vds)
     return !vds.empty();
 }
 
-// Get server by friendly name. 
+// Get server by friendly name.
 bool ContentDirectory::getServerByName(const string& fname, CDSH& server)
 {
     UPnPDeviceDesc ddesc;
@@ -185,8 +189,8 @@ bool ContentDirectory::getServerByName(const string& fname, CDSH& server)
         return false;
 
     found = false;
-    for (std::vector<UPnPServiceDesc>::const_iterator it = 
-             ddesc.services.begin(); it != ddesc.services.end(); it++) {
+    for (std::vector<UPnPServiceDesc>::const_iterator it =
+                ddesc.services.begin(); it != ddesc.services.end(); it++) {
         if (isCDService(it->serviceType)) {
             server = CDSH(new ContentDirectory(ddesc, *it));
             found = true;
@@ -202,18 +206,18 @@ static int asyncReaddirCB(Upnp_EventType et, void *vev, void *cookie)
     LOGDEB("asyncReaddirCB: " << LibUPnP::evTypeAsString(et) << endl);
     struct Upnp_Action_Complete *act = (struct Upnp_Action_Complete*)vev;
 
-    LOGDEB("asyncReaddirCB: errcode " << act->ErrCode << 
-           " cturl " <<  UpnpString_get_String(act->CtrlUrl) << 
-           " actionrequest " << endl << 
+    LOGDEB("asyncReaddirCB: errcode " << act->ErrCode <<
+           " cturl " <<  UpnpString_get_String(act->CtrlUrl) <<
+           " actionrequest " << endl <<
            ixmlwPrintDoc(act->ActionRequest) << endl <<
            " actionresult " << ixmlwPrintDoc(act->ActionResult) << endl);
     return 0;
 }
-    int ret = 
-        UpnpSendActionAsync(hdl, getActionURL().c_str(), getServiceType().c_str(),
-        0 /*devUDN*/, request, asyncReaddirCB, 0);
-    sleep(10);
-    return -1;
+int ret =
+    UpnpSendActionAsync(hdl, getActionURL().c_str(), getServiceType().c_str(),
+                        0 /*devUDN*/, request, asyncReaddirCB, 0);
+sleep(10);
+return -1;
 #endif
 
 void ContentDirectory::evtCallback(const STD_UNORDERED_MAP<string, string>&)
@@ -223,26 +227,26 @@ void ContentDirectory::evtCallback(const STD_UNORDERED_MAP<string, string>&)
 void ContentDirectory::registerCallback()
 {
     LOGDEB("ContentDirectory::registerCallback"<< endl);
-    Service::registerCallback(bind(&ContentDirectory::evtCallback, 
+    Service::registerCallback(bind(&ContentDirectory::evtCallback,
                                    this, _1));
 }
 
 int ContentDirectory::readDirSlice(const string& objectId, int offset,
-                                          int count, UPnPDirContent& dirbuf,
-                                          int *didread, int *total)
+                                   int count, UPnPDirContent& dirbuf,
+                                   int *didread, int *total)
 {
-    LOGDEB("CDService::readDirSlice: objId [" << objectId << "] offset " << 
+    LOGDEB("CDService::readDirSlice: objId [" << objectId << "] offset " <<
            offset << " count " << count << endl);
 
     // Create request
     // Some devices require an empty SortCriteria, else bad params
     SoapOutgoing args(getServiceType(), "Browse");
     args("ObjectID", objectId)
-        ("BrowseFlag", "BrowseDirectChildren")
-        ("Filter", "*")
-        ("SortCriteria", "")
-        ("StartingIndex", SoapHelp::i2s(offset))
-        ("RequestedCount", SoapHelp::i2s(count));
+    ("BrowseFlag", "BrowseDirectChildren")
+    ("Filter", "*")
+    ("SortCriteria", "")
+    ("StartingIndex", SoapHelp::i2s(offset))
+    ("RequestedCount", SoapHelp::i2s(count));
 
     SoapIncoming data;
     int ret = runAction(args, data);
@@ -252,8 +256,8 @@ int ContentDirectory::readDirSlice(const string& objectId, int offset,
 
     string tbuf;
     if (!data.get("NumberReturned", didread) ||
-        !data.get("TotalMatches", total) ||
-        !data.get("Result", &tbuf)) {
+            !data.get("TotalMatches", total) ||
+            !data.get("Result", &tbuf)) {
         LOGERR("CDService::readDir: missing elts in response" << endl);
         return UPNP_E_BAD_RESPONSE;
     }
@@ -265,8 +269,8 @@ int ContentDirectory::readDirSlice(const string& objectId, int offset,
 
 #if 0
     cerr << "CDService::readDirSlice: count " << count <<
-        " offset " << offset <<
-        " total " << *total << endl;
+         " offset " << offset <<
+         " total " << *total << endl;
     cerr << " result " << tbuf << endl;
 #endif
 
@@ -276,7 +280,7 @@ int ContentDirectory::readDirSlice(const string& objectId, int offset,
 }
 
 int ContentDirectory::readDir(const string& objectId,
-                                     UPnPDirContent& dirbuf)
+                              UPnPDirContent& dirbuf)
 {
     LOGDEB("CDService::readDir: url [" << getActionURL() << "] type [" <<
            getServiceType() << "] udn [" << getDeviceId() << "] objId [" <<
@@ -303,17 +307,17 @@ int ContentDirectory::searchSlice(const string& objectId,
                                   int offset, int count, UPnPDirContent& dirbuf,
                                   int *didread, int *total)
 {
-    LOGDEB("CDService::searchSlice: objId [" << objectId << "] offset " << 
+    LOGDEB("CDService::searchSlice: objId [" << objectId << "] offset " <<
            offset << " count " << count << endl);
 
     // Create request
     SoapOutgoing args(getServiceType(), "Search");
     args("ContainerID", objectId)
-        ("SearchCriteria", ss)
-        ("Filter", "*")
-        ("SortCriteria", "")
-        ("StartingIndex", SoapHelp::i2s(offset))
-        ("RequestedCount", SoapHelp::i2s(count)); 
+    ("SearchCriteria", ss)
+    ("Filter", "*")
+    ("SortCriteria", "")
+    ("StartingIndex", SoapHelp::i2s(offset))
+    ("RequestedCount", SoapHelp::i2s(count));
 
     SoapIncoming data;
     int ret = runAction(args, data);
@@ -326,8 +330,8 @@ int ContentDirectory::searchSlice(const string& objectId,
 
     string tbuf;
     if (!data.get("NumberReturned", didread) ||
-        !data.get("TotalMatches", total) ||
-        !data.get("Result", &tbuf)) {
+            !data.get("TotalMatches", total) ||
+            !data.get("Result", &tbuf)) {
         LOGERR("CDService::search: missing elts in response" << endl);
         return UPNP_E_BAD_RESPONSE;
     }
@@ -345,8 +349,8 @@ int ContentDirectory::search(const string& objectId,
                              const string& ss,
                              UPnPDirContent& dirbuf)
 {
-    LOGDEB("CDService::search: url [" << getActionURL() << "] type [" << 
-           getServiceType() << "] udn [" << getDeviceId() << "] objid [" << 
+    LOGDEB("CDService::search: url [" << getActionURL() << "] type [" <<
+           getServiceType() << "] udn [" << getDeviceId() << "] objid [" <<
            objectId <<  "] search [" << ss << "]" << endl);
 
     int offset = 0;
@@ -373,7 +377,7 @@ int ContentDirectory::getSearchCapabilities(set<string>& result)
     SoapIncoming data;
     int ret = runAction(args, data);
     if (ret != UPNP_E_SUCCESS) {
-        LOGINF("CDService::getSearchCapa: UpnpSendAction failed: " << 
+        LOGINF("CDService::getSearchCapa: UpnpSendAction failed: " <<
                UpnpGetErrorMessage(ret) << endl);
         return ret;
     }
@@ -397,7 +401,7 @@ int ContentDirectory::getSearchCapabilities(set<string>& result)
 }
 
 int ContentDirectory::getMetadata(const string& objectId,
-                                         UPnPDirContent& dirbuf)
+                                  UPnPDirContent& dirbuf)
 {
     LOGDEB("CDService::getMetadata: url [" << getActionURL() << "] type [" <<
            getServiceType() << "] udn [" << getDeviceId() << "] objId [" <<
@@ -406,14 +410,14 @@ int ContentDirectory::getMetadata(const string& objectId,
     SoapOutgoing args(getServiceType(), "Browse");
     SoapIncoming data;
     args("ObjectID", objectId)
-        ("BrowseFlag", "BrowseMetadata")
-        ("Filter", "*")
-        ("SortCriteria", "")
-        ("StartingIndex", "0")
-        ("RequestedCount", "1");
+    ("BrowseFlag", "BrowseMetadata")
+    ("Filter", "*")
+    ("SortCriteria", "")
+    ("StartingIndex", "0")
+    ("RequestedCount", "1");
     int ret = runAction(args, data);
     if (ret != UPNP_E_SUCCESS) {
-        LOGINF("CDService::getmetadata: UpnpSendAction failed: " << 
+        LOGINF("CDService::getmetadata: UpnpSendAction failed: " <<
                UpnpGetErrorMessage(ret) << endl);
         return ret;
     }

@@ -50,8 +50,8 @@ void OHVolume::evtCallback(
     const STD_UNORDERED_MAP<std::string, std::string>& props)
 {
     LOGDEB1("OHVolume::evtCallback: getReporter(): " << getReporter() << endl);
-    for (STD_UNORDERED_MAP<std::string, std::string>::const_iterator it = 
-             props.begin(); it != props.end(); it++) {
+    for (STD_UNORDERED_MAP<std::string, std::string>::const_iterator it =
+                props.begin(); it != props.end(); it++) {
         if (!getReporter()) {
             LOGDEB1("OHVolume::evtCallback: " << it->first << " -> "
                     << it->second << endl);
@@ -133,8 +133,8 @@ int OHVolume::vol0100ToDev(int ivol)
         // Round up when going up, down when going down. Else the user
         // will be surprised by the GUI control going back if he does
         // not go a full step
-        desiredVolume = volmin + 
-            goingUp ? int(ceil(ivol * fact)) : int(floor(ivol * fact));
+        desiredVolume = volmin + (goingUp ? int(ceil(ivol * fact)) :
+                                  int(floor(ivol * fact)));
     }
     // Insure integer number of steps (are there devices where step != 1?)
     int remainder = (desiredVolume - volmin) % volstep;
@@ -162,8 +162,8 @@ int OHVolume::volume(int *value)
 
 int OHVolume::setVolume(int value)
 {
-    int mval = vol0100ToDev(value); 
-   return runSimpleAction("SetVolume", "Value", mval);
+    int mval = vol0100ToDev(value);
+    return runSimpleAction("SetVolume", "Value", mval);
 }
 
 int OHVolume::volumeLimit(int *value)

@@ -48,10 +48,10 @@ void OHInfo::evtCallback(
     const STD_UNORDERED_MAP<std::string, std::string>& props)
 {
     LOGDEB1("OHInfo::evtCallback: getReporter(): " << getReporter() << endl);
-    for (STD_UNORDERED_MAP<std::string, std::string>::const_iterator it = 
-             props.begin(); it != props.end(); it++) {
+    for (STD_UNORDERED_MAP<std::string, std::string>::const_iterator it =
+                props.begin(); it != props.end(); it++) {
         if (!getReporter()) {
-            LOGDEB1("OHInfo::evtCallback: " << it->first << " -> " 
+            LOGDEB1("OHInfo::evtCallback: " << it->first << " -> "
                     << it->second << endl);
             continue;
         }
@@ -67,7 +67,7 @@ void OHInfo::evtCallback(
             }
         } else {
             LOGDEB1("OHInfo event: unknown variable: name [" <<
-                   it->first << "] value [" << it->second << endl);
+                    it->first << "] value [" << it->second << endl);
             getReporter()->changed(it->first.c_str(), it->second.c_str());
         }
     }

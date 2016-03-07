@@ -23,9 +23,15 @@
 
 #include "service.hxx"                  // for Service
 
-namespace UPnPClient { class RenderingControl; }
-namespace UPnPClient { class UPnPDeviceDesc; }
-namespace UPnPClient { class UPnPServiceDesc; }
+namespace UPnPClient {
+class RenderingControl;
+}
+namespace UPnPClient {
+class UPnPDeviceDesc;
+}
+namespace UPnPClient {
+class UPnPServiceDesc;
+}
 
 namespace UPnPClient {
 

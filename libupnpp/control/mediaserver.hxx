@@ -35,7 +35,9 @@ class MediaServer : public Device {
 public:
     MediaServer(const UPnPDeviceDesc& desc);
 
-    CDSH cds() {return m_cds;}
+    CDSH cds() {
+        return m_cds;
+    }
 
     static bool getDeviceDescs(std::vector<UPnPDeviceDesc>& devices,
                                const std::string& friendlyName = "");
