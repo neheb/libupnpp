@@ -1,7 +1,6 @@
 
 AM_CPPFLAGS = -DDEBUG -g -Wall \
-            -DDATADIR=\"${pkgdatadir}\" -DCONFIGDIR=\"${sysconfdir}\" \
-            -DPACKAGE_VERSION=\"${PACKAGE_VERSION}\"
+            -DDATADIR=\"${pkgdatadir}\" -DCONFIGDIR=\"${sysconfdir}\"
 
 AM_CXXFLAGS = -std=c++0x 
 

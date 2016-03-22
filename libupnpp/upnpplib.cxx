@@ -14,6 +14,7 @@
  *	 Free Software Foundation, Inc.,
  *	 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
+#define  LIBUPNPP_NEED_PACKAGE_VERSION
 #include "libupnpp/config.h"
 
 #include <ctype.h>
@@ -87,8 +88,9 @@ LibUPnP *LibUPnP::getLibUPnP(bool serveronly, string* hwaddr,
 
 string LibUPnP::versionString()
 {
-    return string("libupnpp ") + PACKAGE_VERSION + " libupnp " +
-           UPNP_VERSION_STRING;
+    // We would like to print libupnp version too, but there is no way to
+    // get this at runtime, and printing the compile time version is wrong.
+    return string("libupnpp ") + LIBUPNPP_PACKAGE_VERSION;
 }
 
 UpnpClient_Handle LibUPnP::getclh()
