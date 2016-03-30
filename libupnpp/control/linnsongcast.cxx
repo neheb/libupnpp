@@ -344,8 +344,6 @@ void setReceiversFromSender(const string& sendernm, const vector<string>& rcvs)
             continue;
         case ReceiverState::SCRS_STOPPED:
         case ReceiverState::SCRS_PLAYING:
-            cerr << sl << ": already in receiver mode" << endl;
-            continue;
         case ReceiverState::SCRS_NOTRECEIVER:
             if (setReceiverPlaying(sstate, uri, meta)) {
                 cerr << sl << " set up for playing " << uri << endl;
