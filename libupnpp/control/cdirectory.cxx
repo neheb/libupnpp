@@ -50,6 +50,40 @@ namespace UPnPClient {
 // The service type string for Content Directories:
 const string ContentDirectory::SType("urn:schemas-upnp-org:service:ContentDirectory:1");
 
+// We don't include a version in comparisons, as we are satisfied with
+// version 1
+bool ContentDirectory::isCDService(const string& st)
+{
+    const string::size_type sz(SType.size()-2);
+    return !SType.compare(0, sz, st, 0, sz);
+}
+
+void ContentDirectory::evtCallback(
+    const STD_UNORDERED_MAP<string, string>& props)
+{
+    for (STD_UNORDERED_MAP<std::string, std::string>::const_iterator it =
+             props.begin(); it != props.end(); it++) {
+        if (!getReporter()) {
+            LOGDEB("ContentDirectory::evtCallback: " << it->first << " -> "
+                    << it->second << endl);
+            continue;
+        }
+        if (!it->first.compare("SystemUpdateID")) {
+            getReporter()->changed(it->first.c_str(), atoi(it->second.c_str()));
+
+        } else if (!it->first.compare("ContainerUpdateIDs") ||
+                   !it->first.compare("TransferIDs")) {
+            getReporter()->changed(it->first.c_str(),
+                                   it->second.c_str());
+
+        } else {
+            LOGERR("ContentDirectory event: unknown variable: name [" <<
+                   it->first << "] value [" << it->second << endl);
+            getReporter()->changed(it->first.c_str(), it->second.c_str());
+        }
+    }
+}
+
 #ifndef WIN32
 class SimpleRegexp {
 public:
@@ -149,17 +183,9 @@ ContentDirectory::ContentDirectory(const UPnPDeviceDesc& device,
     }
     registerCallback();
 }
+
 ContentDirectory::~ContentDirectory()
 {
-    unregisterCallback();
-}
-
-// We don't include a version in comparisons, as we are satisfied with
-// version 1
-bool ContentDirectory::isCDService(const string& st)
-{
-    const string::size_type sz(SType.size()-2);
-    return !SType.compare(0, sz, st, 0, sz);
 }
 
 static bool DSAccum(vector<CDSH>* out,
@@ -198,30 +224,6 @@ bool ContentDirectory::getServerByName(const string& fname, CDSH& server)
         }
     }
     return found;
-}
-
-#if 0
-static int asyncReaddirCB(Upnp_EventType et, void *vev, void *cookie)
-{
-    LOGDEB("asyncReaddirCB: " << LibUPnP::evTypeAsString(et) << endl);
-    struct Upnp_Action_Complete *act = (struct Upnp_Action_Complete*)vev;
-
-    LOGDEB("asyncReaddirCB: errcode " << act->ErrCode <<
-           " cturl " <<  UpnpString_get_String(act->CtrlUrl) <<
-           " actionrequest " << endl <<
-           ixmlwPrintDoc(act->ActionRequest) << endl <<
-           " actionresult " << ixmlwPrintDoc(act->ActionResult) << endl);
-    return 0;
-}
-int ret =
-    UpnpSendActionAsync(hdl, getActionURL().c_str(), getServiceType().c_str(),
-                        0 /*devUDN*/, request, asyncReaddirCB, 0);
-sleep(10);
-return -1;
-#endif
-
-void ContentDirectory::evtCallback(const STD_UNORDERED_MAP<string, string>&)
-{
 }
 
 void ContentDirectory::registerCallback()
