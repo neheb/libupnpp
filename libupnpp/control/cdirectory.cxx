@@ -64,7 +64,7 @@ void ContentDirectory::evtCallback(
     for (STD_UNORDERED_MAP<std::string, std::string>::const_iterator it =
              props.begin(); it != props.end(); it++) {
         if (!getReporter()) {
-            LOGDEB("ContentDirectory::evtCallback: " << it->first << " -> "
+            LOGDEB1("ContentDirectory::evtCallback: " << it->first << " -> "
                     << it->second << endl);
             continue;
         }
