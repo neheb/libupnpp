@@ -1,30 +1,30 @@
 /* Copyright (C) 2014 J.F.Dockes
- *	 This program is free software; you can redistribute it and/or modify
- *	 it under the terms of the GNU General Public License as published by
- *	 the Free Software Foundation; either version 2 of the License, or
- *	 (at your option) any later version.
+ *   This program is free software; you can redistribute it and/or modify
+ *   it under the terms of the GNU General Public License as published by
+ *   the Free Software Foundation; either version 2 of the License, or
+ *   (at your option) any later version.
  *
- *	 This program is distributed in the hope that it will be useful,
- *	 but WITHOUT ANY WARRANTY; without even the implied warranty of
- *	 MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *	 GNU General Public License for more details.
+ *   This program is distributed in the hope that it will be useful,
+ *   but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *   GNU General Public License for more details.
  *
- *	 You should have received a copy of the GNU General Public License
- *	 along with this program; if not, write to the
- *	 Free Software Foundation, Inc.,
- *	 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+ *   You should have received a copy of the GNU General Public License
+ *   along with this program; if not, write to the
+ *   Free Software Foundation, Inc.,
+ *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 #include "libupnpp/config.h"
 
 #include "libupnpp/soaphelp.hxx"
 
-#include <stdio.h>                      // for sprintf
-#include <stdlib.h>                     // for atoi
+#include <stdio.h>
+#include <stdlib.h>
 
-#include <iostream>                     // for operator<<, endl, etc
+#include <iostream>
 
-#include "libupnpp/log.hxx"             // for LOGDEB, LOGERR, LOGDEB1
-#include "libupnpp/upnpp_p.hxx"         // for stringToBool
+#include "libupnpp/log.hxx"
+#include "libupnpp/upnpp_p.hxx"
 
 using namespace std;
 
@@ -43,6 +43,7 @@ SoapIncoming::SoapIncoming()
         return;
     }
 }
+
 SoapIncoming::~SoapIncoming()
 {
     delete m;
@@ -108,16 +109,18 @@ bool SoapIncoming::decode(const char *callnm, IXML_Document *actReq)
             value = ixmlNode_getNodeValue(txtnode);
         }
         // Can we get an empty value here ?
-        if (value == 0)
+        if (value == 0) {
             value = "";
+        }
         m->args[name] = value;
     }
     m->name = callnm;
     ret = true;
 
 out:
-    if (nl)
+    if (nl) {
         ixmlNodeList_free(nl);
+    }
     return ret;
 }
 
@@ -159,7 +162,7 @@ string SoapHelp::xmlQuote(const string& in)
 {
     string out;
     for (unsigned int i = 0; i < in.size(); i++) {
-        switch(in[i]) {
+        switch (in[i]) {
         case '"':
             out += "&quot;";
             break;
@@ -189,14 +192,15 @@ string SoapHelp::xmlUnquote(const string& in)
         if (in[i] == '&') {
             unsigned int j;
             for (j = i; j < in.size(); j++) {
-                if (in[j] == ';')
+                if (in[j] == ';') {
                     break;
+                }
             }
             if (in[j] != ';') {
                 out += in.substr(i);
                 return out;
             }
-            string entname = in.substr(i+1, j-i-1);
+            string entname = in.substr(i + 1, j - i - 1);
             //cerr << "entname [" << entname << "]" << endl;
             if (!entname.compare("quot")) {
                 out += '"';
@@ -209,7 +213,7 @@ string SoapHelp::xmlUnquote(const string& in)
             } else if (!entname.compare("apos")) {
                 out += '\'';
             } else {
-                out += in.substr(i, j-i+1);
+                out += in.substr(i, j - i + 1);
             }
             i = j;
         } else {
@@ -269,7 +273,7 @@ SoapOutgoing& SoapOutgoing::addarg(const string& k, const string& v)
     return *this;
 }
 
-SoapOutgoing& SoapOutgoing::operator() (const string& k, const string& v)
+SoapOutgoing& SoapOutgoing::operator()(const string& k, const string& v)
 {
     m->data.push_back(pair<string, string>(k, v));
     return *this;
@@ -283,8 +287,9 @@ IXML_Document *SoapOutgoing::buildSoapBody(bool isResponse) const
         return 0;
     }
     string topname = string("u:") + m->name;
-    if (isResponse)
+    if (isResponse) {
         topname += "Response";
+    }
 
     IXML_Element *top =
         ixmlDocument_createElementNS(doc, m->serviceType.c_str(),
@@ -296,11 +301,11 @@ IXML_Document *SoapOutgoing::buildSoapBody(bool isResponse) const
             ixmlDocument_createElement(doc, m->data[i].first.c_str());
         IXML_Node* textnode =
             ixmlDocument_createTextNode(doc, m->data[i].second.c_str());
-        ixmlNode_appendChild((IXML_Node*)elt,(IXML_Node*)textnode);
-        ixmlNode_appendChild((IXML_Node*)top,(IXML_Node*)elt);
+        ixmlNode_appendChild((IXML_Node*)elt, (IXML_Node*)textnode);
+        ixmlNode_appendChild((IXML_Node*)top, (IXML_Node*)elt);
     }
 
-    ixmlNode_appendChild((IXML_Node*)doc,(IXML_Node*)top);
+    ixmlNode_appendChild((IXML_Node*)doc, (IXML_Node*)top);
 
     return doc;
 }
@@ -316,7 +321,7 @@ IXML_Document *SoapOutgoing::buildSoapBody(bool isResponse) const
 //     </e:propertyset>
 
 bool decodePropertySet(IXML_Document *doc,
-                       STD_UNORDERED_MAP<string,string>& out)
+                       STD_UNORDERED_MAP<string, string>& out)
 {
     bool ret = false;
     IXML_Node* topNode = ixmlNode_getFirstChild((IXML_Node *)doc);
@@ -324,14 +329,18 @@ bool decodePropertySet(IXML_Document *doc,
         LOGERR("decodePropertySet: (no topNode) ??" << endl);
         return false;
     }
-    //LOGDEB("decodePropertySet: topnode name: " <<
-    //       ixmlNode_getNodeName(topNode) << endl);
 
+    // Top node is <e:propertyset>
+    //LOGDEB("decodePropertySet: topnode name: " <<
+    //ixmlNode_getNodeName(topNode) << endl);
+
+    // Get the children. These are normally <e:property> elements
     IXML_NodeList* nl = ixmlNode_getChildNodes(topNode);
     if (nl == 0) {
         LOGDEB("decodePropertySet: empty list" << endl);
         return true;
     }
+    // Walk the <e:property> elements
     for (unsigned long i = 0; i <  ixmlNodeList_length(nl); i++) {
         IXML_Node *cld = ixmlNodeList_item(nl, i);
         if (cld == 0) {
@@ -344,39 +353,64 @@ bool decodePropertySet(IXML_Document *doc,
             }
             goto out;
         }
+
+        // We should compare to e:property in case there is other stuff in there
         const char *name = ixmlNode_getNodeName(cld);
         //LOGDEB("decodePropertySet: got node name:     " <<
-        //   ixmlNode_getNodeName(cld) << endl);
+        //ixmlNode_getNodeName(cld) << endl);
         if (cld == 0) {
             DOMString pnode = ixmlPrintNode(cld);
-            //LOGDEB("decodePropertySet: got null name ??:" << pnode << endl);
+            LOGDEB("decodePropertySet: got null name ??:" << pnode << endl);
             ixmlFreeDOMString(pnode);
             goto out;
         }
-        IXML_Node *subnode = ixmlNode_getFirstChild(cld);
-        name = ixmlNode_getNodeName(subnode);
-        //LOGDEB("decodePropertySet: got subnode name:         " <<
-        //   name << endl);
 
-        IXML_Node *txtnode = ixmlNode_getFirstChild(subnode);
-        //LOGDEB("decodePropertySet: got txtnode name:             " <<
-        //   ixmlNode_getNodeName(txtnode) << endl);
-
-        const char *value = "";
-        if (txtnode != 0) {
-            value = ixmlNode_getNodeValue(txtnode);
+        // Get the child nodes. These should all be like
+        // <varname>value</varname>. Note that libupnpp versions up to
+        // 0.14.1 considered that there could only be one varname
+        // element under each <e:property> element. Most devices work
+        // this way, and I think that this was the intent (else why
+        // propertyset/property?) but the UPnP standard text
+        // (DeviceArchitecture) is actually ambiguous about this
+        // point, and, for example, MediaTomb, sends multiple variables
+        // per property, and upnp-inspector groks it. So let's grok it
+        // too.
+        IXML_NodeList* nl1 = ixmlNode_getChildNodes(cld);
+        if (nl1 == 0) {
+            LOGDEB("decodePropertySet: empty sublist" << endl);
+            continue;
         }
-        // Can we get an empty value here ?
-        if (value == 0)
-            value = "";
-        // ixml does the unquoting. Don't call xmlUnquote here
-        out[name] = value;
+        for (unsigned long i1 = 0; i1 <  ixmlNodeList_length(nl1); i1++) {
+            IXML_Node *subnode1 = ixmlNodeList_item(nl1, i1);
+            name = ixmlNode_getNodeName(subnode1);
+            //LOGDEB("decodePropertySet: got var node name:         " <<
+            // name << endl);
+
+            // Get the value text: <varname>valuetext</varname>
+            IXML_Node *txtnode = ixmlNode_getFirstChild(subnode1);
+            //LOGDEB("decodePropertySet: got txtnode name:             " <<
+            //     ixmlNode_getNodeName(txtnode) << endl);
+
+            const char *value = "";
+            if (txtnode != 0) {
+                value = ixmlNode_getNodeValue(txtnode);
+            }
+            // Can we get an empty value here ?
+            if (value == 0) {
+                value = "";
+            }
+            // ixml does the unquoting. Don't call xmlUnquote here
+            //LOGDEB("decodePropertySet: " << name << " -> " << value << endl);
+            out[name] = value;
+        }
+        ixmlNodeList_free(nl1);
     }
 
     ret = true;
 out:
-    if (nl)
+    if (nl) {
         ixmlNodeList_free(nl);
+    }
     return ret;
 }
 
