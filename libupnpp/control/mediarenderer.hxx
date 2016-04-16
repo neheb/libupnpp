@@ -16,8 +16,9 @@
  */
 #ifndef _MEDIARENDERER_HXX_INCLUDED_
 #define _MEDIARENDERER_HXX_INCLUDED_
+#include <libupnpp/config.h>
 
-#include <memory>
+#include MEMORY_INCLUDE
 #include <string>
 #include <vector>
 

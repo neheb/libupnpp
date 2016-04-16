@@ -17,6 +17,8 @@
 #ifndef _OHINFO_HXX_INCLUDED_
 #define _OHINFO_HXX_INCLUDED_
 
+#include <libupnpp/config.h>
+
 #include UNORDERED_MAP_INCLUDE
 #include <string>                       // for string
 #include <vector>                       // for vector
