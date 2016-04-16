@@ -24,6 +24,7 @@
 
 #include <upnp/upnp.h>
 
+#include UNORDERED_SET_INCLUDE
 #include <iostream>
 #include <map>
 #include <utility>

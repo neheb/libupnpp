@@ -18,6 +18,7 @@
 
 #include <string.h>                     // for strcmp
 
+#include UNORDERED_MAP_INCLUDE
 #include <string>                       // for string, allocator, etc
 #include <vector>                       // for vector
 #include <iostream>

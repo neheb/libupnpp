@@ -57,7 +57,8 @@ AC_TYPE_SIZE_T
 AC_TYPE_OFF_T
 AC_DEFINE([_LARGE_FILE_SOURCE], [], [Large files support])
 AC_DEFINE([_FILE_OFFSET_BITS], [64], [File Offset size])
-
+AC_DEFINE([HAVE_SHARED_PTR_STD], [1], [Has std::shared_ptr])
+AC_DEFINE([HAVE_CXX0X_UNORDERED], [1],[Have C++0x])
 AC_CHECK_LIB([rt], [clock_gettime], [], [])
 AC_CHECK_LIB([pthread], [pthread_create], [], [])
 

@@ -17,6 +17,7 @@
 #ifndef _OHPRODUCT_HXX_INCLUDED_
 #define _OHPRODUCT_HXX_INCLUDED_
 
+#include UNORDERED_MAP_INCLUDE
 #include <string>                       // for string
 #include <vector>                       // for vector
 

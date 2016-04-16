@@ -19,6 +19,7 @@
 
 #include "libupnpp/config.h"
 
+#include UNORDERED_MAP_INCLUDE
 #include <string>                       // for string
 
 namespace UPnPClient {

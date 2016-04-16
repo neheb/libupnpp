@@ -19,6 +19,9 @@
 
 #include "libupnpp/config.h"
 
+#include UNORDERED_MAP_INCLUDE
+#include MEMORY_INCLUDE
+
 #include <upnp/ixml.h>                  // for IXML_Document
 
 #include <map>                          // for map

@@ -24,6 +24,7 @@
  * downloaded from the URL obtained by the discovery phase.
  */
 
+#include UNORDERED_MAP_INCLUDE
 #include <vector>
 #include <string>
 #include <sstream>

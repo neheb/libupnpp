@@ -19,6 +19,7 @@
 
 #include "libupnpp/config.h"
 
+#include UNORDERED_MAP_INCLUDE
 #include <memory>                       // for shared_ptr
 #include <string>                       // for string
 #include <vector>                       // for vector

@@ -20,6 +20,9 @@
 
 #include "libupnpp/config.h"
 
+#include UNORDERED_MAP_INCLUDE
+
+
 /** An easy libupnp virtual directory handler, based on stl
     maps and strings. This is not part of the library interface, but for
     internal use by device.cxx

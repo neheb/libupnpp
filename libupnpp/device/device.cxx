@@ -16,6 +16,7 @@
  */
 #include "libupnpp/config.h"
 
+#include "device.hxx"
 
 #include <errno.h>
 #include <time.h>
@@ -31,7 +32,6 @@
 #include "libupnpp/upnpputils.hxx"
 #include "libupnpp/upnpp_p.hxx"
 #include "vdir.hxx"
-#include "device.hxx"
 
 using namespace std;
 using namespace UPnPP;

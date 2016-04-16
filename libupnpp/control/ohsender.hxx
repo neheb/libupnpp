@@ -19,6 +19,7 @@
 
 #include "libupnpp/config.h"
 
+#include UNORDERED_MAP_INCLUDE
 #include <string>
 
 #include "libupnpp/control/service.hxx"

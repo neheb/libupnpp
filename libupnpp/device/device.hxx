@@ -21,6 +21,8 @@
 #include <pthread.h>                    // for pthread_cond_t
 #include <upnp/upnp.h>                  // for Upnp_EventType, etc
 
+#include UNORDERED_MAP_INCLUDE
+#include MEMORY_INCLUDE
 #include <string>                       // for string
 #include <vector>                       // for vector
 

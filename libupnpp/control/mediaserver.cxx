@@ -19,6 +19,7 @@
 
 #include "libupnpp/control/mediaserver.hxx"
 
+#include UNORDERED_MAP_INCLUDE
 #include <ostream>                      // for endl
 #include <string>                       // for string
 #include <utility>                      // for pair
