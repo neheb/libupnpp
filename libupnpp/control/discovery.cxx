@@ -110,8 +110,6 @@ static PTMutexInit o_downloading_mutex;
 // We can get called by several threads.
 static int cluCallBack(Upnp_EventType et, void* evp, void*)
 {
-    LOGDEB1("discovery:cluCallBack: " << LibUPnP::evTypeAsString(et) << endl);
-
     switch (et) {
     case UPNP_DISCOVERY_SEARCH_RESULT:
     case UPNP_DISCOVERY_ADVERTISEMENT_ALIVE:
@@ -124,10 +122,13 @@ static int cluCallBack(Upnp_EventType et, void* evp, void*)
         // one message per device: the one which probably correspond to the
         // upnp "root device" message and has empty service and device types:
         if (disco->DeviceType[0] || disco->ServiceType[0]) {
+            LOGDEB1("discovery:cllb:SearchRes/Alive: ignoring message with no"
+                    "device/service type\n");
             return UPNP_E_SUCCESS;
         }
 
-        LOGDEB1("discovery:cllb:ALIVE: " << cluDiscoveryToStr(disco) << endl);
+        LOGDEB1("discovery:cllb:SearchRes/Alive: " <<
+                cluDiscoveryToStr(disco) << endl);
 
         // Device signals its existence and well-being. Perform the
         // UPnP "description" phase by downloading and decoding the
@@ -176,7 +177,7 @@ static int cluCallBack(Upnp_EventType et, void* evp, void*)
     case UPNP_DISCOVERY_ADVERTISEMENT_BYEBYE:
     {
         struct Upnp_Discovery *disco = (struct Upnp_Discovery *)evp;
-        //LOGDEB("discovery:cllB:BYEBYE: " << cluDiscoveryToStr(disco) << endl);
+        LOGDEB1("discovery:cllB:BYEBYE: " << cluDiscoveryToStr(disco) << endl);
         DiscoveredTask *tp = new DiscoveredTask(0, disco);
         if (!discoveredQueue.put(tp)) {
             LOGERR("discovery:cllb: queue.put failed\n");
