@@ -17,13 +17,13 @@
 #ifndef _UPNPDIRCONTENT_H_X_INCLUDED_
 #define _UPNPDIRCONTENT_H_X_INCLUDED_
 
-#include <map>                          // for map, etc
-#include <sstream>                      // for operator<<, basic_ostream, etc
-#include <string>                       // for string, char_traits, etc
-#include <utility>                      // for pair
-#include <vector>                       // for vector
+#include <map>
+#include <sstream>
+#include <string>
+#include <utility>
+#include <vector>
 
-#include "libupnpp/upnpavutils.hxx"     // for upnpdurationtos
+#include "libupnpp/upnpavutils.hxx"
 
 namespace UPnPClient {
 
@@ -36,11 +36,22 @@ namespace UPnPClient {
  */
 class UPnPResource {
 public:
-    // Value
+    /// URI Value
     std::string m_uri;
-    // Attributes
+
+    /// Resource attributes
     std::map<std::string, std::string> m_props;
+
+    /// Get the protocolinfo attribute in cooked form
+    bool protoInfo(UPnPP::ProtocolinfoEntry& e) const {
+        const auto it = m_props.find("protocolInfo");
+        if (it == m_props.end()) {
+            return false;
+        }
+        return UPnPP::parseProtoInfEntry(it->second, e);
+    }
 };
+
 
 /**
  * UPnP Media Server directory entry, converted from XML data.

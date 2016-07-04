@@ -19,6 +19,7 @@
 
 #include <string>
 #include <vector>
+#include <unordered_map>
 
 namespace UPnPP {
 
@@ -31,6 +32,23 @@ extern int upnpdurationtos(const std::string& dur);
 /** Decode OH playlist id array */
 extern bool ohplIdArrayToVec(const std::string& data, std::vector<int> *ids);
 
+/** Decoded protocolinfo entry data */
+struct ProtocolinfoEntry {
+    std::string protocol;
+    std::string network;
+    std::string contentFormat;
+    std::unordered_map<std::string, std::string> content_params;
+    std::string additional;
+};
+    
+/** Decode one protocolinfo entry */
+extern bool parseProtoInfEntry(const std::string& protoinfo,
+                               ProtocolinfoEntry& e);
+
+/** Decode comma-separated bunch of entries */
+bool parseProtocolInfo(const std::string& pinfo,
+                       std::vector<ProtocolinfoEntry>& entries);
+    
 }
 
 #endif /* _UPNPAVUTILS_HXX_INCLUDED_ */

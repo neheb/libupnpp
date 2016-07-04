@@ -26,6 +26,8 @@
 
 #include "libupnpp/upnpavutils.hxx"
 #include "libupnpp/base64.hxx"
+#include "libupnpp/log.hxx"
+#include "libupnpp/smallut.h"
 
 using namespace std;
 
@@ -80,4 +82,64 @@ bool ohplIdArrayToVec(const string& _data, vector<int> *ids)
     return true;
 }
 
+bool parseProtoInfEntry(const string& protoinfo, ProtocolinfoEntry& e)
+{
+    vector<string> toks;
+    stringToTokens(protoinfo, toks, ":");
+    if (toks.size() != 4) {
+        LOGINF("parseProtoInfEntry: bad format: [" << protoinfo << "]\n");
+        return false;
+    }
+    e.protocol = stringtolower((const std::string&)toks[0]);
+    e.network = stringtolower((const std::string&)toks[1]);
+    e.additional = stringtolower((const std::string&)toks[3]);
+
+    if (e.protocol.compare("http-get")) {
+        e.contentFormat = stringtolower((const std::string&)toks[2]);
+    } else {
+        // Parse MIME type
+        vector<string> mtoks;
+        stringToStrings(stringtolower((const std::string&)toks[2]), mtoks,
+                        ";=");
+        if (mtoks.size() == 0) {
+            LOGINF("parseProtoInfEntry: bad format (no content type?): [" <<
+                   protoinfo << "]\n");
+            return false;
+        }
+        e.contentFormat = mtoks[0];
+        if ((mtoks.size() - 1) % 4 != 0) {
+            LOGINF("parseProtoInfEntry: bad format "
+                   "missing param element in: [" << protoinfo << "]\n");
+            return false;
+        }
+        // ';' name '=' value
+        for (unsigned int i = 1; i < mtoks.size(); i += 4) {
+            e.content_params[mtoks[i+1]] = mtoks[i+3];
+        }
+    }
+
+    string params;
+    for (const auto& it: e.content_params) {
+        params += it.first + "=" + it.second + " ";
+    }
+    LOGDEB1("parseProtoInfEntry: got protocol[" << e.protocol << "] net[" <<
+            e.network << "] contentFormat[" << e.contentFormat <<
+            "] params[" << params << "] additional[" << e.additional << "]\n");
+    return true;
+}
+
+bool parseProtocolInfo(const std::string& pinfo,
+                       std::vector<ProtocolinfoEntry>& entries)
+{
+    vector<string> rawentries;
+    stringToTokens(pinfo, rawentries, ",");
+    for (unsigned int i = 0; i < rawentries.size(); i++) {
+        ProtocolinfoEntry e;
+        if (parseProtoInfEntry(rawentries[i], e)) {
+            entries.push_back(std::move(e));
+        }
+    }
+    return true;
+}
+    
 }
