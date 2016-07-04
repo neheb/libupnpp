@@ -25,10 +25,11 @@
 #include <sstream>
 #include <utility>
 #include <algorithm>
+#include <mutex>
+#include <condition_variable>
 
 #include "libupnpp/log.hxx"
 #include "libupnpp/ixmlwrap.hxx"
-#include "libupnpp/ptmutex.hxx"
 #include "libupnpp/upnpplib.hxx"
 #include "libupnpp/upnpputils.hxx"
 #include "libupnpp/upnpp_p.hxx"
@@ -41,9 +42,6 @@ namespace UPnPProvider {
 
 class UpnpDevice::Internal {
 public:
-    Internal() {
-        pthread_cond_init(&evloopcond, 0);
-    }
     /* Generate event: called by the device event loop, which polls
      * the services. */
     void notifyEvent(const std::string& serviceId,
@@ -72,9 +70,9 @@ public:
     UpnpDevice_Handle dvh;
     /* Lock for device operations. Held during a service callback
        Must not be held when using dvh to call into libupnp */
-    UPnPP::PTMutexInit devlock;
-    pthread_cond_t evloopcond;
-    UPnPP::PTMutexInit evlooplock;
+    std::mutex devlock;
+    std::condition_variable evloopcond;
+    std::mutex evlooplock;
 };
 
 class UpnpDevice::InternalStatic {
@@ -86,12 +84,12 @@ public:
 
     /** Static array of devices for dispatching */
     static STD_UNORDERED_MAP<std::string, UpnpDevice *> devices;
-    static PTMutexInit devices_lock;
+    static std::mutex devices_lock;
 };
 
 STD_UNORDERED_MAP<std::string, UpnpDevice *>
 UpnpDevice::InternalStatic::devices;
-PTMutexInit UpnpDevice::InternalStatic::devices_lock;
+std::mutex UpnpDevice::InternalStatic::devices_lock;
 UpnpDevice::InternalStatic *UpnpDevice::o;
 
 static bool vectorstoargslists(const vector<string>& names,
@@ -148,7 +146,7 @@ UpnpDevice::UpnpDevice(const string& deviceId,
     }
 
     {
-        PTMutexLocker lock(o->devices_lock);
+        std::unique_lock<std::mutex> lock(o->devices_lock);
         if (o->devices.empty()) {
             // First call: init callbacks
             m->lib->registerHandler(UPNP_CONTROL_ACTION_REQUEST,
@@ -198,7 +196,7 @@ UpnpDevice::~UpnpDevice()
 {
     UpnpUnRegisterRootDevice(m->dvh);
 
-    PTMutexLocker lock(o->devices_lock);
+    std::unique_lock<std::mutex> lock(o->devices_lock);
     STD_UNORDERED_MAP<std::string, UpnpDevice *>::iterator it = o->devices.find(m->deviceId);
     if (it != o->devices.end())
         o->devices.erase(it);
@@ -250,7 +248,7 @@ int UpnpDevice::InternalStatic::sCallBack(Upnp_EventType et, void* evp,
 
     STD_UNORDERED_MAP<std::string, UpnpDevice *>::iterator it;
     {
-        PTMutexLocker lock(o->devices_lock);
+        std::unique_lock<std::mutex> lock(o->devices_lock);
 
         it = o->devices.find(deviceid);
 
@@ -274,7 +272,7 @@ bool UpnpDevice::ok()
 STD_UNORDERED_MAP<string, UpnpService*>::const_iterator
 UpnpDevice::Internal::findService(const string& serviceid)
 {
-    PTMutexLocker lock(devlock);
+    std::unique_lock<std::mutex> lock(devlock);
     STD_UNORDERED_MAP<string, UpnpService*>::iterator servit =
         servicemap.find(serviceid);
     if (servit == servicemap.end()) {
@@ -301,7 +299,7 @@ int UpnpDevice::Internal::callBack(Upnp_EventType et, void* evp)
 
         SoapOutgoing dt(servit->second->getServiceType(), act->ActionName);
         {
-            PTMutexLocker lock(devlock);
+            std::unique_lock<std::mutex> lock(devlock);
 
             STD_UNORDERED_MAP<std::string, soapfun>::iterator callit =
                 calls.find(string(act->ActionName) + string(act->ServiceID));
@@ -358,7 +356,7 @@ int UpnpDevice::Internal::callBack(Upnp_EventType et, void* evp)
 
         vector<string> names, values, qvalues;
         {
-            PTMutexLocker lock(devlock);
+            std::unique_lock<std::mutex> lock(devlock);
             if (!servit->second->getEventData(true, names, values)) {
                 break;
             }
@@ -391,7 +389,7 @@ int UpnpDevice::Internal::callBack(Upnp_EventType et, void* evp)
 void UpnpDevice::addService(UpnpService *serv, const std::string& serviceId)
 {
     LOGDEB("UpnpDevice::addService: " << serviceId << endl);
-    PTMutexLocker lock(m->devlock);
+    std::unique_lock<std::mutex> lock(m->devlock);
 
     m->servicemap[serviceId] = serv;
     vector<string>::iterator it =
@@ -404,7 +402,7 @@ void UpnpDevice::addService(UpnpService *serv, const std::string& serviceId)
 void UpnpDevice::forgetService(const std::string& serviceId)
 {
     LOGDEB("UpnpDevice::forgetService: " << serviceId << endl);
-    PTMutexLocker lock(m->devlock);
+    std::unique_lock<std::mutex> lock(m->devlock);
 
     STD_UNORDERED_MAP<string, UpnpService*>::iterator servit =
         m->servicemap.find(serviceId);
@@ -421,7 +419,7 @@ void UpnpDevice::addActionMapping(const UpnpService* serv,
                                   const std::string& actName,
                                   soapfun fun)
 {
-    PTMutexLocker lock(m->devlock);
+    std::unique_lock<std::mutex> lock(m->devlock);
     // LOGDEB("UpnpDevice::addActionMapping:" << actName << endl);
     m->calls[actName + serv->getServiceId()] = fun;
 }
@@ -492,15 +490,12 @@ void UpnpDevice::eventloop()
         //LOGDEB("eventloop: now " << time(0) << " wkup at "<<
         //    wkuptime.tv_sec << " S " << wkuptime.tv_nsec << " ns" << endl);
 
-        PTMutexLocker lock(m->evlooplock);
-        int err = pthread_cond_timedwait(&m->evloopcond, lock.getMutex(),
-                                         &wkuptime);
+        std::unique_lock<std::mutex> lock(m->evlooplock);
+        std::cv_status err =
+            m->evloopcond.wait_for(lock, chrono::milliseconds(loopwait_ms));
         if (m->needExit) {
             break;
-        } else if (err && err != ETIMEDOUT) {
-            LOGINF("UpnpDevice:eventloop: wait errno " << errno << endl);
-            break;
-        } else if (err == 0) {
+        } else if (err == std::cv_status::no_timeout) {
             // Early wakeup. Only does something if it did not already
             // happen recently
             if (didearly) {
@@ -521,10 +516,14 @@ void UpnpDevice::eventloop()
                 didearly = true;
                 earlytime = wkuptime;
             }
-        } else {
+        } else if (err == std::cv_status::timeout) {
             // Normal wakeup
             // LOGDEB("eventloop: normal wakeup" << endl);
             didearly = false;
+        } else {
+            LOGINF("UpnpDevice:eventloop: wait returned unexpected value" <<
+                   int(err) << endl);
+            break;
         }
 
         count++;
@@ -551,7 +550,7 @@ void UpnpDevice::eventloop()
                 all = false;
 #endif
 
-                PTMutexLocker lock1(m->devlock);
+                std::unique_lock<std::mutex> lock1(m->devlock);
                 if (!serv->getEventData(all, names, values) || names.empty()) {
                     continue;
                 }
@@ -572,13 +571,13 @@ void UpnpDevice::eventloop()
 // -> deadlock
 void UpnpDevice::loopWakeup()
 {
-    pthread_cond_broadcast(&m->evloopcond);
+    m->evloopcond.notify_all();
 }
 
 void UpnpDevice::shouldExit()
 {
     m->needExit = true;
-    pthread_cond_broadcast(&m->evloopcond);
+    m->evloopcond.notify_all();
 }
 
 

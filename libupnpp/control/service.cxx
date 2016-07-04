@@ -27,7 +27,6 @@
 #include "libupnpp/control/description.hxx"  // for UPnPDeviceDesc, etc
 #include "libupnpp/ixmlwrap.hxx"
 #include "libupnpp/log.hxx"             // for LOGDEB1, LOGINF, LOGERR, etc
-#include "libupnpp/ptmutex.hxx"         // for PTMutexLocker, PTMutexInit
 #include "libupnpp/upnpp_p.hxx"         // for caturl
 #include "libupnpp/upnpplib.hxx"        // for LibUPnP
 
@@ -231,10 +230,10 @@ template <class T> int Service::runSimpleAction(const std::string& actnm,
     return runAction(args, data);
 }
 
-static PTMutexInit cblock;
+static std::mutex cblock;
 int Service::srvCB(Upnp_EventType et, void* vevp, void*)
 {
-    PTMutexLocker lock(cblock);
+    std::unique_lock<std::mutex> lock(cblock);
 
     LOGDEB1("Service:srvCB: " << LibUPnP::evTypeAsString(et) << endl);
 
@@ -291,7 +290,8 @@ bool Service::initEvents()
 {
     LOGDEB1("Service::initEvents" << endl);
 
-    PTMutexLocker lock(cblock);
+    std::unique_lock<std::mutex> lock(cblock);
+    
     static bool eventinit(false);
     if (eventinit)
         return true;
@@ -360,7 +360,7 @@ void Service::registerCallback(evtCBFunc c)
 {
     if (!subscribe())
         return;
-    PTMutexLocker lock(cblock);
+    std::unique_lock<std::mutex> lock(cblock);
     LOGDEB1("Service::registerCallback: " << m->SID << endl);
     o_calls[m->SID] = c;
 }
@@ -370,7 +370,7 @@ void Service::unregisterCallback()
     LOGDEB1("Service::unregisterCallback: " << m->SID << endl);
     if (m->SID[0]) {
         unSubscribe();
-        PTMutexLocker lock(cblock);
+        std::unique_lock<std::mutex> lock(cblock);
         o_calls.erase(m->SID);
     }
 }
@@ -385,7 +385,7 @@ void Service::reSubscribe()
     }
     evtCBFunc c;
     {
-        PTMutexLocker lock(cblock);
+        std::unique_lock<std::mutex> lock(cblock);
         STD_UNORDERED_MAP<std::string, evtCBFunc>::iterator it =
             o_calls.find(m->SID);
         if (it == o_calls.end()) {

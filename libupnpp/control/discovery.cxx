@@ -31,11 +31,10 @@
 #include <vector>
 
 #include "libupnpp/log.hxx"
-#include "libupnpp/ptmutex.hxx"
 #include "libupnpp/upnpplib.hxx"
 #include "libupnpp/upnpp_p.hxx"
 #include "libupnpp/upnpputils.hxx"
-#include "libupnpp/workqueue.hxx"
+#include "libupnpp/workqueue.h"
 #include "libupnpp/control/httpdownload.hxx"
 #include "libupnpp/control/description.hxx"
 #include "libupnpp/control/discovery.hxx"
@@ -43,13 +42,6 @@
 using namespace std;
 using namespace STD_PLACEHOLDERS;
 using namespace UPnPP;
-
-// Set up timespec struct xx nanoseconds in the future
-static void wakeupTime(struct timespec* wkuptime, long long nanos_later)
-{
-    UPnPP::timespec_now(wkuptime);
-    UPnPP::timespec_addnanos(wkuptime, nanos_later);
-}
 
 namespace UPnPClient {
 
@@ -101,7 +93,7 @@ static WorkQueue<DiscoveredTask*> discoveredQueue("DiscoveredQueue");
 
 // Set of currently downloading URIs (for avoiding multiple downloads)
 static STD_UNORDERED_SET<string> o_downloading;
-static PTMutexInit o_downloading_mutex;
+static std::mutex o_downloading_mutex;
 
 // This gets called in a libupnp thread context for all asynchronous
 // events which we asked for.
@@ -141,7 +133,7 @@ static int cluCallBack(Upnp_EventType et, void* evp, void*)
             // downloads of a normal url, just multiple
             // simultaneous downloads of a slow one, to avoid
             // tying up threads.
-            PTMutexLocker lock(o_downloading_mutex);
+            std::unique_lock<std::mutex> lock(o_downloading_mutex);
             pair<STD_UNORDERED_SET<string>::iterator,bool> res =
                 o_downloading.insert(tp->url);
             if (!res.second) {
@@ -156,7 +148,7 @@ static int cluCallBack(Upnp_EventType et, void* evp, void*)
         if (!downloadUrlWithCurl(tp->url, tp->description, 5)) {
             LOGERR("discovery:cllb: downloadUrlWithCurl error for: " <<
                    tp->url << endl);
-            {   PTMutexLocker lock(o_downloading_mutex);
+            {   std::unique_lock<std::mutex> lock(o_downloading_mutex);
                 o_downloading.erase(tp->url);
             }
             delete tp;
@@ -165,7 +157,7 @@ static int cluCallBack(Upnp_EventType et, void* evp, void*)
         LOGDEB1("discovery:cllb: downloaded description document of " <<
                 tp->description.size() << " bytes" << endl);
 
-        {   PTMutexLocker lock(o_downloading_mutex);
+        {   std::unique_lock<std::mutex> lock(o_downloading_mutex);
             o_downloading.erase(tp->url);
         }
 
@@ -198,18 +190,18 @@ static int cluCallBack(Upnp_EventType et, void* evp, void*)
 // This is used during startup, when the pool is not yet complete, to enable
 // finding and listing devices as soon as they appear.
 static vector<UPnPDeviceDirectory::Visitor> o_callbacks;
-static PTMutexInit o_callbacks_mutex;
+static std::mutex o_callbacks_mutex;
 
 unsigned int UPnPDeviceDirectory::addCallback(UPnPDeviceDirectory::Visitor v)
 {
-    PTMutexLocker lock(o_callbacks_mutex);
+    std::unique_lock<std::mutex> lock(o_callbacks_mutex);
     o_callbacks.push_back(v);
     return o_callbacks.size() - 1;
 }
 
 void UPnPDeviceDirectory::delCallback(unsigned int idx)
 {
-    PTMutexLocker lock(o_callbacks_mutex);
+    std::unique_lock<std::mutex> lock(o_callbacks_mutex);
     if (idx >= o_callbacks.size())
         return;
     o_callbacks.erase(o_callbacks.begin() + idx);
@@ -235,7 +227,7 @@ public:
 // The class is instanciated as a static (unenforced) singleton.
 class DevicePool {
 public:
-    PTMutexInit m_mutex;
+    std::mutex m_mutex;
     map<string, DeviceDescriptor> m_devices;
 };
 static DevicePool o_pool;
@@ -258,7 +250,7 @@ void *UPnPDeviceDirectory::discoExplorer(void *)
 
         if (!tsk->alive) {
             // Device signals it is going off.
-            PTMutexLocker lock(o_pool.m_mutex);
+            std::unique_lock<std::mutex> lock(o_pool.m_mutex);
             DevPoolIt it = o_pool.m_devices.find(tsk->deviceId);
             if (it != o_pool.m_devices.end()) {
                 o_pool.m_devices.erase(it);
@@ -279,13 +271,13 @@ void *UPnPDeviceDirectory::discoExplorer(void *)
                     << " name " << d.device.friendlyName
                     << " devtype " << d.device.deviceType << endl);
             {
-                PTMutexLocker lock(o_pool.m_mutex);
+                std::unique_lock<std::mutex> lock(o_pool.m_mutex);
                 //LOGDEB1("discoExplorer: inserting device id "<< tsk->deviceId
                 // <<  " description: " << endl << d.device.dump() << endl);
                 o_pool.m_devices[tsk->deviceId] = d;
             }
             {
-                PTMutexLocker lock(o_callbacks_mutex);
+                std::unique_lock<std::mutex> lock(o_callbacks_mutex);
                 for (vector<UPnPDeviceDirectory::Visitor>::iterator cbp =
                             o_callbacks.begin();
                         cbp != o_callbacks.end(); cbp++) {
@@ -302,7 +294,7 @@ void *UPnPDeviceDirectory::discoExplorer(void *)
 void UPnPDeviceDirectory::expireDevices()
 {
     LOGDEB1("discovery: expireDevices:" << endl);
-    PTMutexLocker lock(o_pool.m_mutex);
+    std::unique_lock<std::mutex> lock(o_pool.m_mutex);
     time_t now = time(0);
     bool didsomething = false;
 
@@ -399,8 +391,8 @@ time_t UPnPDeviceDirectory::getRemainingDelay()
     return  m_searchTimeout - (now - m_lastSearch);
 }
 
-static PTMutexInit devWaitLock;
-static pthread_cond_t devWaitCond = PTHREAD_COND_INITIALIZER;
+static std::mutex devWaitLock;
+static std::condition_variable devWaitCond;
 
 bool UPnPDeviceDirectory::traverse(UPnPDeviceDirectory::Visitor visit)
 {
@@ -409,19 +401,17 @@ bool UPnPDeviceDirectory::traverse(UPnPDeviceDirectory::Visitor visit)
         return false;
 
     do {
-        PTMutexLocker lock(devWaitLock);
-        struct timespec wkuptime;
-        long long nanos = getRemainingDelay() * 1000*1000*1000;
-        wakeupTime(&wkuptime, nanos);
-        if (nanos > 0) {
-            pthread_cond_timedwait(&devWaitCond, lock.getMutex(), &wkuptime);
+        std::unique_lock<std::mutex> lock(devWaitLock);
+        int secs = getRemainingDelay();
+        if (secs > 0) {
+            devWaitCond.wait_for(lock, chrono::seconds(secs));
         }
     } while (getRemainingDelay() > 0);
 
     // Has locking, do it before our own lock
     expireDevices();
 
-    PTMutexLocker lock(o_pool.m_mutex);
+     std::unique_lock<std::mutex> lock(o_pool.m_mutex);
 
     for (map<string, DeviceDescriptor>::iterator it = o_pool.m_devices.begin();
             it != o_pool.m_devices.end(); it++) {
@@ -438,8 +428,8 @@ bool UPnPDeviceDirectory::traverse(UPnPDeviceDirectory::Visitor visit)
 bool UPnPDeviceDirectory::deviceFound(const UPnPDeviceDesc&,
                                       const UPnPServiceDesc&)
 {
-    PTMutexLocker lock(devWaitLock);
-    pthread_cond_broadcast(&devWaitCond);
+    std::unique_lock<std::mutex> lock(devWaitLock);
+    devWaitCond.notify_all();
     return true;
 }
 
@@ -452,9 +442,9 @@ bool UPnPDeviceDirectory::getDevBySelector(bool cmp(const UPnPDeviceDesc& ddesc,
     expireDevices();
 
     do {
-        PTMutexLocker lock(devWaitLock);
+         std::unique_lock<std::mutex> lock(devWaitLock);
         {
-            PTMutexLocker lock(o_pool.m_mutex);
+             std::unique_lock<std::mutex> lock(o_pool.m_mutex);
             for (map<string, DeviceDescriptor>::iterator it =
                         o_pool.m_devices.begin();
                     it != o_pool.m_devices.end(); it++) {
@@ -465,11 +455,9 @@ bool UPnPDeviceDirectory::getDevBySelector(bool cmp(const UPnPDeviceDesc& ddesc,
             }
         }
 
-        struct timespec wkuptime;
-        long long nanos = getRemainingDelay() * 1000*1000*1000;
-        wakeupTime(&wkuptime, nanos);
-        if (nanos > 0) {
-            pthread_cond_timedwait(&devWaitCond, lock.getMutex(), &wkuptime);
+        int secs = getRemainingDelay();
+        if (secs > 0) {
+            devWaitCond.wait_for(lock, chrono::seconds(secs));
         }
     } while (getRemainingDelay() > 0);
     return false;

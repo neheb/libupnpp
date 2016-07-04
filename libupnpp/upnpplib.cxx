@@ -39,7 +39,6 @@
 #include <vector>
 
 #include "libupnpp/getsyshwaddr.h"
-#include "libupnpp/ptmutex.hxx"
 #include "libupnpp/log.hxx"
 #include "libupnpp/md5.hxx"
 #include "libupnpp/upnpp_p.hxx"
@@ -68,7 +67,7 @@ public:
     bool ok;
     int  init_error;
     UpnpClient_Handle clh;
-    PTMutexInit mutex;
+    std::mutex mutex;
     std::map<Upnp_EventType, Handler> handlers;
 };
 
@@ -200,7 +199,7 @@ void LibUPnP::setMaxContentLength(int bytes)
 
 bool LibUPnP::setLogFileName(const std::string& fn, LogLevel level)
 {
-    PTMutexLocker lock(m->mutex);
+    std::unique_lock<std::mutex> lock(m->mutex);
     if (fn.empty() || level == LogLevelNone) {
 #if defined(HAVE_UPNPSETLOGLEVEL)
         UpnpCloseLog();
@@ -240,7 +239,7 @@ bool LibUPnP::setLogLevel(LogLevel level)
 void LibUPnP::registerHandler(Upnp_EventType et, Upnp_FunPtr handler,
                               void *cookie)
 {
-    PTMutexLocker lock(m->mutex);
+    std::unique_lock<std::mutex> lock(m->mutex);
     if (handler == 0) {
         m->handlers.erase(et);
     } else {
