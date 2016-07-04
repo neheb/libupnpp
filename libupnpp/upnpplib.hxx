@@ -17,12 +17,10 @@
 #ifndef _LIBUPNP_H_X_INCLUDED_
 #define _LIBUPNP_H_X_INCLUDED_
 
-#include <upnp/upnp.h>                  // for Upnp_EventType, Upnp_FunPtr, etc
+#include <upnp/upnp.h>
 
-#include <map>                          // for map
-#include <string>                       // for string
-
-#include "ptmutex.hxx"                  // for PTMutexInit
+#include <map>
+#include <string>
 
 namespace UPnPP {
 

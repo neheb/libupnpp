@@ -21,7 +21,6 @@
 #include "libupnpp/control/description.hxx"
 
 using namespace std;
-using namespace UPnPP;
 
 namespace UPnPClient {
 

@@ -18,16 +18,15 @@
 #define _DEVICE_H_X_INCLUDED_
 #include "libupnpp/config.h"
 
-#include <pthread.h>                    // for pthread_cond_t
-#include <upnp/upnp.h>                  // for Upnp_EventType, etc
+#include <pthread.h>
+#include <upnp/upnp.h>
 
-#include UNORDERED_MAP_INCLUDE
-#include MEMORY_INCLUDE
-#include <string>                       // for string
-#include <vector>                       // for vector
+#include <unordered_map>
+#include <memory>
+#include <string>
+#include <vector>
 
-#include "libupnpp/ptmutex.hxx"         // for PTMutexInit
-#include "libupnpp/soaphelp.hxx"        // for SoapOutgoing, SoapIncoming
+#include "libupnpp/soaphelp.hxx"
 
 namespace UPnPP {
 class LibUPnP;

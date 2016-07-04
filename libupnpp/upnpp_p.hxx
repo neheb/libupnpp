@@ -32,7 +32,6 @@ namespace UPnPP {
 extern std::string caturl(const std::string& s1, const std::string& s2);
 // Return the scheme://host:port[/] part of input, or input if it is weird
 extern std::string baseurl(const std::string& url);
-extern void trimstring(std::string &s, const char *ws = " \t\n");
 extern std::string path_getfather(const std::string &s);
 extern std::string path_getsimple(const std::string &s);
 template <class T> bool csvToStrings(const std::string& s, T &tokens);
@@ -40,9 +39,6 @@ template <class T> bool csvToStrings(const std::string& s, T &tokens);
 // @return false if s does not look like a bool at all (does not begin
 // with [FfNnYyTt01]
 extern bool stringToBool(const std::string& s, bool *v);
-
-// Case-insensitive ascii string compare where s1 is already upper-case
-int stringuppercmp(const std::string &s1, const std::string& s2);
 
 extern void timespec_now(struct timespec *ts);
 

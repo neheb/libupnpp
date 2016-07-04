@@ -30,7 +30,8 @@
 #include "libupnpp/log.hxx"             // for LOGERR, LOGDEB1, LOGDEB, etc
 #include "libupnpp/soaphelp.hxx"        // for SoapIncoming, etc
 #include "libupnpp/upnpavutils.hxx"     // for upnpdurationtos, etc
-#include "libupnpp/upnpp_p.hxx"         // for stringuppercmp, etc
+#include "libupnpp/upnpp_p.hxx"
+#include "libupnpp/smallut.h" 
 
 using namespace std;
 using namespace STD_PLACEHOLDERS;

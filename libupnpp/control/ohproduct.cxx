@@ -27,7 +27,8 @@
 #include "libupnpp/expatmm.hxx"         // for inputRefXMLParser
 #include "libupnpp/log.hxx"             // for LOGERR
 #include "libupnpp/soaphelp.hxx"        // for SoapIncoming, etc
-#include "libupnpp/upnpp_p.hxx"         // for stringToBool, trimstring
+#include "libupnpp/upnpp_p.hxx"
+#include "libupnpp/smallut.h"
 
 using namespace std;
 using namespace STD_PLACEHOLDERS;

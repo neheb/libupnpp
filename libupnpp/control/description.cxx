@@ -25,7 +25,8 @@
 
 #include "libupnpp/upnpplib.hxx"
 #include "libupnpp/expatmm.hxx"         // for inputRefXMLParser
-#include "libupnpp/upnpp_p.hxx"         // for baseurl, trimstring
+#include "libupnpp/upnpp_p.hxx"
+#include "libupnpp/smallut.h"
 #include "libupnpp/log.hxx"
 
 using namespace std;

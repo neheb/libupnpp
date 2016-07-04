@@ -14,17 +14,13 @@
  *	 Free Software Foundation, Inc.,
  *	 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
-#include "libupnpp/config.h"
 
-#include "log.hxx"
+#include "log.h"
 
-#include <errno.h>                      // for errno
-
-#include <fstream>                      // for operator<<, basic_ostream, etc
+#include <errno.h>
+#include <fstream>
 
 using namespace std;
-
-namespace UPnPP {
 
 Logger::Logger(const std::string& fn)
     : m_tocerr(false), m_loglevel(LLDEB)
@@ -50,4 +46,3 @@ Logger *Logger::getTheLog(const string& fn)
     return theLog;
 }
 
-}

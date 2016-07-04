@@ -31,7 +31,6 @@
 #include "libupnpp/control/httpdownload.hxx"
 
 using namespace std;
-using namespace UPnPP;
 
 static size_t
 write_callback(void *contents, size_t size, size_t nmemb, void *userp)

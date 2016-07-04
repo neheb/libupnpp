@@ -1,8 +1,5 @@
 /* libupnpp/config.h.in.  Generated from configure.ac by autoheader.  */
 
-/* Have C++0x */
-#undef HAVE_CXX0X_UNORDERED
-
 /* Define to 1 if you have the <dlfcn.h> header file. */
 #undef HAVE_DLFCN_H
 
@@ -33,9 +30,6 @@
 /* Define to 1 if you have the <memory.h> header file. */
 #undef HAVE_MEMORY_H
 
-/* Has std::shared_ptr */
-#undef HAVE_SHARED_PTR_STD
-
 /* Define to 1 if you have the <stdint.h> header file. */
 #undef HAVE_STDINT_H
 
@@ -53,9 +47,6 @@
 
 /* Define to 1 if you have the <sys/types.h> header file. */
 #undef HAVE_SYS_TYPES_H
-
-/* "Have tr1" */
-#undef HAVE_TR1_UNORDERED
 
 /* Define to 1 if you have the <unistd.h> header file. */
 #undef HAVE_UNISTD_H

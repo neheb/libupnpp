@@ -28,6 +28,7 @@
 
 #include "libupnpp/log.hxx"
 #include "libupnpp/ixmlwrap.hxx"
+#include "libupnpp/ptmutex.hxx"
 #include "libupnpp/upnpplib.hxx"
 #include "libupnpp/upnpputils.hxx"
 #include "libupnpp/upnpp_p.hxx"
