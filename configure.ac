@@ -2,7 +2,7 @@
 # Software version. There is no direct link with the library version_info
 # except that we sort or promise that no api and abi incompatibilities
 # occur with revision (3rd number) changes.
-AC_INIT([libupnpp], [0.14.1], [jfd@lesbonscomptes.com],
+AC_INIT([libupnpp], [0.15.0], [jfd@lesbonscomptes.com],
              [libupnpp], [http://www.lesbonscomptes.com/upmpdcli])
 
 # Lib version info. See:
@@ -22,7 +22,7 @@ AC_INIT([libupnpp], [0.14.1], [jfd@lesbonscomptes.com],
 # libupnpp packages are named libupnppX where X is the .so major number
 # (c-a). This allows packages for multiple incompatible ABIs to be
 # installed
-VERSION_INFO=5:1:3
+VERSION_INFO=6:0:0
 
 AC_PREREQ([2.53])
 AC_CONFIG_SRCDIR([libupnpp/upnpplib.hxx])
@@ -36,19 +36,6 @@ LT_INIT
 AC_PROG_CXX
 AC_PROG_LIBTOOL
 
-# Check for where to find unordered_map etc.
-AC_LANG_PUSH([C++])
-AC_CHECK_HEADER(tr1/unordered_map,[AC_DEFINE([HAVE_TR1_UNORDERED],
-    [],["Have tr1"])],[])
-CPPFLAGS_=$CPPFLAGS
-CPPFLAGS=-std=c++0x
-export CPPFLAGS
-AC_CHECK_HEADER(unordered_map,[AC_DEFINE([HAVE_CXX0X_UNORDERED],
-    [],["Have C++0x"])],[])
-CPPFLAGS=$CPPFLAGS_
-export CPPFLAGS
-AC_LANG_POP([C++])
-
 # libupnp is configured with large file support, and we need to do the same,
 # else a difference in off_t size impacts struct File_Info and prevents the
 # vdir to work. This does make a difference, for exemple, for Raspbian
@@ -57,8 +44,6 @@ AC_TYPE_SIZE_T
 AC_TYPE_OFF_T
 AC_DEFINE([_LARGE_FILE_SOURCE], [], [Large files support])
 AC_DEFINE([_FILE_OFFSET_BITS], [64], [File Offset size])
-AC_DEFINE([HAVE_SHARED_PTR_STD], [1], [Has std::shared_ptr])
-AC_DEFINE([HAVE_CXX0X_UNORDERED], [1],[Have C++0x])
 AC_CHECK_LIB([rt], [clock_gettime], [], [])
 AC_CHECK_LIB([pthread], [pthread_create], [], [])
 

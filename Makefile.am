@@ -2,7 +2,7 @@
 AM_CPPFLAGS = -DDEBUG -g -Wall \
             -DDATADIR=\"${pkgdatadir}\" -DCONFIGDIR=\"${sysconfdir}\"
 
-AM_CXXFLAGS = -std=c++0x 
+AM_CXXFLAGS = -std=c++11
 
 lib_LTLIBRARIES = libupnpp.la
 
@@ -60,12 +60,14 @@ libupnpp_la_SOURCES = \
     libupnpp/getsyshwaddr.h \
     libupnpp/ixmlwrap.cxx \
     libupnpp/ixmlwrap.hxx \
-    libupnpp/log.cxx \
+    libupnpp/log.cpp \
+    libupnpp/log.h \
     libupnpp/log.hxx \
     libupnpp/md5.cxx \
     libupnpp/md5.hxx \
     libupnpp/ptmutex.hxx \
-    libupnpp/workqueue.hxx \
+    libupnpp/smallut.cpp \
+    libupnpp/smallut.h \
     libupnpp/soaphelp.cxx \
     libupnpp/soaphelp.hxx \
     libupnpp/upnpavutils.cxx \
@@ -73,7 +75,7 @@ libupnpp_la_SOURCES = \
     libupnpp/upnpp_p.hxx \
     libupnpp/upnpplib.cxx \
     libupnpp/upnpplib.hxx \
-    libupnpp/workqueue.hxx
+    libupnpp/workqueue.h
 
 nobase_include_HEADERS = \
     libupnpp/base64.hxx \
@@ -99,13 +101,14 @@ nobase_include_HEADERS = \
     libupnpp/control/renderingcontrol.hxx \
     libupnpp/control/service.hxx \
     libupnpp/device/device.hxx \
+    libupnpp/log.h \
     libupnpp/log.hxx \
     libupnpp/ptmutex.hxx \
     libupnpp/soaphelp.hxx \
     libupnpp/upnpavutils.hxx \
     libupnpp/upnpplib.hxx \
     libupnpp/upnpputils.hxx \
-    libupnpp/workqueue.hxx
+    libupnpp/workqueue.h
 
 libupnpp_la_LDFLAGS = -version-info $(VERSION_INFO)
 
