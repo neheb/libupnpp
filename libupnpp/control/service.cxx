@@ -179,9 +179,22 @@ int Service::runAction(const SoapOutgoing& args, SoapIncoming& data)
                              0 /*devUDN*/, request, &response);
 
     if (ret != UPNP_E_SUCCESS) {
-        LOGINF("Service::runAction: UpnpSendAction failed: " << ret <<
-               " : " << UpnpGetErrorMessage(ret) << " for " <<
-               ixmlwPrintDoc(request) << endl);
+        if (ret < 0) {
+            LOGINF("Service::runAction: UpnpSendAction failed: " << ret <<
+                   " : " << UpnpGetErrorMessage(ret) << " for " <<
+                   ixmlwPrintDoc(request) << endl);
+        } else {
+            // A remote error then
+            SoapIncoming error;
+            error.decode("UPnPError", response);
+            int code = -1;
+            string desc;
+            error.get("errorCode", &code);
+            error.get("errorDescription", &desc);
+            LOGINF("Service::runAction: failed: errcode: " << code << " : \""
+                   << desc << "\" for request: " << 
+                   ixmlwPrintDoc(request) << endl);
+        }
         return ret;
     }
     LOGDEB1("Service::runAction: rslt: [" <<

@@ -20,6 +20,7 @@
 
 #include <errno.h>
 #include <time.h>
+#include <string.h>
 
 #include <iostream>
 #include <sstream>
@@ -197,7 +198,8 @@ UpnpDevice::~UpnpDevice()
     UpnpUnRegisterRootDevice(m->dvh);
 
     std::unique_lock<std::mutex> lock(o->devices_lock);
-    STD_UNORDERED_MAP<std::string, UpnpDevice *>::iterator it = o->devices.find(m->deviceId);
+    STD_UNORDERED_MAP<std::string, UpnpDevice *>::iterator it =
+        o->devices.find(m->deviceId);
     if (it != o->devices.end())
         o->devices.erase(it);
 }
@@ -318,7 +320,14 @@ int UpnpDevice::Internal::callBack(Upnp_EventType et, void* evp)
             // Call the action routine
             int ret = callit->second(sc, dt);
             if (ret != UPNP_E_SUCCESS) {
-                LOGERR("UpnpDevice: Action failed: " << sc.getName() << endl);
+                if (ret > 0) {
+                    act->ErrCode = ret;
+                    strncpy(act->ErrStr, servit->second->errString(ret).c_str(),
+                            LINE_SIZE-1);
+                    act->ErrStr[LINE_SIZE-1] = 0;
+                }
+                LOGERR("UpnpDevice: Action failed: " << sc.getName() <<
+                       " code " << ret << endl);
                 return ret;
             }
         }
@@ -616,7 +625,7 @@ UpnpService::~UpnpService()
     }
 }
 
-bool UpnpService::noevents()
+bool UpnpService::noevents() const
 {
     return m && m->noevents;
 }
@@ -637,5 +646,31 @@ const std::string& UpnpService::getServiceId() const
     return m_serviceId;
 }
 
+const std::string UpnpService::errString(int error) const
+{
+    switch (error) {
+    case UPNP_INVALID_ACTION: return "Invalid Action";
+    case UPNP_INVALID_ARGS: return "Invalid Args";
+    case UPNP_INVALID_VAR: return "Invalid Var";
+    case UPNP_ACTION_FAILED: return "Action Failed";
+    case UPNP_ARG_VALUE_INVALID: return "Arg Value Invalid";
+    case UPNP_ARG_VALUE_OUT_OF_RANGE: return "Arg Value Out Of Range";
+    case UPNP_OPTIONAL_ACTION_NOT_IMPLEMENTED:
+        return "Optional Action Not Implemented";
+    case UPNP_OUT_OF_MEMORY: return "Out Of MEMORY";
+    case UPNP_HUMAN_INTERVENTION_REQUIRED: return "Human Intervention Required";
+    case UPNP_STRING_ARGUMENT_TOO_LONG: return "String Argument Too Long";
+    case UPNP_ACTION_NOT_AUTHORIZED: return "Action Not Authorized";
+    case UPNP_SIGNATURE_FAILING: return "Signature Failing";
+    case UPNP_SIGNATURE_MISSING: return "Signature Missing";
+    case UPNP_NOT_ENCRYPTED: return "Not Encrypted";
+    case UPNP_INVALID_SEQUENCE: return "Invalid Sequence";
+    case UPNP_INVALID_CONTROL_URLS: return "Invalid Control URLS";
+    case UPNP_NO_SUCH_SESSION: return "No Such Session";
+    default:
+        break;
+    }
+    return serviceErrString(error);
+}
 
 }// End namespace UPnPProvider

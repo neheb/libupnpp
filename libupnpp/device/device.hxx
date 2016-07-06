@@ -121,7 +121,12 @@ private:
  */
 class UpnpService {
 public:
+    /**
+     * The main role of the constructor is to register the service action 
+     * callbacks by calling UpnpDevice::addActionMapping()
+     */
     UpnpService(const std::string& stp,const std::string& sid, UpnpDevice *dev);
+
     /**
      * Constructor added to avoid changing the ABI when the noevents
      * parameter was needed.
@@ -157,8 +162,43 @@ public:
     virtual const std::string& getServiceId() const;
 
     /** Get value of the noevents property */
-    bool noevents();
+    bool noevents() const;
 
+    /** 
+     * Error number to string translation. UPnP error code values are
+     * duplicated and mean different things for different services, so
+     * this handles the common codes and calls serviceErrString which
+     * should be overriden by the subclasses.
+     */
+    virtual const std::string errString(int error) const;
+
+    virtual const std::string serviceErrString(int) const {
+        return "Unknown error";
+    }
+    // Common (service-type-independant) error codes
+    enum UPnPError {
+        UPNP_INVALID_ACTION = 401,
+        UPNP_INVALID_ARGS = 402,
+        UPNP_INVALID_VAR = 404,
+        UPNP_ACTION_FAILED = 501,
+
+        /* 600-699 common action errors */
+        UPNP_ARG_VALUE_INVALID = 600,
+        UPNP_ARG_VALUE_OUT_OF_RANGE = 601,
+        UPNP_OPTIONAL_ACTION_NOT_IMPLEMENTED = 602,
+        UPNP_OUT_OF_MEMORY = 603,
+        UPNP_HUMAN_INTERVENTION_REQUIRED = 604,
+        UPNP_STRING_ARGUMENT_TOO_LONG = 605,
+        UPNP_ACTION_NOT_AUTHORIZED = 606,
+        UPNP_SIGNATURE_FAILING = 607,
+        UPNP_SIGNATURE_MISSING = 608,
+        UPNP_NOT_ENCRYPTED = 609,
+        UPNP_INVALID_SEQUENCE = 610,
+        UPNP_INVALID_CONTROL_URLS = 611,
+        UPNP_NO_SUCH_SESSION = 612,
+    };
+
+    
 protected:
     const std::string m_serviceType;
     const std::string m_serviceId;

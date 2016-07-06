@@ -65,7 +65,6 @@ libupnpp_la_SOURCES = \
     libupnpp/log.hxx \
     libupnpp/md5.cxx \
     libupnpp/md5.hxx \
-    libupnpp/ptmutex.hxx \
     libupnpp/smallut.cpp \
     libupnpp/smallut.h \
     libupnpp/soaphelp.cxx \
@@ -103,7 +102,6 @@ nobase_include_HEADERS = \
     libupnpp/device/device.hxx \
     libupnpp/log.h \
     libupnpp/log.hxx \
-    libupnpp/ptmutex.hxx \
     libupnpp/soaphelp.hxx \
     libupnpp/upnpavutils.hxx \
     libupnpp/upnpplib.hxx \
@@ -113,4 +111,3 @@ nobase_include_HEADERS = \
 libupnpp_la_LDFLAGS = -version-info $(VERSION_INFO)
 
 libupnpp_la_LIBADD = $(LIBUPNPP_LIBS)
-
