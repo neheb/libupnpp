@@ -34,7 +34,7 @@
 #include "libupnpp/upnpp_p.hxx"         // for stringToBool
 
 using namespace std;
-using namespace STD_PLACEHOLDERS;
+using namespace std::placeholders;
 using namespace UPnPP;
 
 namespace UPnPClient {
@@ -56,7 +56,7 @@ RenderingControl::RenderingControl(const UPnPDeviceDesc& device,
 {
     UPnPServiceDesc::Parsed sdesc;
     if (service.fetchAndParseDesc(device.URLBase, sdesc)) {
-        STD_UNORDERED_MAP<std::string, UPnPServiceDesc::StateVariable>::const_iterator it =
+        std::unordered_map<std::string, UPnPServiceDesc::StateVariable>::const_iterator it =
             sdesc.stateTable.find("Volume");
         if (it != sdesc.stateTable.end() && it->second.hasValueRange) {
             setVolParams(it->second.minimum, it->second.maximum,
@@ -91,19 +91,19 @@ int RenderingControl::devVolTo0100(int dev_vol)
 }
 
 void RenderingControl::evtCallback(
-    const STD_UNORDERED_MAP<std::string, std::string>& props)
+    const std::unordered_map<std::string, std::string>& props)
 {
     LOGDEB1("RenderingControl::evtCallback: getReporter() " << getReporter() << endl);
-    for (STD_UNORDERED_MAP<std::string, std::string>::const_iterator it =
+    for (std::unordered_map<std::string, std::string>::const_iterator it =
                 props.begin(); it != props.end(); it++) {
         if (!it->first.compare("LastChange")) {
-            STD_UNORDERED_MAP<std::string, std::string> props1;
+            std::unordered_map<std::string, std::string> props1;
             if (!decodeAVLastChange(it->second, props1)) {
                 LOGERR("RenderingControl::evtCallback: bad LastChange value: "
                        << it->second << endl);
                 return;
             }
-            for (STD_UNORDERED_MAP<std::string, std::string>::iterator it1 =
+            for (std::unordered_map<std::string, std::string>::iterator it1 =
                         props1.begin(); it1 != props1.end(); it1++) {
                 LOGDEB1("    " << it1->first << " -> " <<
                         it1->second << endl);
@@ -120,7 +120,7 @@ void RenderingControl::evtCallback(
             }
         } else {
             LOGINF("RenderingControl:event: var not lastchange: "
-                   << it->first << " -> " << it->second << endl;);
+                   << it->first << " -> " << it->second << endl);
         }
     }
 }

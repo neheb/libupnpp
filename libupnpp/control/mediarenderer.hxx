@@ -18,7 +18,7 @@
 #define _MEDIARENDERER_HXX_INCLUDED_
 #include <libupnpp/config.h>
 
-#include MEMORY_INCLUDE
+#include <memory>
 #include <string>
 #include <vector>
 
@@ -39,7 +39,7 @@ namespace UPnPClient {
 class MediaRenderer;
 class UPnPDeviceDesc;
 
-typedef STD_SHARED_PTR<MediaRenderer> MRDH;
+typedef std::shared_ptr<MediaRenderer> MRDH;
 
 /**
  * The MediaRenderer class mostly holds a bunch of convenience functions to

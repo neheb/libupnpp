@@ -20,7 +20,7 @@
 
 #include "libupnpp/config.h"
 
-#include UNORDERED_MAP_INCLUDE
+#include <unordered_map>
 
 
 /** An easy libupnp virtual directory handler, based on stl
@@ -53,7 +53,7 @@ public:
 private:
     VirtualDir() {}
 
-    STD_UNORDERED_MAP<std::string, STD_UNORDERED_MAP<std::string, FileEnt> >
+    std::unordered_map<std::string, std::unordered_map<std::string, FileEnt> >
     m_dirs;
 };
 

@@ -30,7 +30,7 @@
 #include "libupnpp/upnpp_p.hxx"         // for stringToBool, trimstring
 
 using namespace std;
-using namespace STD_PLACEHOLDERS;
+using namespace std::placeholders;
 using namespace UPnPP;
 
 namespace UPnPClient {
@@ -45,10 +45,10 @@ bool OHInfo::isOHInfoService(const string& st)
 }
 
 void OHInfo::evtCallback(
-    const STD_UNORDERED_MAP<std::string, std::string>& props)
+    const std::unordered_map<std::string, std::string>& props)
 {
     LOGDEB1("OHInfo::evtCallback: getReporter(): " << getReporter() << endl);
-    for (STD_UNORDERED_MAP<std::string, std::string>::const_iterator it =
+    for (std::unordered_map<std::string, std::string>::const_iterator it =
                 props.begin(); it != props.end(); it++) {
         if (!getReporter()) {
             LOGDEB1("OHInfo::evtCallback: " << it->first << " -> "

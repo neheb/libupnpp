@@ -29,7 +29,7 @@ namespace UPnPClient {
 
 class LastchangeParser : public inputRefXMLParser {
 public:
-    LastchangeParser(const string& input, STD_UNORDERED_MAP<string,string>& props)
+    LastchangeParser(const string& input, std::unordered_map<string,string>& props)
         : inputRefXMLParser(input), m_props(props)
     {}
 
@@ -45,12 +45,12 @@ protected:
         }
     }
 private:
-    STD_UNORDERED_MAP<string, string>& m_props;
+    std::unordered_map<string, string>& m_props;
 };
 
 
 bool decodeAVLastChange(const string& xml,
-                        STD_UNORDERED_MAP<string, string>& props)
+                        std::unordered_map<string, string>& props)
 {
     LastchangeParser mparser(xml, props);
     if (!mparser.Parse())

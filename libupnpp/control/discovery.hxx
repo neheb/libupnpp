@@ -66,7 +66,7 @@ public:
     /** Clean up before exit. Do call this.*/
     static void terminate();
 
-    typedef STD_FUNCTION<bool (const UPnPDeviceDesc&,
+    typedef std::function<bool (const UPnPDeviceDesc&,
                                const UPnPServiceDesc&)> Visitor;
 
     /** Traverse the directory and call Visitor for each device/service pair */

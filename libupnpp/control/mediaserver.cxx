@@ -19,7 +19,7 @@
 
 #include "libupnpp/control/mediaserver.hxx"
 
-#include UNORDERED_MAP_INCLUDE
+#include <unordered_map>
 #include <ostream>                      // for endl
 #include <string>                       // for string
 #include <utility>                      // for pair
@@ -31,7 +31,7 @@
 #include "libupnpp/log.hxx"             // for LOGERR
 
 using namespace std;
-using namespace STD_PLACEHOLDERS;
+using namespace std::placeholders;
 using namespace UPnPP;
 
 namespace UPnPClient {
@@ -47,7 +47,7 @@ bool MediaServer::isMSDevice(const string& st)
     return !DType.compare(0, sz, st, 0, sz);
 }
 
-static bool MDAccum(STD_UNORDERED_MAP<string, UPnPDeviceDesc>* out,
+static bool MDAccum(std::unordered_map<string, UPnPDeviceDesc>* out,
                     const string& friendlyName,
                     const UPnPDeviceDesc& device,
                     const UPnPServiceDesc& service)
@@ -66,12 +66,12 @@ static bool MDAccum(STD_UNORDERED_MAP<string, UPnPDeviceDesc>* out,
 bool MediaServer::getDeviceDescs(vector<UPnPDeviceDesc>& devices,
                                  const string& friendlyName)
 {
-    STD_UNORDERED_MAP<string, UPnPDeviceDesc> mydevs;
+    std::unordered_map<string, UPnPDeviceDesc> mydevs;
 
     UPnPDeviceDirectory::Visitor visitor = bind(MDAccum, &mydevs, friendlyName,
                                            _1, _2);
     UPnPDeviceDirectory::getTheDir()->traverse(visitor);
-    for (STD_UNORDERED_MAP<string, UPnPDeviceDesc>::iterator it = mydevs.begin();
+    for (std::unordered_map<string, UPnPDeviceDesc>::iterator it = mydevs.begin();
             it != mydevs.end(); it++)
         devices.push_back(it->second);
     return !devices.empty();

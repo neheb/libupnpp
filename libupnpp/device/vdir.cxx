@@ -162,7 +162,7 @@ bool VirtualDir::addFile(const string& _path, const string& name,
     //LOGDEB("VirtualDir::addFile: path " << path << " name " << name << endl);
 
     if (m_dirs.find(path) == m_dirs.end()) {
-        m_dirs[path] = STD_UNORDERED_MAP<string, VirtualDir::FileEnt>();
+        m_dirs[path] = std::unordered_map<string, VirtualDir::FileEnt>();
         UpnpAddVirtualDir(path.c_str());
     }
 
@@ -186,13 +186,13 @@ VirtualDir::FileEnt *VirtualDir::getFile(const string& _path,
 
     // LOGDEB("VirtualDir::getFile: path " << path << " name " << name << endl);
 
-    STD_UNORDERED_MAP<string, STD_UNORDERED_MAP<string, VirtualDir::FileEnt> >::iterator dir =
+    std::unordered_map<string, std::unordered_map<string, VirtualDir::FileEnt> >::iterator dir =
         m_dirs.find(path);
     if (dir == m_dirs.end()) {
         LOGERR("VirtualDir::getFile: no dir: " << path << endl);
         return 0;
     }
-    STD_UNORDERED_MAP<string, FileEnt>::iterator f = dir->second.find(name);
+    std::unordered_map<string, FileEnt>::iterator f = dir->second.find(name);
     if (f == dir->second.end()) {
         LOGERR("VirtualDir::getFile: no file: " << path << endl);
         return 0;

@@ -42,7 +42,7 @@
 #include "libupnpp/upnpp_p.hxx"         // for csvToStrings
 
 using namespace std;
-using namespace STD_PLACEHOLDERS;
+using namespace std::placeholders;
 using namespace UPnPP;
 
 namespace UPnPClient {
@@ -59,9 +59,9 @@ bool ContentDirectory::isCDService(const string& st)
 }
 
 void ContentDirectory::evtCallback(
-    const STD_UNORDERED_MAP<string, string>& props)
+    const std::unordered_map<string, string>& props)
 {
-    for (STD_UNORDERED_MAP<std::string, std::string>::const_iterator it =
+    for (std::unordered_map<std::string, std::string>::const_iterator it =
              props.begin(); it != props.end(); it++) {
         if (!getReporter()) {
             LOGDEB1("ContentDirectory::evtCallback: " << it->first << " -> "

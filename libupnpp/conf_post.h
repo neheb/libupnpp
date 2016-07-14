@@ -34,17 +34,3 @@ static const char *LIBUPNPP_PACKAGE_VERSION = PACKAGE_VERSION;
 #undef PACKAGE_VERSION
 
 #define LIBUPNPP_SOURCE
-
-#ifdef __cplusplus
-// Remnants of tr1 defines. Now always using std
-#define UNORDERED_MAP_INCLUDE <unordered_map>
-#define UNORDERED_SET_INCLUDE <unordered_set>
-#define STD_UNORDERED_MAP std::unordered_map
-#define STD_UNORDERED_SET std::unordered_set
-#define STD_FUNCTION      std::function
-#define STD_BIND          std::bind
-#define STD_PLACEHOLDERS  std::placeholders
-#define MEMORY_INCLUDE <memory>
-#define STD_SHARED_PTR    std::shared_ptr
-#define STD_WEAK_PTR      std::weak_ptr
-#endif

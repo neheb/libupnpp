@@ -19,8 +19,8 @@
 
 #include "libupnpp/config.h"
 
-#include UNORDERED_MAP_INCLUDE
-#include MEMORY_INCLUDE
+#include <unordered_map>
+#include <memory>
 
 #include <upnp/ixml.h>                  // for IXML_Document
 
@@ -122,7 +122,7 @@ private:
  *     </e:propertyset>
  */
 extern bool decodePropertySet(IXML_Document *doc,
-                              STD_UNORDERED_MAP<std::string, std::string>& out);
+                              std::unordered_map<std::string, std::string>& out);
 
 
 } // namespace UPnPP

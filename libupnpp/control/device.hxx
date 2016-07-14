@@ -19,14 +19,14 @@
 #define _DEVICE_H_X_INCLUDED_
 
 #include "libupnpp/config.h"
-#include MEMORY_INCLUDE
+#include <memory>
 
 #include "libupnpp/control/description.hxx"
 
 namespace UPnPClient {
 
 class Device;
-typedef STD_SHARED_PTR<Device> DVCH;
+typedef std::shared_ptr<Device> DVCH;
 
 /**
  * For now, the Device class is just a holder for the description object.

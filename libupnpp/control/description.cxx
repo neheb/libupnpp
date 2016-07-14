@@ -149,7 +149,7 @@ protected:
         StackEl(const string& nm) : name(nm) {}
         string name;
         XML_Size sta;
-        STD_UNORDERED_MAP<string,string> attributes;
+        std::unordered_map<string,string> attributes;
         string data;
     };
 
@@ -176,7 +176,7 @@ protected:
         case 's':
             if (!strcmp(name, "stateVariable")) {
                 m_tvar.clear();
-                STD_UNORDERED_MAP<string,string>::iterator it =
+                std::unordered_map<string,string>::iterator it =
                     lastelt.attributes.find("sendEvents");
                 if (it != lastelt.attributes.end()) {
                     stringToBool(it->second, &m_tvar.sendEvents);

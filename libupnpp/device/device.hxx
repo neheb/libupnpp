@@ -37,7 +37,7 @@ class UpnpService;
 
 namespace UPnPProvider {
 
-typedef STD_FUNCTION<int (const UPnPP::SoapIncoming&, UPnPP::SoapOutgoing&)>
+typedef std::function<int (const UPnPP::SoapIncoming&, UPnPP::SoapOutgoing&)>
 soapfun;
 
 // Definition of a virtual directory entry: data and mime type
@@ -67,7 +67,7 @@ public:
      *
      */
     UpnpDevice(const std::string& deviceId,
-               const STD_UNORDERED_MAP<std::string, VDirContent>& files);
+               const std::unordered_map<std::string, VDirContent>& files);
     ~UpnpDevice();
 
     // We only ever keep one instance of a serviceId. Multiple calls will

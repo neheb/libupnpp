@@ -27,7 +27,7 @@
 #include "libupnpp/control/mediarenderer.hxx"
 
 using namespace std;
-using namespace STD_PLACEHOLDERS;
+using namespace std::placeholders;
 using namespace UPnPP;
 
 namespace UPnPClient {

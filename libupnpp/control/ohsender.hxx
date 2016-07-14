@@ -19,7 +19,7 @@
 
 #include "libupnpp/config.h"
 
-#include UNORDERED_MAP_INCLUDE
+#include <unordered_map>
 #include <string>
 
 #include "libupnpp/control/service.hxx"
@@ -30,7 +30,7 @@ class UPnPDeviceDesc;
 class UPnPServiceDesc;
 class OHSender;
 
-typedef STD_SHARED_PTR<OHSender> OHSNH;
+typedef std::shared_ptr<OHSender> OHSNH;
 
 /**
  * OHSender client class.
@@ -57,7 +57,7 @@ protected:
     static const std::string SType;
 
 private:
-    void evtCallback(const STD_UNORDERED_MAP<std::string, std::string>&);
+    void evtCallback(const std::unordered_map<std::string, std::string>&);
     void registerCallback();
 };
 

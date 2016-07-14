@@ -321,7 +321,7 @@ IXML_Document *SoapOutgoing::buildSoapBody(bool isResponse) const
 //     </e:propertyset>
 
 bool decodePropertySet(IXML_Document *doc,
-                       STD_UNORDERED_MAP<string, string>& out)
+                       std::unordered_map<string, string>& out)
 {
     bool ret = false;
     IXML_Node* topNode = ixmlNode_getFirstChild((IXML_Node *)doc);

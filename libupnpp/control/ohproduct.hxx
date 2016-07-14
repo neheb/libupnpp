@@ -19,7 +19,7 @@
 
 #include <libupnpp/config.h>
 
-#include UNORDERED_MAP_INCLUDE
+#include <unordered_map>
 #include <string>                       // for string
 #include <vector>                       // for vector
 
@@ -37,7 +37,7 @@ class UPnPServiceDesc;
 
 namespace UPnPClient {
 
-typedef STD_SHARED_PTR<OHProduct> OHPRH;
+typedef std::shared_ptr<OHProduct> OHPRH;
 
 /**
  * OHProduct Service client class.
@@ -80,7 +80,7 @@ protected:
     /* My service type string */
     static const std::string SType;
 private:
-    void evtCallback(const STD_UNORDERED_MAP<std::string, std::string>&);
+    void evtCallback(const std::unordered_map<std::string, std::string>&);
     void registerCallback();
 };
 

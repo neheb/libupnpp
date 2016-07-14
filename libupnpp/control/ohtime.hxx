@@ -19,7 +19,7 @@
 
 #include "libupnpp/config.h"
 
-#include UNORDERED_MAP_INCLUDE
+#include <unordered_map>
 #include <memory>                       // for shared_ptr
 #include <string>                       // for string
 #include <vector>                       // for vector
@@ -38,7 +38,7 @@ class UPnPServiceDesc;
 
 namespace UPnPClient {
 
-typedef STD_SHARED_PTR<OHTime> OHTMH;
+typedef std::shared_ptr<OHTime> OHTMH;
 
 /**
  * OHTime Service client class.
@@ -71,7 +71,7 @@ protected:
     static const std::string SType;
 
 private:
-    void evtCallback(const STD_UNORDERED_MAP<std::string, std::string>&);
+    void evtCallback(const std::unordered_map<std::string, std::string>&);
     void registerCallback();
 };
 

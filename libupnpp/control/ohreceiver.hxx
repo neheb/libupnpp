@@ -19,7 +19,7 @@
 
 #include "libupnpp/config.h"
 
-#include UNORDERED_MAP_INCLUDE
+#include <unordered_map>
 #include <string>                       // for string
 #include <vector>                       // for vector
 
@@ -33,7 +33,7 @@ class UPnPDeviceDesc;
 class UPnPServiceDesc;
 class OHReceiver;
 
-typedef STD_SHARED_PTR<OHReceiver> OHRCH;
+typedef std::shared_ptr<OHReceiver> OHRCH;
 
 /**
  * OHReceiver client class.
@@ -65,7 +65,7 @@ protected:
     static const std::string SType;
 
 private:
-    void evtCallback(const STD_UNORDERED_MAP<std::string, std::string>&);
+    void evtCallback(const std::unordered_map<std::string, std::string>&);
     void registerCallback();
 };
 

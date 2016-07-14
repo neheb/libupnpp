@@ -19,7 +19,7 @@
 
 #include "libupnpp/config.h"
 
-#include UNORDERED_MAP_INCLUDE
+#include <unordered_map>
 #include <string>                       // for string
 
 namespace UPnPClient {
@@ -32,7 +32,7 @@ namespace UPnPClient {
  *    </Event>
  */
 extern bool decodeAVLastChange(const std::string& xml,
-                               STD_UNORDERED_MAP<std::string, std::string>& props);
+                               std::unordered_map<std::string, std::string>& props);
 
 
 } // namespace UPnPClient

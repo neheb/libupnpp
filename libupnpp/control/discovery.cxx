@@ -24,7 +24,7 @@
 
 #include <upnp/upnp.h>
 
-#include UNORDERED_SET_INCLUDE
+#include <unordered_set>
 #include <iostream>
 #include <map>
 #include <utility>
@@ -40,7 +40,7 @@
 #include "libupnpp/control/discovery.hxx"
 
 using namespace std;
-using namespace STD_PLACEHOLDERS;
+using namespace std::placeholders;
 using namespace UPnPP;
 
 namespace UPnPClient {
@@ -92,7 +92,7 @@ public:
 static WorkQueue<DiscoveredTask*> discoveredQueue("DiscoveredQueue");
 
 // Set of currently downloading URIs (for avoiding multiple downloads)
-static STD_UNORDERED_SET<string> o_downloading;
+static std::unordered_set<string> o_downloading;
 static std::mutex o_downloading_mutex;
 
 // This gets called in a libupnp thread context for all asynchronous
@@ -134,7 +134,7 @@ static int cluCallBack(Upnp_EventType et, void* evp, void*)
             // simultaneous downloads of a slow one, to avoid
             // tying up threads.
             std::unique_lock<std::mutex> lock(o_downloading_mutex);
-            pair<STD_UNORDERED_SET<string>::iterator,bool> res =
+            pair<std::unordered_set<string>::iterator,bool> res =
                 o_downloading.insert(tp->url);
             if (!res.second) {
                 LOGDEB("discovery:cllb: already downloading " <<
@@ -323,7 +323,7 @@ void UPnPDeviceDirectory::expireDevices()
 UPnPDeviceDirectory::UPnPDeviceDirectory(time_t search_window)
     : m_ok(false), m_searchTimeout(int(search_window)), m_lastSearch(0)
 {
-    addCallback(STD_BIND(&UPnPDeviceDirectory::deviceFound, this, _1, _2));
+    addCallback(std::bind(&UPnPDeviceDirectory::deviceFound, this, _1, _2));
 
     if (!discoveredQueue.start(1, discoExplorer, 0)) {
         m_reason = "Discover work queue start failed";

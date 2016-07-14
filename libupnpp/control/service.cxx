@@ -31,7 +31,7 @@
 #include "libupnpp/upnpplib.hxx"        // for LibUPnP
 
 using namespace std;
-using namespace STD_PLACEHOLDERS;
+using namespace std::placeholders;
 using namespace UPnPP;
 
 namespace UPnPClient {
@@ -71,7 +71,7 @@ public:
  * device. The map allows the static function registered with
  * libupnp to call the appropriate object method when it receives
  * an event. */
-static STD_UNORDERED_MAP<std::string, evtCBFunc> o_calls;
+static std::unordered_map<std::string, evtCBFunc> o_calls;
 
 
 Service::Service(const UPnPDeviceDesc& devdesc,
@@ -268,7 +268,7 @@ int Service::srvCB(Upnp_EventType et, void* vevp, void*)
                 evp->Sid << " EventKey " << evp->EventKey <<
                 " changed " << ixmlwPrintDoc(evp->ChangedVariables) << endl);
 
-        STD_UNORDERED_MAP<string, string> props;
+        std::unordered_map<string, string> props;
         if (!decodePropertySet(evp->ChangedVariables, props)) {
             LOGERR("Service::srvCB: could not decode EVENT propertyset" <<endl);
             return UPNP_E_BAD_RESPONSE;
@@ -277,7 +277,7 @@ int Service::srvCB(Upnp_EventType et, void* vevp, void*)
         //LOGDEB("srvCB: " << entry.first << " -> " << entry.second << endl);
         //}
 
-        STD_UNORDERED_MAP<std::string, evtCBFunc>::iterator it =
+        std::unordered_map<std::string, evtCBFunc>::iterator it =
             o_calls.find(evp->Sid);
         if (it!= o_calls.end()) {
             (it->second)(props);
@@ -324,7 +324,7 @@ bool Service::initEvents()
 }
 
 //void Service::evtCallback(
-//    const STD_UNORDERED_MAP<std::string, std::string>*)
+//    const std::unordered_map<std::string, std::string>*)
 //{
 //    LOGDEB("Service::evtCallback!! service: " << m->serviceType << endl);
 //}
@@ -399,7 +399,7 @@ void Service::reSubscribe()
     evtCBFunc c;
     {
         std::unique_lock<std::mutex> lock(cblock);
-        STD_UNORDERED_MAP<std::string, evtCBFunc>::iterator it =
+        std::unordered_map<std::string, evtCBFunc>::iterator it =
             o_calls.find(m->SID);
         if (it == o_calls.end()) {
             LOGINF("Service::reSubscribe: no callback found for m->SID " <<

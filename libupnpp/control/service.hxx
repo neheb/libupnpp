@@ -60,7 +60,7 @@ public:
 };
 
 typedef
-STD_FUNCTION<void (const STD_UNORDERED_MAP<std::string, std::string>&)>
+std::function<void (const std::unordered_map<std::string, std::string>&)>
 evtCBFunc;
 
 class Service {

@@ -32,7 +32,7 @@ class OHRadio;
 class UPnPDeviceDesc;
 class UPnPServiceDesc;
 
-typedef STD_SHARED_PTR<OHRadio> OHRDH;
+typedef std::shared_ptr<OHRadio> OHRDH;
 
 /**
  * OHRadio Service client class.
@@ -78,7 +78,7 @@ protected:
     static const std::string SType;
 
 private:
-    void evtCallback(const STD_UNORDERED_MAP<std::string, std::string>&);
+    void evtCallback(const std::unordered_map<std::string, std::string>&);
     void registerCallback();
 };
 

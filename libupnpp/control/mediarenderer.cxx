@@ -30,7 +30,7 @@
 #include "libupnpp/log.hxx"             // for LOGERR, LOGINF
 
 using namespace std;
-using namespace STD_PLACEHOLDERS;
+using namespace std::placeholders;
 using namespace UPnPP;
 
 namespace UPnPClient {
@@ -40,16 +40,16 @@ MediaRenderer::DType("urn:schemas-upnp-org:device:MediaRenderer:1");
 
 class MediaRenderer::Internal {
 public:
-    STD_WEAK_PTR<RenderingControl> rdc;
-    STD_WEAK_PTR<AVTransport> avt;
-    STD_WEAK_PTR<OHProduct> ohpr;
-    STD_WEAK_PTR<OHPlaylist> ohpl;
-    STD_WEAK_PTR<OHTime> ohtm;
-    STD_WEAK_PTR<OHVolume> ohvl;
-    STD_WEAK_PTR<OHReceiver> ohrc;
-    STD_WEAK_PTR<OHRadio> ohrd;
-    STD_WEAK_PTR<OHInfo> ohif;
-    STD_WEAK_PTR<OHSender> ohsn;
+    std::weak_ptr<RenderingControl> rdc;
+    std::weak_ptr<AVTransport> avt;
+    std::weak_ptr<OHProduct> ohpr;
+    std::weak_ptr<OHPlaylist> ohpl;
+    std::weak_ptr<OHTime> ohtm;
+    std::weak_ptr<OHVolume> ohvl;
+    std::weak_ptr<OHReceiver> ohrc;
+    std::weak_ptr<OHRadio> ohrd;
+    std::weak_ptr<OHInfo> ohif;
+    std::weak_ptr<OHSender> ohsn;
 };
 
 // We don't include a version in comparisons, as we are satisfied with
@@ -63,7 +63,7 @@ bool MediaRenderer::isMRDevice(const string& st)
 // Look at all service descriptions and store parent devices for
 // either UPnP RenderingControl or OpenHome Product. Some entries will
 // be set multiple times, which does not matter
-static bool MDAccum(STD_UNORDERED_MAP<string, UPnPDeviceDesc>* out,
+static bool MDAccum(std::unordered_map<string, UPnPDeviceDesc>* out,
                     const string& friendlyName,
                     const UPnPDeviceDesc& device,
                     const UPnPServiceDesc& service)
@@ -84,12 +84,12 @@ static bool MDAccum(STD_UNORDERED_MAP<string, UPnPDeviceDesc>* out,
 bool MediaRenderer::getDeviceDescs(vector<UPnPDeviceDesc>& devices,
                                    const string& friendlyName)
 {
-    STD_UNORDERED_MAP<string, UPnPDeviceDesc> mydevs;
+    std::unordered_map<string, UPnPDeviceDesc> mydevs;
 
     UPnPDeviceDirectory::Visitor visitor = bind(MDAccum, &mydevs, friendlyName,
                                            _1, _2);
     UPnPDeviceDirectory::getTheDir()->traverse(visitor);
-    for (STD_UNORDERED_MAP<string, UPnPDeviceDesc>::iterator it =
+    for (std::unordered_map<string, UPnPDeviceDesc>::iterator it =
                 mydevs.begin(); it != mydevs.end(); it++)
         devices.push_back(it->second);
     return !devices.empty();

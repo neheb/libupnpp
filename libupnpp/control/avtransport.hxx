@@ -36,7 +36,7 @@ class UPnPServiceDesc;
 
 namespace UPnPClient {
 
-typedef STD_SHARED_PTR<AVTransport> AVTH;
+typedef std::shared_ptr<AVTransport> AVTH;
 
 /**
  * AVTransport Service client class.
@@ -158,7 +158,7 @@ protected:
     int CTAStringToBits(const std::string& actions, int& iacts);
 
 private:
-    void evtCallback(const STD_UNORDERED_MAP<std::string, std::string>&);
+    void evtCallback(const std::unordered_map<std::string, std::string>&);
     void registerCallback();
 
 };

@@ -35,7 +35,7 @@ class UPnPServiceDesc;
 
 namespace UPnPClient {
 
-typedef STD_SHARED_PTR<RenderingControl> RDCH;
+typedef std::shared_ptr<RenderingControl> RDCH;
 
 /**
  * RenderingControl Service client class.
@@ -72,7 +72,7 @@ protected:
     int m_volstep;
 
 private:
-    void evtCallback(const STD_UNORDERED_MAP<std::string, std::string>&);
+    void evtCallback(const std::unordered_map<std::string, std::string>&);
     void registerCallback();
     /** Set volume parameters from service state variable table values */
     void setVolParams(int min, int max, int step);

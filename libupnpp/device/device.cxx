@@ -50,7 +50,7 @@ public:
                      const std::vector<std::string>& values);
     bool start();
 
-    STD_UNORDERED_MAP<std::string, UpnpService*>::const_iterator
+    std::unordered_map<std::string, UpnpService*>::const_iterator
     findService(const std::string& serviceid);
 
     /* Per-device callback */
@@ -63,9 +63,9 @@ public:
     // We keep the services in a map for easy access from id and in a
     // vector for ordered walking while fetching status. Order is
     // determine by addService() call sequence.
-    STD_UNORDERED_MAP<std::string, UpnpService*> servicemap;
+    std::unordered_map<std::string, UpnpService*> servicemap;
     std::vector<std::string> serviceids;
-    STD_UNORDERED_MAP<std::string, soapfun> calls;
+    std::unordered_map<std::string, soapfun> calls;
     bool needExit;
     /* My device handle */
     UpnpDevice_Handle dvh;
@@ -84,11 +84,11 @@ public:
     static int sCallBack(Upnp_EventType et, void* evp, void*);
 
     /** Static array of devices for dispatching */
-    static STD_UNORDERED_MAP<std::string, UpnpDevice *> devices;
+    static std::unordered_map<std::string, UpnpDevice *> devices;
     static std::mutex devices_lock;
 };
 
-STD_UNORDERED_MAP<std::string, UpnpDevice *>
+std::unordered_map<std::string, UpnpDevice *>
 UpnpDevice::InternalStatic::devices;
 std::mutex UpnpDevice::InternalStatic::devices_lock;
 UpnpDevice::InternalStatic *UpnpDevice::o;
@@ -120,7 +120,7 @@ static bool vectorstoargslists(const vector<string>& names,
 static const int expiretime = 3600;
 
 UpnpDevice::UpnpDevice(const string& deviceId,
-                       const STD_UNORDERED_MAP<string, VDirContent>& files)
+                       const std::unordered_map<string, VDirContent>& files)
 {
     if (o == 0 && (o = new InternalStatic()) == 0) {
         LOGERR("UpnpDevice::UpnpDevice: out of memory" << endl);
@@ -166,7 +166,7 @@ UpnpDevice::UpnpDevice(const string& deviceId,
         return;
     }
 
-    for (STD_UNORDERED_MAP<string, VDirContent>::const_iterator it =
+    for (std::unordered_map<string, VDirContent>::const_iterator it =
                 files.begin(); it != files.end(); it++) {
         if (!path_getsimple(it->first).compare("description.xml")) {
             m->description = it->second.content;
@@ -180,7 +180,7 @@ UpnpDevice::UpnpDevice(const string& deviceId,
         return;
     }
 
-    for (STD_UNORDERED_MAP<string, VDirContent>::const_iterator it = files.begin(); it != files.end(); it++) {
+    for (std::unordered_map<string, VDirContent>::const_iterator it = files.begin(); it != files.end(); it++) {
         string dir = path_getfather(it->first);
         string fn = path_getsimple(it->first);
         // description.xml will be served by libupnp from / after inserting
@@ -198,7 +198,7 @@ UpnpDevice::~UpnpDevice()
     UpnpUnRegisterRootDevice(m->dvh);
 
     std::unique_lock<std::mutex> lock(o->devices_lock);
-    STD_UNORDERED_MAP<std::string, UpnpDevice *>::iterator it =
+    std::unordered_map<std::string, UpnpDevice *>::iterator it =
         o->devices.find(m->deviceId);
     if (it != o->devices.end())
         o->devices.erase(it);
@@ -248,7 +248,7 @@ int UpnpDevice::InternalStatic::sCallBack(Upnp_EventType et, void* evp,
     }
     // LOGDEB("UpnpDevice::sCallBack: deviceid[" << deviceid << "]" << endl);
 
-    STD_UNORDERED_MAP<std::string, UpnpDevice *>::iterator it;
+    std::unordered_map<std::string, UpnpDevice *>::iterator it;
     {
         std::unique_lock<std::mutex> lock(o->devices_lock);
 
@@ -271,11 +271,11 @@ bool UpnpDevice::ok()
     return o && m && m->lib != 0;
 }
 
-STD_UNORDERED_MAP<string, UpnpService*>::const_iterator
+std::unordered_map<string, UpnpService*>::const_iterator
 UpnpDevice::Internal::findService(const string& serviceid)
 {
     std::unique_lock<std::mutex> lock(devlock);
-    STD_UNORDERED_MAP<string, UpnpService*>::iterator servit =
+    std::unordered_map<string, UpnpService*>::iterator servit =
         servicemap.find(serviceid);
     if (servit == servicemap.end()) {
         LOGERR("UpnpDevice: Bad serviceID: " << serviceid << endl);
@@ -293,7 +293,7 @@ int UpnpDevice::Internal::callBack(Upnp_EventType et, void* evp)
         LOGDEB("UPNP_CONTROL_ACTION_REQUEST: " << act->ActionName <<
                ". Params: " << ixmlwPrintDoc(act->ActionRequest) << endl);
 
-        STD_UNORDERED_MAP<string, UpnpService*>::const_iterator servit =
+        std::unordered_map<string, UpnpService*>::const_iterator servit =
             findService(act->ServiceID);
         if (servit == servicemap.end()) {
             return UPNP_E_INVALID_PARAM;
@@ -303,7 +303,7 @@ int UpnpDevice::Internal::callBack(Upnp_EventType et, void* evp)
         {
             std::unique_lock<std::mutex> lock(devlock);
 
-            STD_UNORDERED_MAP<std::string, soapfun>::iterator callit =
+            std::unordered_map<std::string, soapfun>::iterator callit =
                 calls.find(string(act->ActionName) + string(act->ServiceID));
             if (callit == calls.end()) {
                 LOGINF("UpnpDevice: No such action: " <<
@@ -357,7 +357,7 @@ int UpnpDevice::Internal::callBack(Upnp_EventType et, void* evp)
             (struct  Upnp_Subscription_Request*)evp;
         LOGDEB("UPNP_EVENT_SUBSCRIPTION_REQUEST: " << act->ServiceId << endl);
 
-        STD_UNORDERED_MAP<string, UpnpService*>::const_iterator servit =
+        std::unordered_map<string, UpnpService*>::const_iterator servit =
             findService(act->ServiceId);
         if (servit == servicemap.end()) {
             return UPNP_E_INVALID_PARAM;
@@ -413,7 +413,7 @@ void UpnpDevice::forgetService(const std::string& serviceId)
     LOGDEB("UpnpDevice::forgetService: " << serviceId << endl);
     std::unique_lock<std::mutex> lock(m->devlock);
 
-    STD_UNORDERED_MAP<string, UpnpService*>::iterator servit =
+    std::unordered_map<string, UpnpService*>::iterator servit =
         m->servicemap.find(serviceId);
     if (servit != m->servicemap.end()) {
         m->servicemap.erase(servit);

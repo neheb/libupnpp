@@ -18,7 +18,7 @@
 
 #include <string.h>                     // for strcmp
 
-#include UNORDERED_MAP_INCLUDE
+#include <unordered_map>
 #include <string>                       // for string, allocator, etc
 #include <vector>                       // for vector
 #include <iostream>
@@ -55,7 +55,7 @@ protected:
         StackEl(const string& nm) : name(nm) {}
         string name;
         XML_Size sta;
-        STD_UNORDERED_MAP<string,string> attributes;
+        std::unordered_map<string,string> attributes;
         string data;
     };
 
@@ -159,7 +159,7 @@ protected:
                     // sampleFrequency="44100" nrAudioChannels="2">
                     UPnPResource res;
                     res.m_uri = m_path.back().data;
-                    for (STD_UNORDERED_MAP<string,string>::iterator it =
+                    for (std::unordered_map<string,string>::iterator it =
                                 m_path.back().attributes.begin();
                             it !=  m_path.back().attributes.end(); it++) {
                         res.m_props[it->first] = it->second;

@@ -24,7 +24,7 @@
  * downloaded from the URL obtained by the discovery phase.
  */
 
-#include UNORDERED_MAP_INCLUDE
+#include <unordered_map>
 #include <vector>
 #include <string>
 #include <sstream>
@@ -100,8 +100,8 @@ public:
         }
     };
     struct Parsed {
-        STD_UNORDERED_MAP<std::string, Action> actionList;
-        STD_UNORDERED_MAP<std::string, StateVariable> stateTable;
+        std::unordered_map<std::string, Action> actionList;
+        std::unordered_map<std::string, StateVariable> stateTable;
     };
 
     bool fetchAndParseDesc(const std::string&, Parsed& parsed) const;
