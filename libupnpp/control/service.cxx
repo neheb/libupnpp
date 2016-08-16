@@ -172,8 +172,9 @@ int Service::runAction(const SoapOutgoing& args, SoapIncoming& data)
         return  UPNP_E_OUTOF_MEMORY;
     }
 
-    LOGDEB1("Service::runAction: rqst: [" <<
-            ixmlwPrintDoc(request) << "]" << endl);
+    LOGDEB1("Service::runAction: url [" << m->actionURL <<
+           " serviceType " << m->serviceType <<
+           " rqst: [" << ixmlwPrintDoc(request) << "]" << endl);
 
     int ret = UpnpSendAction(hdl, m->actionURL.c_str(), m->serviceType.c_str(),
                              0 /*devUDN*/, request, &response);
