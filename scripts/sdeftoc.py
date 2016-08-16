@@ -98,8 +98,8 @@ class MyHandler(xml.sax.handler.ContentHandler):
         self.actions = []
         self.statevars = {}
         self.cprolog = cprolog_text % os.path.basename(hfn)
-        self.cprolog += 'static const string sTp%s("urn:XXX");\n' % classname
-        self.cprolog += 'static const string sId%s("urn:XXX:1");\n\n' % classname
+        self.cprolog += 'static const string sTp%s("urn:XXX:1");\n' % classname
+        self.cprolog += 'static const string sId%s("urn:XXX");\n\n' % classname
         self.cprolog += '%s::%s(UPnPProvider::UpnpDevice *dev)\n' % \
                         (classname, classname)
         self.cprolog += '    : UpnpService(sTp%s, sId%s, dev)\n'  % \
@@ -197,6 +197,11 @@ class MyHandler(xml.sax.handler.ContentHandler):
                 
         txt += "\n"
 
+        txt += '    LOGDEB("%s: "' % methname
+        for arg in inargs:
+            txt += ' << " %s " << in_%s' % (arg[0], arg[0])
+        txt += ' << endl);\n\n'
+        
         for arg in outargs:
             txt += '    std::string out_%s;\n' % arg[0]
         for arg in outargs:
