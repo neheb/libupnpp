@@ -18,9 +18,10 @@
 #define _UPNPPDISC_H_X_INCLUDED_
 #include "libupnpp/config.h"
 
-#include <time.h>                       // for time_t
+#include <time.h>
 
-#include <string>                       // for string
+#include <string>
+#include <functional>
 
 namespace UPnPClient {
 class UPnPDeviceDesc;
@@ -69,7 +70,8 @@ public:
     typedef std::function<bool (const UPnPDeviceDesc&,
                                const UPnPServiceDesc&)> Visitor;
 
-    /** Traverse the directory and call Visitor for each device/service pair */
+    /** Possibly wait for the end of the initial delay, then traverse
+       the directory and call Visitor for each device/service pair */
     bool traverse(Visitor);
 
     /** Remaining time until current search complete */

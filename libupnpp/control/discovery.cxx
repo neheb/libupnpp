@@ -114,7 +114,7 @@ static int cluCallBack(Upnp_EventType et, void* evp, void*)
         // one message per device: the one which probably correspond to the
         // upnp "root device" message and has empty service and device types:
         if (disco->DeviceType[0] || disco->ServiceType[0]) {
-            LOGDEB1("discovery:cllb:SearchRes/Alive: ignoring message with no"
+            LOGDEB1("discovery:cllb:SearchRes/Alive: ignoring message with "
                     "device/service type\n");
             return UPNP_E_SUCCESS;
         }
@@ -444,7 +444,7 @@ bool UPnPDeviceDirectory::getDevBySelector(bool cmp(const UPnPDeviceDesc& ddesc,
     do {
          std::unique_lock<std::mutex> lock(devWaitLock);
         {
-             std::unique_lock<std::mutex> lock(o_pool.m_mutex);
+            std::unique_lock<std::mutex> lock(o_pool.m_mutex);
             for (map<string, DeviceDescriptor>::iterator it =
                         o_pool.m_devices.begin();
                     it != o_pool.m_devices.end(); it++) {
