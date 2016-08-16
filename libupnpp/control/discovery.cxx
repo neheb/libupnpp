@@ -225,6 +225,8 @@ public:
 // currently on the network.
 // The map is referenced by deviceId (==UDN)
 // The class is instanciated as a static (unenforced) singleton.
+// There should only be entries for root devices. The embedded devices
+// are described by a list inside their root device entry.
 class DevicePool {
 public:
     std::mutex m_mutex;
@@ -282,6 +284,9 @@ void *UPnPDeviceDirectory::discoExplorer(void *)
                             o_callbacks.begin();
                         cbp != o_callbacks.end(); cbp++) {
                     (*cbp)(d.device, UPnPServiceDesc());
+                    for (auto& it1 : d.device.embedded) {
+                        (*cbp)(it1, UPnPServiceDesc());
+                    }
                 }
             }
         }
@@ -411,15 +416,20 @@ bool UPnPDeviceDirectory::traverse(UPnPDeviceDirectory::Visitor visit)
     // Has locking, do it before our own lock
     expireDevices();
 
-     std::unique_lock<std::mutex> lock(o_pool.m_mutex);
+    std::unique_lock<std::mutex> lock(o_pool.m_mutex);
 
-    for (map<string, DeviceDescriptor>::iterator it = o_pool.m_devices.begin();
-            it != o_pool.m_devices.end(); it++) {
-        for (vector<UPnPServiceDesc>::iterator it1 =
-                    it->second.device.services.begin();
-                it1 != it->second.device.services.end(); it1++) {
-            if (!visit(it->second.device, *it1))
+    for (auto& it : o_pool.m_devices) {
+        for (auto& it1 : it.second.device.services) {
+            if (!visit(it.second.device, it1)) {
                 return false;
+            }
+        }
+        for (auto& it1 : it.second.device.embedded) {
+            for (auto& it2 : it1.services) {
+                if (!visit(it1, it2)) {
+                    return false;
+                }
+            }
         }
     }
     return true;
@@ -445,12 +455,16 @@ bool UPnPDeviceDirectory::getDevBySelector(bool cmp(const UPnPDeviceDesc& ddesc,
          std::unique_lock<std::mutex> lock(devWaitLock);
         {
             std::unique_lock<std::mutex> lock(o_pool.m_mutex);
-            for (map<string, DeviceDescriptor>::iterator it =
-                        o_pool.m_devices.begin();
-                    it != o_pool.m_devices.end(); it++) {
-                if (!cmp(it->second.device, value)) {
-                    ddesc = it->second.device;
+            for (auto& it : o_pool.m_devices) {
+                if (!cmp(it.second.device, value)) {
+                    ddesc = it.second.device;
                     return true;
+                }
+                for (auto& it1 : it.second.device.embedded) {
+                    if (!cmp(it1, value)) {
+                        ddesc = it1;
+                        return true;
+                    }
                 }
             }
         }

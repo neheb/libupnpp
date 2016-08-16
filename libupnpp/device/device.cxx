@@ -160,46 +160,51 @@ UpnpDevice::UpnpDevice(const string& deviceId,
         o->devices[m->deviceId] = this;
     }
 
-    VirtualDir* theVD = VirtualDir::getVirtualDir();
-    if (theVD == 0) {
-        LOGFAT("UpnpDevice::UpnpDevice: can't get VirtualDir" << endl);
-        return;
-    }
-
-    for (std::unordered_map<string, VDirContent>::const_iterator it =
-                files.begin(); it != files.end(); it++) {
-        if (!path_getsimple(it->first).compare("description.xml")) {
-            m->description = it->second.content;
-            break;
+    if (!files.empty()) {
+        // files will be empty for embedded devices, and hence
+        // description too (we test description emptyness to
+        // discriminate root/embedded in other places).
+        VirtualDir* theVD = VirtualDir::getVirtualDir();
+        if (theVD == 0) {
+            LOGFAT("UpnpDevice::UpnpDevice: can't get VirtualDir" << endl);
+            return;
         }
-    }
 
-    if (m->description.empty()) {
-        LOGFAT("UpnpDevice::UpnpDevice: no description.xml found in xmlfiles"
-               << endl);
-        return;
-    }
+        for (const auto& it : files) {
+            if (!path_getsimple(it.first).compare("description.xml")) {
+                m->description = it.second.content;
+                break;
+            }
+        }
+        if (m->description.empty()) {
+            LOGFAT("UpnpDevice::UpnpDevice: no description.xml in xmlfiles"
+                   << endl);
+            return;
+        }
 
-    for (std::unordered_map<string, VDirContent>::const_iterator it = files.begin(); it != files.end(); it++) {
-        string dir = path_getfather(it->first);
-        string fn = path_getsimple(it->first);
-        // description.xml will be served by libupnp from / after inserting
-        // the URLBase element (which it knows how to compute), so we make
-        // sure not to serve our version from the virtual dir (if it is in /,
-        // it would override libupnp's).
-        if (fn.compare("description.xml")) {
-            theVD->addFile(dir, fn, it->second.content, it->second.mimetype);
+        for (const auto& it : files) {
+            string dir = path_getfather(it.first);
+            string fn = path_getsimple(it.first);
+            // description.xml will be served by libupnp from / after
+            // inserting the URLBase element (which it knows how to
+            // compute), so we make sure not to serve our version from
+            // the virtual dir (if it is in /, it would override
+            // libupnp's).
+            if (fn.compare("description.xml")) {
+                theVD->addFile(dir, fn, it.second.content, it.second.mimetype);
+            }
         }
     }
 }
 
 UpnpDevice::~UpnpDevice()
 {
-    UpnpUnRegisterRootDevice(m->dvh);
+    if (!m->description.empty()) {
+        UpnpUnRegisterRootDevice(m->dvh);
+    }
 
     std::unique_lock<std::mutex> lock(o->devices_lock);
-    std::unordered_map<std::string, UpnpDevice *>::iterator it =
-        o->devices.find(m->deviceId);
+    auto it = o->devices.find(m->deviceId);
     if (it != o->devices.end())
         o->devices.erase(it);
 }
@@ -209,9 +214,13 @@ bool UpnpDevice::Internal::start()
     // Start up the web server for sending out description files. This also
     // calls registerRootDevice()
     int ret;
-    if ((ret = lib->setupWebServer(description, &dvh)) != 0) {
-        LOGFAT("UpnpDevice: libupnp can't start service. Err " << ret << endl);
-        return false;
+    if (!description.empty()) {
+        // Description is empty for embedded devices
+        if ((ret = lib->setupWebServer(description, &dvh)) != 0) {
+            LOGFAT("UpnpDevice: libupnp can't start service. Err " <<
+                   ret << endl);
+            return false;
+        }
     }
 
     if ((ret = UpnpSendAdvertisement(dvh, expiretime)) != 0) {
@@ -275,10 +284,9 @@ std::unordered_map<string, UpnpService*>::const_iterator
 UpnpDevice::Internal::findService(const string& serviceid)
 {
     std::unique_lock<std::mutex> lock(devlock);
-    std::unordered_map<string, UpnpService*>::iterator servit =
-        servicemap.find(serviceid);
+    auto servit = servicemap.find(serviceid);
     if (servit == servicemap.end()) {
-        LOGERR("UpnpDevice: Bad serviceID: " << serviceid << endl);
+        LOGERR("UpnpDevice: Bad serviceID: [" << serviceid << "]\n");
     }
     return servit;
 }
@@ -357,8 +365,7 @@ int UpnpDevice::Internal::callBack(Upnp_EventType et, void* evp)
             (struct  Upnp_Subscription_Request*)evp;
         LOGDEB("UPNP_EVENT_SUBSCRIPTION_REQUEST: " << act->ServiceId << endl);
 
-        std::unordered_map<string, UpnpService*>::const_iterator servit =
-            findService(act->ServiceId);
+        auto servit = findService(act->ServiceId);
         if (servit == servicemap.end()) {
             return UPNP_E_INVALID_PARAM;
         }
@@ -397,7 +404,7 @@ int UpnpDevice::Internal::callBack(Upnp_EventType et, void* evp)
 
 void UpnpDevice::addService(UpnpService *serv, const std::string& serviceId)
 {
-    LOGDEB("UpnpDevice::addService: " << serviceId << endl);
+    LOGDEB("UpnpDevice::addService: [" << serviceId << "]\n");
     std::unique_lock<std::mutex> lock(m->devlock);
 
     m->servicemap[serviceId] = serv;
@@ -546,8 +553,7 @@ void UpnpDevice::eventloop()
         // startup, while we add services, but the event loop is the
         // last call the main program will make after adding the
         // services, so locking does not seem necessary
-        for (vector<string>::iterator it = m->serviceids.begin();
-                it != m->serviceids.end(); it++) {
+        for (auto& it : m->serviceids) {
             vector<string> names, values;
             UpnpService* serv = m->servicemap[*it];
             {

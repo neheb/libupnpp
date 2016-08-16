@@ -110,8 +110,7 @@ public:
 /**
  * Data holder for a UPnP device, parsed from the XML description obtained
  * during discovery.
- * A device may include several services. To be of interest to us,
- * one of them must be a ContentDirectory.
+ * A device may include several services. 
  */
 class UPnPDeviceDesc {
 public:
@@ -141,6 +140,14 @@ public:
     // Services provided by this device.
     std::vector<UPnPServiceDesc> services;
 
+    // Embedded devices. We use UPnPDeviceDesc for convenience, but
+    // they can't recursively have embedded devices (and they just get
+    // a copy of the root URLBase).
+    std::vector<UPnPDeviceDesc> embedded;
+
+    void clear() {
+        *this = UPnPDeviceDesc();
+    }
     std::string dump() const
     {
         std::ostringstream os;
@@ -152,12 +159,13 @@ public:
                 it != services.end(); it++) {
             os << "    " << it->dump();
         }
+        for (const auto& it: embedded) {
+            os << it.dump();
+        }
         os << "}" << std::endl;
         return os.str();
     }
 };
-
-typedef std::vector<UPnPServiceDesc>::iterator DevServIt;
 
 } // namespace
 

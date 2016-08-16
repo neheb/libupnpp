@@ -56,15 +56,20 @@ public:
      *   eventloop() call when everything is set up).
      *
      * @param deviceId uuid for device: "uuid:UUIDvalue"
-     * @param files list of path/content pairs to be added to the
-     *   virtual directory root. The file paths must match the SCDPURL
-     *   values for the services in the description.xml document.
-     *   The file paths should include a sub-directory component.
-     *   The list must include the description document, but this will not
-     *   be directly served out. Instead a version modified by libupnp
-     *  (with URLBase added) will be served from '/'. Of course, the
-     *  paths in description.xml must be consistent with the list.
+     * @param files for a root device, list of path/content pairs to
+     *  be added to the virtual directory.
+     *  The file paths should include a sub-directory component.
+     *  The list must include the description document, but this will not
+     *  be directly served out. Instead a version modified by libupnp
+     *  (with URLBase possibly added/edited) will be served from '/'. 
+     *  Of course, the list and the paths in description.xml must be
+     *  consistent, e.g. the paths for the services SCDPURL documents.
      *
+     *  The files parameter must be empty for embedded devices: all served 
+     *  files must be set with the root device, *including* embedded service
+     *  description files. files.empty() is also how we decide if we
+     *  are building a root or an embedded device. root should be built
+     *  first.
      */
     UpnpDevice(const std::string& deviceId,
                const std::unordered_map<std::string, VDirContent>& files);
@@ -82,7 +87,8 @@ public:
                           const std::string& actName, soapfun);
 
     /**
-     * Main routine. To be called by main() when done with initialization.
+     * Main routine. To be called by main() on the root device when done 
+     * with initialization.
      *
      * This loop mostly polls getEventData and generates an UPnP event if
      * there is anything to broadcast. The UPnP action calls happen in

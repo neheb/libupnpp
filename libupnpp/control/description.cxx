@@ -20,6 +20,8 @@
 
 #include "description.hxx"
 
+#include <algorithm>
+
 #include <string.h>                     // for strcmp
 #include <upnp/upnp.h>                  // for UpnpDownload...
 
@@ -43,71 +45,74 @@ public:
 protected:
     virtual void StartElement(const XML_Char *name, const XML_Char **)
     {
-        m_tabs.push_back('\t');
         m_path.push_back(name);
     }
     virtual void EndElement(const XML_Char *name)
     {
-        if (!strcmp(name, "service")) {
-            m_device.services.push_back(m_tservice);
-            m_tservice.clear();
-        }
-        if (m_tabs.size())
-            m_tabs.erase(m_tabs.size()-1);
         m_path.pop_back();
+        trimstring(m_chardata, " \t\n\r");
+
+        UPnPDeviceDesc *dev;
+        bool ismain = false;
+        const string dl("devicelist");
+        if (find(m_path.begin(), m_path.end(), dl) == m_path.end()) {
+            dev = &m_device;
+            ismain = true;
+        } else {
+            dev = &m_tdevice;
+            ismain = false;
+        }
+
+        if (!strcmp(name, "service")) {
+            dev->services.push_back(m_tservice);
+            m_tservice.clear();
+        } else if (!strcmp(name, "device")) {
+            if (ismain == false) {
+                m_device.embedded.push_back(m_tdevice);
+            }
+            m_tdevice.clear();
+        } else if (!strcmp(name, "controlURL")) {
+            m_tservice.controlURL = m_chardata;
+        } else if (!strcmp(name, "eventSubURL")) {
+            m_tservice.eventSubURL = m_chardata;
+        } else if (!strcmp(name, "serviceType")) {
+            m_tservice.serviceType = m_chardata;
+        } else if (!strcmp(name, "serviceId")) {
+            m_tservice.serviceId = m_chardata;
+        } else if (!strcmp(name, "SCPDURL")) {
+            m_tservice.SCPDURL = m_chardata;
+        } else if (!strcmp(name, "deviceType")) {
+            dev->deviceType = m_chardata;
+        } else if (!strcmp(name, "friendlyName")) {
+            dev->friendlyName = m_chardata;
+        } else if (!strcmp(name, "manufacturer")) {
+            dev->manufacturer = m_chardata;
+        } else if (!strcmp(name, "modelName")) {
+            dev->modelName = m_chardata;
+        } else if (!strcmp(name, "UDN")) {
+            dev->UDN = m_chardata;
+        } else if (!strcmp(name, "URLBase")) {
+            m_device.URLBase = m_chardata;
+        }
+
+        m_chardata.clear();
     }
+
     virtual void CharacterData(const XML_Char *s, int len)
     {
         if (s == 0 || *s == 0)
             return;
+
         string str(s, len);
-        trimstring(str);
-        switch (m_path.back()[0]) {
-        case 'c':
-            if (!m_path.back().compare("controlURL"))
-                m_tservice.controlURL += str;
-            break;
-        case 'd':
-            if (!m_path.back().compare("deviceType"))
-                m_device.deviceType += str;
-            break;
-        case 'e':
-            if (!m_path.back().compare("eventSubURL"))
-                m_tservice.eventSubURL += str;
-            break;
-        case 'f':
-            if (!m_path.back().compare("friendlyName"))
-                m_device.friendlyName += str;
-            break;
-        case 'm':
-            if (!m_path.back().compare("manufacturer"))
-                m_device.manufacturer += str;
-            else if (!m_path.back().compare("modelName"))
-                m_device.modelName += str;
-            break;
-        case 's':
-            if (!m_path.back().compare("serviceType"))
-                m_tservice.serviceType = str;
-            else if (!m_path.back().compare("serviceId"))
-                m_tservice.serviceId += str;
-        case 'S':
-            if (!m_path.back().compare("SCPDURL"))
-                m_tservice.SCPDURL = str;
-            break;
-        case 'U':
-            if (!m_path.back().compare("UDN"))
-                m_device.UDN = str;
-            else if (!m_path.back().compare("URLBase"))
-                m_device.URLBase += str;
-            break;
-        }
+        m_chardata += str;
     }
 
 private:
     UPnPDeviceDesc& m_device;
-    string m_tabs;
     std::vector<std::string> m_path;
+    string m_chardata;
     UPnPServiceDesc m_tservice;
+    UPnPDeviceDesc m_tdevice;
 };
 
 UPnPDeviceDesc::UPnPDeviceDesc(const string& url, const string& description)
@@ -127,6 +132,10 @@ UPnPDeviceDesc::UPnPDeviceDesc(const string& url, const string& description)
         // (rare, but e.g. sent by the server on a dlink nas).
         URLBase = baseurl(url);
     }
+    for (auto& dev: embedded) {
+        dev.URLBase = URLBase;
+    }
+    
     ok = true;
     //cerr << "URLBase: [" << URLBase << "]" << endl;
     //cerr << dump() << endl;
@@ -148,7 +157,7 @@ protected:
     public:
         StackEl(const string& nm) : name(nm) {}
         string name;
-        XML_Size sta;
+        XML_Size start_index;
         std::unordered_map<string,string> attributes;
         string data;
     };
@@ -160,7 +169,7 @@ protected:
 
         m_path.push_back(StackEl(name));
         StackEl& lastelt = m_path.back();
-        lastelt.sta = XML_GetCurrentByteIndex(expat_parser);
+        lastelt.start_index = XML_GetCurrentByteIndex(expat_parser);
         for (int i = 0; attrs[i] != 0; i += 2) {
             lastelt.attributes[attrs[i]] = attrs[i+1];
         }
