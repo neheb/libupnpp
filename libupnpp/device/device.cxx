@@ -555,7 +555,7 @@ void UpnpDevice::eventloop()
         // services, so locking does not seem necessary
         for (auto& it : m->serviceids) {
             vector<string> names, values;
-            UpnpService* serv = m->servicemap[*it];
+            UpnpService* serv = m->servicemap[it];
             {
 
                 // We don't generate periodic full event data any more
@@ -571,7 +571,7 @@ void UpnpDevice::eventloop()
                 }
             }
             if (!serv->noevents())
-                m->notifyEvent(*it, names, values);
+                m->notifyEvent(it, names, values);
         }
     }
 }

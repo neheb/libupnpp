@@ -258,6 +258,7 @@ int Service::srvCB(Upnp_EventType et, void* vevp, void*)
     case UPNP_EVENT_AUTORENEWAL_FAILED:
     {
         const char *ff = (const char *)vevp;
+        (void)ff;
         LOGDEB1("Service:srvCB: subs event: " << ff << endl);
         break;
     }
