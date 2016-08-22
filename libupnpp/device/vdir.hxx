@@ -20,41 +20,75 @@
 
 #include "libupnpp/config.h"
 
-#include <unordered_map>
-
-
-/** An easy libupnp virtual directory handler, based on stl
-    maps and strings. This is not part of the library interface, but for
-    internal use by device.cxx
-
-    As libupnp only lets us defines the api calls (open/read/etc.),
-    without any data cookie, this has to be a global singleton object.
- */
-
 #include <time.h>
+#include <sys/types.h>
+#include <stddef.h>
 
 #include <string>
+#include <functional>
+
+
+/// Virtual directory handler to satisfy libupnp miniserver GETs.
+///
+/// Two types of objects can be defined:
+///  - local 'files' which are actually memory strings, and will be
+///    served from within the module. This is used for UPnP XML
+///    interface definition files and such.
+///  - external "virtual directories" for which a set of operations is
+///    supplied by the caller. Any request from libupnp on a file
+///    inside one of these directories will be forwarded.
+///
+/// As libupnp only lets us defines the api calls (open/read/etc.),
+/// without any data cookie, this is a global singleton object.
+
 
 namespace UPnPProvider {
 
 class VirtualDir {
 public:
+
+    /// Get hold of the global object.
     static VirtualDir* getVirtualDir();
+
+    /// Add file entry, to be served internally.
+    /// @param path absolute /-separated parent directory path
+    /// @param name file name
+    /// @param content data content
+    /// @param mimetype MIME type
     bool addFile(const std::string& path, const std::string& name,
                  const std::string& content, const std::string& mimetype);
-    class FileEnt {
+
+    class FileInfo {
     public:
-        time_t mtime;
-        std::string mimetype;
-        std::string content;
+	FileInfo()
+	    : file_length(0), last_modified(0), is_directory(false),
+	      is_readable(true) {
+	}
+	
+	off_t file_length;
+	time_t last_modified;
+	bool is_directory;
+	bool is_readable;
+	std::string mime;
     };
-    FileEnt *getFile(const std::string& path, const std::string& name);
+
+    class FileOps {
+    public:
+	std::function<int (const std::string&, FileInfo*)> getinfo;
+	std::function<void *(const std::string&)> open;
+	std::function<int (void *hdl, char* buf, size_t cnt)> read;
+	std::function<off_t (void *hdl, off_t offs, int whence)> seek;
+	std::function<void (void *hdl)> close;
+    };
+
+    /// Add virtual directory entry. Any request for a path below this point
+    /// will be forwarded to @param fops. Only read operations are defined.
+    bool addVDir(const std::string& path, FileOps fops);
 
 private:
     VirtualDir() {}
-
-    std::unordered_map<std::string, std::unordered_map<std::string, FileEnt> >
-    m_dirs;
+    VirtualDir(VirtualDir const&) = delete;
+    VirtualDir& operator=(VirtualDir const&) = delete;
 };
 
 }

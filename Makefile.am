@@ -100,6 +100,7 @@ nobase_include_HEADERS = \
     libupnpp/control/renderingcontrol.hxx \
     libupnpp/control/service.hxx \
     libupnpp/device/device.hxx \
+    libupnpp/device/vdir.hxx \
     libupnpp/log.h \
     libupnpp/log.hxx \
     libupnpp/soaphelp.hxx \

@@ -75,6 +75,8 @@ public:
                const std::unordered_map<std::string, VDirContent>& files);
     ~UpnpDevice();
 
+    bool ipv4(std::string *host, unsigned short *port) const;
+    
     // We only ever keep one instance of a serviceId. Multiple calls will
     // only keep the last one.
     void addService(UpnpService *, const std::string& serviceId);
@@ -148,6 +150,8 @@ public:
 
     virtual ~UpnpService();
 
+    UpnpDevice *getDevice();
+    
     /**
      * Poll to retrieve evented data changed since last call (see
      * Device::eventLoop).

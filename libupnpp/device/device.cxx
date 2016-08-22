@@ -209,6 +209,21 @@ UpnpDevice::~UpnpDevice()
         o->devices.erase(it);
 }
 
+bool UpnpDevice::ipv4(string *host, unsigned short *port) const
+{
+    char *hst = UpnpGetServerIpAddress();
+    if (hst == 0) {
+	return false;
+    }
+    if (port) {
+	*port = UpnpGetServerPort();
+    }
+    if (host) {
+	*host = string(hst);
+    }
+    return true;
+}
+
 bool UpnpDevice::Internal::start()
 {
     // Start up the web server for sending out description files. This also
@@ -231,6 +246,7 @@ bool UpnpDevice::Internal::start()
     return true;
 }
 
+    
 // Main libupnp callback: use the device id and call the right device
 int UpnpDevice::InternalStatic::sCallBack(Upnp_EventType et, void* evp,
         void*)
@@ -619,6 +635,15 @@ UpnpService::UpnpService(const std::string& stp,
 {
     m->dev = dev;
     dev->addService(this, sid);
+}
+
+UpnpDevice *UpnpService::getDevice()
+{
+    if (m) {
+	return m->dev;
+    } else {
+	return nullptr;
+    }
 }
 
 UpnpService::~UpnpService()
