@@ -1,3 +1,9 @@
+libupnpp3 (0.15.0-1) unstable; urgency=low
+
+  * Support embedded devices
+
+ -- Jean-Francois Dockes <jf@dockes.org>  Fri, 02 Sep 2016 14:44:00 +0100
+ 
 libupnpp2 (0.14.1-1) unstable; urgency=low
 
   * Fix bug which could lead to crash after a failed init of the Radio
