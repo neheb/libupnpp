@@ -1,6 +1,6 @@
 Summary:        C++ wrapper for libupnp
 Name:           libupnpp
-Version:        0.14.1
+Version:        0.15.0
 Release:        1%{?dist}
 Group:          Applications/Multimedia
 License:        GPLv2+
@@ -43,6 +43,8 @@ upmpdcli and upplay
 %{_libdir}/libupnpp.so*
 
 %changelog
+* Sun Sep 11 2016 J.F. Dockes <jf@dockes.org> - 0.15.0
+- Add code to support embedded device. Small interface changes.
 * Sun Feb 07 2016 J.F. Dockes <jf@dockes.org> - 0.14.1
 - Fix bug leading to possible upmpdcli crash when radio service failed to
   init (e.g.: because of no python2)
