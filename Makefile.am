@@ -112,3 +112,6 @@ nobase_include_HEADERS = \
 libupnpp_la_LDFLAGS = -version-info $(VERSION_INFO)
 
 libupnpp_la_LIBADD = $(LIBUPNPP_LIBS)
+
+pkgconfigdir = $(libdir)/pkgconfig
+pkgconfig_DATA = libupnpp.pc
