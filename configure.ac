@@ -47,6 +47,20 @@ AC_DEFINE([_FILE_OFFSET_BITS], [64], [File Offset size])
 AC_CHECK_LIB([rt], [clock_gettime], [], [])
 AC_CHECK_LIB([pthread], [pthread_create], [], [])
 
+# Check that std::future is available.
+AC_MSG_CHECKING([whether std::future is available])
+AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[#include <future>]],
+		[[std::future<int> f;]])],
+	[ AC_DEFINE([HAVE_STD_FUTURE], [1],
+		[Define to 1 if you have the `std::future`.])
+	  have_std_future=yes
+	],
+	[
+	  have_std_future=no
+	]
+)
+AC_MSG_RESULT([$have_std_future])
+
 # The 2 following checks for libthreadutil and libixml are normally
 # unnecessary and even problematic. libupnpp does not use them directly,
 # and they should be used automatically because libupnpp is linked with them.
