@@ -109,7 +109,9 @@ nobase_include_HEADERS = \
     libupnpp/upnpputils.hxx \
     libupnpp/workqueue.h
 
-libupnpp_la_LDFLAGS = -version-info $(VERSION_INFO)
+# Curiously, -no-undefined seems to do nothing?? -Wl,-zdefs works though.
+# automake 1.14.1
+libupnpp_la_LDFLAGS = -Wl,-zdefs -no-undefined -version-info $(VERSION_INFO)
 
 libupnpp_la_LIBADD = $(LIBUPNPP_LIBS)
 
