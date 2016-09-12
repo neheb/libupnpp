@@ -48,6 +48,8 @@ AC_CHECK_LIB([rt], [clock_gettime], [], [])
 AC_CHECK_LIB([pthread], [pthread_create], [], [])
 
 # Check that std::future is available.
+AC_LANG_PUSH([C++])
+CXXFLAGS="-std=c++11 $CXXFLAGS"
 AC_MSG_CHECKING([whether std::future is available])
 AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[#include <future>]],
 		[[std::future<int> f;]])],
@@ -60,6 +62,7 @@ AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[#include <future>]],
 	]
 )
 AC_MSG_RESULT([$have_std_future])
+AC_LANG_POP
 
 # The 2 following checks for libthreadutil and libixml are normally
 # unnecessary and even problematic. libupnpp does not use them directly,
