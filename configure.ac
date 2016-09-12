@@ -75,7 +75,6 @@ dnl AC_CHECK_LIB([ixml], [ixmlDocument_getElementsByTagName], [],
 dnl     AC_MSG_ERROR([libixml (part of libupnp) not found]))
 
 AC_CHECK_LIB([upnp], [UpnpInit], [], AC_MSG_ERROR([libupnp not found]))
-AC_CHECK_LIB([ixml], [ixmlPrintDocument], [], AC_MSG_ERROR([libixml not found]))
 AC_CHECK_LIB([curl], [curl_easy_init], [], AC_MSG_ERROR([libcurl not found]))
 AC_CHECK_FUNCS([getifaddrs] [UpnpSetLogLevel])
 AC_CHECK_LIB([expat], [XML_ParserCreate], [], 
