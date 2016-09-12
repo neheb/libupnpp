@@ -18,6 +18,7 @@
 #define _SERVICE_H_X_INCLUDED_
 #include "libupnpp/config.h"
 
+#include <sys/types.h>
 #include <upnp/upnp.h>                  // for UPNP_E_BAD_RESPONSE, etc
 
 #include <iostream>                     // for basic_ostream, operator<<, etc

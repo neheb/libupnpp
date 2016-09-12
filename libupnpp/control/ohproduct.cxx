@@ -16,6 +16,7 @@
  */
 
 #include "libupnpp/config.h"
+#include "libupnpp/control/ohproduct.hxx"
 
 #include <string.h>                     // for strcmp
 #include <upnp/upnp.h>                  // for UPNP_E_BAD_RESPONSE, etc
@@ -23,7 +24,6 @@
 #include <string>                       // for string
 #include <vector>                       // for vector
 
-#include "libupnpp/control/ohproduct.hxx"
 #include "libupnpp/expatmm.hxx"         // for inputRefXMLParser
 #include "libupnpp/log.hxx"             // for LOGERR
 #include "libupnpp/soaphelp.hxx"        // for SoapIncoming, etc
