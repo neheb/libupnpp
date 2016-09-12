@@ -64,23 +64,19 @@ AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[#include <future>]],
 AC_MSG_RESULT([$have_std_future])
 AC_LANG_POP
 
-# The 2 following checks for libthreadutil and libixml are normally
-# unnecessary and even problematic. libupnpp does not use them directly,
-# and they should be used automatically because libupnpp is linked with them.
-# Still you may need them to include them on some systems where the
-# automatic link does not work.
+dnl The following check for libthreadutil is normally unnecessary and even
+dnl problematic. libupnpp does not use it directly, Still you may need it to
+dnl add it on some systems.
 dnl AC_CHECK_LIB([threadutil], [TimerThreadRemove], [],
 dnl     AC_MSG_ERROR([libthreadutil (part of libupnp) not found]))
-dnl AC_CHECK_LIB([ixml], [ixmlDocument_getElementsByTagName], [], 
-dnl     AC_MSG_ERROR([libixml (part of libupnp) not found]))
 
 AC_CHECK_LIB([upnp], [UpnpInit], [], AC_MSG_ERROR([libupnp not found]))
+AC_CHECK_LIB([ixml], [ixmlPrintDocument], [], AC_MSG_ERROR([libixml not found]))
 AC_CHECK_LIB([curl], [curl_easy_init], [], AC_MSG_ERROR([libcurl not found]))
 AC_CHECK_FUNCS([getifaddrs] [UpnpSetLogLevel])
-AC_CHECK_LIB([expat], [XML_ParserCreate], [], 
-		      AC_MSG_ERROR([libexpat not found]))
-LIBUPNPP_LIBS="$LIBS"
+AC_CHECK_LIB([expat], [XML_ParserCreate], [],AC_MSG_ERROR([libexpat not found]))
 
+LIBUPNPP_LIBS="$LIBS"
 echo "LIBUPNPP_LIBS $LIBUPNPP_LIBS"
 
 LIBS=""
