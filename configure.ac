@@ -70,13 +70,12 @@ dnl add it on some systems.
 dnl AC_CHECK_LIB([threadutil], [TimerThreadRemove], [],
 dnl     AC_MSG_ERROR([libthreadutil (part of libupnp) not found]))
 
-AC_CHECK_LIB([upnp], [UpnpInit], [], AC_MSG_ERROR([libupnp not found]))
-AC_CHECK_LIB([ixml], [ixmlPrintDocument], [], AC_MSG_ERROR([libixml not found]))
-AC_CHECK_LIB([curl], [curl_easy_init], [], AC_MSG_ERROR([libcurl not found]))
+PKG_CHECK_MODULES([upnp], [libupnp], [], AC_MSG_ERROR([libupnp not found]))
+PKG_CHECK_MODULES([curl], [libcurl], [], AC_MSG_ERROR([libcurl not found]))
+PKG_CHECK_MODULES([expat], [expat], [],AC_MSG_ERROR([expat not found]))
 AC_CHECK_FUNCS([getifaddrs] [UpnpSetLogLevel])
-AC_CHECK_LIB([expat], [XML_ParserCreate], [],AC_MSG_ERROR([libexpat not found]))
 
-LIBUPNPP_LIBS="$LIBS"
+LIBUPNPP_LIBS="$LIBS $upnp_LIBS $curl_LIBS $expat_LIBS"
 echo "LIBUPNPP_LIBS $LIBUPNPP_LIBS"
 
 LIBS=""

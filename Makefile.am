@@ -1,6 +1,7 @@
 
 AM_CPPFLAGS = -DDEBUG -g -Wall \
-            -DDATADIR=\"${pkgdatadir}\" -DCONFIGDIR=\"${sysconfdir}\"
+	            ${upnp_CFLAGS} ${curl_CFLAGS} ${expat_CFLAGS} \
+	            -DDATADIR=\"${pkgdatadir}\" -DCONFIGDIR=\"${sysconfdir}\"
 
 AM_CXXFLAGS = -std=c++11
 
