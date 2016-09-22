@@ -47,9 +47,6 @@ namespace UPnPClient {
 
 static UPnPDeviceDirectory *theDevDir;
 
-//#undef LOCAL_LOGINC
-//#define LOCAL_LOGINC 3
-
 static string cluDiscoveryToStr(const struct Upnp_Discovery *disco)
 {
     stringstream ss;
@@ -119,6 +116,8 @@ static int cluCallBack(Upnp_EventType et, void* evp, void*)
             return UPNP_E_SUCCESS;
         }
 
+        // Get rid of unused warnings (the func is only used conditionally)
+        (void)cluDiscoveryToStr;
         LOGDEB1("discovery:cllb:SearchRes/Alive: " <<
                 cluDiscoveryToStr(disco) << endl);
 
