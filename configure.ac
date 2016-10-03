@@ -73,10 +73,12 @@ dnl     AC_MSG_ERROR([libthreadutil (part of libupnp) not found]))
 PKG_CHECK_MODULES([upnp], [libupnp], [], AC_MSG_ERROR([libupnp not found]))
 PKG_CHECK_MODULES([curl], [libcurl], [], AC_MSG_ERROR([libcurl not found]))
 PKG_CHECK_MODULES([expat], [expat], [],AC_MSG_ERROR([expat not found]))
-AC_CHECK_FUNCS([getifaddrs] [UpnpSetLogLevel])
 
 LIBUPNPP_LIBS="$LIBS $upnp_LIBS $curl_LIBS $expat_LIBS"
 echo "LIBUPNPP_LIBS $LIBUPNPP_LIBS"
+
+LIBS="$upnp_LIBS"
+AC_CHECK_FUNCS([getifaddrs] [UpnpSetLogLevel])
 
 LIBS=""
                      
