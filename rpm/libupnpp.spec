@@ -1,6 +1,6 @@
 Summary:        C++ wrapper for libupnp
 Name:           libupnpp
-Version:        0.15.0
+Version:        0.15.1
 Release:        1%{?dist}
 Group:          Applications/Multimedia
 License:        GPLv2+
@@ -41,8 +41,11 @@ upmpdcli and upplay
 %defattr(-, root, root, -)
 %{_includedir}/libupnpp
 %{_libdir}/libupnpp.so*
+%{_libdir}/pkgconfig/*.pc
 
 %changelog
+* Sun Oct 09 2016 J.F. Dockes <jf@dockes.org> - 0.15.1
+- Added pkgconfig data
 * Sun Sep 11 2016 J.F. Dockes <jf@dockes.org> - 0.15.0
 - Add code to support embedded device. Small interface changes.
 * Sun Feb 07 2016 J.F. Dockes <jf@dockes.org> - 0.14.1
