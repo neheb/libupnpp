@@ -176,6 +176,14 @@ LibUPnP::LibUPnP(bool serveronly, string* hwaddr,
     ixmlRelaxParser(1);
 }
 
+string LibUPnP::host()
+{
+    char *cp = UpnpGetServerIpAddress();
+    if (cp)
+        return cp;
+    return string();
+}
+
 int LibUPnP::setupWebServer(const string& description, UpnpDevice_Handle *dvh)
 {
     int res = UpnpRegisterRootDevice2(

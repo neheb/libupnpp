@@ -50,6 +50,9 @@ public:
                                const std::string ip = std::string(),
                                unsigned short port = 0);
 
+    /// Return the IP v4 address as dotted notation
+    std::string host();
+    
     /** Returns something like "libupnpp 0.14.0 libupnp x.y.z" */
     static std::string versionString();
 
