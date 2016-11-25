@@ -49,7 +49,9 @@ struct VDirContent {
     std::string mimetype;
 };
 
-/** Define an interface to link libupnp operations to a device implementation
+/** 
+ * Interface to link libupnp operations to a device implementation.
+ * libupnp can only support a single root device per instance.
  */
 class UpnpDevice {
 public:
@@ -58,7 +60,8 @@ public:
      *
      * @param deviceId uuid for device: "uuid:UUIDvalue"
      * @param files for a root device, list of path/content pairs to
-     *  be added to the virtual directory.
+     *  be added to the virtual directory. 
+     *  The description document *must* be named 'xxx/description.xml'
      *  The file paths should include a sub-directory component.
      *  The list must include the description document, but this will not
      *  be directly served out. Instead a version modified by libupnp
