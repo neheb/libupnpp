@@ -17,8 +17,6 @@
  */
 #include "libupnpp/config.h"
 
-#include <pthread.h>
-#include <sched.h>
 #include <stdlib.h>
 #include <time.h>
 #include <stdio.h>
@@ -26,7 +24,6 @@
 #include <upnp/upnp.h>
 
 #include <unordered_set>
-#include <iostream>
 #include <map>
 #include <utility>
 #include <vector>
@@ -47,6 +44,11 @@ using namespace UPnPP;
 namespace UPnPClient {
 
 static UPnPDeviceDirectory *theDevDir;
+
+// To avoid changing the abi, the m_lastSearch private class member
+// was kept but superceded by a static value (we're a singleton
+// anyway).
+static std::chrono::steady_clock::time_point o_lastSearch;
 
 static string cluDiscoveryToStr(const struct Upnp_Discovery *disco)
 {
@@ -137,8 +139,8 @@ static int cluCallBack(Upnp_EventType et, void* evp, void*)
             pair<std::unordered_set<string>::iterator,bool> res =
                 o_downloading.insert(tp->url);
             if (!res.second) {
-                LOGDEB("discovery:cllb: already downloading " <<
-                       tp->url << endl);
+                LOGDEB1("discovery:cllb: already downloading " <<
+                        tp->url << endl);
                 delete tp;
                 return UPNP_E_SUCCESS;
             }
@@ -211,14 +213,15 @@ void UPnPDeviceDirectory::delCallback(unsigned int idx)
 class DeviceDescriptor {
 public:
     DeviceDescriptor(const string& url, const string& description,
-                     time_t last, int exp)
-        : device(url, description), last_seen(last), expires(exp+20)
+                     std::chrono::steady_clock::time_point last, int exp)
+        : device(url, description), last_seen(last),
+          expires(std::chrono::seconds(exp))
     {}
     DeviceDescriptor()
     {}
     UPnPDeviceDesc device;
-    time_t last_seen;
-    int expires; // seconds valid
+    std::chrono::steady_clock::time_point last_seen;
+    std::chrono::seconds expires; // seconds valid
 };
 
 // A DevicePool holds the characteristics of the devices
@@ -233,7 +236,6 @@ public:
     map<string, DeviceDescriptor> m_devices;
 };
 static DevicePool o_pool;
-typedef map<string, DeviceDescriptor>::iterator DevPoolIt;
 
 // Worker routine for the discovery queue. Get messages about devices
 // appearing and disappearing, and update the directory pool
@@ -253,7 +255,7 @@ void *UPnPDeviceDirectory::discoExplorer(void *)
         if (!tsk->alive) {
             // Device signals it is going off.
             std::unique_lock<std::mutex> lock(o_pool.m_mutex);
-            DevPoolIt it = o_pool.m_devices.find(tsk->deviceId);
+            auto it = o_pool.m_devices.find(tsk->deviceId);
             if (it != o_pool.m_devices.end()) {
                 o_pool.m_devices.erase(it);
                 //LOGDEB("discoExplorer: delete " << tsk->deviceId.c_str() <<
@@ -261,7 +263,8 @@ void *UPnPDeviceDirectory::discoExplorer(void *)
             }
         } else {
             // Update or insert the device
-            DeviceDescriptor d(tsk->url, tsk->description, time(0),
+            DeviceDescriptor d(tsk->url, tsk->description,
+                               std::chrono::steady_clock::now(),
                                tsk->expires);
             if (!d.device.ok) {
                 LOGERR("discoExplorer: description parse failed for " <<
@@ -271,21 +274,20 @@ void *UPnPDeviceDirectory::discoExplorer(void *)
             }
             LOGDEB1("discoExplorer: found id [" << tsk->deviceId  << "]"
                     << " name " << d.device.friendlyName
-                    << " devtype " << d.device.deviceType << endl);
+                   << " devtype " << d.device.deviceType << " expires " <<
+                   tsk->expires << endl);
             {
                 std::unique_lock<std::mutex> lock(o_pool.m_mutex);
-                //LOGDEB1("discoExplorer: inserting device id "<< tsk->deviceId
-                // <<  " description: " << endl << d.device.dump() << endl);
+                LOGDEB1("discoExplorer: inserting device id "<< tsk->deviceId
+                        << " description: " << endl << d.device.dump() << endl);
                 o_pool.m_devices[tsk->deviceId] = d;
             }
             {
                 std::unique_lock<std::mutex> lock(o_callbacks_mutex);
-                for (vector<UPnPDeviceDirectory::Visitor>::iterator cbp =
-                            o_callbacks.begin();
-                        cbp != o_callbacks.end(); cbp++) {
-                    (*cbp)(d.device, UPnPServiceDesc());
+                for (auto& cbp : o_callbacks) {
+                    (cbp)(d.device, UPnPServiceDesc());
                     for (auto& it1 : d.device.embedded) {
-                        (*cbp)(it1, UPnPServiceDesc());
+                        (cbp)(it1, UPnPServiceDesc());
                     }
                 }
             }
@@ -300,20 +302,19 @@ void UPnPDeviceDirectory::expireDevices()
 {
     LOGDEB1("discovery: expireDevices:" << endl);
     std::unique_lock<std::mutex> lock(o_pool.m_mutex);
-    time_t now = time(0);
+    auto now = std::chrono::steady_clock::now();
     bool didsomething = false;
 
-    for (DevPoolIt it = o_pool.m_devices.begin();
-            it != o_pool.m_devices.end();) {
+    for (auto it = o_pool.m_devices.begin(); it != o_pool.m_devices.end();) {
         LOGDEB1("Dev in pool: type: " << it->second.device.deviceType <<
                 " friendlyName " << it->second.device.friendlyName << endl);
         if (now - it->second.last_seen > it->second.expires) {
-            //LOGDEB("expireDevices: deleting " <<  it->first.c_str() << " " <<
-            //   it->second.device.friendlyName.c_str() << endl);
-            o_pool.m_devices.erase(it++);
+            LOGDEB1("expireDevices: deleting " <<  it->first.c_str() << " " <<
+                    it->second.device.friendlyName.c_str() << endl);
+            it = o_pool.m_devices.erase(it);
             didsomething = true;
         } else {
-            it++;
+            ++it;
         }
     }
     if (didsomething)
@@ -324,9 +325,9 @@ void UPnPDeviceDirectory::expireDevices()
 // actually be called delay because it's the base of a random delay
 // that the devices apply to avoid responding all at the same time.
 // This means that you have to wait for the specified period before
-// the results are complete.
+// the results are complete. 
 UPnPDeviceDirectory::UPnPDeviceDirectory(time_t search_window)
-    : m_ok(false), m_searchTimeout(int(search_window)), m_lastSearch(0)
+    : m_ok(false), m_searchTimeout(int(search_window))
 {
     addCallback(std::bind(&UPnPDeviceDirectory::deviceFound, this, _1, _2));
 
@@ -334,7 +335,7 @@ UPnPDeviceDirectory::UPnPDeviceDirectory(time_t search_window)
         m_reason = "Discover work queue start failed";
         return;
     }
-    sched_yield();
+    std::this_thread::yield();
     LibUPnP *lib = LibUPnP::getLibUPnP();
     if (lib == 0) {
         m_reason = "Can't get lib";
@@ -352,16 +353,20 @@ UPnPDeviceDirectory::UPnPDeviceDirectory(time_t search_window)
 bool UPnPDeviceDirectory::search()
 {
     LOGDEB1("UPnPDeviceDirectory::search" << endl);
-    if (time(0) - m_lastSearch < 10)
-        return true;
 
+    if (std::chrono::steady_clock::now() - o_lastSearch <
+        std::chrono::seconds(m_searchTimeout)) {
+        LOGDEB1("UPnPDeviceDirectory: last search too close\n");
+        return true;
+    }
+    
     LibUPnP *lib = LibUPnP::getLibUPnP();
     if (lib == 0) {
         m_reason = "Can't get lib";
         return false;
     }
 
-    LOGDEB1("UPnPDeviceDirectory::search: calling upnpsearchasync"<<endl);
+    LOGDEB1("UPnPDeviceDirectory::search: calling upnpsearchasync" << endl);
     //const char *cp = "ssdp:all";
     const char *cp = "upnp:rootdevice";
     int code1 = UpnpSearchAsync(lib->getclh(), m_searchTimeout, cp, lib);
@@ -370,7 +375,7 @@ bool UPnPDeviceDirectory::search()
         LOGERR("UPnPDeviceDirectory::search: UpnpSearchAsync failed: " <<
                m_reason << endl);
     }
-    m_lastSearch = time(0);
+    o_lastSearch = std::chrono::steady_clock::now();
     return true;
 }
 
@@ -388,12 +393,25 @@ void UPnPDeviceDirectory::terminate()
     discoveredQueue.setTerminateAndWait();
 }
 
+time_t UPnPDeviceDirectory::getRemainingDelayMs()
+{
+    auto remain = std::chrono::seconds(m_searchTimeout) -
+        (std::chrono::steady_clock::now() - o_lastSearch);
+    // Let's give them a grace delay beyond the search window
+    remain += std::chrono::milliseconds(200);
+    if (remain.count() < 0)
+        return 0;
+
+    return std::chrono::duration_cast<std::chrono::milliseconds>
+        (remain).count();
+}
+
 time_t UPnPDeviceDirectory::getRemainingDelay()
 {
-    time_t now = time(0);
-    if (now - m_lastSearch >= m_searchTimeout)
+    time_t millis = getRemainingDelayMs();
+    if (millis <= 0)
         return 0;
-    return  m_searchTimeout - (now - m_lastSearch);
+    return millis >= 1000 ? millis / 1000 : 1;
 }
 
 static std::mutex devWaitLock;
@@ -405,13 +423,17 @@ bool UPnPDeviceDirectory::traverse(UPnPDeviceDirectory::Visitor visit)
     if (m_ok == false)
         return false;
 
-    do {
+    // Wait until the discovery delay is over. We need to loop because of
+    // spurious wakeups each time a new device is discovered. We could use a
+    // separate cv or another way of sleeping instead.
+    for (;;) {
         std::unique_lock<std::mutex> lock(devWaitLock);
-        int secs = getRemainingDelay();
-        if (secs > 0) {
-            devWaitCond.wait_for(lock, chrono::seconds(secs));
+        if (int ms = getRemainingDelayMs() > 0) {
+            devWaitCond.wait_for(lock, chrono::milliseconds(ms));
+        } else {
+            break;
         }
-    } while (getRemainingDelay() > 0);
+    } 
 
     // Has locking, do it before our own lock
     expireDevices();
@@ -438,21 +460,20 @@ bool UPnPDeviceDirectory::traverse(UPnPDeviceDirectory::Visitor visit)
 bool UPnPDeviceDirectory::deviceFound(const UPnPDeviceDesc&,
                                       const UPnPServiceDesc&)
 {
-    std::unique_lock<std::mutex> lock(devWaitLock);
     devWaitCond.notify_all();
     return true;
 }
 
 bool UPnPDeviceDirectory::getDevBySelector(bool cmp(const UPnPDeviceDesc& ddesc,
         const string&),
-        const string& value,
-        UPnPDeviceDesc& ddesc)
+        const string& value, UPnPDeviceDesc& ddesc)
 {
     // Has locking, do it before our own lock
     expireDevices();
 
-    do {
-         std::unique_lock<std::mutex> lock(devWaitLock);
+    for (;;) {
+        std::unique_lock<std::mutex> lock(devWaitLock);
+        int ms = getRemainingDelayMs();
         {
             std::unique_lock<std::mutex> lock(o_pool.m_mutex);
             for (auto& it : o_pool.m_devices) {
@@ -469,11 +490,12 @@ bool UPnPDeviceDirectory::getDevBySelector(bool cmp(const UPnPDeviceDesc& ddesc,
             }
         }
 
-        int secs = getRemainingDelay();
-        if (secs > 0) {
-            devWaitCond.wait_for(lock, chrono::seconds(secs));
+        if (ms > 0) {
+            devWaitCond.wait_for(lock, chrono::milliseconds(ms));
+        } else {
+            break;
         }
-    } while (getRemainingDelay() > 0);
+    }
     return false;
 }
 

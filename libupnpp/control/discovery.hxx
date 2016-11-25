@@ -76,6 +76,7 @@ public:
     bool traverse(Visitor);
 
     /** Remaining time until current search complete */
+    time_t getRemainingDelayMs();
     time_t getRemainingDelay();
 
     /** Set a callback to be called when devices report their existence
