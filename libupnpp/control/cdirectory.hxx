@@ -57,8 +57,8 @@ typedef std::shared_ptr<ContentDirectory> CDSH;
  * becauses it triggers issues, and is sometimes actually slower, e.g. on
  * a D-Link NAS 327
  *
- * The value chosen may affect by the UpnpSetMaxContentLength
- * (2000*1024) done during initialization, but this should be ample
+ * The value chosen may be affected by the UpnpSetMaxContentLength
+ * (2000*1024) done during initialization, but this should be ample.
  */
 class ContentDirectory : public Service {
 public:
