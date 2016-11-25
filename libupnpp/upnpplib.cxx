@@ -209,12 +209,10 @@ void LibUPnP::setMaxContentLength(int bytes)
 bool LibUPnP::setLogFileName(const std::string& fn, LogLevel level)
 {
     std::unique_lock<std::mutex> lock(m->mutex);
+#if defined(HAVE_UPNPSETLOGLEVEL)
     if (fn.empty() || level == LogLevelNone) {
-#if defined(HAVE_UPNPSETLOGLEVEL)
         UpnpCloseLog();
-#endif
     } else {
-#if defined(HAVE_UPNPSETLOGLEVEL)
         setLogLevel(level);
         UpnpSetLogFileNames(fn.c_str(), fn.c_str());
         int code = UpnpInitLog();
@@ -222,9 +220,11 @@ bool LibUPnP::setLogFileName(const std::string& fn, LogLevel level)
             LOGERR(errAsString("UpnpInitLog", code) << endl);
             return false;
         }
-#endif
     }
     return true;
+#else
+    return false;
+#endif
 }
 
 bool LibUPnP::setLogLevel(LogLevel level)
@@ -241,8 +241,10 @@ bool LibUPnP::setLogLevel(LogLevel level)
         UpnpSetLogLevel(UPNP_ALL);
         break;
     }
-#endif
     return true;
+#else
+    return false;
+#endif
 }
 
 void LibUPnP::registerHandler(Upnp_EventType et, Upnp_FunPtr handler,
