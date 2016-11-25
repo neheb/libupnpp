@@ -325,9 +325,13 @@ int OHPlaylist::insert(int afterid, const string& uri, const string& didl,
     if (ret != UPNP_E_SUCCESS) {
         return ret;
     }
-    if (!data.get("NewId", nid)) {
+    int lnid;
+    if (!data.get("NewId", &lnid)) {
         LOGERR("OHPlaylist::insert: missing Newid in response" << endl);
         return UPNP_E_BAD_RESPONSE;
+    }
+    if (nid) {
+        *nid = lnid;
     }
     return 0;
 }
@@ -354,9 +358,13 @@ int OHPlaylist::idArray(vector<int> *ids, int *tokp)
     if (ret != UPNP_E_SUCCESS) {
         return ret;
     }
-    if (!data.get("Token", tokp)) {
+    int ltok;
+    if (!data.get("Token", &ltok)) {
         LOGERR("OHPlaylist::idArray: missing Token in response" << endl);
         return UPNP_E_BAD_RESPONSE;
+    }
+    if (tokp) {
+        *tokp = ltok;
     }
     string arraydata;
     if (!data.get("Array", &arraydata)) {
