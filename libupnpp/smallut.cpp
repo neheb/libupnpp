@@ -360,6 +360,7 @@ template <class T> void stringsToString(const T& tokens, string& s)
 template void stringsToString<list<string> >(const list<string>&, string&);
 template void stringsToString<vector<string> >(const vector<string>&, string&);
 template void stringsToString<set<string> >(const set<string>&, string&);
+template void stringsToString<unordered_set<string> >(const unordered_set<string>&, string&);
 template <class T> string stringsToString(const T& tokens)
 {
     string out;
@@ -369,6 +370,7 @@ template <class T> string stringsToString(const T& tokens)
 template string stringsToString<list<string> >(const list<string>&);
 template string stringsToString<vector<string> >(const vector<string>&);
 template string stringsToString<set<string> >(const set<string>&);
+template string stringsToString<unordered_set<string> >(const unordered_set<string>&);
 
 template <class T> void stringsToCSV(const T& tokens, string& s,
                                      char sep)
@@ -452,17 +454,26 @@ bool stringToBool(const string& s)
 
 void trimstring(string& s, const char *ws)
 {
+    rtrimstring(s, ws);
+    ltrimstring(s, ws);
+}
+
+void rtrimstring(string& s, const char *ws)
+{
+    string::size_type pos = s.find_last_not_of(ws);
+    if (pos != string::npos && pos != s.length() - 1) {
+        s.replace(pos + 1, string::npos, string());
+    }
+}
+
+void ltrimstring(string& s, const char *ws)
+{
     string::size_type pos = s.find_first_not_of(ws);
     if (pos == string::npos) {
         s.clear();
         return;
     }
     s.replace(0, pos, string());
-
-    pos = s.find_last_not_of(ws);
-    if (pos != string::npos && pos != s.length() - 1) {
-        s.replace(pos + 1, string::npos, string());
-    }
 }
 
 // Remove some chars and replace them with spaces
@@ -668,7 +679,7 @@ bool pcSubst(const string& in, string& out, const map<string, string>& subs)
     }
     return true;
 }
-inline static int ulltorbuf(unsigned long long val, char *rbuf)
+inline static int ulltorbuf(uint64_t val, char *rbuf)
 {
     int idx;
     for (idx = 0; val; idx++) {
@@ -688,7 +699,7 @@ inline static void ullcopyreverse(const char *rbuf, string& buf, int idx)
     }
 }
 
-void ulltodecstr(unsigned long long val, string& buf)
+void ulltodecstr(uint64_t val, string& buf)
 {
     buf.clear();
     if (val == 0) {
@@ -703,7 +714,7 @@ void ulltodecstr(unsigned long long val, string& buf)
     return;
 }
 
-void lltodecstr(long long val, string& buf)
+void lltodecstr(int64_t val, string& buf)
 {
     buf.clear();
     if (val == 0) {
@@ -728,14 +739,14 @@ void lltodecstr(long long val, string& buf)
     return;
 }
 
-string lltodecstr(long long val)
+string lltodecstr(int64_t val)
 {
     string buf;
     lltodecstr(val, buf);
     return buf;
 }
 
-string ulltodecstr(unsigned long long val)
+string ulltodecstr(uint64_t val)
 {
     string buf;
     ulltodecstr(val, buf);
@@ -743,7 +754,7 @@ string ulltodecstr(unsigned long long val)
 }
 
 // Convert byte count into unit (KB/MB...) appropriate for display
-string displayableBytes(off_t size)
+string displayableBytes(int64_t size)
 {
     const char *unit;
 
