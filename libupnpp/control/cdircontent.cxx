@@ -70,6 +70,7 @@ protected:
 
         m_path.push_back(StackEl(name));
         m_path.back().sta = XML_GetCurrentByteIndex(expat_parser);
+        m_path.back().attributes.clear();
         for (int i = 0; attrs[i] != 0; i += 2) {
             m_path.back().attributes[attrs[i]] = attrs[i+1];
         }
@@ -108,8 +109,12 @@ protected:
             map<string, UPnPDirObject::ItemClass>::const_iterator it;
             it = m_okitems.find(m_tobj.m_props["upnp:class"]);
             if (it == m_okitems.end()) {
-                LOGINF("checkobjok: found object of unknown class: [" <<
-                       m_tobj.m_props["upnp:class"] << "]" << endl);
+                // Only log this if the record comes from an MS as e.g. naims
+                // send records with empty classes (and empty id/pid)
+                if (!m_tobj.m_id.empty()) {
+                    LOGINF("checkobjok: found object of unknown class: [" <<
+                           m_tobj.m_props["upnp:class"] << "]" << endl);
+                }
                 m_tobj.m_iclass = UPnPDirObject::ITC_unknown;
             } else {
                 m_tobj.m_iclass = it->second;
@@ -163,21 +168,18 @@ protected:
                     // sampleFrequency="44100" nrAudioChannels="2">
                     UPnPResource res;
                     res.m_uri = m_path.back().data;
-                    for (std::unordered_map<string,string>::iterator it =
-                                m_path.back().attributes.begin();
-                            it !=  m_path.back().attributes.end(); it++) {
-                        res.m_props[it->first] = it->second;
+                    for (auto it : m_path.back().attributes) {
+                        res.m_props[it.first] = it.second;
                     }
                     m_tobj.m_resources.push_back(res);
                 } else {
-                    m_tobj.m_props[name] = m_path.back().data;
+                    addprop(name, m_path.back().data);
                 }
                 break;
             default:
-                m_tobj.m_props[name] = m_path.back().data;
+                addprop(name, m_path.back().data);
                 break;
             }
-
         }
 
         m_path.pop_back();
@@ -195,6 +197,18 @@ private:
     vector<StackEl> m_path;
     UPnPDirObject m_tobj;
     map<string, UPnPDirObject::ItemClass> m_okitems;
+
+    void addprop(const string& nm, const string& data) {
+        auto roleit = m_path.back().attributes.find("role");
+        string rolevalue = (roleit == m_path.back().attributes.end()) ?
+            string() : string(" (") + roleit->second + string(")");
+        auto it = m_tobj.m_props.find(nm);
+        if (it == m_tobj.m_props.end()) {
+            m_tobj.m_props[nm] = data + rolevalue;
+        } else {
+            m_tobj.m_props[nm] += string(", ") + data + rolevalue;
+        }
+    }
 };
 
 bool UPnPDirContent::parse(const std::string& input)
