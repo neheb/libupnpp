@@ -208,6 +208,94 @@ out:
     return;
 }
 
+void setSourceIndex(const string& nm, int sourceindex) {
+    LOGDEB("setSourceIndex: nm " << nm << " index " << sourceindex << endl);
+
+    MRDH rdr = getRenderer(nm);
+    if (!rdr) {
+        LOGDEB("setSourceIndexByName: device " << nm << " is not renderer "
+                << endl);
+        return;
+    }
+    OHPRH prod = rdr->ohpr();
+    if (!prod) {
+        LOGDEB("setSourceIndexByName: device " << nm
+                << " has no OHProduct service " << endl);
+        return;
+    }
+    vector<OHProduct::Source> sources;
+    if (prod->getSources(sources) || sources.size() == 0) {
+        LOGDEB("setSourceIndexByName: getSources failed" << endl);
+        return;
+    }
+    if (sourceindex < 0 || sourceindex >= int(sources.size())) {
+        LOGDEB("setSourceIndexByName: bad index " << SoapHelp::i2s(sourceindex)
+                << endl);
+        return;
+    }
+    int currentindex;
+    if (prod->sourceIndex(&currentindex)) {
+        LOGDEB("setSourceIndexByName: sourceIndex failed" << endl);
+        return;
+    }
+    if (currentindex < 0 || currentindex >= int(sources.size())) {
+        LOGDEB("setSourceIndexByName: bad index " << SoapHelp::i2s(currentindex)
+                << endl);
+        return;
+    }
+
+    if (sourceindex != currentindex)
+        prod->setSourceIndex(sourceindex);
+}
+
+void setSourceIndexByName(const string& nm, const string& name) {
+    LOGDEB("setSourceIndexByName: nm " << nm << " name " << name << endl);
+
+    MRDH rdr = getRenderer(nm);
+    if (!rdr) {
+        LOGDEB("setSourceIndexByName: device " << nm << " is not renderer "
+                << endl);
+        return;
+    }
+    OHPRH prod = rdr->ohpr();
+    if (!prod) {
+        LOGDEB("setSourceIndexByName: device " << nm
+                << " has no OHProduct service " << endl);
+        return;
+    }
+    vector<OHProduct::Source> sources;
+    if (prod->getSources(sources) || sources.size() == 0) {
+        LOGDEB("setSourceIndexByName: getSources failed" << endl);
+        return;
+    }
+    unsigned int i = 0;
+    for (; i < sources.size(); i++) {
+        LOGDEB("setSourceIndexByName: source[" << i << "] name "
+                << sources[i].name << endl);
+        if (!sources[i].name.compare(name))
+            break;
+    }
+    if (i == sources.size()) {
+        LOGDEB("setSourceIndexByName: no source with name " << name
+                << " found" << endl);
+        return;
+    }
+    int currentindex;
+    if (prod->sourceIndex(&currentindex)) {
+        LOGDEB("setSourceIndexByName: sourceIndex failed" << endl);
+        return;
+    }
+    if (currentindex < 0 || currentindex >= int(sources.size())) {
+        LOGDEB("setSourceIndexByName: bad index " << SoapHelp::i2s(currentindex)
+                << endl);
+        return;
+    }
+    int sourceindex = int(i);
+
+    if (sourceindex != currentindex)
+        prod->setSourceIndex(sourceindex);
+}
+
 void listReceivers(vector<ReceiverState>& vreceivers)
 {
     vreceivers.clear();
