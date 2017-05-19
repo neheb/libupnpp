@@ -1,6 +1,6 @@
 Summary:        C++ wrapper for libupnp
 Name:           libupnpp
-Version:        0.15.1
+Version:        0.15.2
 Release:        1%{?dist}
 Group:          Applications/Multimedia
 License:        GPLv2+
@@ -44,6 +44,8 @@ upmpdcli and upplay
 %{_libdir}/pkgconfig/*.pc
 
 %changelog
+* Fri May 19 2017 J.F. Dockes <jf@dockes.org> - 0.15.2
+- Linn Receiver issue
 * Sun Oct 09 2016 J.F. Dockes <jf@dockes.org> - 0.15.1
 - Added pkgconfig data
 * Sun Sep 11 2016 J.F. Dockes <jf@dockes.org> - 0.15.0
