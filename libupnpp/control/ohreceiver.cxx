@@ -130,9 +130,10 @@ int OHReceiver::transportState(OHPlaylist::TPState *tpp)
     string value;
     int ret;
 
-    if ((ret = runSimpleGet("TransportState", "Value", &value)))
+    if ((ret = runSimpleGet("TransportState", "Value", &value))) {
         return ret;
-
+    }
+    
     return OHPlaylist::stringToTpState(value, tpp);
 }
 
