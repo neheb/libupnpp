@@ -2,7 +2,7 @@ libupnpp3 (0.15.2-1) unstable; urgency=low
 
   * Enable controlling Linn Songcast Receiver by processing "Waiting" state
 
- -- Jean-Francois Dockes <jf@dockes.org>  Fri, 19 May 2016 18:48:00 +0100
+ -- Jean-Francois Dockes <jf@dockes.org>  Fri, 19 May 2017 10:11:00 +0100
  
 libupnpp3 (0.15.1-1) unstable; urgency=low
 
