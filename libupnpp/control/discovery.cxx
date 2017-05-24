@@ -27,6 +27,8 @@
 #include <map>
 #include <utility>
 #include <vector>
+#include <chrono>
+#include <thread>
 
 #include "libupnpp/log.hxx"
 #include "libupnpp/upnpplib.hxx"
@@ -317,8 +319,14 @@ void UPnPDeviceDirectory::expireDevices()
             ++it;
         }
     }
-    if (didsomething)
+    // start a search if something changed or 5 S
+    // elapsed. upnp-inspector uses a 2 S permanent loop (in
+    // msearch.py, __init__()). This ought not to be necessary of
+    // course...
+    if (didsomething || std::chrono::steady_clock::now() - o_lastSearch >
+        std::chrono::seconds(5)) {
         search();
+    }
 }
 
 // m_searchTimeout is the UPnP device search timeout, which should
@@ -366,14 +374,22 @@ bool UPnPDeviceDirectory::search()
         return false;
     }
 
-    LOGDEB1("UPnPDeviceDirectory::search: calling upnpsearchasync" << endl);
     //const char *cp = "ssdp:all";
     const char *cp = "upnp:rootdevice";
-    int code1 = UpnpSearchAsync(lib->getclh(), m_searchTimeout, cp, lib);
-    if (code1 != UPNP_E_SUCCESS) {
-        m_reason = LibUPnP::errAsString("UpnpSearchAsync", code1);
-        LOGERR("UPnPDeviceDirectory::search: UpnpSearchAsync failed: " <<
-               m_reason << endl);
+    // We send the search message twice, like upnp-inspector does. This
+    // definitely improves the reliability of the results (not to 100%
+    // though).
+    for (int i = 0; i < 2; i++) {
+        if (i != 0) {
+            std::this_thread::sleep_for(std::chrono::milliseconds(100));
+        }
+        LOGDEB1("UPnPDeviceDirectory::search: calling upnpsearchasync" << endl);
+        int code1 = UpnpSearchAsync(lib->getclh(), m_searchTimeout, cp, lib);
+        if (code1 != UPNP_E_SUCCESS) {
+            m_reason = LibUPnP::errAsString("UpnpSearchAsync", code1);
+            LOGERR("UPnPDeviceDirectory::search: UpnpSearchAsync failed: " <<
+                   m_reason << endl);
+        }
     }
     o_lastSearch = std::chrono::steady_clock::now();
     return true;
