@@ -444,7 +444,8 @@ bool UPnPDeviceDirectory::traverse(UPnPDeviceDirectory::Visitor visit)
     // separate cv or another way of sleeping instead.
     for (;;) {
         std::unique_lock<std::mutex> lock(devWaitLock);
-        if (int ms = getRemainingDelayMs() > 0) {
+        int ms;
+        if ((ms = getRemainingDelayMs()) > 0) {
             devWaitCond.wait_for(lock, chrono::milliseconds(ms));
         } else {
             break;
