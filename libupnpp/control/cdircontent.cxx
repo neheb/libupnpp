@@ -50,6 +50,7 @@ public:
         m_okitems["object.item.audioItem.audioBook"] =
             UPnPDirObject::ITC_audioItem;
         m_okitems["object.item.playlistItem"] = UPnPDirObject::ITC_playlist;
+        m_okitems["object.item.videoItem"] = UPnPDirObject::ITC_videoItem;
     }
     UPnPDirContent& m_dir;
 

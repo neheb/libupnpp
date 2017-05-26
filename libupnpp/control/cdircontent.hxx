@@ -71,6 +71,7 @@ public:
     // playlists).
     enum ItemClass {ITC_audioItem = 0, ITC_playlist = 1,
                     ITC_unknown = 2,
+                    ITC_videoItem = 3,
                     ITC_audioItem_musicTrack = ITC_audioItem, // hist compat
                     ITC_audioItem_playlist = ITC_playlist // hist compat
                    };
