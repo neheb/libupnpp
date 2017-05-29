@@ -24,3 +24,5 @@ stamp-h1
 libupnpp/config.h
 libupnpp.pc
 libupnpp.pc
+doc/libupnpp-ctl.html
+doc/refdoc/

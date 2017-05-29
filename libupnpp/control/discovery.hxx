@@ -85,12 +85,19 @@ public:
     static unsigned int addCallback(Visitor v);
     static void delCallback(unsigned int idx);
 
-    /** Find device by friendlyName or UDN. Unlike traverse, this does
-     * not necessarily wait for the initial timeout, it returns as
-     * soon as a device with this name reports (or the timeout expires).
+    /** Find device by 'friendly name'.
+     *
+     * This will wait for the remaining duration of the search window if the 
+     * device is not found at once.
      * Note that "friendly names" are not necessarily unique.
      */
     bool getDevByFName(const std::string& fname, UPnPDeviceDesc& ddesc);
+
+    /** Find device by UDN.
+     *
+     * This will wait for the remaining duration of the search window if the 
+     * device is not found at once.
+     */
     bool getDevByUDN(const std::string& udn, UPnPDeviceDesc& ddesc);
 
     /** My health */

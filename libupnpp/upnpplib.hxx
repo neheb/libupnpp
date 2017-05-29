@@ -40,7 +40,7 @@ public:
      * This initializes libupnp, possibly setting an address and port, possibly
      * registering a client if serveronly is false.
      *
-     * Note: libupnp uses a single v4 adress interface (+a v6 one if
+     * Note: libupnp uses a single v4 address/interface (and a v6 one if
      * enabled). This can be specified in the initialization call,
      * else it will pick the first non-loopback one. There is no way
      * to have a single instance of the library listen on multiple
