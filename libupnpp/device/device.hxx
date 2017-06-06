@@ -22,6 +22,7 @@
 #include <pthread.h>
 #include <upnp/upnp.h>
 
+#include <functional>
 #include <unordered_map>
 #include <memory>
 #include <string>
