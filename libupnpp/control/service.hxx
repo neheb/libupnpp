@@ -22,6 +22,7 @@
 #include <sys/types.h>
 #include <upnp/upnp.h>                  // for UPNP_E_BAD_RESPONSE, etc
 
+#include <functional>
 #include <iostream>                     // for basic_ostream, operator<<, etc
 #include <string>                       // for string, operator<<, etc
 
