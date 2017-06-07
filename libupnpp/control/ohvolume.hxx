@@ -50,7 +50,6 @@ public:
 
     OHVolume(const UPnPDeviceDesc& device, const UPnPServiceDesc& service)
         : Service(device, service), m_volmax(-1) {
-        registerCallback();
     }
     virtual ~OHVolume() {
     }

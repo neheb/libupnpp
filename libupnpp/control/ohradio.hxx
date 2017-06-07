@@ -44,7 +44,6 @@ public:
 
     OHRadio(const UPnPDeviceDesc& device, const UPnPServiceDesc& service)
         : Service(device, service) {
-        registerCallback();
     }
     virtual ~OHRadio() {
     }

@@ -182,11 +182,6 @@ ContentDirectory::ContentDirectory(const UPnPDeviceDesc& device,
         m_serviceKind = CDSKIND_TWONKY;
         LOGDEB1("ContentDirectory::ContentDirectory: TWONKY" << endl);
     }
-    registerCallback();
-}
-
-ContentDirectory::~ContentDirectory()
-{
 }
 
 static bool DSAccum(vector<CDSH>* out,
@@ -229,9 +224,7 @@ bool ContentDirectory::getServerByName(const string& fname, CDSH& server)
 
 void ContentDirectory::registerCallback()
 {
-    LOGDEB("ContentDirectory::registerCallback"<< endl);
-    Service::registerCallback(bind(&ContentDirectory::evtCallback,
-                                   this, _1));
+    Service::registerCallback(bind(&ContentDirectory::evtCallback, this, _1));
 }
 
 int ContentDirectory::readDirSlice(const string& objectId, int offset,

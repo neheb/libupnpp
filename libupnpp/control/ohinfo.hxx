@@ -48,7 +48,6 @@ public:
 
     OHInfo(const UPnPDeviceDesc& device, const UPnPServiceDesc& service)
         : Service(device, service) {
-        registerCallback();
     }
 
     ~OHInfo() {

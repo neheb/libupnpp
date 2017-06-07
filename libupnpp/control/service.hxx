@@ -119,6 +119,9 @@ protected:
      * obtained by subscribe() during construction
      */
     void registerCallback(evtCBFunc c);
+    /** To be overridden in classes which actually support events. Will be
+        called by installReporter() */
+    virtual void registerCallback() {}
     void unregisterCallback();
 
 private:

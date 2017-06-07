@@ -45,14 +45,12 @@ typedef std::shared_ptr<RenderingControl> RDCH;
 class RenderingControl : public Service {
 public:
 
-    /** Construct by copying data from device and service objects.
-     *
-     */
+    /** Construct by copying data from device and service objects. */
     RenderingControl(const UPnPDeviceDesc& device,
                      const UPnPServiceDesc& service);
-    virtual ~RenderingControl();
 
     RenderingControl() {}
+    virtual ~RenderingControl() {}
 
     /** Test service type from discovery message */
     static bool isRDCService(const std::string& st);

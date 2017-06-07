@@ -145,16 +145,6 @@ const string& Service::getManufacturer() const
     return m->manufacturer;
 }
 
-VarEventReporter *Service::getReporter()
-{
-    return m->reporter;
-}
-
-void Service::installReporter(VarEventReporter* reporter)
-{
-    m->reporter = reporter;
-}
-
 int Service::runAction(const SoapOutgoing& args, SoapIncoming& data)
 {
     LibUPnP* lib = LibUPnP::getLibUPnP();
@@ -391,6 +381,17 @@ void Service::unregisterCallback()
         o_calls.erase(m->SID);
         m->SID[0] = 0;
     }
+}
+
+VarEventReporter *Service::getReporter()
+{
+    return m->reporter;
+}
+
+void Service::installReporter(VarEventReporter* reporter)
+{
+    m->reporter = reporter;
+    registerCallback();
 }
 
 #if 0

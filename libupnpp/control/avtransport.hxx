@@ -52,7 +52,6 @@ public:
     AVTransport(const UPnPDeviceDesc& device,
                 const UPnPServiceDesc& service)
         : Service(device, service) {
-        registerCallback();
     }
 
     AVTransport() {}
@@ -161,7 +160,6 @@ protected:
 private:
     void evtCallback(const std::unordered_map<std::string, std::string>&);
     void registerCallback();
-
 };
 
 } // namespace UPnPClient

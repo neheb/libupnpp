@@ -44,7 +44,6 @@ public:
 
     OHReceiver(const UPnPDeviceDesc& device, const UPnPServiceDesc& service)
         : Service(device, service) {
-        registerCallback();
     }
     virtual ~OHReceiver() {
     }

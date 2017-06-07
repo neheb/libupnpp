@@ -49,7 +49,6 @@ public:
 
     OHProduct(const UPnPDeviceDesc& device, const UPnPServiceDesc& service)
         : Service(device, service) {
-        registerCallback();
     }
     OHProduct() {}
     ~OHProduct() {

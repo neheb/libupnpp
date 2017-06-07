@@ -41,13 +41,12 @@ public:
 
     OHSender(const UPnPDeviceDesc& device, const UPnPServiceDesc& service)
         : Service(device, service) {
-        registerCallback();
-    }
-    virtual ~OHSender() {
     }
 
     OHSender() {}
 
+    virtual ~OHSender() {}
+    
     /** Test service type from discovery message */
     static bool isOHSenderService(const std::string& st);
 

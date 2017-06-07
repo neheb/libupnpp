@@ -56,19 +56,12 @@ RenderingControl::RenderingControl(const UPnPDeviceDesc& device,
 {
     UPnPServiceDesc::Parsed sdesc;
     if (service.fetchAndParseDesc(device.URLBase, sdesc)) {
-        std::unordered_map<std::string, UPnPServiceDesc::StateVariable>::const_iterator it =
-            sdesc.stateTable.find("Volume");
+        const auto it = sdesc.stateTable.find("Volume");
         if (it != sdesc.stateTable.end() && it->second.hasValueRange) {
             setVolParams(it->second.minimum, it->second.maximum,
                          it->second.step);
         }
     }
-    registerCallback();
-}
-
-RenderingControl::~RenderingControl()
-{
-    unregisterCallback();
 }
 
 // Translate device volume to 0-100
