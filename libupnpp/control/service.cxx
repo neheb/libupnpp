@@ -367,7 +367,8 @@ bool Service::unSubscribe()
                    UpnpGetErrorMessage(ret) << endl);
             return false;
         }
-        m->SID[0] = 0;
+        // Let the caller erase m->SID[] because there may be other
+        // cleanup to do, based on its value
     }
     return true;
 }
@@ -388,6 +389,7 @@ void Service::unregisterCallback()
         unSubscribe();
         std::unique_lock<std::mutex> lock(cblock);
         o_calls.erase(m->SID);
+        m->SID[0] = 0;
     }
 }
 
