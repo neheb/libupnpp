@@ -46,6 +46,10 @@ bool OHVolume::isOHVLService(const string& st)
     const string::size_type sz(SType.size() - 2);
     return !SType.compare(0, sz, st, 0, sz);
 }
+bool OHVolume::serviceTypeMatch(const std::string& tp)
+{
+    return isOHVLService(tp);
+}
 
 void OHVolume::evtCallback(
     const std::unordered_map<std::string, std::string>& props)

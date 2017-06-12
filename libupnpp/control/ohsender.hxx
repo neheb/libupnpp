@@ -41,6 +41,7 @@ public:
 
     OHSender(const UPnPDeviceDesc& device, const UPnPServiceDesc& service)
         : Service(device, service) {
+        serviceInit(device, service);
     }
 
     OHSender() {}
@@ -49,6 +50,7 @@ public:
     
     /** Test service type from discovery message */
     static bool isOHSenderService(const std::string& st);
+    virtual bool serviceTypeMatch(const std::string& tp);
 
     int metadata(std::string& uri, std::string& meta);
 

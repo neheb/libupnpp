@@ -49,6 +49,10 @@ bool OHSender::isOHSenderService(const string& st)
     const string::size_type sz(SType.size()-2);
     return !SType.compare(0, sz, st, 0, sz);
 }
+bool OHSender::serviceTypeMatch(const std::string& tp)
+{
+    return isOHSenderService(tp);
+}
 
 void OHSender::evtCallback(
     const std::unordered_map<std::string, std::string>& props)

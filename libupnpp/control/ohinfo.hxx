@@ -48,16 +48,16 @@ public:
 
     OHInfo(const UPnPDeviceDesc& device, const UPnPServiceDesc& service)
         : Service(device, service) {
-    }
-
-    ~OHInfo() {
+        serviceInit(device, service);
     }
 
     OHInfo() {}
 
+    ~OHInfo() {}
 
     /** Test service type from discovery message */
     static bool isOHInfoService(const std::string& st);
+    virtual bool serviceTypeMatch(const std::string& tp);
 
     int metatext(UPnPDirObject *dirent);
 

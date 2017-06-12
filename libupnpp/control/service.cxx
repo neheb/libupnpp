@@ -55,7 +55,7 @@ class Service::Internal {
 public:
     /** Upper level client code event callbacks. To be called by derived class
      * for reporting events. */
-    VarEventReporter *reporter;
+    VarEventReporter *reporter{nullptr};
     std::string actionURL;
     std::string eventURL;
     std::string serviceType;
@@ -63,10 +63,21 @@ public:
     std::string friendlyName;
     std::string manufacturer;
     std::string modelName;
-    Upnp_SID    SID; /* Subscription Id */
+    Upnp_SID    SID{0}; /* Subscription Id */
+
+    void initFromDeviceAndService(const UPnPDeviceDesc& devdesc,
+                                  const UPnPServiceDesc& servdesc) {
+        actionURL = caturl(devdesc.URLBase, servdesc.controlURL);
+        eventURL = caturl(devdesc.URLBase, servdesc.eventSubURL);
+        serviceType = servdesc.serviceType;
+        deviceId = devdesc.UDN;
+        friendlyName = devdesc.friendlyName;
+        manufacturer = devdesc.manufacturer;
+        modelName = devdesc.modelName;
+    }
 };
 
-/** Registered callbacks for the service objects. The map is
+/** Registered callbacks for all the service objects. The map is
  * indexed by SID, the subscription id which was obtained by
  * each object when subscribing to receive the events for its
  * device. The map allows the static function registered with
@@ -83,18 +94,27 @@ Service::Service(const UPnPDeviceDesc& devdesc,
         return;
     }
 
-    m->reporter = 0;
-    m->actionURL = caturl(devdesc.URLBase, servdesc.controlURL);
-    m->eventURL = caturl(devdesc.URLBase, servdesc.eventSubURL);
-    m->serviceType = servdesc.serviceType;
-    m->deviceId = devdesc.UDN;
-    m->friendlyName = devdesc.friendlyName;
-    m->manufacturer = devdesc.manufacturer;
-    m->modelName = devdesc.modelName;
-    m->SID[0] = 0;
-
+    m->initFromDeviceAndService(devdesc, servdesc);
     // Only does anything the first time
     initEvents();
+    // serviceInit() will be called from the derived class constructor
+}
+
+bool Service::initFromDescription(const UPnPDeviceDesc& devdesc)
+{
+    if (!m) {
+        LOGERR("Device::Device: Internal is null" << endl);
+        return false;
+    }
+    for (auto& servdesc : devdesc.services) {
+        if (serviceTypeMatch(servdesc.serviceType)) {
+            m->initFromDeviceAndService(devdesc, servdesc);
+            // Only does anything the first time
+            initEvents();
+            return serviceInit(devdesc, servdesc);
+        }
+    }
+    return false;
 }
 
 Service::Service()
@@ -103,7 +123,6 @@ Service::Service()
         LOGERR("Device::Device: out of memory" << endl);
         return;
     }
-    m->reporter = 0;
 }
 
 Service::~Service()
@@ -240,7 +259,7 @@ int Service::srvCB(Upnp_EventType et, void* vevp, void*)
 {
     std::unique_lock<std::mutex> lock(cblock);
 
-    LOGDEB1("Service:srvCB: " << LibUPnP::evTypeAsString(et) << endl);
+    LOGDEB("Service:srvCB: " << LibUPnP::evTypeAsString(et) << endl);
 
     switch (et) {
     case UPNP_EVENT_RENEWAL_COMPLETE:

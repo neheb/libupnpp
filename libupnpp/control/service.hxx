@@ -20,13 +20,14 @@
 #include "libupnpp/config.h"
 
 #include <sys/types.h>
-#include <upnp/upnp.h>                  // for UPNP_E_BAD_RESPONSE, etc
 
 #include <functional>
 #include <iostream>                     // for basic_ostream, operator<<, etc
 #include <string>                       // for string, operator<<, etc
+#include <upnp/upnp.h>
 
-#include <vector>                       // for vector
+#include <string>
+#include <vector>
 
 #include "libupnpp/control/cdircontent.hxx"  // for UPnPDirObject
 #include "libupnpp/log.hxx"             // for LOGERR
@@ -39,26 +40,33 @@ namespace UPnPClient {
 class UPnPServiceDesc;
 }
 
-//using namespace UPnPP;
 
 namespace UPnPClient {
 
 class Service;
 
 /** To be implemented by upper-level client code for event
- * reporting. Runs in an event thread. This could for example be
+ * reporting. 
+ *
+ * Runs in an event thread. This could for example be
  * implemented by a Qt Object to generate events for the GUI.
+ *
+ * The Service class does a bit of parsing for common cases. 
+ * The different methods cover all current types of audio UPnP
+ * state variable data I am aware of. Of course, other types of data can 
+ * be reported as a character string, leaving the parsing to the client code.
  */
 class VarEventReporter {
 public:
     virtual ~VarEventReporter() {}
-    // Using char * to avoid any issue with strings and concurrency
+    /** Report change to named integer state variable */
     virtual void changed(const char *nm, int val)  = 0;
+    /** Report change to named character string state variable */
     virtual void changed(const char *nm, const char *val) = 0;
-    // Used for track metadata (parsed as content directory entry). Not always
-    // needed.
+    /** Report change to track metadata (parsed as as Content
+     * Directory entry). Not always needed */
     virtual void changed(const char * /*nm*/, UPnPDirObject /*meta*/) {}
-    // Used by ohplaylist. Not always needed
+    /** Special for  ohplaylist. Not always needed */
     virtual void changed(const char * /*nm*/, std::vector<int> /*ids*/) {}
 };
 
@@ -68,19 +76,31 @@ evtCBFunc;
 
 class Service {
 public:
-    /** Construct by copying data from device and service objects.
-     */
+    /** Construct by copying data from device and service objects. */
     Service(const UPnPDeviceDesc& device, const UPnPServiceDesc& service);
 
-    /** An empty one */
+    
+    /** Empty object. May be useful for accessing serviceTypeMatch() */
     Service();
 
     virtual ~Service();
 
-    // This can be useful to restart the subscription and get all the
-    // State variable values, in case we get the events before we are
-    // ready (e.g. before the connections are set in a qt app
-    // we'll do this next abi change virtual void reSubscribe();
+    /** Initialize empty object from device description. Can fail if the 
+     * appropriate service is not found. */
+    bool initFromDescription(const UPnPDeviceDesc& description);
+    
+    /** This is used to look up an appropriate service description
+     *  inside the device description service list. 
+     *  Derived classes  compare the service types in the list with theirs 
+     */
+    virtual bool serviceTypeMatch(const std::string& tp) = 0;
+    
+    // This would be useful to restart the subscription and get all
+    // the State variable values, in case we get the events before we
+    // are ready (e.g. before the connections are set in a qt app
+    // we'll do this next abi change
+    //
+    // virtual void reSubscribe();
 
     const std::string& getFriendlyName() const;
     const std::string& getDeviceId() const;
@@ -89,6 +109,12 @@ public:
     const std::string& getModelName() const;
     const std::string& getManufacturer() const;
 
+    /**
+     * Call Soap action and return resulting data.
+     * @param args Action name and input parameters
+     * @param data return data.
+     * @return 0 if the call succeeded, some non-zero UPNP_E_... value else
+     */
     virtual int runAction(const UPnPP::SoapOutgoing& args,
                           UPnPP::SoapIncoming& data);
 
@@ -96,23 +122,39 @@ public:
        nor return data (beyond the status) */
     int runTrivialAction(const std::string& actionName);
 
-    /* Run action where there are no input parameters and a single
-       named value is to be retrieved from the result */
+    /** Run action where there are no input parameters and a single
+     * named value is to be retrieved from the result */
     template <class T> int runSimpleGet(const std::string& actnm,
                                         const std::string& valnm,
                                         T *valuep);
 
-    /* Run action with a single input parameter and no return data */
+    /** Run action with a single input parameter and no return data */
     template <class T> int runSimpleAction(const std::string& actnm,
                                            const std::string& valnm,
                                            T value);
 
+    /** Get pointer to installed event reporter
+     *
+     * This is used by a derived class event handling method and
+     * should be in the protected section actually, it has no external
+     * use which I can think of
+     */
     virtual VarEventReporter *getReporter();
 
+    /** Install event data reporter object */
     virtual void installReporter(VarEventReporter* reporter);
 
-
 protected:
+
+    /** Service-specific part of initialization. 
+     * This can be called from the constructor or from initFromDevice(). 
+     * Most service don't need specific initialization, so we provide a default
+     * implementation
+     */
+    virtual bool serviceInit(const UPnPDeviceDesc& device,
+                             const UPnPServiceDesc& service) {
+        return true;
+    }
 
     /** Used by a derived class to register its callback method. This
      * creates an entry in the static map, using m_SID, which was

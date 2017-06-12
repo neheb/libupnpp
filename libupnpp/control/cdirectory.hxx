@@ -68,7 +68,7 @@ public:
     virtual ~ContentDirectory() {}
 
     /** An empty one */
-    ContentDirectory() : m_rdreqcnt(200), m_serviceKind(CDSKIND_UNKNOWN) {}
+    ContentDirectory() {}
 
     enum ServiceKind {CDSKIND_UNKNOWN, CDSKIND_BUBBLE, CDSKIND_MEDIATOMB,
                       CDSKIND_MINIDLNA, CDSKIND_MINIM, CDSKIND_TWONKY
@@ -80,6 +80,7 @@ public:
 
     /** Test service type from discovery message */
     static bool isCDService(const std::string& st);
+    virtual bool serviceTypeMatch(const std::string& tp);
 
     /** Retrieve the directory services currently seen on the network */
     static bool getServices(std::vector<CDSH>&);
@@ -155,12 +156,14 @@ public:
     int getSearchCapabilities(std::set<std::string>& result);
 
 protected:
+    virtual bool serviceInit(const UPnPDeviceDesc& device,
+                             const UPnPServiceDesc& service);
     /* My service type string */
     static const std::string SType;
 
 private:
-    int m_rdreqcnt; // Slice size to use when reading
-    ServiceKind m_serviceKind;
+    int m_rdreqcnt{200}; // Slice size to use when reading
+    ServiceKind m_serviceKind{CDSKIND_UNKNOWN};
 
     void evtCallback(const std::unordered_map<std::string, std::string>&);
     void registerCallback();

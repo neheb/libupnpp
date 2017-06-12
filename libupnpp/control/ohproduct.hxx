@@ -49,13 +49,14 @@ public:
 
     OHProduct(const UPnPDeviceDesc& device, const UPnPServiceDesc& service)
         : Service(device, service) {
+        serviceInit(device, service);
     }
     OHProduct() {}
-    ~OHProduct() {
-    }
+    ~OHProduct() {}
 
     /** Test service type from discovery message */
     static bool isOHPrService(const std::string& st);
+    virtual bool serviceTypeMatch(const std::string& tp);
 
     struct Source {
         std::string name;

@@ -49,15 +49,16 @@ class OHVolume : public Service {
 public:
 
     OHVolume(const UPnPDeviceDesc& device, const UPnPServiceDesc& service)
-        : Service(device, service), m_volmax(-1) {
+        : Service(device, service) {
+        serviceInit(device, service);
     }
-    virtual ~OHVolume() {
-    }
+    virtual ~OHVolume() {}
 
     OHVolume() {}
 
     /** Test service type from discovery message */
     static bool isOHVLService(const std::string& st);
+    virtual bool serviceTypeMatch(const std::string& tp);
 
     int volume(int *value);
     int setVolume(int value);
@@ -76,7 +77,7 @@ private:
     int vol0100ToDev(int vol);
     int maybeInitVolmax();
 
-    int m_volmax;
+    int m_volmax{-1};
 };
 
 } // namespace UPnPClient

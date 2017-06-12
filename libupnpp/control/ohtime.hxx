@@ -50,6 +50,7 @@ public:
 
     OHTime(const UPnPDeviceDesc& device, const UPnPServiceDesc& service)
         : Service(device, service) {
+        serviceInit(device, service);
     }
     virtual ~OHTime() {}
 
@@ -57,6 +58,7 @@ public:
 
     /** Test service type from discovery message */
     static bool isOHTMService(const std::string& st);
+    virtual bool serviceTypeMatch(const std::string& tp);
 
     struct Time {
         int trackCount;

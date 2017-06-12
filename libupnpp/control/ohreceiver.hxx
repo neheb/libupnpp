@@ -44,6 +44,7 @@ public:
 
     OHReceiver(const UPnPDeviceDesc& device, const UPnPServiceDesc& service)
         : Service(device, service) {
+        serviceInit(device, service);
     }
     virtual ~OHReceiver() {
     }
@@ -52,6 +53,7 @@ public:
 
     /** Test service type from discovery message */
     static bool isOHRcService(const std::string& st);
+    virtual bool serviceTypeMatch(const std::string& tp);
 
     int play();
     int stop();
