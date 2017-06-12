@@ -413,10 +413,9 @@ void Service::installReporter(VarEventReporter* reporter)
     registerCallback();
 }
 
-#if 0
 void Service::reSubscribe()
 {
-    LOGDEB("Service::reSubscribe()------------------------\n");
+    LOGDEB("Service::reSubscribe()\n");
     if (m->SID[0] == 0) {
         LOGINF("Service::reSubscribe: no subscription (null SID)\n");
         return;
@@ -424,8 +423,7 @@ void Service::reSubscribe()
     evtCBFunc c;
     {
         std::unique_lock<std::mutex> lock(cblock);
-        std::unordered_map<std::string, evtCBFunc>::iterator it =
-            o_calls.find(m->SID);
+        auto it = o_calls.find(m->SID);
         if (it == o_calls.end()) {
             LOGINF("Service::reSubscribe: no callback found for m->SID " <<
                    m->SID << endl);
@@ -436,12 +434,11 @@ void Service::reSubscribe()
     unregisterCallback();
     registerCallback(c);
 }
-#endif
 
 template int Service::runSimpleAction<int>(string const&, string const&, int);
 template int Service::runSimpleGet<int>(string const&, string const&, int*);
 template int Service::runSimpleGet<bool>(string const&, string const&, bool*);
 template int Service::runSimpleAction<bool>(string const&, string const&, bool);
-template int Service::runSimpleGet<string>(string const&, string const&, string*);
+template int Service::runSimpleGet<string>(string const&,string const&,string*);
 
 }

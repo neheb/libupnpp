@@ -95,12 +95,10 @@ public:
      */
     virtual bool serviceTypeMatch(const std::string& tp) = 0;
     
-    // This would be useful to restart the subscription and get all
-    // the State variable values, in case we get the events before we
-    // are ready (e.g. before the connections are set in a qt app
-    // we'll do this next abi change
-    //
-    // virtual void reSubscribe();
+    // Restart the subscription to get all the State variable values,
+    // in case we get the events before we are ready (e.g. before the
+    // connections are set in a qt app)
+    virtual void reSubscribe();
 
     const std::string& getFriendlyName() const;
     const std::string& getDeviceId() const;
