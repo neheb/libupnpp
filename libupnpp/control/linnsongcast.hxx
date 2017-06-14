@@ -113,7 +113,7 @@ struct ReceiverState {
  * @param sourceindex index of the source
  *
  */
-extern void setSourceIndex(const std::string& nm, int sourceindex);
+extern bool setSourceIndex(const std::string& rdrnm, int sourceindex);
 
 /** Set the source index by name for the renderer nm (friendly or uuid)
  *
@@ -121,7 +121,7 @@ extern void setSourceIndex(const std::string& nm, int sourceindex);
  * @param name name of the source
  *
  */
-extern void setSourceIndexByName(const std::string& nm,
+extern bool setSourceIndexByName(const std::string& rdrnm,
                                  const std::string& name);
 
 /** Retrieve the Receiver service status for device nm (friendly or uuid)
