@@ -43,6 +43,7 @@ public:
         : inputRefXMLParser(input), m_dir(dir)
     {
         //LOGDEB("UPnPDirParser: input: " << input << endl);
+        m_okitems["object.item.audioItem"] = UPnPDirObject::ITC_audioItem;
         m_okitems["object.item.audioItem.musicTrack"] =
             UPnPDirObject::ITC_audioItem;
         m_okitems["object.item.audioItem.audioBroadcast"] =
