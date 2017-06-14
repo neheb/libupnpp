@@ -179,6 +179,11 @@ int OHProduct::setSourceIndex(int index)
     return runSimpleAction("SetSourceIndex", "Value", index);
 }
 
+int OHProduct::setSourceIndexByName(const string& name)
+{
+    return runSimpleAction("SetSourceIndexByName", "Value", name);
+}
+
 int OHProduct::standby(bool *value)
 {
     return runSimpleGet("Standby", "Value", value);

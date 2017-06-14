@@ -74,6 +74,7 @@ public:
     int getSources(std::vector<Source>& sources);
     int sourceIndex(int *index);
     int setSourceIndex(int index);
+    int setSourceIndexByName(const std::string name);
     int standby(bool *value);
     int setStanby(bool value);
 
