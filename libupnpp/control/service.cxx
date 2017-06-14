@@ -436,6 +436,8 @@ void Service::reSubscribe()
 }
 
 template int Service::runSimpleAction<int>(string const&, string const&, int);
+template int Service::runSimpleAction<string>(string const&, string const&,
+                                              string);
 template int Service::runSimpleGet<int>(string const&, string const&, int*);
 template int Service::runSimpleGet<bool>(string const&, string const&, bool*);
 template int Service::runSimpleAction<bool>(string const&, string const&, bool);
