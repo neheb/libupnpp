@@ -98,6 +98,7 @@ Service::Service(const UPnPDeviceDesc& devdesc,
     // Only does anything the first time
     initEvents();
     // serviceInit() will be called from the derived class constructor
+    // if needed
 }
 
 bool Service::initFromDescription(const UPnPDeviceDesc& devdesc)

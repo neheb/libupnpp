@@ -22,27 +22,21 @@
 #include <sys/types.h>
 
 #include <functional>
-#include <iostream>                     // for basic_ostream, operator<<, etc
-#include <string>                       // for string, operator<<, etc
+#include <iostream>
+#include <string>
 #include <upnp/upnp.h>
 
 #include <string>
 #include <vector>
 
-#include "libupnpp/control/cdircontent.hxx"  // for UPnPDirObject
-#include "libupnpp/log.hxx"             // for LOGERR
-#include "libupnpp/soaphelp.hxx"        // for SoapIncoming, etc
+#include "libupnpp/control/cdircontent.hxx"
+#include "libupnpp/log.hxx"
+#include "libupnpp/soaphelp.hxx"
 
 namespace UPnPClient {
+
 class UPnPDeviceDesc;
-}
-namespace UPnPClient {
 class UPnPServiceDesc;
-}
-
-
-namespace UPnPClient {
-
 class Service;
 
 /** To be implemented by upper-level client code for event
@@ -70,6 +64,11 @@ public:
     virtual void changed(const char * /*nm*/, std::vector<int> /*ids*/) {}
 };
 
+/** Type of the event callbacks. 
+ * If registered by a call to Service::registerCallBack(cbfunc), this will be
+ * called with a map of state variable names and values when 
+ * an event arrives. The call is performed in a separate thread. 
+ */
 typedef
 std::function<void (const std::unordered_map<std::string, std::string>&)>
 evtCBFunc;
@@ -78,22 +77,21 @@ class Service {
 public:
     /** Construct by copying data from device and service objects. */
     Service(const UPnPDeviceDesc& device, const UPnPServiceDesc& service);
-
     
-    /** Empty object. May be useful for accessing serviceTypeMatch() */
+    /** Empty object. 
+     * May be initialized later by calling initFromDescription().
+     */
     Service();
 
     virtual ~Service();
 
-    /** Initialize empty object from device description. Can fail if the 
-     * appropriate service is not found. */
-    bool initFromDescription(const UPnPDeviceDesc& description);
-    
-    /** This is used to look up an appropriate service description
-     *  inside the device description service list. 
-     *  Derived classes  compare the service types in the list with theirs 
+    /** Initialize empty object from device description. 
+     * This allows separating the object construction and initialization.
+     * The method can fail if the appropriate service is not found. 
+     * It calls serviceInit() to perform any initialization specific to the 
+     * service type. 
      */
-    virtual bool serviceTypeMatch(const std::string& tp) = 0;
+    bool initFromDescription(const UPnPDeviceDesc& description);
     
     // Restart the subscription to get all the State variable values,
     // in case we get the events before we are ready (e.g. before the
@@ -144,10 +142,17 @@ public:
 
 protected:
 
+    /** This is used by initFromDescription() to look up an appropriate 
+     *  service description inside the device description service list. 
+     *  @param tp Service type string to be compared with the one for the 
+     *       derived class.
+     */
+    virtual bool serviceTypeMatch(const std::string& tp) = 0;
+    
     /** Service-specific part of initialization. 
-     * This can be called from the constructor or from initFromDevice(). 
-     * Most service don't need specific initialization, so we provide a default
-     * implementation
+     * This can be called from the constructor or from initFromDescription(). 
+     * Most services don't need specific initialization, so we provide a 
+     * default implementation.
      */
     virtual bool serviceInit(const UPnPDeviceDesc& device,
                              const UPnPServiceDesc& service) {

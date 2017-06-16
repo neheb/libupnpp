@@ -27,17 +27,12 @@
 
 #include "service.hxx"                  // for Service
 
-namespace UPnPClient {
-class OHVolume;
-}
-namespace UPnPClient {
-class UPnPDeviceDesc;
-}
-namespace UPnPClient {
-class UPnPServiceDesc;
-}
 
 namespace UPnPClient {
+
+class OHVolume;
+class UPnPDeviceDesc;
+class UPnPServiceDesc;
 
 typedef std::shared_ptr<OHVolume> OHVLH;
 
@@ -50,7 +45,6 @@ public:
 
     OHVolume(const UPnPDeviceDesc& device, const UPnPServiceDesc& service)
         : Service(device, service) {
-        serviceInit(device, service);
     }
     virtual ~OHVolume() {}
 

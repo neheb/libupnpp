@@ -20,21 +20,16 @@
 
 #include "libupnpp/config.h"
 
-#include <string>                       // for string
+#include <string>
 
-#include "service.hxx"                  // for Service
+#include "service.hxx"
+
 
 namespace UPnPClient {
+
 class RenderingControl;
-}
-namespace UPnPClient {
 class UPnPDeviceDesc;
-}
-namespace UPnPClient {
 class UPnPServiceDesc;
-}
-
-namespace UPnPClient {
 
 typedef std::shared_ptr<RenderingControl> RDCH;
 

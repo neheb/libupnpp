@@ -27,16 +27,10 @@
 #include "libupnpp/log.hxx"
 
 namespace UPnPClient {
-class AVTransport;
-}
-namespace UPnPClient {
-class UPnPDeviceDesc;
-}
-namespace UPnPClient {
-class UPnPServiceDesc;
-}
 
-namespace UPnPClient {
+class AVTransport;
+class UPnPDeviceDesc;
+class UPnPServiceDesc;
 
 typedef std::shared_ptr<AVTransport> AVTH;
 
@@ -50,9 +44,7 @@ public:
     /** Construct by copying data from device and service objects. */
     AVTransport(const UPnPDeviceDesc& dev, const UPnPServiceDesc& srv)
         : Service(dev, srv) {
-        serviceInit(dev, srv);
     }
-
     AVTransport() {}
     virtual ~AVTransport() {}
 

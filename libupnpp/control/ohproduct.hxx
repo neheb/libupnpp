@@ -26,17 +26,12 @@
 
 #include "service.hxx"                  // for Service
 
-namespace UPnPClient {
-class OHProduct;
-}
-namespace UPnPClient {
-class UPnPDeviceDesc;
-}
-namespace UPnPClient {
-class UPnPServiceDesc;
-}
 
 namespace UPnPClient {
+
+class OHProduct;
+class UPnPDeviceDesc;
+class UPnPServiceDesc;
 
 typedef std::shared_ptr<OHProduct> OHPRH;
 
@@ -49,7 +44,6 @@ public:
 
     OHProduct(const UPnPDeviceDesc& device, const UPnPServiceDesc& service)
         : Service(device, service) {
-        serviceInit(device, service);
     }
     OHProduct() {}
     ~OHProduct() {}

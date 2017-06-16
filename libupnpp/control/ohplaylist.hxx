@@ -45,11 +45,9 @@ public:
 
     OHPlaylist(const UPnPDeviceDesc& device, const UPnPServiceDesc& service)
         : Service(device, service) {
-        serviceInit(device, service);
     }
-    virtual ~OHPlaylist() {}
-
     OHPlaylist() {}
+    virtual ~OHPlaylist() {}
 
     /** Test service type from discovery message */
     static bool isOHPlService(const std::string& st);

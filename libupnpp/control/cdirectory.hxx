@@ -21,26 +21,19 @@
 #include "libupnpp/config.h"
 
 #include <unordered_map>
-#include <set>                          // for set
-#include <string>                       // for string
-#include <vector>                       // for vector
+#include <set>
+#include <string>
+#include <vector>
 
-#include "libupnpp/control/service.hxx"  // for Service
+#include "libupnpp/control/service.hxx"
+
 
 namespace UPnPClient {
-class ContentDirectory;    // lines 30-30
-}
-namespace UPnPClient {
+
+class ContentDirectory;
 class UPnPDeviceDesc;
-}
-namespace UPnPClient {
 class UPnPDirContent;
-}
-namespace UPnPClient {
 class UPnPServiceDesc;
-}
-
-namespace UPnPClient {
 
 typedef std::shared_ptr<ContentDirectory> CDSH;
 

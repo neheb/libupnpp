@@ -41,11 +41,8 @@ public:
 
     OHSender(const UPnPDeviceDesc& device, const UPnPServiceDesc& service)
         : Service(device, service) {
-        serviceInit(device, service);
     }
-
     OHSender() {}
-
     virtual ~OHSender() {}
     
     /** Test service type from discovery message */
