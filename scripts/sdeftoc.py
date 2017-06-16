@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 from __future__ import print_function
 
-'''Turn UPnP service defintion XML file into a C++ skeleton based
-on libupnpp'''
+'''Turn a UPnP service definition XML file into a C++ device-side
+service skeleton based on libupnpp'''
 
 import sys
 import os
