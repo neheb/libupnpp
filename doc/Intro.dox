@@ -1,0 +1,19 @@
+/** @mainpage libupnpp:A C++ wrapper for the Portable UPnP reference library
+   
+@authors Jean-Francois Dockes <jf@dockes.org>
+
+libupnpp allows programming UPnP devices and clients (Control
+Points). Apart from this reference documentation extracted from the
+sources, there is a kind of
+<a href="../../libupnpp-ctl.html">programming manual here</a> for the 
+Control Point side.
+
+There is no high level documentation for the device side at this point, but
+you can look at the <a
+href="https://github.com/medoc92/libupnpp-samples">"hello"</a>
+device/service pair in the libupnpp samples on githubg, or at the source
+for <a href="https://github.com/medoc92/upmpdcli">upmpdcli</a> which is an
+audio Renderer based on libupnpp.
+
+*/
+
