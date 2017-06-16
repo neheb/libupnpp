@@ -120,7 +120,8 @@ classes do it and return a handle (but there is nothing to prevent you from
 building the service objects directly).
 
 The library also has helper functions for helping with the independant
-implementation of a service interface.
+implementation of a service interface, obtained by deriving the base
+link:refdoc/html/classUPnPClient_1_1Service.html[Service class].
 
 == Predefined Service classes
 

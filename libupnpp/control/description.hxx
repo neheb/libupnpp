@@ -32,9 +32,13 @@
 
 namespace UPnPClient {
 
-/**
- * Data holder for a UPnP service, parsed from the XML description
- * downloaded after discovery yielded its URL.
+/** Data holder for a UPnP service, parsed from the device XML description.
+ * The discovery code does not download the service description
+ * documents, and the only set values are those available from the
+ * device description (serviceId, SCPDURL, controlURL, eventSubURL).
+ * You can call fetchAndParseDesc() to obtain a parsed version of the
+ * service description document, with all the actions and state
+ * variables.
  */
 class UPnPServiceDesc {
 public:
@@ -67,6 +71,8 @@ public:
         return os.str();
     }
 
+    /** Description of an action argument: name, direction, state
+       variable it relates to (which will yield the type) */
     struct Argument {
         std::string name;
         bool todevice;
@@ -77,6 +83,8 @@ public:
             relatedVariable.clear();
         }
     };
+
+    /** UPnP service action descriptor, from the service description document*/
     struct Action {
         std::string name;
         std::vector<Argument> argList;
@@ -85,6 +93,8 @@ public:
             argList.clear();
         }
     };
+
+    /** Holder for all the attributes of an UPnP service state variable */
     struct StateVariable {
         std::string name;
         bool sendEvents;
@@ -100,12 +110,17 @@ public:
             hasValueRange = false;
         }
     };
+
+    /** Service description as parsed from the service XML document: actions 
+     * and state variables */
     struct Parsed {
         std::unordered_map<std::string, Action> actionList;
         std::unordered_map<std::string, StateVariable> stateTable;
     };
 
-    bool fetchAndParseDesc(const std::string&, Parsed& parsed) const;
+    /** Fetch the service description document and parse it. urlbase comes 
+     * from the device description */
+    bool fetchAndParseDesc(const std::string& urlbase, Parsed& parsed) const;
 };
 
 /**
