@@ -60,7 +60,8 @@ void OHVolume::evtCallback(
         }
 
         if (!it->first.compare("Volume")) {
-            getReporter()->changed(it->first.c_str(), atoi(it->second.c_str()));
+            int vol = devVolTo0100(atoi(it->second.c_str()));
+            getReporter()->changed(it->first.c_str(), vol);
         } else if (!it->first.compare("VolumeLimit")) {
             m_volmax = atoi(it->second.c_str());
         } else if (!it->first.compare("Mute")) {
