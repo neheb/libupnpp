@@ -64,16 +64,19 @@ void OHVolume::evtCallback(
         }
 
         if (!it->first.compare("Volume")) {
-            getReporter()->changed(it->first.c_str(), atoi(it->second.c_str()));
+            int vol = devVolTo0100(atoi(it->second.c_str()));
+            getReporter()->changed(it->first.c_str(), vol);
         } else if (!it->first.compare("VolumeLimit")) {
             m_volmax = atoi(it->second.c_str());
+            LOGDEB1("OHVolume: event: VolumeLimit: " << m_volmax << endl);
         } else if (!it->first.compare("Mute")) {
             bool val = false;
             stringToBool(it->second, &val);
+            LOGDEB1("OHVolume: event: Mute: " << val << endl);
             getReporter()->changed(it->first.c_str(), val ? 1 : 0);
         } else {
             LOGDEB1("OHVolume event: untracked variable: name [" <<
-                    it->first << "] value [" << it->second << endl);
+                   it->first << "] value [" << it->second << endl);
             getReporter()->changed(it->first.c_str(), it->second.c_str());
         }
     }
@@ -162,18 +165,22 @@ int OHVolume::volume(int *value)
     } else {
         *value = 20;
     }
+    LOGDEB1("OHVolume::volume: " << *value << endl);
     return ret;
 }
 
 int OHVolume::setVolume(int value)
 {
     int mval = vol0100ToDev(value);
+    LOGDEB1("OHVolume::setVolume: input " << value << " vol " << mval << endl);
     return runSimpleAction("SetVolume", "Value", mval);
 }
 
 int OHVolume::volumeLimit(int *value)
 {
-    return runSimpleGet("VolumeLimit", "Value", value);
+    int ret = runSimpleGet("VolumeLimit", "Value", value);
+    LOGDEB1("OHVolume::volumeLimit(): " << *value << endl);
+    return ret;
 }
 
 int OHVolume::mute(bool *value)
@@ -186,4 +193,25 @@ int OHVolume::setMute(bool value)
     return runSimpleAction("SetMute", "Value", value);
 }
 
+int OHVolume::characteristics(OHVCharacteristics* c)
+{
+    SoapOutgoing args(getServiceType(), "Characteristics");
+    SoapIncoming data;
+    int ret = runAction(args, data);
+    if (ret != UPNP_E_SUCCESS) {
+        return ret;
+    }
+    data.get("VolumeMax", &c->volumeMax);
+    data.get("VolumeUnity", &c->volumeUnity);
+    data.get("VolumeSteps", &c->volumeSteps);
+    data.get("VolumeMilliDbPerStep", &c->volumeMilliDbPerStep);
+    data.get("BalanceMax", &c->balanceMax);
+    data.get("FadeMax", &c->fadeMax);
+    LOGDEB1("OHVolume::characteristics: max " << c->volumeMax << " unity " <<
+            c->volumeUnity << " steps " << c->volumeSteps << " mdbps " <<
+            c->volumeMilliDbPerStep << " balmx " << c->balanceMax <<
+            " fademx " << c->fadeMax << endl);
+    return UPNP_E_SUCCESS;
+}
+  
 } // End namespace UPnPClient

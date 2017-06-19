@@ -36,6 +36,26 @@ class UPnPServiceDesc;
 
 typedef std::shared_ptr<OHVolume> OHVLH;
 
+struct OHVCharacteristics {
+    /// VolumeMax defines the absolute maximum Volume setting.
+    int volumeMax;;
+    /// VolumeUnity defines the value of Volume that will result in
+    /// unity system gain (i.e. output amplitude = input amplitude).
+    int volumeUnity;
+    /// VolumeSteps defines the number of step increments required to
+    /// increase the Volume from zero to VolumeMax.
+    int volumeSteps;
+    /// VolumeMilliDbPerStep defines the size of each volume step in
+    /// binary milli decibels (mibi dB). [1024mibi dB = 1dB]
+    int volumeMilliDbPerStep;
+    /// BalanceMax defines the maximum Balance setting. The minimum
+    /// Balance setting is (-BalanceMax).
+    int balanceMax;
+    /// FadeMax defines the maximum Fade setting. The minimum Fade
+    /// setting is (-FadeMax).
+    int fadeMax;
+};
+
 /**
  * OHVolume Service client class.
  *
@@ -54,6 +74,7 @@ public:
     static bool isOHVLService(const std::string& st);
     virtual bool serviceTypeMatch(const std::string& tp);
 
+    int characteristics(OHVCharacteristics* c);
     int volume(int *value);
     int setVolume(int value);
     int volumeLimit(int *value);
