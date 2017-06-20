@@ -53,25 +53,25 @@ bool OHTime::serviceTypeMatch(const std::string& tp)
 void OHTime::evtCallback(
     const std::unordered_map<std::string, std::string>& props)
 {
-    LOGDEB1("OHTime::evtCallback: getReporter(): " << getReporter() << endl);
-    for (std::unordered_map<std::string, std::string>::const_iterator it =
-                props.begin(); it != props.end(); it++) {
-        if (!getReporter()) {
-            LOGDEB1("OHTime::evtCallback: " << it->first << " -> "
-                    << it->second << endl);
+    VarEventReporter *reporter = getReporter();
+    LOGDEB1("OHTime::evtCallback: reporter: " << reporter << endl);
+    for (const auto& ent : props) {
+        if (!reporter) {
+            LOGDEB1("OHTime::evtCallback: " << ent.first << " -> "
+                    << ent.second << endl);
             continue;
         }
 
-        if (!it->first.compare("TrackCount") ||
-                !it->first.compare("Duration") ||
-                !it->first.compare("Seconds")) {
+        if (!ent.first.compare("TrackCount") ||
+                !ent.first.compare("Duration") ||
+                !ent.first.compare("Seconds")) {
 
-            getReporter()->changed(it->first.c_str(), atoi(it->second.c_str()));
+            reporter->changed(ent.first.c_str(), atoi(ent.second.c_str()));
 
         } else {
             LOGERR("OHTime event: unknown variable: name [" <<
-                   it->first << "] value [" << it->second << endl);
-            getReporter()->changed(it->first.c_str(), it->second.c_str());
+                   ent.first << "] value [" << ent.second << endl);
+            reporter->changed(ent.first.c_str(), ent.second.c_str());
         }
     }
 }
