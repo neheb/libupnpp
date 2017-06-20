@@ -128,8 +128,7 @@ Service::Service()
 
 Service::~Service()
 {
-    //LOGDEB("Service::~Service: " << m->serviceType << " SID " <<
-    // m->SID << endl);
+    LOGDEB1("Service::~Service: " << m->eventURL << " SID " << m->SID << endl);
     unregisterCallback();
     delete m;
     m = 0;
@@ -260,7 +259,7 @@ int Service::srvCB(Upnp_EventType et, void* vevp, void*)
 {
     std::unique_lock<std::mutex> lock(cblock);
 
-    LOGDEB("Service:srvCB: " << LibUPnP::evTypeAsString(et) << endl);
+    LOGDEB0("Service:srvCB: " << LibUPnP::evTypeAsString(et) << endl);
 
     switch (et) {
     case UPNP_EVENT_RENEWAL_COMPLETE:
@@ -277,7 +276,7 @@ int Service::srvCB(Upnp_EventType et, void* vevp, void*)
     case UPNP_EVENT_RECEIVED:
     {
         struct Upnp_Event *evp = (struct Upnp_Event *)vevp;
-        LOGDEB1("Service:srvCB: var change event: Sid: " <<
+        LOGDEB1("Service:srvCB: var change event: SID " <<
                 evp->Sid << " EventKey " << evp->EventKey <<
                 " changed " << ixmlwPrintDoc(evp->ChangedVariables) << endl);
 
@@ -290,9 +289,8 @@ int Service::srvCB(Upnp_EventType et, void* vevp, void*)
         //LOGDEB("srvCB: " << entry.first << " -> " << entry.second << endl);
         //}
 
-        std::unordered_map<std::string, evtCBFunc>::iterator it =
-            o_calls.find(evp->Sid);
-        if (it!= o_calls.end()) {
+        auto it = o_calls.find(evp->Sid);
+        if (it != o_calls.end()) {
             (it->second)(props);
         } else {
             LOGINF("Service::srvCB: no callback found for sid " << evp->Sid <<
@@ -336,15 +334,9 @@ bool Service::initEvents()
     return true;
 }
 
-//void Service::evtCallback(
-//    const std::unordered_map<std::string, std::string>*)
-//{
-//    LOGDEB("Service::evtCallback!! service: " << m->serviceType << endl);
-//}
-
 bool Service::subscribe()
 {
-    LOGDEB1("Service::subscribe" << endl);
+    LOGDEB1("Service::subscribe: " << m->eventURL << endl);
     LibUPnP* lib = LibUPnP::getLibUPnP();
     if (lib == 0) {
         LOGINF("Service::subscribe: no lib" << endl);
@@ -358,13 +350,13 @@ bool Service::subscribe()
                UpnpGetErrorMessage(ret) << endl);
         return false;
     }
-    LOGDEB1("Service::subscribe: sid: " << m->SID << endl);
+    LOGDEB1("Service::subs:   " << m->eventURL << " SID " << m->SID << endl);
     return true;
 }
 
 bool Service::unSubscribe()
 {
-    LOGDEB1("Service::unSubscribe" << endl);
+    LOGDEB1("Service::unSubs: " << m->eventURL << " SID " << m->SID << endl);
     LibUPnP* lib = LibUPnP::getLibUPnP();
     if (lib == 0) {
         LOGINF("Service::unSubscribe: no lib" << endl);
@@ -388,13 +380,15 @@ void Service::registerCallback(evtCBFunc c)
     if (!subscribe())
         return;
     std::unique_lock<std::mutex> lock(cblock);
-    LOGDEB1("Service::registerCallback: " << m->SID << endl);
+    LOGDEB1("Service::registerCallback: " << m->eventURL << " SID " <<
+            m->SID << endl);
     o_calls[m->SID] = c;
 }
 
 void Service::unregisterCallback()
 {
-    LOGDEB1("Service::unregisterCallback: " << m->SID << endl);
+    LOGDEB1("Service::unregisterCallback: " << m->eventURL << " SID " <<
+            m->SID << endl);
     if (m->SID[0]) {
         unSubscribe();
         std::unique_lock<std::mutex> lock(cblock);
@@ -405,13 +399,19 @@ void Service::unregisterCallback()
 
 VarEventReporter *Service::getReporter()
 {
-    return m->reporter;
+    if (m)
+        return m->reporter;
+    return nullptr;
 }
 
 void Service::installReporter(VarEventReporter* reporter)
 {
+    if (reporter) {
+        registerCallback();
+    } else {
+        unregisterCallback();
+    }
     m->reporter = reporter;
-    registerCallback();
 }
 
 void Service::reSubscribe()

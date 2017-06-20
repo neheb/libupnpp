@@ -176,7 +176,7 @@ private:
     Service& operator=(Service const&);
 
     class Internal;
-    Internal *m;
+    Internal *m{nullptr};
 
     /* Only actually does something on the first call, to register our
      * (static) library callback */
