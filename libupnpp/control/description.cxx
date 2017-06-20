@@ -117,7 +117,7 @@ private:
 };
 
 UPnPDeviceDesc::UPnPDeviceDesc(const string& url, const string& description)
-    : ok(false)
+    : XMLText(description)
 {
     //cerr << "UPnPDeviceDesc::UPnPDeviceDesc: url: " << url << endl;
     //cerr << " description " << endl << description << endl;
@@ -141,8 +141,6 @@ UPnPDeviceDesc::UPnPDeviceDesc(const string& url, const string& description)
     //cerr << "URLBase: [" << URLBase << "]" << endl;
     //cerr << dump() << endl;
 }
-
-
 
 
 // XML parser for the service description document (SCPDURL)
@@ -289,7 +287,7 @@ private:
 };
 
 bool UPnPServiceDesc::fetchAndParseDesc(const string& urlbase,
-                                        Parsed& parsed) const
+                                        Parsed& parsed, string *xmltxt) const
 {
     char *buf = 0;
     char contentType[LINE_SIZE];
@@ -299,6 +297,9 @@ bool UPnPServiceDesc::fetchAndParseDesc(const string& urlbase,
         LOGERR("UPnPServiceDesc::fetchAndParseDesc: error fetching " <<
                url << " : " << LibUPnP::errAsString("", code) << endl);
         return false;
+    }
+    if (xmltxt) {
+        *xmltxt = buf;
     }
     string sdesc(buf);
     free(buf);

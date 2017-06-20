@@ -34,21 +34,24 @@ namespace UPnPClient {
 
 /** Data holder for a UPnP service, parsed from the device XML description.
  * The discovery code does not download the service description
- * documents, and the only set values are those available from the
- * device description (serviceId, SCPDURL, controlURL, eventSubURL).
+ * documents, and the only set values after discovery are those available from 
+ * the device description (serviceId, SCPDURL, controlURL, eventSubURL).
  * You can call fetchAndParseDesc() to obtain a parsed version of the
  * service description document, with all the actions and state
  * variables.
  */
 class UPnPServiceDesc {
 public:
-    // e.g. urn:schemas-upnp-org:service:ConnectionManager:1
+    /// Service Type e.g. urn:schemas-upnp-org:service:ConnectionManager:1
     std::string serviceType;
-    // Unique Id inside device: e.g here THE ConnectionManager
-    std::string serviceId; // e.g. urn:upnp-org:serviceId:ConnectionManager
-    std::string SCPDURL; // Service description URL. e.g.: cm.xml
-    std::string controlURL; // e.g.: /upnp/control/cm
-    std::string eventSubURL; // e.g.: /upnp/event/cm
+    /// Service Id inside device: e.g. urn:upnp-org:serviceId:ConnectionManager
+    std::string serviceId; 
+    /// Service description URL.
+    std::string SCPDURL;
+    /// Service control URL.
+    std::string controlURL; 
+    /// Service event URL.
+    std::string eventSubURL;
 
     void clear()
     {
@@ -118,9 +121,13 @@ public:
         std::unordered_map<std::string, StateVariable> stateTable;
     };
 
-    /** Fetch the service description document and parse it. urlbase comes 
-     * from the device description */
-    bool fetchAndParseDesc(const std::string& urlbase, Parsed& parsed) const;
+    /** Fetch the service description document and parse it. 
+     * @param urlbase The URL base is found in  the device description 
+     * @param[out] parsed The resulting parsed Action and Variable lists.
+     * @param[out] XMLText The raw downloaded XML text.
+     */
+    bool fetchAndParseDesc(const std::string& urlbase, Parsed& parsed,
+                           std::string *XMLText = 0) const;
 };
 
 /**
@@ -130,35 +137,42 @@ public:
  */
 class UPnPDeviceDesc {
 public:
-    /** Build device from xml description downloaded from discovery
+    /** Build device from the XML description downloaded during discovery.
+     * This is an internal library call, used from the discovery module.
+     * The user code gets access to an initialized Device Description
+     * object through the device directory traversal methods.
      * @param url where the description came from
      * @param description the xml device description
      */
     UPnPDeviceDesc(const std::string& url, const std::string& description);
 
-    UPnPDeviceDesc() : ok(false) {}
+    UPnPDeviceDesc() {}
 
-    bool ok;
-    // e.g. urn:schemas-upnp-org:device:MediaServer:1
+    /// Parse success status.
+    bool ok{false};
+    /// Device Type: e.g. urn:schemas-upnp-org:device:MediaServer:1
     std::string deviceType;
-    // e.g. MediaTomb
+    /// User-configurable name (usually), e.g. Lounge-streamer
     std::string friendlyName;
-    // Unique device number. This should match the deviceID in the
-    // discovery message. e.g. uuid:a7bdcd12-e6c1-4c7e-b588-3bbc959eda8d
+    /// Unique Device Number. This is the same as the deviceID in the
+    /// discovery message. e.g. uuid:a7bdcd12-e6c1-4c7e-b588-3bbc959eda8d
     std::string UDN;
-    // Base for all relative URLs. e.g. http://192.168.4.4:49152/
+    /// Base for all relative URLs. e.g. http://192.168.4.4:49152/
     std::string URLBase;
-    // Manufacturer: e.g. D-Link, PacketVideo ("manufacturer")
+    /// Manufacturer: e.g. D-Link, PacketVideo
     std::string manufacturer;
-    // Model name: e.g. MediaTomb, DNS-327L ("modelName")
+    /// Model name: e.g. MediaTomb, DNS-327L
     std::string modelName;
 
-    // Services provided by this device.
+    /// Raw downloaded document.
+    std::string XMLText;
+    
+    /// Services provided by this device.
     std::vector<UPnPServiceDesc> services;
 
-    // Embedded devices. We use UPnPDeviceDesc for convenience, but
-    // they can't recursively have embedded devices (and they just get
-    // a copy of the root URLBase).
+    /// Embedded devices. We use UPnPDeviceDesc for convenience, but
+    /// they can't recursively have embedded devices (and they just get
+    /// a copy of the root URLBase).
     std::vector<UPnPDeviceDesc> embedded;
 
     void clear() {
