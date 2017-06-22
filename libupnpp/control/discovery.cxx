@@ -45,12 +45,26 @@ using namespace UPnPP;
 
 namespace UPnPClient {
 
+// The singleton instance pointer
 static UPnPDeviceDirectory *theDevDir;
-
-// To avoid changing the abi, the m_lastSearch private class member
-// was kept but superceded by a static value (we're a singleton
-// anyway).
+// Are we working?
+static bool o_ok{false};
+// If not, why?
+static string o_reason;
+// Search window (seconds)
+static time_t o_searchTimeout{2};
+// Last time we broadcasted a search request
 static std::chrono::steady_clock::time_point o_lastSearch;
+// Directory initialized at least once ?
+static bool o_initialSearchDone{false};
+
+// Start UPnP search and record start of window
+static bool search();
+// This is called by the thread which processes the device events
+// when a new device appears. It wakes up any thread waiting for a
+// device.
+static bool deviceFound(const UPnPDeviceDesc&, const UPnPServiceDesc&);
+
 
 static string cluDiscoveryToStr(const struct Upnp_Discovery *disco)
 {
@@ -148,7 +162,7 @@ static int cluCallBack(Upnp_EventType et, void* evp, void*)
             }
         }
 
-        LOGDEB1("discoExplorer: downloading " << tp->url << endl);
+        LOGDEB1("discovery:cluCallback:: downloading " << tp->url << endl);
         if (!downloadUrlWithCurl(tp->url, tp->description, 5)) {
             LOGERR("discovery:cllb: downloadUrlWithCurl error for: " <<
                    tp->url << endl);
@@ -166,6 +180,7 @@ static int cluCallBack(Upnp_EventType et, void* evp, void*)
         }
 
         if (!discoveredQueue.put(tp)) {
+            delete tp;
             LOGERR("discovery:cllb: queue.put failed\n");
         }
         break;
@@ -176,6 +191,7 @@ static int cluCallBack(Upnp_EventType et, void* evp, void*)
         LOGDEB1("discovery:cllB:BYEBYE: " << cluDiscoveryToStr(disco) << endl);
         DiscoveredTask *tp = new DiscoveredTask(0, disco);
         if (!discoveredQueue.put(tp)) {
+            delete tp;
             LOGERR("discovery:cllb: queue.put failed\n");
         }
         break;
@@ -242,7 +258,7 @@ static DevicePool o_pool;
 // Worker routine for the discovery queue. Get messages about devices
 // appearing and disappearing, and update the directory pool
 // accordingly.
-void *UPnPDeviceDirectory::discoExplorer(void *)
+static void *discoExplorer(void *)
 {
     for (;;) {
         DiscoveredTask *tsk = 0;
@@ -300,7 +316,7 @@ void *UPnPDeviceDirectory::discoExplorer(void *)
 
 // Look at the devices and get rid of those which have not been seen
 // for too long. We do this when listing the top directory
-void UPnPDeviceDirectory::expireDevices()
+static void expireDevices()
 {
     LOGDEB1("discovery: expireDevices:" << endl);
     std::unique_lock<std::mutex> lock(o_pool.m_mutex);
@@ -329,24 +345,25 @@ void UPnPDeviceDirectory::expireDevices()
     }
 }
 
+  
 // m_searchTimeout is the UPnP device search timeout, which should
 // actually be called delay because it's the base of a random delay
 // that the devices apply to avoid responding all at the same time.
 // This means that you have to wait for the specified period before
 // the results are complete. 
 UPnPDeviceDirectory::UPnPDeviceDirectory(time_t search_window)
-    : m_ok(false), m_searchTimeout(int(search_window))
 {
-    addCallback(std::bind(&UPnPDeviceDirectory::deviceFound, this, _1, _2));
+    o_searchTimeout = search_window;
+    addCallback(std::bind(&deviceFound, _1, _2));
 
     if (!discoveredQueue.start(1, discoExplorer, 0)) {
-        m_reason = "Discover work queue start failed";
+        o_reason = "Discover work queue start failed";
         return;
     }
     std::this_thread::yield();
     LibUPnP *lib = LibUPnP::getLibUPnP();
     if (lib == 0) {
-        m_reason = "Can't get lib";
+        o_reason = "Can't get lib";
         return;
     }
     lib->registerHandler(UPNP_DISCOVERY_SEARCH_RESULT, cluCallBack, this);
@@ -355,22 +372,32 @@ UPnPDeviceDirectory::UPnPDeviceDirectory(time_t search_window)
     lib->registerHandler(UPNP_DISCOVERY_ADVERTISEMENT_BYEBYE,
                          cluCallBack, this);
 
-    m_ok = search();
+    o_ok = search();
 }
 
-bool UPnPDeviceDirectory::search()
+bool UPnPDeviceDirectory::ok()
+{
+    return o_ok;
+}
+
+const string UPnPDeviceDirectory::getReason()
+{
+    return o_reason;
+}
+
+static bool search()
 {
     LOGDEB1("UPnPDeviceDirectory::search" << endl);
 
     if (std::chrono::steady_clock::now() - o_lastSearch <
-        std::chrono::seconds(m_searchTimeout)) {
+        std::chrono::seconds(o_searchTimeout)) {
         LOGDEB1("UPnPDeviceDirectory: last search too close\n");
         return true;
     }
     
     LibUPnP *lib = LibUPnP::getLibUPnP();
     if (lib == 0) {
-        m_reason = "Can't get lib";
+        o_reason = "Can't get lib";
         return false;
     }
 
@@ -384,11 +411,11 @@ bool UPnPDeviceDirectory::search()
             std::this_thread::sleep_for(std::chrono::milliseconds(100));
         }
         LOGDEB1("UPnPDeviceDirectory::search: calling upnpsearchasync" << endl);
-        int code1 = UpnpSearchAsync(lib->getclh(), m_searchTimeout, cp, lib);
+        int code1 = UpnpSearchAsync(lib->getclh(), o_searchTimeout, cp, lib);
         if (code1 != UPNP_E_SUCCESS) {
-            m_reason = LibUPnP::errAsString("UpnpSearchAsync", code1);
+            o_reason = LibUPnP::errAsString("UpnpSearchAsync", code1);
             LOGERR("UPnPDeviceDirectory::search: UpnpSearchAsync failed: " <<
-                   m_reason << endl);
+                   o_reason << endl);
         }
     }
     o_lastSearch = std::chrono::steady_clock::now();
@@ -406,12 +433,18 @@ UPnPDeviceDirectory *UPnPDeviceDirectory::getTheDir(time_t search_window)
 
 void UPnPDeviceDirectory::terminate()
 {
+    LibUPnP *lib = LibUPnP::getLibUPnP();
+    if (lib) {
+        lib->registerHandler(UPNP_DISCOVERY_SEARCH_RESULT, 0, 0);
+        lib->registerHandler(UPNP_DISCOVERY_ADVERTISEMENT_ALIVE, 0, 0);
+        lib->registerHandler(UPNP_DISCOVERY_ADVERTISEMENT_BYEBYE, 0, 0);
+    }
     discoveredQueue.setTerminateAndWait();
 }
 
 time_t UPnPDeviceDirectory::getRemainingDelayMs()
 {
-    auto remain = std::chrono::seconds(m_searchTimeout) -
+    auto remain = std::chrono::seconds(o_searchTimeout) -
         (std::chrono::steady_clock::now() - o_lastSearch);
     // Let's give them a grace delay beyond the search window
     remain += std::chrono::milliseconds(200);
@@ -424,7 +457,7 @@ time_t UPnPDeviceDirectory::getRemainingDelayMs()
 
 time_t UPnPDeviceDirectory::getRemainingDelay()
 {
-    time_t millis = getRemainingDelayMs();
+    time_t millis = getTheDir()->getRemainingDelayMs();
     if (millis <= 0)
         return 0;
     return millis >= 1000 ? millis / 1000 : 1;
@@ -436,18 +469,24 @@ static std::condition_variable devWaitCond;
 bool UPnPDeviceDirectory::traverse(UPnPDeviceDirectory::Visitor visit)
 {
     //LOGDEB("UPnPDeviceDirectory::traverse" << endl);
-    if (m_ok == false)
+    if (!o_ok)
         return false;
 
-    // Wait until the discovery delay is over. We need to loop because of
-    // spurious wakeups each time a new device is discovered. We could use a
-    // separate cv or another way of sleeping instead.
-    for (;;) {
+    // Wait until the discovery delay is over. We need to loop because
+    // of spurious wakeups each time a new device is discovered. We
+    // could use a separate cv or another way of sleeping instead. We
+    // only do this once, after which we're sure that the initial
+    // discovery is done and that the directory is supposedly up to
+    // date. There is no reason to wait during further searches. We
+    // may wait for nothing once but it's simpler than detecting the
+    // end of the actual initial discovery.
+    for (;!o_initialSearchDone;) {
         std::unique_lock<std::mutex> lock(devWaitLock);
         int ms;
         if ((ms = getRemainingDelayMs()) > 0) {
             devWaitCond.wait_for(lock, chrono::milliseconds(ms));
         } else {
+            o_initialSearchDone = true;
             break;
         }
     } 
@@ -474,23 +513,24 @@ bool UPnPDeviceDirectory::traverse(UPnPDeviceDirectory::Visitor visit)
     return true;
 }
 
-bool UPnPDeviceDirectory::deviceFound(const UPnPDeviceDesc&,
-                                      const UPnPServiceDesc&)
+static bool deviceFound(const UPnPDeviceDesc&, const UPnPServiceDesc&)
 {
     devWaitCond.notify_all();
     return true;
 }
 
-bool UPnPDeviceDirectory::getDevBySelector(bool cmp(const UPnPDeviceDesc& ddesc,
-        const string&),
-        const string& value, UPnPDeviceDesc& ddesc)
+// Lookup a device in the pool. If not found and a search is active,
+// use a cond_wait to wait for device events (awaken by deviceFound).
+static bool getDevBySelector(
+    bool cmp(const UPnPDeviceDesc& ddesc, const string&),
+    const string& value, UPnPDeviceDesc& ddesc)
 {
     // Has locking, do it before our own lock
     expireDevices();
 
     for (;;) {
         std::unique_lock<std::mutex> lock(devWaitLock);
-        int ms = getRemainingDelayMs();
+        int ms = UPnPDeviceDirectory::getTheDir()->getRemainingDelayMs();
         {
             std::unique_lock<std::mutex> lock(o_pool.m_mutex);
             for (auto& it : o_pool.m_devices) {
