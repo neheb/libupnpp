@@ -38,7 +38,10 @@ namespace UPnPClient {
  * the device description (serviceId, SCPDURL, controlURL, eventSubURL).
  * You can call fetchAndParseDesc() to obtain a parsed version of the
  * service description document, with all the actions and state
- * variables.
+ * variables. This is mostly useful if you need to retrieve some min/max values
+ * for the state variable, in case there is no action defined to
+ * retrieve them (e.g. min/max volume values for AVT RenderingControl). 
+ * Also, if you wanted to define dynamic methods from the description data.
  */
 class UPnPServiceDesc {
 public:
@@ -132,8 +135,9 @@ public:
 
 /**
  * Data holder for a UPnP device, parsed from the XML description obtained
- * during discovery.
- * A device may include several services. 
+ * during discovery. The object is built by the discovery code. 
+ * User-level code gets access to the data by using the device directory 
+ * traversal methods.
  */
 class UPnPDeviceDesc {
 public:
