@@ -335,7 +335,7 @@ bool RenderingControl::getMute(const string& channel)
 There are utility methods in the base class for actions which either
 transport no data, or send or receive a single value:
 link:refdoc/html/classUPnPClient_1_1Service.html#a9ec23e2f36c2bbdefaac4991d80d6063[runTrivialAction()],
-link:///net/y/home/dockes/projets/mpdupnp/0.16-libupnpp/doc/refdoc/html/classUPnPClient_1_1Service.html#a7cde71d714f07a6bb655760238e52e25[runSimpleAction()],
+link:refdoc/html/classUPnPClient_1_1Service.html#a7cde71d714f07a6bb655760238e52e25[runSimpleAction()],
 link:refdoc/html/classUPnPClient_1_1Service.html#a1de907ba9604a20aaf3611e71ded445d[runSimpleGet()]
 
 
