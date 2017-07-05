@@ -23,6 +23,7 @@
 #include <stdlib.h>
 
 #include <iostream>
+#include <vector>
 
 #include "libupnpp/log.hxx"
 #include "libupnpp/upnpp_p.hxx"
@@ -33,8 +34,8 @@ namespace UPnPP {
 
 class SoapIncoming::Internal {
 public:
-    std::string name;
-    std::map<std::string, std::string> args;
+    string name;
+    unordered_map<string, string> args;
 };
 
 SoapIncoming::SoapIncoming()
@@ -49,6 +50,13 @@ SoapIncoming::~SoapIncoming()
 {
     delete m;
     m = 0;
+}
+
+void SoapIncoming::getMap(unordered_map<string, string>& out)
+{
+    if (m) {
+        out = m->args;
+    }
 }
 
 /* Example Soap XML doc passed by libupnp is like:
@@ -125,14 +133,14 @@ out:
     return ret;
 }
 
-const std::string& SoapIncoming::getName() const
+const string& SoapIncoming::getName() const
 {
     return m->name;
 }
 
 bool SoapIncoming::get(const char *nm, bool *value) const
 {
-    map<string, string>::const_iterator it = m->args.find(nm);
+    auto it = m->args.find(nm);
     if (it == m->args.end() || it->second.empty()) {
         return false;
     }
@@ -141,7 +149,7 @@ bool SoapIncoming::get(const char *nm, bool *value) const
 
 bool SoapIncoming::get(const char *nm, int *value) const
 {
-    map<string, string>::const_iterator it = m->args.find(nm);
+    auto it = m->args.find(nm);
     if (it == m->args.end() || it->second.empty()) {
         return false;
     }
@@ -151,7 +159,7 @@ bool SoapIncoming::get(const char *nm, int *value) const
 
 bool SoapIncoming::get(const char *nm, string *value) const
 {
-    map<string, string>::const_iterator it = m->args.find(nm);
+    auto it = m->args.find(nm);
     if (it == m->args.end()) {
         return false;
     }
@@ -234,9 +242,9 @@ string SoapHelp::i2s(int val)
 
 class SoapOutgoing::Internal {
 public:
-    std::string serviceType;
-    std::string name;
-    std::vector<std::pair<std::string, std::string> > data;
+    string serviceType;
+    string name;
+    vector<pair<string, string> > data;
 };
 
 SoapOutgoing::SoapOutgoing()
@@ -247,7 +255,7 @@ SoapOutgoing::SoapOutgoing()
     }
 }
 
-SoapOutgoing::SoapOutgoing(const std::string& st, const std::string& nm)
+SoapOutgoing::SoapOutgoing(const string& st, const string& nm)
 {
     if ((m = new Internal()) == 0) {
         LOGERR("SoapOutgoing::SoapOutgoing: out of memory" << endl);
@@ -322,7 +330,7 @@ IXML_Document *SoapOutgoing::buildSoapBody(bool isResponse) const
 //     </e:propertyset>
 
 bool decodePropertySet(IXML_Document *doc,
-                       std::unordered_map<string, string>& out)
+                       unordered_map<string, string>& out)
 {
     bool ret = false;
     IXML_Node* topNode = ixmlNode_getFirstChild((IXML_Node *)doc);
