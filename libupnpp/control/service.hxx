@@ -24,10 +24,8 @@
 #include <functional>
 #include <iostream>
 #include <string>
-#include <upnp/upnp.h>
 
-#include <string>
-#include <vector>
+#include <upnp/upnp.h>
 
 #include "libupnpp/control/cdircontent.hxx"
 #include "libupnpp/log.hxx"
@@ -140,15 +138,19 @@ public:
     /** Install event data reporter object */
     virtual void installReporter(VarEventReporter* reporter);
 
-protected:
-
-    /** This is used by initFromDescription() to look up an appropriate 
-     *  service description inside the device description service list. 
+    /** This is implemented by a derived class which knows its own
+     *  service type, and used by initFromDescription() to look up an
+     *  appropriate  service description inside the device description service 
+     *  list. 
+     *  Can also be used by external code wishing to a device description for
+     *  a given service.
      *  @param tp Service type string to be compared with the one for the 
      *       derived class.
      */
     virtual bool serviceTypeMatch(const std::string& tp) = 0;
     
+protected:
+
     /** Service-specific part of initialization. 
      * This can be called from the constructor or from initFromDescription(). 
      * Most services don't need specific initialization, so we provide a 
