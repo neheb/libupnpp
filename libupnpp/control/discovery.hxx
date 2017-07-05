@@ -117,10 +117,9 @@ public:
     /** My diagnostic if health is bad */
     const std::string getReason();
 
-    UPnPDeviceDirectory(const UPnPDeviceDirectory &) = delete;
-    UPnPDeviceDirectory& operator=(const UPnPDeviceDirectory &) = delete;
-
 private:
+    UPnPDeviceDirectory(const UPnPDeviceDirectory &);
+    UPnPDeviceDirectory& operator=(const UPnPDeviceDirectory &);
     UPnPDeviceDirectory(time_t search_window);
 };
 
