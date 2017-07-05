@@ -50,6 +50,8 @@ libupnpp_la_SOURCES = \
     libupnpp/control/renderingcontrol.hxx \
     libupnpp/control/service.cxx \
     libupnpp/control/service.hxx \
+    libupnpp/control/typedservice.cxx \
+    libupnpp/control/typedservice.hxx \
     libupnpp/device/device.cxx \
     libupnpp/device/device.hxx \
     libupnpp/device/vdir.cxx \
@@ -100,6 +102,7 @@ nobase_include_HEADERS = \
     libupnpp/control/ohvolume.hxx \
     libupnpp/control/renderingcontrol.hxx \
     libupnpp/control/service.hxx \
+    libupnpp/control/typedservice.hxx \
     libupnpp/device/device.hxx \
     libupnpp/device/vdir.hxx \
     libupnpp/log.h \
