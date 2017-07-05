@@ -220,9 +220,9 @@ protected:
         case 'd':
             if (!strcmp(name, "direction")) {
                 if (!lastelt.data.compare("in")) {
-                    m_targ.todevice = false;
-                } else {
                     m_targ.todevice = true;
+                } else {
+                    m_targ.todevice = false;
                 }
             } else if (!strcmp(name, "dataType")) {
                 m_tvar.dataType = lastelt.data;
