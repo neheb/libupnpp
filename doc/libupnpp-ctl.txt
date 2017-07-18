@@ -119,9 +119,15 @@ constructing the service interface objects: rather you will let the device
 classes do it and return a handle (but there is nothing to prevent you from
 building the service objects directly).
 
-The library also has helper functions for helping with the independant
-implementation of a service interface, obtained by deriving the base
-link:refdoc/html/classUPnPClient_1_1Service.html[Service class].
+There are two possible approaches for accessing a service which does not
+have a predefined interface class in the library:
+
+- Use the library helper functions for implementing a specific service
+  interface, by deriving from the base
+  link:refdoc/html/classUPnPClient_1_1Service.html[Service] class.
+- Use the xref:TypedService[TypedService] generic string-based interface
+  class.
+  
 
 == Predefined Service classes
 
@@ -141,6 +147,29 @@ link:refdoc/html/classUPnPClient_1_1Service.html[Service class].
 The role of most methods in these classes is to marshal the input data into
 SOAP format, perform the SOAP call, then marshal and return the output
 data. They are all synchronous.
+
+[[TypedService]]
+== String based interface
+
+The link:refdoc/html/classUPnPClient_1_1TypedService.html[TypedService]
+class provides access to the actions in a service through a simple
+string-based interface.
+
+The user only needs specify an action name and a list of arguments to call
+an action. The class uses the service description retrieved from the
+device to generate the actual SOAP call. Any returned data is provided
+through a C++ name-value map.
+
+The class also has an associated
+link:refdoc/html/namespaceUPnPClient.html#ad3edfb36acb86cb98961233b127fc3df[helper
+function] which provides a simplified interface to discovery.
+
+While the class is less convenient to use than one customized to a single
+service, which can provide full encoding/decoding between SOAP data and a
+natural C++ interface, it avoids having to write the corresponding code. It
+was mostly implemented as a convenient interface for the SWIG module, but
+it can probably have other uses.
+
 
 == Eventing
 

@@ -64,7 +64,7 @@ public:
         }
     };
 
-    /** @ret 0 for success, upnp error else */
+    /** @return 0 for success, upnp error else */
     int getSources(std::vector<Source>& sources);
     int sourceIndex(int *index);
     int setSourceIndex(int index);

@@ -37,8 +37,7 @@ class UPnPDeviceDesc;
 class UPnPServiceDesc;
 class Service;
 
-/** To be implemented by upper-level client code for event
- * reporting. 
+/** To be implemented by upper-level client code for event reporting. 
  *
  * Runs in an event thread. This could for example be
  * implemented by a Qt Object to generate events for the GUI.
@@ -138,12 +137,12 @@ public:
     /** Install event data reporter object */
     virtual void installReporter(VarEventReporter* reporter);
 
-    /** This is implemented by a derived class which knows its own
-     *  service type, and used by initFromDescription() to look up an
-     *  appropriate  service description inside the device description service 
-     *  list. 
-     *  Can also be used by external code wishing to a device description for
-     *  a given service.
+    /** Perform a comparison to the service type string for this specific 
+     *  service.
+     *  This allows embedding knowledge of the service type string inside the 
+     *  derived class. It is used, e.g., by initFromDescription() to look up 
+     *  an appropriate entry from the device description service list. 
+     *  Can also be used by external code wishing to do the same.
      *  @param tp Service type string to be compared with the one for the 
      *       derived class.
      */
