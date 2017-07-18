@@ -27,32 +27,76 @@
 
 namespace UPnPClient {
 
+/** Access an UPnP service actions through a string based interface.
+ *
+ * This class allows flexible and easy access to a service functionality 
+ * without the effort of deriving a specific class from UPnPClient::Service. 
+ * It was mostly implemented for the Python SWIG interface, but it could 
+ * probably have other usages.
+ * The constructor yields a barely initialized object, still needing
+ * initialization through a call to Service::initFromDescription(). 
+ * The easiest way to build a usable object is to use the 
+ * findTypedService() helper function.
+ */
 class TypedService : public Service {
 public:
+
+    /** Build an empty object. Will be later initialized by 
+     * initFromDescription(), typically called from findTypedService().
+     * @param tp should be the official service type value, e.g.
+     *    urn:schemas-upnp-org:service:AVTransport:1
+     */
     TypedService(const std::string& tp);
+
     virtual ~TypedService();
+
+    /** Check if the input matches our service type */
     virtual bool serviceTypeMatch(const std::string& tp);
 
-    /**
-       @param[outgoing] retdata a map was used (instead of
-       unordered..) for swig 2.0 compatibility.
+    /** Run an action specified by name, with specified input return output.
+     * @param name the action name (e.g. SetAVTransportURI)
+     * @param args the input argument vector. These *must* be given in the 
+     *   order given by the action definition inside the service description.
+     * @param[out] retdata the output returned from the action. 
+     *       map used instead of unordered_map for swig 2.0 compatibility.
+     * @return a libupnp error code, 0 for success.
     */
     virtual int runAction(const std::string& name,
                           std::vector<std::string> args,
                           std::map<std::string, std::string>& retdata);
 
 protected:
+    /** Service-specific part of initialization. This downloads and parses 
+     * the service description data. This is called from initFromDescription(),
+     * typically in findTypedService() in our case. */
     virtual bool serviceInit(const UPnPDeviceDesc& device,
                              const UPnPServiceDesc& service);
-
 
 private:
     class Internal;
     Internal *m{0};
     TypedService();
+    void evtCallback(const std::unordered_map<std::string, std::string>&);
+    void registerCallback();
 };
 
 
+/** Find specified service inside specified device, and build a
+ *   TypedService object.
+ * @param devname the device identifier can be specified as an UDN or
+ *   a friendly name. Beware that friendly names are not necessarily
+ *   unique. In case of duplicates the first (random) device found will
+ *   be used. Comparisons between friendly names are case-insensitive (not 
+ *   conform to the standard but convenient).
+ * @param servicetype Depending on the value of fuzzy, this will either 
+ *   be used to match the service type exactly, or as a partial match: for 
+ *   example with fuzzy set to true, a servicetype of "avtransport" would
+ *   match "urn:schemas-upnp-org:service:AVTransport:1", which is what
+ *   you want in general, with a bit of care.
+ * @param fuzzy determines if the service type match is exact or partial.
+ * @return an allocated TypedService. Ownership is tranferred to the caller, 
+ *   who will have to delete the object when done.
+ */
 extern TypedService *findTypedService(const std::string& devname,
                                       const std::string& servicetype,
                                       bool fuzzy);

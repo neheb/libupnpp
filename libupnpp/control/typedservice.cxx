@@ -118,6 +118,26 @@ int TypedService::runAction(const string& actnm, vector<string> args,
     return UPNP_E_SUCCESS;
 }
 
+void TypedService::evtCallback(
+    const std::unordered_map<std::string, std::string>& props)
+{
+    VarEventReporter *reporter = getReporter();
+    LOGDEB1("TypedService::evtCallback: reporter: " << reporter << endl);
+    for (const auto& ent : props) {
+        if (!reporter) {
+            LOGDEB1("TypedService::evtCallback: " << ent.first << " -> "
+                    << ent.second << endl);
+        } else {
+            reporter->changed(ent.first.c_str(), ent.second.c_str());
+        }
+    }
+}
+
+void TypedService::registerCallback()
+{
+    Service::registerCallback(bind(&TypedService::evtCallback, this, _1));
+}
+
 class DirCB {
 public:
     DirCB(const string& dv, const string& tp, bool fz)
@@ -126,9 +146,9 @@ public:
           stype((fz? stringtolower(tp) : tp)),
           fuzzy(fz) {
     }
-    const string& dvname;
-    const string& ldvname;
-    const string& stype;
+    string dvname;
+    string ldvname;
+    string stype;
     bool fuzzy;
     UPnPDeviceDesc founddev;
     UPnPServiceDesc foundserv;
@@ -155,8 +175,8 @@ public:
     }
 };
 
-TypedService *findTypedService(const string& devname,
-                               const string& servicetype,
+TypedService *findTypedService(const std::string& devname,
+                               const std::string& servicetype,
                                bool fuzzy)
 {
     UPnPDeviceDirectory *superdir = UPnPDeviceDirectory::getTheDir();
@@ -173,6 +193,8 @@ TypedService *findTypedService(const string& devname,
         // string sdesc = cb.founddev.dump();
         return service;
     }
+    LOGDEB("Service not found: " << devname << "/" << servicetype <<
+           " fuzzy " << fuzzy << endl);
     return 0;
 }
 
