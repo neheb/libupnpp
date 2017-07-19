@@ -72,9 +72,10 @@ protected:
 
         m_path.push_back(StackEl(name));
         m_path.back().sta = XML_GetCurrentByteIndex(expat_parser);
-        m_path.back().attributes.clear();
+        auto& mapattrs = m_path.back().attributes;
+        mapattrs.clear();
         for (int i = 0; attrs[i] != 0; i += 2) {
-            m_path.back().attributes[attrs[i]] = attrs[i+1];
+            mapattrs[attrs[i]] = attrs[i+1];
         }
 
         switch (name[0]) {
@@ -82,16 +83,16 @@ protected:
             if (!strcmp(name, "container")) {
                 m_tobj.clear();
                 m_tobj.m_type = UPnPDirObject::container;
-                m_tobj.m_id = m_path.back().attributes["id"];
-                m_tobj.m_pid = m_path.back().attributes["parentID"];
+                m_tobj.m_id = mapattrs["id"];
+                m_tobj.m_pid = mapattrs["parentID"];
             }
             break;
         case 'i':
             if (!strcmp(name, "item")) {
                 m_tobj.clear();
                 m_tobj.m_type = UPnPDirObject::item;
-                m_tobj.m_id = m_path.back().attributes["id"];
-                m_tobj.m_pid = m_path.back().attributes["parentID"];
+                m_tobj.m_id = mapattrs["id"];
+                m_tobj.m_pid = mapattrs["parentID"];
             }
             break;
         default:
@@ -160,7 +161,7 @@ protected:
                 if (!strcmp(name, "dc:title")) {
                     m_tobj.m_title = m_path.back().data;
                 } else {
-                    m_tobj.m_props[name] = m_path.back().data;
+                    addprop(name, m_path.back().data);
                 }
                 break;
             case 'r':
@@ -201,9 +202,13 @@ private:
     map<string, UPnPDirObject::ItemClass> m_okitems;
 
     void addprop(const string& nm, const string& data) {
-        auto roleit = m_path.back().attributes.find("role");
-        string rolevalue = (roleit == m_path.back().attributes.end()) ?
-            string() : string(" (") + roleit->second + string(")");
+        auto& mapattrs = m_path.back().attributes;
+        auto roleit = mapattrs.find("role");
+        string rolevalue;
+        if (roleit != mapattrs.end()) {
+            m_tobj.m_props[nm + "@role"] = roleit->second;
+            rolevalue = string(" (") + roleit->second + string(")");
+       }
         auto it = m_tobj.m_props.find(nm);
         if (it == m_tobj.m_props.end()) {
             m_tobj.m_props[nm] = data + rolevalue;
