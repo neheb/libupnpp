@@ -76,24 +76,33 @@ public:
                     ITC_audioItem_playlist = ITC_playlist // hist compat
                    };
 
-    std::string m_id; // ObjectId
-    std::string m_pid; // Parent ObjectId
-    std::string m_title; // dc:title. Directory name for a container.
-    ObjType m_type; // item or container
+    /// Object Id
+    std::string m_id;
+    /// Parent Object Id
+    std::string m_pid;
+    /// Value of dc:title.
+    std::string m_title;
+    /// Item or container
+    ObjType m_type;
+    /// Item type details
     ItemClass m_iclass;
-    // Properties as gathered from the XML document (album, artist, etc.),
-    // except for title which has a proper field.
-    // The map keys are the XML tag names
+
+    /// Properties as gathered from the XML document (album, artist, etc.),
+    /// The map keys are the XML tag names except for title which has
+    /// a proper field.
+    /// If there is a "role" attribute for a given
+    /// property, the value is stored under a prop@role key
+    /// (e.g. props["upnp:artist@role"] = "Composer")
     std::map<std::string, std::string> m_props;
 
-    // Resources: there may be several, for example for different
-    // audio formats of the same track, each with an URI and descriptor fields
+    /// Resources: there may be several, for example for different
+    /// audio formats of the same track, each with an URI and
+    /// descriptor fields.
     std::vector<UPnPResource> m_resources;
 
     /** Get named property
-     * @param name (e.g. upnp:artist, upnp:album,
-     *     upnp:originalTrackNumber, upnp:genre). Use m_title instead
-     *     for dc:title.
+     * @param name (e.g. upnp:artist, upnp:album...). Use m_title instead 
+     *         for dc:title.
      * @param[out] value the parameter value if found
      * @return true if found.
      */
@@ -106,6 +115,11 @@ public:
         value = it->second;
         return true;
     }
+    /** Get named property
+     * @param name (e.g. upnp:artist, upnp:album...). Use m_title instead
+     *     for dc:title.
+     * @return value if found, empty string if not found.
+     */
     const std::string& getprop(const std::string& name) const
     {
         std::map<std::string, std::string>::const_iterator it =
@@ -115,9 +129,13 @@ public:
         return it->second;
     }
 
-    /** Get named property for resource
+    /** Get named resource attribute.
      * Field names: "bitrate", "duration" (H:mm:ss.ms), "nrAudioChannels",
-     * "protocolInfo", "sampleFrequency" (Hz), "size" (bytes)
+     * "protocolInfo", "sampleFrequency" (Hz), "size" (bytes).
+     * @param ridx index in resources array.
+     * @param nm attribute name.
+     * @param[output] value if found.
+     * @return true if found, else false.
      */
     bool getrprop(unsigned int ridx, const std::string& nm, std::string& val)
     const
@@ -146,6 +164,9 @@ public:
         return val;
     }
 
+    /** Return duration in seconds. 
+     * @return duration or 1 if the attribute is not found.
+     */
     int getDurationSeconds(unsigned ridx = 0) const
     {
         std::string sdur;
