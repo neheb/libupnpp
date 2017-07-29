@@ -22,6 +22,8 @@
 #include <string>
 #include <utility>
 #include <functional>
+#include <condition_variable>
+#include <chrono>
 
 #include "libupnpp/control/discovery.hxx"
 #include "libupnpp/control/description.hxx"
@@ -138,23 +140,28 @@ void TypedService::registerCallback()
     Service::registerCallback(bind(&TypedService::evtCallback, this, _1));
 }
 
+// Callback for the discovery service to inform us about the devices
+// and services it knows or finds.
 class DirCB {
 public:
-    DirCB(const string& dv, const string& tp, bool fz)
+    DirCB(const string& dv, const string& tp, bool fz,
+          std::condition_variable& cv)
         : dvname(dv),
           ldvname(stringtolower(dv)),
           stype((fz? stringtolower(tp) : tp)),
-          fuzzy(fz) {
+          fuzzy(fz), discocv(cv) {
     }
     string dvname;
     string ldvname;
     string stype;
     bool fuzzy;
+    std::condition_variable& discocv;
     UPnPDeviceDesc founddev;
     UPnPServiceDesc foundserv;
     
     bool visit(const UPnPDeviceDesc& dev, const UPnPServiceDesc& serv) {
-
+        LOGDEB2("findTypedService:visit: got " << dev.friendlyName << " " <<
+               dev.UDN << " " << serv.serviceType << endl);
         bool matched = !dev.UDN.compare(dvname) ||
             !stringlowercmp(ldvname, dev.friendlyName);
         if (matched) {
@@ -168,6 +175,7 @@ public:
         if (matched) {
             founddev = dev;
             foundserv = serv;
+            discocv.notify_all();
         }
         // We return false if found, to stop the traversal. Success is
         // indicated by our data.
@@ -184,9 +192,37 @@ TypedService *findTypedService(const std::string& devname,
         LOGERR("Discovery init failed\n");
         return 0;
     }
-    DirCB cb(devname, servicetype, fuzzy);
+    std::mutex discolock;
+    std::condition_variable discocv;
+
+    DirCB cb(devname, servicetype, fuzzy, discocv);
     UPnPDeviceDirectory::Visitor vis = bind(&DirCB::visit, &cb, _1, _2);
-    superdir->traverse(vis);
+
+    {
+        std::unique_lock<std::mutex> mylock(discolock);
+        // Calls to vis() may occur *during* the addCallback()
+        // call. We need to check if the device was found before going
+        // into the wait loop.
+        int callbackidx = superdir->addCallback(vis);
+        if (cb.founddev.UDN.empty()) {
+            int ms;
+            while ((ms = superdir->getRemainingDelayMs()) > 100) {
+                discocv.wait_for(mylock, std::chrono::milliseconds(ms));
+                if (!cb.founddev.UDN.empty()) {
+                    break;
+                }
+            }
+        }
+        superdir->delCallback(callbackidx);
+    }
+
+    if (cb.founddev.UDN.empty()) {
+        LOGDEB("findTypedService: no luck with CB, traversing\n");
+        // Not found during the timeout. Let's traverse as a last
+        // ditch effort
+        superdir->traverse(vis);
+    }
+
     if (!cb.founddev.UDN.empty()) {
         TypedService *service = new TypedService(cb.foundserv.serviceType);
         service->initFromDescription(cb.founddev);

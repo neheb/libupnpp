@@ -211,11 +211,18 @@ static int cluCallBack(Upnp_EventType et, void* evp, void*)
 // finding and listing devices as soon as they appear.
 static vector<UPnPDeviceDirectory::Visitor> o_callbacks;
 static std::mutex o_callbacks_mutex;
+static bool simpleTraverse(UPnPDeviceDirectory::Visitor visit);
+static bool simpleVisit(UPnPDeviceDesc&, UPnPDeviceDirectory::Visitor);
 
 unsigned int UPnPDeviceDirectory::addCallback(UPnPDeviceDirectory::Visitor v)
 {
     std::unique_lock<std::mutex> lock(o_callbacks_mutex);
     o_callbacks.push_back(v);
+    // People use this method to avoid waiting for the initial
+    // delay. Return all data which we already have ! Else the
+    // quick-responding devices won't be found before the
+    // delay ends and the user finally calls traverse().
+    simpleTraverse(v);
     return o_callbacks.size() - 1;
 }
 
@@ -303,10 +310,7 @@ static void *discoExplorer(void *)
             {
                 std::unique_lock<std::mutex> lock(o_callbacks_mutex);
                 for (auto& cbp : o_callbacks) {
-                    (cbp)(d.device, UPnPServiceDesc());
-                    for (auto& it1 : d.device.embedded) {
-                        (cbp)(it1, UPnPServiceDesc());
-                    }
+                    simpleVisit(d.device, cbp);
                 }
             }
         }
@@ -345,7 +349,6 @@ static void expireDevices()
     }
 }
 
-  
 // m_searchTimeout is the UPnP device search timeout, which should
 // actually be called delay because it's the base of a random delay
 // that the devices apply to avoid responding all at the same time.
@@ -466,6 +469,38 @@ time_t UPnPDeviceDirectory::getRemainingDelay()
 static std::mutex devWaitLock;
 static std::condition_variable devWaitCond;
 
+// Call user function on one device (for all services)
+static bool simpleVisit(UPnPDeviceDesc& dev,
+                        UPnPDeviceDirectory::Visitor visit)
+{
+    for (auto& it1 : dev.services) {
+        if (!visit(dev, it1)) {
+            return false;
+        }
+    }
+    for (auto& it1 : dev.embedded) {
+        for (auto& it2 : it1.services) {
+            if (!visit(it1, it2)) {
+                return false;
+            }
+        }
+    }
+    return true;
+}
+
+// Walk the device list and call simpleVisit() on each.
+static bool simpleTraverse(UPnPDeviceDirectory::Visitor visit)
+{
+    std::unique_lock<std::mutex> lock(o_pool.m_mutex);
+
+    for (auto& it : o_pool.m_devices) {
+        if (!simpleVisit(it.second.device, visit)) {
+            return false;
+        }
+    }
+    return true;
+}
+
 bool UPnPDeviceDirectory::traverse(UPnPDeviceDirectory::Visitor visit)
 {
     //LOGDEB("UPnPDeviceDirectory::traverse" << endl);
@@ -493,24 +528,7 @@ bool UPnPDeviceDirectory::traverse(UPnPDeviceDirectory::Visitor visit)
 
     // Has locking, do it before our own lock
     expireDevices();
-
-    std::unique_lock<std::mutex> lock(o_pool.m_mutex);
-
-    for (auto& it : o_pool.m_devices) {
-        for (auto& it1 : it.second.device.services) {
-            if (!visit(it.second.device, it1)) {
-                return false;
-            }
-        }
-        for (auto& it1 : it.second.device.embedded) {
-            for (auto& it2 : it1.services) {
-                if (!visit(it1, it2)) {
-                    return false;
-                }
-            }
-        }
-    }
-    return true;
+    return simpleTraverse(visit);
 }
 
 static bool deviceFound(const UPnPDeviceDesc&, const UPnPServiceDesc&)

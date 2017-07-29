@@ -85,7 +85,10 @@ public:
     time_t getRemainingDelay();
 
     /** Set a callback to be called when devices report their existence
-     *  The visitor will be called once per device, with an empty service. */
+     *  The function will be called once per device, with an empty service,
+     *  Note that calls to v may be performed from a separate thread
+     *  and some may occur before addCallback() returns.
+     */
     static unsigned int addCallback(Visitor v);
     static void delCallback(unsigned int idx);
 
