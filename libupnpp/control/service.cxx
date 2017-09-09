@@ -36,6 +36,8 @@ using namespace std::placeholders;
 using namespace UPnPP;
 
 namespace UPnPClient {
+static bool initEvents();
+static int srvCB(Upnp_EventType et, void* vevp, void*);
 
 // A small helper class for the functions which perform
 // UpnpSendAction calls: get rid of IXML docs when done.
@@ -75,6 +77,10 @@ public:
         manufacturer = devdesc.manufacturer;
         modelName = devdesc.modelName;
     }
+    /* Tell the UPnP device (through libupnp) that we want to receive
+       its events. This is called by registerCallback() and sets m_SID */
+    bool subscribe();
+    bool unSubscribe();
 };
 
 /** Registered callbacks for all the service objects. The map is
@@ -255,7 +261,8 @@ template <class T> int Service::runSimpleAction(const std::string& actnm,
 }
 
 static std::mutex cblock;
-int Service::srvCB(Upnp_EventType et, void* vevp, void*)
+// The static event callback given to libupnp
+static int srvCB(Upnp_EventType et, void* vevp, void*)
 {
     std::unique_lock<std::mutex> lock(cblock);
 
@@ -309,8 +316,9 @@ int Service::srvCB(Upnp_EventType et, void* vevp, void*)
     return UPNP_E_SUCCESS;
 }
 
-// This is called once per process.
-bool Service::initEvents()
+// Only actually does something on the first call, to register our
+// (static) library callback
+static bool initEvents()
 {
     LOGDEB1("Service::initEvents" << endl);
 
@@ -334,27 +342,27 @@ bool Service::initEvents()
     return true;
 }
 
-bool Service::subscribe()
+bool Service::Internal::subscribe()
 {
-    LOGDEB1("Service::subscribe: " << m->eventURL << endl);
+    LOGDEB1("Service::subscribe: " << eventURL << endl);
     LibUPnP* lib = LibUPnP::getLibUPnP();
     if (lib == 0) {
         LOGINF("Service::subscribe: no lib" << endl);
         return false;
     }
     int timeout = 1800;
-    int ret = UpnpSubscribe(lib->getclh(), m->eventURL.c_str(),
-                            &timeout, m->SID);
+    int ret = UpnpSubscribe(lib->getclh(), eventURL.c_str(),
+                            &timeout, SID);
     if (ret != UPNP_E_SUCCESS) {
         LOGERR("Service:subscribe: failed: " << ret << " : " <<
                UpnpGetErrorMessage(ret) << endl);
         return false;
     }
-    LOGDEB1("Service::subs:   " << m->eventURL << " SID " << m->SID << endl);
+    LOGDEB1("Service::subs:   " << eventURL << " SID " << SID << endl);
     return true;
 }
 
-bool Service::unSubscribe()
+bool Service::Internal::unSubscribe()
 {
     LOGDEB1("Service::unSubs: " << m->eventURL << " SID " << m->SID << endl);
     LibUPnP* lib = LibUPnP::getLibUPnP();
@@ -362,8 +370,8 @@ bool Service::unSubscribe()
         LOGINF("Service::unSubscribe: no lib" << endl);
         return false;
     }
-    if (m->SID[0]) {
-        int ret = UpnpUnSubscribe(lib->getclh(), m->SID);
+    if (SID[0]) {
+        int ret = UpnpUnSubscribe(lib->getclh(), SID);
         if (ret != UPNP_E_SUCCESS) {
             LOGERR("Service:unSubscribe: failed: " << ret << " : " <<
                    UpnpGetErrorMessage(ret) << endl);
@@ -377,7 +385,7 @@ bool Service::unSubscribe()
 
 void Service::registerCallback(evtCBFunc c)
 {
-    if (!subscribe())
+    if (!m || !m->subscribe())
         return;
     std::unique_lock<std::mutex> lock(cblock);
     LOGDEB1("Service::registerCallback: " << m->eventURL << " SID " <<
@@ -390,7 +398,7 @@ void Service::unregisterCallback()
     LOGDEB1("Service::unregisterCallback: " << m->eventURL << " SID " <<
             m->SID << endl);
     if (m->SID[0]) {
-        unSubscribe();
+        m->unSubscribe();
         std::unique_lock<std::mutex> lock(cblock);
         o_calls.erase(m->SID);
         m->SID[0] = 0;

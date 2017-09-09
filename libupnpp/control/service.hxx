@@ -165,9 +165,17 @@ protected:
      * obtained by subscribe() during construction
      */
     void registerCallback(evtCBFunc c);
+
     /** To be overridden in classes which actually support events. Will be
-        called by installReporter() */
+     * called by installReporter(). The call sequence is as follows:
+     * some_client_code()
+     *   Service::installReporter()
+     *     derived::registerCallback()
+     *       Service::registerCallback(derivedcbfunc)
+     */
     virtual void registerCallback() {}
+
+    /** Cancel subscription to the service events, forget installed callback */
     void unregisterCallback();
 
 private:
@@ -178,16 +186,6 @@ private:
 
     class Internal;
     Internal *m{nullptr};
-
-    /* Only actually does something on the first call, to register our
-     * (static) library callback */
-    static bool initEvents();
-    /* The static event callback given to libupnp */
-    static int srvCB(Upnp_EventType et, void* vevp, void*);
-    /* Tell the UPnP device (through libupnp) that we want to receive
-       its events. This is called by registerCallback() and sets m_SID */
-    virtual bool subscribe();
-    virtual bool unSubscribe();
 };
 
 } // namespace UPnPClient
