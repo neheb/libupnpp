@@ -21,10 +21,11 @@
 #include "libupnpp/config.h"
 
 #include <unordered_map>
-#include <string>                       // for string
+#include <string>
 
 namespace UPnPClient {
-/** Decoding AV LastChange data
+
+/** Helper function for decoding UPnP/AV LastChange data.
  *    <Event xmlns="urn:schemas-upnp-org:metadata-1-0/AVT_RCS">
  *      <InstanceID val="0">
  *        <Mute val="0"/>
@@ -33,7 +34,8 @@ namespace UPnPClient {
  *    </Event>
  */
 extern bool decodeAVLastChange(const std::string& xml,
-                               std::unordered_map<std::string, std::string>& props);
+                               std::unordered_map<std::string,
+                               std::string>& props);
 
 
 } // namespace UPnPClient

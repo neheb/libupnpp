@@ -43,6 +43,8 @@ write_callback(void *contents, size_t size, size_t nmemb, void *userp)
 }
 
 
+namespace UPnPClient {
+
 bool downloadUrlWithCurl(const string& url, string& out, long timeoutsecs)
 {
     CURL *curl;
@@ -70,4 +72,6 @@ bool downloadUrlWithCurl(const string& url, string& out, long timeoutsecs)
     curl_easy_cleanup(curl);
 
     return ret;
+}
+
 }
