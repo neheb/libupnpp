@@ -17,17 +17,17 @@
  */
 #include "libupnpp/config.h"
 
-#include <string.h>                     // for strcmp
+#include <string.h>
 
 #include <unordered_map>
-#include <string>                       // for string, allocator, etc
-#include <vector>                       // for vector
+#include <string>
+#include <vector>
 #include <iostream>
 
 #include "libupnpp/control/cdircontent.hxx"
-#include "libupnpp/expatmm.hxx"         // for inputRefXMLParser
-#include "libupnpp/log.hxx"             // for LOGINF
-#include "libupnpp/upnpp_p.hxx"         // for trimstring
+#include "libupnpp/expatmm.hxx"
+#include "libupnpp/log.hxx"
+#include "libupnpp/upnpp_p.hxx"
 
 using namespace std;
 using namespace UPnPP;
@@ -202,18 +202,27 @@ private:
     map<string, UPnPDirObject::ItemClass> m_okitems;
 
     void addprop(const string& nm, const string& data) {
+        // e.g <upnp:artist role="AlbumArtist">Jojo</upnp:artist>
         auto& mapattrs = m_path.back().attributes;
         auto roleit = mapattrs.find("role");
         string rolevalue;
         if (roleit != mapattrs.end()) {
-            m_tobj.m_props[nm + "@role"] = roleit->second;
-            rolevalue = string(" (") + roleit->second + string(")");
-       }
+            if (roleit->second.compare("AlbumArtist")) {
+                // AlbumArtist is not useful for the user
+                rolevalue = string(" (") + roleit->second + string(")");
+            }
+        }
         auto it = m_tobj.m_props.find(nm);
         if (it == m_tobj.m_props.end()) {
             m_tobj.m_props[nm] = data + rolevalue;
         } else {
-            m_tobj.m_props[nm] += string(", ") + data + rolevalue;
+            // Only add the value if it's not already there. Actually,
+            // to do this properly we'd need to only build the string
+            // at the end when we have all the entries
+            string &current(it->second);
+            if (current.compare(data)) {
+                current += string(", ") + data + rolevalue;
+            }
         }
     }
 };
