@@ -596,6 +596,24 @@ bool UPnPDeviceDirectory::getDevByUDN(const string& value,
     return getDevBySelector(cmpUDN, value, ddesc);
 }
 
+bool UPnPDeviceDirectory::getDescriptionDocuments(
+    const string &uidOrFriendly, string& deviceXML,
+    unordered_map<string, string>& srvsXML)
+{
+    UPnPDeviceDesc ddesc;
+    if (!getDevByUDN(uidOrFriendly, ddesc) &&
+        !getDevByFName(uidOrFriendly, ddesc)) {
+        return false;
+    }
+    deviceXML = ddesc.XMLText;
+    for (const auto& entry : ddesc.services) {
+        srvsXML[entry.serviceId] = "";
+        UPnPServiceDesc::Parsed parsed;
+        entry.fetchAndParseDesc(ddesc.URLBase, parsed,
+                                &srvsXML[entry.serviceId]);
+    }
+    return true;
+}
 
 
 } // namespace UPnPClient

@@ -23,6 +23,7 @@
 
 #include <string>
 #include <functional>
+#include <unordered_map>
 
 namespace UPnPClient {
 class UPnPDeviceDesc;
@@ -114,6 +115,18 @@ public:
      */
     bool getDevByUDN(const std::string& udn, UPnPDeviceDesc& ddesc);
 
+    /** Helper function: retrieve all description data for a  named device 
+     *  @param uidOrFriendly device identification. First tried as UUID then 
+     *      friendly name.
+     *  @param[output] deviceXML device description document.
+     *  @param[output] srvsXML service name - service description map.
+     *  @return true for success.
+     */
+    bool getDescriptionDocuments(
+        const std::string &uidOrFriendly, std::string& deviceXML,
+        std::unordered_map<std::string, std::string>& srvsXML);
+
+    
     /** My health */
     bool ok();
 
