@@ -50,25 +50,31 @@ bool RenderingControl::isRDCService(const string& st)
     return !SType.compare(0, sz, st, 0, sz);
 }
 
+bool RenderingControl::serviceTypeMatch(const std::string& tp)
+{
+    return isRDCService(tp);
+}
+
+
 RenderingControl::RenderingControl(const UPnPDeviceDesc& device,
                                    const UPnPServiceDesc& service)
-    : Service(device, service), m_volmin(0), m_volmax(100), m_volstep(1)
+    : Service(device, service)
+{
+    serviceInit(device, service);
+}
+
+bool RenderingControl::serviceInit(const UPnPDeviceDesc& device,
+                                   const UPnPServiceDesc& service)
 {
     UPnPServiceDesc::Parsed sdesc;
     if (service.fetchAndParseDesc(device.URLBase, sdesc)) {
-        std::unordered_map<std::string, UPnPServiceDesc::StateVariable>::const_iterator it =
-            sdesc.stateTable.find("Volume");
+        const auto it = sdesc.stateTable.find("Volume");
         if (it != sdesc.stateTable.end() && it->second.hasValueRange) {
             setVolParams(it->second.minimum, it->second.maximum,
                          it->second.step);
         }
     }
-    registerCallback();
-}
-
-RenderingControl::~RenderingControl()
-{
-    unregisterCallback();
+    return true;
 }
 
 // Translate device volume to 0-100
@@ -199,7 +205,7 @@ int RenderingControl::getVolume(const string& channel)
                << endl);
         return UPNP_E_BAD_RESPONSE;
     }
-
+    LOGDEB("RenderingControl::getVolume: got " << dev_volume << endl);
     // Output is always 0-100. Translate from device range
     return devVolTo0100(dev_volume);
 }

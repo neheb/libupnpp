@@ -44,15 +44,15 @@ public:
 
     OHRadio(const UPnPDeviceDesc& device, const UPnPServiceDesc& service)
         : Service(device, service) {
-        registerCallback();
     }
-    virtual ~OHRadio() {
-    }
+
+    virtual ~OHRadio() {}
 
     OHRadio() {}
 
     /** Test service type from discovery message */
     static bool isOHRdService(const std::string& st);
+    virtual bool serviceTypeMatch(const std::string& tp);
 
     int channel(std::string* uri, UPnPDirObject *dirent);
     int channelsMax(int *);

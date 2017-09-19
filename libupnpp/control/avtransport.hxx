@@ -20,22 +20,17 @@
 
 #include "libupnpp/config.h"
 
-#include <string>                       // for string
+#include <string>
 
 #include "libupnpp/control/cdircontent.hxx"  // for UPnPDirObject
 #include "libupnpp/control/service.hxx"  // for Service
+#include "libupnpp/log.hxx"
 
 namespace UPnPClient {
+
 class AVTransport;
-}
-namespace UPnPClient {
 class UPnPDeviceDesc;
-}
-namespace UPnPClient {
 class UPnPServiceDesc;
-}
-
-namespace UPnPClient {
 
 typedef std::shared_ptr<AVTransport> AVTH;
 
@@ -46,17 +41,12 @@ typedef std::shared_ptr<AVTransport> AVTH;
 class AVTransport : public Service {
 public:
 
-    /** Construct by copying data from device and service objects.
-     *
-     */
-    AVTransport(const UPnPDeviceDesc& device,
-                const UPnPServiceDesc& service)
-        : Service(device, service) {
-        registerCallback();
+    /** Construct by copying data from device and service objects. */
+    AVTransport(const UPnPDeviceDesc& dev, const UPnPServiceDesc& srv)
+        : Service(dev, srv) {
     }
-
     AVTransport() {}
-    virtual ~AVTransport() { }
+    virtual ~AVTransport() {}
 
     int setAVTransportURI(const std::string& uri, const std::string& metadata,
                           int instanceID=0)
@@ -149,6 +139,7 @@ public:
 
     /** Test service type from discovery message */
     static bool isAVTService(const std::string& st);
+    virtual bool serviceTypeMatch(const std::string& tp);
 
 protected:
     /* My service type string */
@@ -161,7 +152,6 @@ protected:
 private:
     void evtCallback(const std::unordered_map<std::string, std::string>&);
     void registerCallback();
-
 };
 
 } // namespace UPnPClient

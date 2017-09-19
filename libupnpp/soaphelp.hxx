@@ -22,13 +22,9 @@
 
 #include <unordered_map>
 #include <memory>
+#include <string>
 
-#include <upnp/ixml.h>                  // for IXML_Document
-
-#include <map>                          // for map
-#include <string>                       // for string
-#include <utility>                      // for pair
-#include <vector>                       // for vector
+#include <upnp/ixml.h>
 
 namespace UPnPP {
 
@@ -58,6 +54,7 @@ public:
     /** Get string parameter value */
     bool get(const char *nm, std::string *value) const;
 
+    void getMap(std::unordered_map<std::string, std::string>& out);
 private:
     class Internal;
     Internal *m;

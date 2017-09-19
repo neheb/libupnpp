@@ -36,6 +36,8 @@ using namespace std::placeholders;
 using namespace UPnPP;
 
 namespace UPnPClient {
+static bool initEvents();
+static int srvCB(Upnp_EventType et, void* vevp, void*);
 
 // A small helper class for the functions which perform
 // UpnpSendAction calls: get rid of IXML docs when done.
@@ -55,7 +57,7 @@ class Service::Internal {
 public:
     /** Upper level client code event callbacks. To be called by derived class
      * for reporting events. */
-    VarEventReporter *reporter;
+    VarEventReporter *reporter{nullptr};
     std::string actionURL;
     std::string eventURL;
     std::string serviceType;
@@ -63,10 +65,25 @@ public:
     std::string friendlyName;
     std::string manufacturer;
     std::string modelName;
-    Upnp_SID    SID; /* Subscription Id */
+    Upnp_SID    SID{0}; /* Subscription Id */
+
+    void initFromDeviceAndService(const UPnPDeviceDesc& devdesc,
+                                  const UPnPServiceDesc& servdesc) {
+        actionURL = caturl(devdesc.URLBase, servdesc.controlURL);
+        eventURL = caturl(devdesc.URLBase, servdesc.eventSubURL);
+        serviceType = servdesc.serviceType;
+        deviceId = devdesc.UDN;
+        friendlyName = devdesc.friendlyName;
+        manufacturer = devdesc.manufacturer;
+        modelName = devdesc.modelName;
+    }
+    /* Tell the UPnP device (through libupnp) that we want to receive
+       its events. This is called by registerCallback() and sets m_SID */
+    bool subscribe();
+    bool unSubscribe();
 };
 
-/** Registered callbacks for the service objects. The map is
+/** Registered callbacks for all the service objects. The map is
  * indexed by SID, the subscription id which was obtained by
  * each object when subscribing to receive the events for its
  * device. The map allows the static function registered with
@@ -83,18 +100,28 @@ Service::Service(const UPnPDeviceDesc& devdesc,
         return;
     }
 
-    m->reporter = 0;
-    m->actionURL = caturl(devdesc.URLBase, servdesc.controlURL);
-    m->eventURL = caturl(devdesc.URLBase, servdesc.eventSubURL);
-    m->serviceType = servdesc.serviceType;
-    m->deviceId = devdesc.UDN;
-    m->friendlyName = devdesc.friendlyName;
-    m->manufacturer = devdesc.manufacturer;
-    m->modelName = devdesc.modelName;
-    m->SID[0] = 0;
-
+    m->initFromDeviceAndService(devdesc, servdesc);
     // Only does anything the first time
     initEvents();
+    // serviceInit() will be called from the derived class constructor
+    // if needed
+}
+
+bool Service::initFromDescription(const UPnPDeviceDesc& devdesc)
+{
+    if (!m) {
+        LOGERR("Device::Device: Internal is null" << endl);
+        return false;
+    }
+    for (auto& servdesc : devdesc.services) {
+        if (serviceTypeMatch(servdesc.serviceType)) {
+            m->initFromDeviceAndService(devdesc, servdesc);
+            // Only does anything the first time
+            initEvents();
+            return serviceInit(devdesc, servdesc);
+        }
+    }
+    return false;
 }
 
 Service::Service()
@@ -103,13 +130,11 @@ Service::Service()
         LOGERR("Device::Device: out of memory" << endl);
         return;
     }
-    m->reporter = 0;
 }
 
 Service::~Service()
 {
-    //LOGDEB("Service::~Service: " << m->serviceType << " SID " <<
-    // m->SID << endl);
+    LOGDEB1("Service::~Service: " << m->eventURL << " SID " << m->SID << endl);
     unregisterCallback();
     delete m;
     m = 0;
@@ -143,16 +168,6 @@ const string& Service::getModelName() const
 const string& Service::getManufacturer() const
 {
     return m->manufacturer;
-}
-
-VarEventReporter *Service::getReporter()
-{
-    return m->reporter;
-}
-
-void Service::installReporter(VarEventReporter* reporter)
-{
-    m->reporter = reporter;
 }
 
 int Service::runAction(const SoapOutgoing& args, SoapIncoming& data)
@@ -246,11 +261,12 @@ template <class T> int Service::runSimpleAction(const std::string& actnm,
 }
 
 static std::mutex cblock;
-int Service::srvCB(Upnp_EventType et, void* vevp, void*)
+// The static event callback given to libupnp
+static int srvCB(Upnp_EventType et, void* vevp, void*)
 {
     std::unique_lock<std::mutex> lock(cblock);
 
-    LOGDEB1("Service:srvCB: " << LibUPnP::evTypeAsString(et) << endl);
+    LOGDEB0("Service:srvCB: " << LibUPnP::evTypeAsString(et) << endl);
 
     switch (et) {
     case UPNP_EVENT_RENEWAL_COMPLETE:
@@ -267,7 +283,7 @@ int Service::srvCB(Upnp_EventType et, void* vevp, void*)
     case UPNP_EVENT_RECEIVED:
     {
         struct Upnp_Event *evp = (struct Upnp_Event *)vevp;
-        LOGDEB1("Service:srvCB: var change event: Sid: " <<
+        LOGDEB1("Service:srvCB: var change event: SID " <<
                 evp->Sid << " EventKey " << evp->EventKey <<
                 " changed " << ixmlwPrintDoc(evp->ChangedVariables) << endl);
 
@@ -280,9 +296,8 @@ int Service::srvCB(Upnp_EventType et, void* vevp, void*)
         //LOGDEB("srvCB: " << entry.first << " -> " << entry.second << endl);
         //}
 
-        std::unordered_map<std::string, evtCBFunc>::iterator it =
-            o_calls.find(evp->Sid);
-        if (it!= o_calls.end()) {
+        auto it = o_calls.find(evp->Sid);
+        if (it != o_calls.end()) {
             (it->second)(props);
         } else {
             LOGINF("Service::srvCB: no callback found for sid " << evp->Sid <<
@@ -301,8 +316,9 @@ int Service::srvCB(Upnp_EventType et, void* vevp, void*)
     return UPNP_E_SUCCESS;
 }
 
-// This is called once per process.
-bool Service::initEvents()
+// Only actually does something on the first call, to register our
+// (static) library callback
+static bool initEvents()
 {
     LOGDEB1("Service::initEvents" << endl);
 
@@ -326,42 +342,36 @@ bool Service::initEvents()
     return true;
 }
 
-//void Service::evtCallback(
-//    const std::unordered_map<std::string, std::string>*)
-//{
-//    LOGDEB("Service::evtCallback!! service: " << m->serviceType << endl);
-//}
-
-bool Service::subscribe()
+bool Service::Internal::subscribe()
 {
-    LOGDEB1("Service::subscribe" << endl);
+    LOGDEB1("Service::subscribe: " << eventURL << endl);
     LibUPnP* lib = LibUPnP::getLibUPnP();
     if (lib == 0) {
         LOGINF("Service::subscribe: no lib" << endl);
         return false;
     }
     int timeout = 1800;
-    int ret = UpnpSubscribe(lib->getclh(), m->eventURL.c_str(),
-                            &timeout, m->SID);
+    int ret = UpnpSubscribe(lib->getclh(), eventURL.c_str(),
+                            &timeout, SID);
     if (ret != UPNP_E_SUCCESS) {
         LOGERR("Service:subscribe: failed: " << ret << " : " <<
                UpnpGetErrorMessage(ret) << endl);
         return false;
     }
-    LOGDEB1("Service::subscribe: sid: " << m->SID << endl);
+    LOGDEB1("Service::subs:   " << eventURL << " SID " << SID << endl);
     return true;
 }
 
-bool Service::unSubscribe()
+bool Service::Internal::unSubscribe()
 {
-    LOGDEB1("Service::unSubscribe" << endl);
+    LOGDEB1("Service::unSubs: " << m->eventURL << " SID " << m->SID << endl);
     LibUPnP* lib = LibUPnP::getLibUPnP();
     if (lib == 0) {
         LOGINF("Service::unSubscribe: no lib" << endl);
         return false;
     }
-    if (m->SID[0]) {
-        int ret = UpnpUnSubscribe(lib->getclh(), m->SID);
+    if (SID[0]) {
+        int ret = UpnpUnSubscribe(lib->getclh(), SID);
         if (ret != UPNP_E_SUCCESS) {
             LOGERR("Service:unSubscribe: failed: " << ret << " : " <<
                    UpnpGetErrorMessage(ret) << endl);
@@ -375,28 +385,46 @@ bool Service::unSubscribe()
 
 void Service::registerCallback(evtCBFunc c)
 {
-    if (!subscribe())
+    if (!m || !m->subscribe())
         return;
     std::unique_lock<std::mutex> lock(cblock);
-    LOGDEB1("Service::registerCallback: " << m->SID << endl);
+    LOGDEB1("Service::registerCallback: " << m->eventURL << " SID " <<
+            m->SID << endl);
     o_calls[m->SID] = c;
 }
 
 void Service::unregisterCallback()
 {
-    LOGDEB1("Service::unregisterCallback: " << m->SID << endl);
+    LOGDEB1("Service::unregisterCallback: " << m->eventURL << " SID " <<
+            m->SID << endl);
     if (m->SID[0]) {
-        unSubscribe();
+        m->unSubscribe();
         std::unique_lock<std::mutex> lock(cblock);
         o_calls.erase(m->SID);
         m->SID[0] = 0;
     }
 }
 
-#if 0
+VarEventReporter *Service::getReporter()
+{
+    if (m)
+        return m->reporter;
+    return nullptr;
+}
+
+void Service::installReporter(VarEventReporter* reporter)
+{
+    if (reporter) {
+        registerCallback();
+    } else {
+        unregisterCallback();
+    }
+    m->reporter = reporter;
+}
+
 void Service::reSubscribe()
 {
-    LOGDEB("Service::reSubscribe()------------------------\n");
+    LOGDEB("Service::reSubscribe()\n");
     if (m->SID[0] == 0) {
         LOGINF("Service::reSubscribe: no subscription (null SID)\n");
         return;
@@ -404,8 +432,7 @@ void Service::reSubscribe()
     evtCBFunc c;
     {
         std::unique_lock<std::mutex> lock(cblock);
-        std::unordered_map<std::string, evtCBFunc>::iterator it =
-            o_calls.find(m->SID);
+        auto it = o_calls.find(m->SID);
         if (it == o_calls.end()) {
             LOGINF("Service::reSubscribe: no callback found for m->SID " <<
                    m->SID << endl);
@@ -416,12 +443,13 @@ void Service::reSubscribe()
     unregisterCallback();
     registerCallback(c);
 }
-#endif
 
 template int Service::runSimpleAction<int>(string const&, string const&, int);
+template int Service::runSimpleAction<string>(string const&, string const&,
+                                              string);
 template int Service::runSimpleGet<int>(string const&, string const&, int*);
 template int Service::runSimpleGet<bool>(string const&, string const&, bool*);
 template int Service::runSimpleAction<bool>(string const&, string const&, bool);
-template int Service::runSimpleGet<string>(string const&, string const&, string*);
+template int Service::runSimpleGet<string>(string const&,string const&,string*);
 
 }

@@ -26,17 +26,12 @@
 
 #include "service.hxx"                  // for Service
 
-namespace UPnPClient {
-class OHInfo;
-}
-namespace UPnPClient {
-class UPnPDeviceDesc;
-}
-namespace UPnPClient {
-class UPnPServiceDesc;
-}
 
 namespace UPnPClient {
+
+class OHInfo;
+class UPnPDeviceDesc;
+class UPnPServiceDesc;
 
 typedef std::shared_ptr<OHInfo> OHIFH;
 
@@ -48,17 +43,15 @@ public:
 
     OHInfo(const UPnPDeviceDesc& device, const UPnPServiceDesc& service)
         : Service(device, service) {
-        registerCallback();
-    }
-
-    ~OHInfo() {
     }
 
     OHInfo() {}
 
+    ~OHInfo() {}
 
     /** Test service type from discovery message */
     static bool isOHInfoService(const std::string& st);
+    virtual bool serviceTypeMatch(const std::string& tp);
 
     int metatext(UPnPDirObject *dirent);
 

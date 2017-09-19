@@ -2,8 +2,9 @@
 # Software version. There is no direct link with the library version_info
 # except that we sort or promise that no api and abi incompatibilities
 # occur with revision (3rd number) changes.
+<<<<<<< HEAD
 # ! When changing the version, also change the defines in upnpplib.hxx !
-AC_INIT([libupnpp], [0.15.3], [jfd@lesbonscomptes.com],
+AC_INIT([libupnpp], [0.16.0], [jfd@lesbonscomptes.com],
              [libupnpp], [http://www.lesbonscomptes.com/upmpdcli])
 
 # Lib version info. See:
@@ -23,7 +24,7 @@ AC_INIT([libupnpp], [0.15.3], [jfd@lesbonscomptes.com],
 # libupnpp packages are named libupnppX where X is the .so major number
 # (c-a). This allows packages for multiple incompatible ABIs to be
 # installed
-VERSION_INFO=6:2:0
+VERSION_INFO=7:0:0
 
 AC_PREREQ([2.53])
 AC_CONFIG_SRCDIR([libupnpp/upnpplib.hxx])

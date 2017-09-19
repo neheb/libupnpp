@@ -61,11 +61,9 @@ static DVCH getDevice(const string& name)
 OHSNH senderService(DVCH dev)
 {
     OHSNH handle;
-    for (vector<UPnPServiceDesc>::const_iterator it =
-                dev->desc()->services.begin();
-            it != dev->desc()->services.end(); it++) {
-        if (OHSender::isOHSenderService(it->serviceType)) {
-            handle = OHSNH(new OHSender(*(dev->desc()), *it));
+    for (auto& service : dev->desc()->services) {
+        if (OHSender::isOHSenderService(service.serviceType)) {
+            handle = OHSNH(new OHSender(*(dev->desc()), service));
             break;
         }
     }
@@ -80,7 +78,11 @@ OHSNH getSender(const string& nm, string& reason)
         reason = nm + " : can't connect or not a renderer";
         return ret;
     }
-    return senderService(dev);
+    ret = senderService(dev);
+    if (!ret) {
+        reason = nm + " : Sender service not found";
+    }
+    return ret;
 }
 
 void getSenderState(const string& nm, SenderState& st, bool live)
@@ -208,6 +210,64 @@ out:
     return;
 }
 
+bool setSourceIndex(const string& nm, int sourceindex) {
+    LOGDEB("setSourceIndex: nm " << nm << " index " << sourceindex << endl);
+
+    MRDH rdr = getRenderer(nm);
+    if (!rdr) {
+        LOGDEB("setSourceIndex: device " << nm << " is not renderer " << endl);
+        return false;
+    }
+    OHPRH prod = rdr->ohpr();
+    if (!prod) {
+        LOGDEB("setSourceIndex: device " << nm
+                << " has no OHProduct service " << endl);
+        return false;
+    }
+    vector<OHProduct::Source> sources;
+    if (prod->getSources(sources) || sources.size() == 0) {
+        LOGDEB("setSourceIndex: getSources failed" << endl);
+        return false;
+    }
+    if (sourceindex < 0 || sourceindex >= int(sources.size())) {
+        LOGDEB("setSourceIndex: bad index " << SoapHelp::i2s(sourceindex)
+                << endl);
+        return false;
+    }
+    int currentindex;
+    if (prod->sourceIndex(&currentindex)) {
+        LOGDEB("setSourceIndex: sourceIndex failed" << endl);
+        return false;
+    }
+    if (currentindex < 0 || currentindex >= int(sources.size())) {
+        LOGDEB("setSourceIndex: bad index " << currentindex << endl);
+        return false;
+    }
+
+    if (sourceindex != currentindex) {
+        return prod->setSourceIndex(sourceindex) == 0;
+    }
+    return true;
+}
+
+bool setSourceIndexByName(const string& rdrnm, const string& name) {
+    LOGDEB("setSourceIndexByName: rdrnm " << rdrnm << " name " << name << endl);
+
+    MRDH rdr = getRenderer(rdrnm);
+    if (!rdr) {
+        LOGDEB("setSourceIndexByName: device " << rdrnm << " is not renderer "
+                << endl);
+        return false;
+    }
+    OHPRH prod = rdr->ohpr();
+    if (!prod) {
+        LOGDEB("setSourceIndexByName: device " << rdrnm
+                << " has no OHProduct service " << endl);
+        return false;
+    }
+    return prod->setSourceIndexByName(name) == 0;
+}
+
 void listReceivers(vector<ReceiverState>& vreceivers)
 {
     vreceivers.clear();
@@ -318,7 +378,7 @@ void setReceiversFromSender(const string& sendernm, const vector<string>& rcvs)
     string reason;
     OHSNH sender = getSender(sendernm, reason);
     if (!sender) {
-        LOGERR(reason << endl);
+        LOGERR("setReceiversFromSender: " << reason << endl);
         return;
     }
     string uri, meta;

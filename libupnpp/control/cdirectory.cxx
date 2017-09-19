@@ -58,6 +58,10 @@ bool ContentDirectory::isCDService(const string& st)
     const string::size_type sz(SType.size()-2);
     return !SType.compare(0, sz, st, 0, sz);
 }
+bool ContentDirectory::serviceTypeMatch(const std::string& tp)
+{
+    return isCDService(tp);
+}
 
 void ContentDirectory::evtCallback(
     const std::unordered_map<string, string>& props)
@@ -158,11 +162,16 @@ static const SimpleRegexp twonky_rx("twonky", REG_ICASE|REG_NOSUB);
 
 ContentDirectory::ContentDirectory(const UPnPDeviceDesc& device,
                                    const UPnPServiceDesc& service)
-    : Service(device, service), m_rdreqcnt(200), m_serviceKind(CDSKIND_UNKNOWN)
+    : Service(device, service)
 {
     LOGERR("ContentDirectory::ContentDirectory: manufacturer: " <<
            getManufacturer() << " model " << getModelName() << endl);
+    serviceInit(device, service);
+}
 
+bool ContentDirectory::serviceInit(const UPnPDeviceDesc& device,
+                                   const UPnPServiceDesc& service)
+{
     if (bubble_rx(getModelName())) {
         m_serviceKind = CDSKIND_BUBBLE;
         LOGDEB1("ContentDirectory::ContentDirectory: BUBBLE" << endl);
@@ -182,11 +191,7 @@ ContentDirectory::ContentDirectory(const UPnPDeviceDesc& device,
         m_serviceKind = CDSKIND_TWONKY;
         LOGDEB1("ContentDirectory::ContentDirectory: TWONKY" << endl);
     }
-    registerCallback();
-}
-
-ContentDirectory::~ContentDirectory()
-{
+    return true;
 }
 
 static bool DSAccum(vector<CDSH>* out,
@@ -229,9 +234,7 @@ bool ContentDirectory::getServerByName(const string& fname, CDSH& server)
 
 void ContentDirectory::registerCallback()
 {
-    LOGDEB("ContentDirectory::registerCallback"<< endl);
-    Service::registerCallback(bind(&ContentDirectory::evtCallback,
-                                   this, _1));
+    Service::registerCallback(bind(&ContentDirectory::evtCallback, this, _1));
 }
 
 int ContentDirectory::readDirSlice(const string& objectId, int offset,

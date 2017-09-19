@@ -17,17 +17,17 @@
  */
 #include "libupnpp/config.h"
 
-#include <string.h>                     // for strcmp
+#include <string.h>
 
 #include <unordered_map>
-#include <string>                       // for string, allocator, etc
-#include <vector>                       // for vector
+#include <string>
+#include <vector>
 #include <iostream>
 
 #include "libupnpp/control/cdircontent.hxx"
-#include "libupnpp/expatmm.hxx"         // for inputRefXMLParser
-#include "libupnpp/log.hxx"             // for LOGINF
-#include "libupnpp/upnpp_p.hxx"         // for trimstring
+#include "libupnpp/expatmm.hxx"
+#include "libupnpp/log.hxx"
+#include "libupnpp/upnpp_p.hxx"
 
 using namespace std;
 using namespace UPnPP;
@@ -43,6 +43,7 @@ public:
         : inputRefXMLParser(input), m_dir(dir)
     {
         //LOGDEB("UPnPDirParser: input: " << input << endl);
+        m_okitems["object.item.audioItem"] = UPnPDirObject::ITC_audioItem;
         m_okitems["object.item.audioItem.musicTrack"] =
             UPnPDirObject::ITC_audioItem;
         m_okitems["object.item.audioItem.audioBroadcast"] =
@@ -71,9 +72,10 @@ protected:
 
         m_path.push_back(StackEl(name));
         m_path.back().sta = XML_GetCurrentByteIndex(expat_parser);
-        m_path.back().attributes.clear();
+        auto& mapattrs = m_path.back().attributes;
+        mapattrs.clear();
         for (int i = 0; attrs[i] != 0; i += 2) {
-            m_path.back().attributes[attrs[i]] = attrs[i+1];
+            mapattrs[attrs[i]] = attrs[i+1];
         }
 
         switch (name[0]) {
@@ -81,16 +83,16 @@ protected:
             if (!strcmp(name, "container")) {
                 m_tobj.clear();
                 m_tobj.m_type = UPnPDirObject::container;
-                m_tobj.m_id = m_path.back().attributes["id"];
-                m_tobj.m_pid = m_path.back().attributes["parentID"];
+                m_tobj.m_id = mapattrs["id"];
+                m_tobj.m_pid = mapattrs["parentID"];
             }
             break;
         case 'i':
             if (!strcmp(name, "item")) {
                 m_tobj.clear();
                 m_tobj.m_type = UPnPDirObject::item;
-                m_tobj.m_id = m_path.back().attributes["id"];
-                m_tobj.m_pid = m_path.back().attributes["parentID"];
+                m_tobj.m_id = mapattrs["id"];
+                m_tobj.m_pid = mapattrs["parentID"];
             }
             break;
         default:
@@ -159,7 +161,7 @@ protected:
                 if (!strcmp(name, "dc:title")) {
                     m_tobj.m_title = m_path.back().data;
                 } else {
-                    m_tobj.m_props[name] = m_path.back().data;
+                    addprop(name, m_path.back().data);
                 }
                 break;
             case 'r':
@@ -200,14 +202,27 @@ private:
     map<string, UPnPDirObject::ItemClass> m_okitems;
 
     void addprop(const string& nm, const string& data) {
-        auto roleit = m_path.back().attributes.find("role");
-        string rolevalue = (roleit == m_path.back().attributes.end()) ?
-            string() : string(" (") + roleit->second + string(")");
+        // e.g <upnp:artist role="AlbumArtist">Jojo</upnp:artist>
+        auto& mapattrs = m_path.back().attributes;
+        auto roleit = mapattrs.find("role");
+        string rolevalue;
+        if (roleit != mapattrs.end()) {
+            if (roleit->second.compare("AlbumArtist")) {
+                // AlbumArtist is not useful for the user
+                rolevalue = string(" (") + roleit->second + string(")");
+            }
+        }
         auto it = m_tobj.m_props.find(nm);
         if (it == m_tobj.m_props.end()) {
             m_tobj.m_props[nm] = data + rolevalue;
         } else {
-            m_tobj.m_props[nm] += string(", ") + data + rolevalue;
+            // Only add the value if it's not already there. Actually,
+            // to do this properly we'd need to only build the string
+            // at the end when we have all the entries
+            string &current(it->second);
+            if (current.compare(data)) {
+                current += string(", ") + data + rolevalue;
+            }
         }
     }
 };

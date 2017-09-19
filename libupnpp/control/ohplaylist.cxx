@@ -50,6 +50,10 @@ bool OHPlaylist::isOHPlService(const string& st)
     const string::size_type sz(SType.size()-2);
     return !SType.compare(0, sz, st, 0, sz);
 }
+bool OHPlaylist::serviceTypeMatch(const std::string& tp)
+{
+    return isOHPlService(tp);
+}
 
 int OHPlaylist::stringToTpState(const string& value, OHPlaylist::TPState *tpp)
 {

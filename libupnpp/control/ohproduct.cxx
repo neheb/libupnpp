@@ -106,6 +106,10 @@ bool OHProduct::isOHPrService(const string& st)
     const string::size_type sz(SType.size()-2);
     return !SType.compare(0, sz, st, 0, sz);
 }
+bool OHProduct::serviceTypeMatch(const std::string& tp)
+{
+    return isOHPrService(tp);
+}
 
 
 void OHProduct::evtCallback(
@@ -173,6 +177,11 @@ int OHProduct::sourceIndex(int *index)
 int OHProduct::setSourceIndex(int index)
 {
     return runSimpleAction("SetSourceIndex", "Value", index);
+}
+
+int OHProduct::setSourceIndexByName(const string& name)
+{
+    return runSimpleAction("SetSourceIndexByName", "Value", name);
 }
 
 int OHProduct::standby(bool *value)

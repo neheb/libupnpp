@@ -55,6 +55,8 @@ struct SenderState {
     std::string meta;
     std::string reason;
     bool has_sender;
+
+    OHPRH prod;
     OHSNH sender;
 
     SenderState() : has_sender(false) { }
@@ -105,6 +107,22 @@ struct ReceiverState {
     }
 };
 
+/** Set the source index for the renderer nm (friendly or uuid)
+ *
+ * @param nm friendly name or uuid of the UPnP media renderer
+ * @param sourceindex index of the source
+ *
+ */
+extern bool setSourceIndex(const std::string& rdrnm, int sourceindex);
+
+/** Set the source index by name for the renderer nm (friendly or uuid)
+ *
+ * @param nm friendly name or uuid of the UPnP media renderer
+ * @param name name of the source
+ *
+ */
+extern bool setSourceIndexByName(const std::string& rdrnm,
+                                 const std::string& name);
 
 /** Retrieve the Receiver service status for device nm (friendly or uuid)
  *

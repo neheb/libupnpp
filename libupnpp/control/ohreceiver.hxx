@@ -44,15 +44,13 @@ public:
 
     OHReceiver(const UPnPDeviceDesc& device, const UPnPServiceDesc& service)
         : Service(device, service) {
-        registerCallback();
     }
-    virtual ~OHReceiver() {
-    }
-
     OHReceiver() {}
+    virtual ~OHReceiver() {}
 
     /** Test service type from discovery message */
     static bool isOHRcService(const std::string& st);
+    virtual bool serviceTypeMatch(const std::string& tp);
 
     int play();
     int stop();

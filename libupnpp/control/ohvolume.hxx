@@ -27,19 +27,34 @@
 
 #include "service.hxx"                  // for Service
 
-namespace UPnPClient {
-class OHVolume;
-}
-namespace UPnPClient {
-class UPnPDeviceDesc;
-}
-namespace UPnPClient {
-class UPnPServiceDesc;
-}
 
 namespace UPnPClient {
+
+class OHVolume;
+class UPnPDeviceDesc;
+class UPnPServiceDesc;
 
 typedef std::shared_ptr<OHVolume> OHVLH;
+
+struct OHVCharacteristics {
+    /// VolumeMax defines the absolute maximum Volume setting.
+    int volumeMax;;
+    /// VolumeUnity defines the value of Volume that will result in
+    /// unity system gain (i.e. output amplitude = input amplitude).
+    int volumeUnity;
+    /// VolumeSteps defines the number of step increments required to
+    /// increase the Volume from zero to VolumeMax.
+    int volumeSteps;
+    /// VolumeMilliDbPerStep defines the size of each volume step in
+    /// binary milli decibels (mibi dB). [1024mibi dB = 1dB]
+    int volumeMilliDbPerStep;
+    /// BalanceMax defines the maximum Balance setting. The minimum
+    /// Balance setting is (-BalanceMax).
+    int balanceMax;
+    /// FadeMax defines the maximum Fade setting. The minimum Fade
+    /// setting is (-FadeMax).
+    int fadeMax;
+};
 
 /**
  * OHVolume Service client class.
@@ -49,17 +64,17 @@ class OHVolume : public Service {
 public:
 
     OHVolume(const UPnPDeviceDesc& device, const UPnPServiceDesc& service)
-        : Service(device, service), m_volmax(-1) {
-        registerCallback();
+        : Service(device, service) {
     }
-    virtual ~OHVolume() {
-    }
+    virtual ~OHVolume() {}
 
     OHVolume() {}
 
     /** Test service type from discovery message */
     static bool isOHVLService(const std::string& st);
+    virtual bool serviceTypeMatch(const std::string& tp);
 
+    int characteristics(OHVCharacteristics* c);
     int volume(int *value);
     int setVolume(int value);
     int volumeLimit(int *value);
@@ -77,7 +92,7 @@ private:
     int vol0100ToDev(int vol);
     int maybeInitVolmax();
 
-    int m_volmax;
+    int m_volmax{-1};
 };
 
 } // namespace UPnPClient

@@ -1,11 +1,15 @@
 = Libupnpp for Control Points
 
-Libupnpp is a C++ wrapper for libupnp, a.k.a Portable UPnP, which is a
-direct descendant of the Open Source SDK released by Intel in support of
-UPnP development.
+Libupnpp is a C++ wrapper for link:http://pupnp.sourceforge.net/[libupnp],
+a.k.a Portable UPnP, which is a direct descendant of the Open Source SDK
+released by Intel in support of UPnP development.
 
-The Control Point side of libupnpp allows a C++ program to discover
-devices, and exchange commands and status with them.
+Libupnpp can be used to implement UPnP devices and services, or Control
+Points.
+
+The Control Point side of libupnpp, which is documented here, allows a C++
+program to discover UPnP devices, and exchange commands and status with
+them.
 
 The library has a number of predefined modules for controlling specific
 AVTransport or OpenHome audio services, and it is relatively easy to add
@@ -15,8 +19,11 @@ access to library internals than an external module would).
 Limitations:
 
 - The underlying libupnp only supports a single IP interface.
-- The libupnpp methods are blocking, it is supposed that you will be using
-  threads to achieve any needed parallelism in your program.
+- The libupnpp methods are blocking. Multithreading will be needed to
+  achieve parallelism in your program (in any case the underlying libupnp
+  uses threads, so multithreading support is a requirement).
+
+link:refdoc/html/index.html[Reference documentation (doxygen)]
 
 == The Library object
 
@@ -63,17 +70,17 @@ device is provided by a
 link:refdoc/html/classUPnPClient_1_1UPnPDeviceDesc.html[UPnPClient::UPnPDeviceDesc]
 object.
 
-If you are mostly using the devices and services predefined in the library,
-this is largely an opaque structure, which you will get through the
-discovery interface, and pass to an actual device constructor.
+When using the devices and services predefined by the library, this is
+largely an opaque structure, which you will get through the discovery
+interface, and pass to a Device or Service constructor.
 
 == Devices
 
-UPnP device are entities which can contain other, embedded devices, and
+UPnP devices are entities which can contain other, embedded devices, and
 services.
 
 Embedded devices are quite rare, and in my experience badly supported by
-typical control points.
+common control points.
 
 In general, the service is the interesting entity, and the wise approach is
 the Pythonic "quacks like a duck" one: if a device has the service you
@@ -84,7 +91,7 @@ bother to verify its own type when built from a description: it just
 provides methods to query and retrieve handles to interesting services
 usually found in a Media Renderer (both OpenHome and UPnP AV). In most
 cases, not all services will be available, and the caller will compose an "a
-la carte" object to serve its need (e.g. using either UPnP AV Rendering
+la carte" object to serve its needs (e.g. using either UPnP AV Rendering
 Control or OpenHome Volume for controlling volume, depending on
 availability).
 
@@ -97,8 +104,8 @@ the appropriate service
 ('Volume').
 
 The library predefines two device classes, for Media Server devices and
-Media Renderer ones. In both cases the only use for the class is to retrieve
-handles to the underlying services.
+Media Renderer ones. Both are convenience classes with utility code to
+build the underlying service objects and retrieve handles for them.
 
 
 == Services
@@ -112,8 +119,15 @@ constructing the service interface objects: rather you will let the device
 classes do it and return a handle (but there is nothing to prevent you from
 building the service objects directly).
 
-It also has helper functions for helping with the independant implementation
-of a service interface. 
+There are two possible approaches for accessing a service which does not
+have a predefined interface class in the library:
+
+- Use the library helper functions for implementing a specific service
+  interface, by deriving from the base
+  link:refdoc/html/classUPnPClient_1_1Service.html[Service] class.
+- Use the xref:TypedService[TypedService] generic string-based interface
+  class.
+  
 
 == Predefined Service classes
 
@@ -134,8 +148,271 @@ The role of most methods in these classes is to marshal the input data into
 SOAP format, perform the SOAP call, then marshal and return the output
 data. They are all synchronous.
 
-== Implementing a Service class
+[[TypedService]]
+== String based interface
+
+The link:refdoc/html/classUPnPClient_1_1TypedService.html[TypedService]
+class provides access to the actions in a service through a simple
+string-based interface.
+
+The user only needs specify an action name and a list of arguments to call
+an action. The class uses the service description retrieved from the
+device to generate the actual SOAP call. Any returned data is provided
+through a C++ name-value map.
+
+The class also has an associated
+link:refdoc/html/namespaceUPnPClient.html#ad3edfb36acb86cb98961233b127fc3df[helper
+function] which provides a simplified interface to discovery.
+
+While the class is less convenient to use than one customized to a single
+service, which can provide full encoding/decoding between SOAP data and a
+natural C++ interface, it avoids having to write the corresponding code. It
+was mostly implemented as a convenient interface for the SWIG module, but
+it can probably have other uses.
+
 
 == Eventing
 
+UPnP services can report changes in their state to Control Points through
+events. In practise, the Control Point implements an internal HTTP server
+to which the services connect to report events.
+
+Event reporting is not active by default and needs to be activated by the
+Control Point by 'subscribing' to the service.
+
+Users of Service classes can receive asynchronous events by calling the
+link:refdoc/html/classUPnPClient_1_1Service.html#a2d9aad17b90587f8c6a3791944edcdde[installReporter()]
+method, to specify what functions should be called when an event arrives.
+
+NOTE: The event functions are called from a separate thread
+and some synchronization will usually be required.
+
+Some details of event handling in libupnpp have changed as of version
+0.16.
+
+== Event handling in version 0.15 and before
+
+Services implemented by the library always subscribe to events. This
+happens in the object constructor, by a call to the class derived
+registerCallback() method. Example:
+
+----
+avtransport.hxx:
+
+class AVTransport : public Service {
+   ...
+    AVTransport(const UPnPDeviceDesc& device,
+                const UPnPServiceDesc& service)
+        : Service(device, service) {
+        registerCallback();
+    }
+...
+
+avtransport.cxx:
+
+void AVTransport::registerCallback()
+{
+    Service::registerCallback(bind(&AVTransport::evtCallback, this, _1));
+}
+----
+
+'Service::registerCallback()' performs the UPnP subscription and takes note
+of the function to call when an event arrive.
+
+This means that a subscription (needing a network exchange) is performed
+each time a Service object is built, even if events are not actually needed
+by the user.
+
+The Service base class destructor erases the callback hook and cancels the
+event subscription.
+
+=== Event handling for version 0.16 and later
+
+As of version 0.16 of the library, the event subscription is only performed
+if and when 'installReporter()' is called. If you don't need events, you
+will not incur their overhead.
+
 == Logging
+
+Both 'libupnp' and 'libupnpp' have configurable error and debug logging.
+
+=== libupnp logging
+
+The log from 'libupnp' is very detailed and mostly useful for low level
+debugging of UPnP issues. The logging functions in 'libupnp' are
+conditionnally compiled, and may not be enabled for your distribution (you
+can check UPNP_HAVE_DEBUG in 'include/upnp/upnpconfig.h').
+
+If the 'libupnp' logging functions are enabled, you can control them
+through the
+link:refdoc/html/classUPnPP_1_1LibUPnP.html#afb21929cea7859786d93dec1086563bc[LibUPnP::setLogFileName()]
+and 'LibUPnP::setLogLevel()' methods.
+
+=== libupnpp logging
+
+'libupnpp' logging is distinct from the 'libupnp' functions, and always
+enabled, at a configurable level of verbosity.
+
+The log is initialized by a call to
+link:refdoc/html/classLogger.html[Logger::getTheLog()]. The
+verbosity level can be adjusted through 'setLogLevel()', and macros are
+used to emit the actual messages. The printing is based on the C++ iostreams.
+
+See libupnpp/log.h for more details.
+
+Exemple:
+
+----
+    if (Logger::getTheLog(logfilename) == 0) {
+        cerr << "Can't initialize log" << endl;
+        return 1;
+    }
+    Logger::getTheLog("")->setLogLevel(Logger::LLINF);
+
+    ...
+
+    LOGINF("Message at level INFO, it outputs some value: " << value);
+----
+
+Of course you can use the 'LOGXX' macros in your own code.
+
+
+== Implementing a Service class
+
+If you want to access a service for which no predefined class exists in
+libupnpp, you need to define its interface yourself, by deriving the
+'libupnpp' link:refdoc/html/classUPnPClient_1_1Service.html[Service] class.
+
+The methods in the base class and in the helper modules make it very easy
+to write the derived class.
+
+NOTE: libupnpp has no provision to use the service description XML document
+to define the service client methods. However, the device side has a script
+to turn a service description into an implementation device-side skeleton.
+
+The derived class main constructor will take Device and Service description
+structures are arguments and will need to call the base class
+constructor. Example:
+
+----
+class OHPlaylist : public Service {
+public:
+
+    OHPlaylist(const UPnPDeviceDesc& device, const UPnPServiceDesc& service)
+        : Service(device, service) {
+    }
+    ...
+----
+
+If there are initialization steps which are specific to the service type,
+they should be done inside the 'serviceInit()' method, which 
+should be called from the constructor (see below for a more detailed
+description). Most services don't need 'serviceInit()', so an empty
+implementation is provided by the base class.
+
+Action methods are then just ordinary methods, which will call the base
+class methods to perform the networky things.
+
+Example of an action setting a value:
+
+----
+int RenderingControl::setMute(bool mute, const string& channel)
+{
+    SoapOutgoing args(getServiceType(), "SetMute");
+    args("InstanceID", "0")("Channel", channel)
+    ("DesiredMute", SoapHelp::i2s(mute?1:0));
+    SoapIncoming data;
+    return runAction(args, data);
+}
+----
+
+The link:refdoc/html/classUPnPP_1_1SoapOutgoing.html[SoapOutgoing]
+constructor takes a service type and action name arguments. Its 'operator ()'
+accepts additional named string arguments.
+
+The
+link:refdoc/html/classUPnPClient_1_1Service.html#a7eee43639eff25893117ab52b0b036db[Service::runAction()]
+method performs the SOAP call and provides any resulting data in a
+link:refdoc/html/classUPnPP_1_1SoapIncoming.html[SoapIncoming] object, from
+which named values can be easily extracted. There is no return data in the
+above example, see below for an action using 'SoapIncoming::get()' to
+extract data.
+
+Example of an action retrieving a value (note there is nothing to prevent
+an action to both set and retrieve data).
+
+----
+bool RenderingControl::getMute(const string& channel)
+{
+    SoapOutgoing args(getServiceType(), "GetMute");
+    args("InstanceID", "0")("Channel", channel);
+    SoapIncoming data;
+    int ret = runAction(args, data);
+    if (ret != UPNP_E_SUCCESS) {
+        return false;
+    }
+    bool mute;
+    if (!data.get("CurrentMute", &mute)) {
+        LOGERR("RenderingControl:getMute: missing CurrentMute in response"
+               << endl);
+        return false;
+    }
+    return mute;
+}
+----
+
+There are utility methods in the base class for actions which either
+transport no data, or send or receive a single value:
+link:refdoc/html/classUPnPClient_1_1Service.html#a9ec23e2f36c2bbdefaac4991d80d6063[runTrivialAction()],
+link:refdoc/html/classUPnPClient_1_1Service.html#a7cde71d714f07a6bb655760238e52e25[runSimpleAction()],
+link:refdoc/html/classUPnPClient_1_1Service.html#a1de907ba9604a20aaf3611e71ded445d[runSimpleGet()]
+
+
+=== Methods which may need reimplementation
+
+----
+virtual bool UPnPClient::Service::serviceTypeMatch(const std::string& tp)=0; 	
+----
+
+This is only needed for library version 0.16 and later. It is used by the
+base class to find a matching service description in the device description
+service list, which is done when calling
+link:refdoc/html/classUPnPClient_1_1Service.html#afb13c0cc50b44c9c62e024961cf23b75[initFromDescription()].
+
+The latter method is useful for building an object in two phases, first an
+empty constructor, then initialization from the device description.
+
+Derived classes compare the service types in the list with their own type
+string.
+
+----
+virtual bool UPnPClient::Service::serviceInit(const UPnPDeviceDesc& device,
+                                          const UPnPServiceDesc& service);
+----
+
+This is the part of the initialization specific to the service type. When
+it is called, the Service class is fully initialized. Most services
+don't need to do anything in there. An example of use would be the
+Rendering Control service calling the device to retrieve the range of
+volume control values.
+
+An empty implementation is provided by the base class.
+
+The method is called from
+link:refdoc/html/classUPnPClient_1_1Service.html#afb13c0cc50b44c9c62e024961cf23b75[initFromDescription()],
+and, if it does anything, it should be called from the non-empty derived class
+constructor too.
+
+=== Eventing
+
+Derived service classes can define a
+link:refdoc/html/classUPnPClient_1_1Service.html#ac4ba122d2fe124eff620c62cbf5ac1a1[registerCallBack()]
+method to register a function to be called when an event arrives. 
+'registerCallBack()' will be called by 'Service::installReporter()' when
+the user register their interest in events. In turn, 'registerCallback()'
+should call
+link:refdoc/html/classUPnPClient_1_1Service.html#a8b8580b88b4fbfc1de18a14d7811169d[Service::registerCallBack(evtCBFunc)]
+to register their actual callback routine.
+
+Callback functions can be any 'std::function' taking appropriate arguments,
+usually a member function of the service object.

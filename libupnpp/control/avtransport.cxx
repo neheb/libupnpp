@@ -48,6 +48,10 @@ bool AVTransport::isAVTService(const string& st)
     const string::size_type sz(SType.size()-2);
     return !SType.compare(0, sz, st, 0, sz);
 }
+bool AVTransport::serviceTypeMatch(const std::string& tp)
+{
+    return isAVTService(tp);
+}
 
 static AVTransport::TransportState stringToTpState(const string& s)
 {

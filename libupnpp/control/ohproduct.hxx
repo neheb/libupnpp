@@ -26,17 +26,12 @@
 
 #include "service.hxx"                  // for Service
 
-namespace UPnPClient {
-class OHProduct;
-}
-namespace UPnPClient {
-class UPnPDeviceDesc;
-}
-namespace UPnPClient {
-class UPnPServiceDesc;
-}
 
 namespace UPnPClient {
+
+class OHProduct;
+class UPnPDeviceDesc;
+class UPnPServiceDesc;
 
 typedef std::shared_ptr<OHProduct> OHPRH;
 
@@ -49,14 +44,13 @@ public:
 
     OHProduct(const UPnPDeviceDesc& device, const UPnPServiceDesc& service)
         : Service(device, service) {
-        registerCallback();
     }
     OHProduct() {}
-    ~OHProduct() {
-    }
+    ~OHProduct() {}
 
     /** Test service type from discovery message */
     static bool isOHPrService(const std::string& st);
+    virtual bool serviceTypeMatch(const std::string& tp);
 
     struct Source {
         std::string name;
@@ -70,10 +64,11 @@ public:
         }
     };
 
-    /** @ret 0 for success, upnp error else */
+    /** @return 0 for success, upnp error else */
     int getSources(std::vector<Source>& sources);
     int sourceIndex(int *index);
     int setSourceIndex(int index);
+    int setSourceIndexByName(const std::string& name);
     int standby(bool *value);
     int setStanby(bool value);
 
