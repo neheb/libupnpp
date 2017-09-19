@@ -1,3 +1,11 @@
+libupnpp4 (0.16.0-1~ppaPPAVERS~SERIES1) SERIES; urgency=low
+
+  * New shared lib and package version (7/4)
+  * New interface to extract description files
+  * New interfaces to support the Python bindings
+  
+ -- Jean-Francois Dockes <jf@dockes.org>  Wed, 21 Jun 2017 07:37:00 +0100
+ 
 libupnpp3 (0.15.3-1~ppaPPAVERS~SERIES1) SERIES; urgency=low
 
   * Small volume control fix (events carried wrong value if device range
