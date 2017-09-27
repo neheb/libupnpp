@@ -100,6 +100,7 @@ void getSenderState(const string& nm, SenderState& st, bool live)
 
     st.sender = senderService(dev);
     if (!st.sender) {
+        st.reason = nm + " no Sender service";
         return;
     }
     st.has_sender = true;
@@ -375,25 +376,36 @@ bool stopReceiver(ReceiverState st)
 
 void setReceiversFromSender(const string& sendernm, const vector<string>& rcvs)
 {
+    vector<string> reasons;
+    setReceiversFromSenderWithStatus(sendernm, rcvs, reasons);
+}
+
+bool setReceiversFromSenderWithStatus(const string& sendernm,
+                                      const vector<string>& rcvs,
+                                      vector<string>& reasons)
+{
     string reason;
     OHSNH sender = getSender(sendernm, reason);
     if (!sender) {
         LOGERR("setReceiversFromSender: " << reason << endl);
-        return;
+        return false;
     }
     string uri, meta;
     int iret;
     if ((iret = sender->metadata(uri, meta)) != 0) {
         LOGERR("Can't retrieve sender metadata. Error: " << SoapHelp::i2s(iret)
                << endl);
-        return;
+        return false;
     }
 
     // Note: sequence sent from windows songcast when setting up a receiver:
     //   Product::SetSourceIndex / Receiver::SetSender / Receiver::Play
     // When stopping:
     //   Receiver::Stop / Product::SetStandby
-    for (auto& sl: rcvs) {
+    reasons.clear();
+    reasons.resize(rcvs.size());
+    for (unsigned int i = 0; i < rcvs.size(); i++) {
+        auto& sl = rcvs[i];
         LOGERR("Setting up " << sl << endl);
         ReceiverState sstate;
         getReceiverState(sl, sstate);
@@ -402,6 +414,7 @@ void setReceiversFromSender(const string& sendernm, const vector<string>& rcvs)
         case ReceiverState::SCRS_GENERROR:
         case ReceiverState::SCRS_NOOH:
             LOGERR(sl << sstate.reason << endl);
+            reasons[i] = sstate.reason;
             continue;
         case ReceiverState::SCRS_STOPPED:
         case ReceiverState::SCRS_PLAYING:
@@ -410,26 +423,39 @@ void setReceiversFromSender(const string& sendernm, const vector<string>& rcvs)
                 LOGERR(sl << " set up for playing " << uri << endl);
             } else {
                 LOGERR(sstate.reason << endl);
+                reasons[i] = sstate.reason;
             }
         }
     }
+    return true;
 }
 
 void setReceiversFromReceiver(const string& masterName,
                               const vector<string>& slaves)
 {
+    vector<string> reasons;
+    setReceiversFromReceiverWithStatus(masterName, slaves, reasons);
+}
+
+bool setReceiversFromReceiverWithStatus(const string& masterName,
+                                        const vector<string>& slaves,
+                                        vector<string>& reasons)
+{
     ReceiverState mstate;
     getReceiverState(masterName, mstate);
     if (mstate.state != ReceiverState::SCRS_PLAYING) {
         LOGERR("Required master not in Receiver Playing mode" << endl);
-        return;
+        return false;
     }
 
     // Note: sequence sent from windows songcast when setting up a receiver:
     //   Product::SetSourceIndex / Receiver::SetSender / Receiver::Play
     // When stopping:
     //   Receiver::Stop / Product::SetStandby
-    for (auto& sl: slaves) {
+    reasons.clear();
+    reasons.resize(slaves.size());
+    for (unsigned int i = 0; i < slaves.size(); i++) {
+        auto& sl(slaves[i]);
         LOGERR("Setting up " << sl << endl);
         ReceiverState sstate;
         getReceiverState(sl, sstate);
@@ -438,6 +464,7 @@ void setReceiversFromReceiver(const string& masterName,
         case ReceiverState::SCRS_GENERROR:
         case ReceiverState::SCRS_NOOH:
             LOGERR(sl << sstate.reason << endl);
+            reasons[i] = sstate.reason;
             continue;
         case ReceiverState::SCRS_STOPPED:
         case ReceiverState::SCRS_PLAYING:
@@ -448,14 +475,26 @@ void setReceiversFromReceiver(const string& masterName,
                 LOGERR(sl << " set up for playing " << mstate.uri << endl);
             } else {
                 LOGERR(sstate.reason << endl);
+                reasons[i] = sstate.reason;
             }
         }
     }
+    return true;
 }
 
 void stopReceivers(const vector<string>& slaves)
 {
-    for (auto& sl: slaves) {
+    vector<string> reasons;
+    stopReceiversWithStatus(slaves, reasons);
+}
+
+bool stopReceiversWithStatus(const vector<string>& slaves,
+                             vector<string>& reasons)
+{
+    reasons.clear();
+    reasons.resize(slaves.size());
+    for (unsigned int i = 0; i < slaves.size(); i++) {
+        auto& sl(slaves[i]);
         LOGERR("Songcast: resetting " << sl << endl);
         ReceiverState sstate;
         getReceiverState(sl, sstate);
@@ -464,9 +503,11 @@ void stopReceivers(const vector<string>& slaves)
         case ReceiverState::SCRS_GENERROR:
         case ReceiverState::SCRS_NOOH:
             LOGERR(sl << sstate.reason << endl);
+            reasons[i] = sstate.reason;
             continue;
         case ReceiverState::SCRS_NOTRECEIVER:
             LOGERR(sl << ": not in receiver mode" << endl);
+            // Consider this as success
             continue;
         case ReceiverState::SCRS_STOPPED:
         case ReceiverState::SCRS_PLAYING:
@@ -474,9 +515,12 @@ void stopReceivers(const vector<string>& slaves)
                 LOGERR(sl << " back from receiver mode " << endl);
             } else {
                 LOGERR(sstate.reason << endl);
+                reasons[i] = sstate.reason;
             }
+            
         }
     }
+    return true;
 }
 
 }

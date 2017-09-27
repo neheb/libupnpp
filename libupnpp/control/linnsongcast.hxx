@@ -70,7 +70,8 @@ struct SenderState {
 /** Retrieve the Sender service status for device nm (friendly or uuid)
  *
  * @param live if true, if the service is found, the 'sender'
- *    field will hold a handle to it on return
+ *    field will hold a handle to it on return.
+ * @return st.reason is empty for success, else it holds an explanation string.
  */
 extern void getSenderState(const std::string& nm, SenderState& st,
                            bool live = true);
@@ -128,6 +129,7 @@ extern bool setSourceIndexByName(const std::string& rdrnm,
  *
  * @param live if true, if the service is found, the 'prod' and 'rcv'
  *    field will hold Service handles on return
+ * @return st.reason will be empty on success.
  */
 extern void getReceiverState(const std::string& nm, ReceiverState& st,
                              bool live = true);
@@ -140,12 +142,34 @@ extern bool setReceiverPlaying(ReceiverState st,
 extern bool stopReceiver(ReceiverState st);
 
 extern void setReceiversFromSender(const std::string& sendernm,
-                                   const std::vector<std::string>&
-                                   rcvnms);
+                                   const std::vector<std::string>& rcvnms);
+/**
+ * @return false for initial error. True if any slave setup was attempted. 
+ *        Errors are indicated by a non-empty string in the reasons slot.
+ */
+extern bool setReceiversFromSenderWithStatus(
+    const std::string& sendernm,
+    const std::vector<std::string>& rcvnms,
+    std::vector<std::string>& reasons);
+
 extern void setReceiversFromReceiver(const std::string& rcvnm,
-                                     const std::vector<std::string>&
-                                     rcvnms);
+                                     const std::vector<std::string>& rcvnms);
+/**
+ * @return false for initial error. True if any slave setup was attempted. 
+ *        Errors are indicated by a non-empty string in the reasons slot.
+ */
+extern bool setReceiversFromReceiverWithStatus(
+    const std::string& rcvnm,
+    const std::vector<std::string>& rcvnms,
+    std::vector<std::string>& reasons);
+
 extern void stopReceivers(const std::vector<std::string>& rcvnms);
+/**
+ * @return false for initial error. True if any slave setup was attempted. 
+ *        Errors are indicated by a non-empty string in the reasons slot.
+ */
+extern bool stopReceiversWithStatus(const std::vector<std::string>& rcvnms,
+                                    std::vector<std::string>& reasons);
 
 }
 }
