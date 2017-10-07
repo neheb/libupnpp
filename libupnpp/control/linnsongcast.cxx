@@ -384,17 +384,26 @@ bool setReceiversFromSenderWithStatus(const string& sendernm,
                                       const vector<string>& rcvs,
                                       vector<string>& reasons)
 {
+    if (rcvs.size() == 0) {
+        return true;
+    }
+
+    reasons.clear();
+    reasons.resize(rcvs.size());
+
     string reason;
     OHSNH sender = getSender(sendernm, reason);
     if (!sender) {
         LOGERR("setReceiversFromSender: " << reason << endl);
+        reasons[0] = reason;
         return false;
     }
     string uri, meta;
     int iret;
     if ((iret = sender->metadata(uri, meta)) != 0) {
-        LOGERR("Can't retrieve sender metadata. Error: " << SoapHelp::i2s(iret)
-               << endl);
+        reasons[0] = string("Can't retrieve sender metadata. Error: ") +
+            SoapHelp::i2s(iret);
+        LOGERR(reasons[0] << endl);
         return false;
     }
 
@@ -406,7 +415,7 @@ bool setReceiversFromSenderWithStatus(const string& sendernm,
     reasons.resize(rcvs.size());
     for (unsigned int i = 0; i < rcvs.size(); i++) {
         auto& sl = rcvs[i];
-        LOGERR("Setting up " << sl << endl);
+        LOGDEB("Setting up " << sl << endl);
         ReceiverState sstate;
         getReceiverState(sl, sstate);
 
@@ -420,7 +429,7 @@ bool setReceiversFromSenderWithStatus(const string& sendernm,
         case ReceiverState::SCRS_PLAYING:
         case ReceiverState::SCRS_NOTRECEIVER:
             if (setReceiverPlaying(sstate, uri, meta)) {
-                LOGERR(sl << " set up for playing " << uri << endl);
+                LOGDEB(sl << " set up for playing " << uri << endl);
             } else {
                 LOGERR(sstate.reason << endl);
                 reasons[i] = sstate.reason;
@@ -441,10 +450,18 @@ bool setReceiversFromReceiverWithStatus(const string& masterName,
                                         const vector<string>& slaves,
                                         vector<string>& reasons)
 {
+    if (slaves.size() == 0) {
+        return true;
+    }
+
+    reasons.clear();
+    reasons.resize(slaves.size());
+
     ReceiverState mstate;
     getReceiverState(masterName, mstate);
     if (mstate.state != ReceiverState::SCRS_PLAYING) {
-        LOGERR("Required master not in Receiver Playing mode" << endl);
+        reasons[0] = "Required master not in Receiver Playing mode";
+        LOGERR(reasons[0] << endl);
         return false;
     }
 
@@ -452,8 +469,6 @@ bool setReceiversFromReceiverWithStatus(const string& masterName,
     //   Product::SetSourceIndex / Receiver::SetSender / Receiver::Play
     // When stopping:
     //   Receiver::Stop / Product::SetStandby
-    reasons.clear();
-    reasons.resize(slaves.size());
     for (unsigned int i = 0; i < slaves.size(); i++) {
         auto& sl(slaves[i]);
         LOGERR("Setting up " << sl << endl);
@@ -472,7 +487,7 @@ bool setReceiversFromReceiverWithStatus(const string& masterName,
             continue;
         case ReceiverState::SCRS_NOTRECEIVER:
             if (setReceiverPlaying(sstate, mstate.uri, mstate.meta)) {
-                LOGERR(sl << " set up for playing " << mstate.uri << endl);
+                LOGDEB(sl << " set up for playing " << mstate.uri << endl);
             } else {
                 LOGERR(sstate.reason << endl);
                 reasons[i] = sstate.reason;
