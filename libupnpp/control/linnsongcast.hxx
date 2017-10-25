@@ -136,6 +136,7 @@ extern void getReceiverState(const std::string& nm, ReceiverState& st,
 /** Get status for all found Receiver services */
 extern void listReceivers(std::vector<ReceiverState>& vscs);
 
+extern bool setReceiverPlaying(ReceiverState st);
 extern bool setReceiverPlaying(ReceiverState st,
                                const std::string& uri,
                                const std::string& meta);
@@ -170,6 +171,12 @@ extern void stopReceivers(const std::vector<std::string>& rcvnms);
  */
 extern bool stopReceiversWithStatus(const std::vector<std::string>& rcvnms,
                                     std::vector<std::string>& reasons);
+
+extern void setReceiversPlaying(const std::vector<std::string>& rcvnms);
+
+extern bool setReceiversPlayingWithStatus(
+    const std::vector<std::string>& rcvnms,
+    std::vector<std::string>& reasons);
 
 }
 }

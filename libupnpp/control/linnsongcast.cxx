@@ -323,6 +323,29 @@ void listSenders(vector<SenderState>& vsenders)
     }
 }
 
+bool setReceiverPlaying(ReceiverState st)
+{
+    if (!st.rcv || !st.prod) {
+        string uuid = st.UDN;
+        getReceiverState(uuid, st, true);
+        if (!st.rcv || !st.prod) {
+            st.reason = st.nm + " : can't connect";
+            return false;
+        }
+    }
+
+    if (st.prod->setSourceIndex(st.receiverSourceIndex)) {
+        st.reason = st.nm + " : can't set source index to " +
+                    SoapHelp::i2s(st.receiverSourceIndex);
+        return false;
+    }
+    if (st.rcv->play()) {
+        st.reason = st.nm + " Receiver::play() failed";
+        return false;
+    }
+    return true;
+}
+
 bool setReceiverPlaying(ReceiverState st,
                         const string& uri, const string& meta)
 {
@@ -533,6 +556,43 @@ bool stopReceiversWithStatus(const vector<string>& slaves,
                 reasons[i] = sstate.reason;
             }
             
+        }
+    }
+    return true;
+}
+
+void setReceiversPlaying(const vector<string>& slaves)
+{
+    vector<string> reasons;
+    setReceiversPlayingWithStatus(slaves, reasons);
+}
+
+bool setReceiversPlayingWithStatus(const vector<string>& rcvs,
+                                   vector<string>& reasons)
+{
+    reasons.clear();
+    reasons.resize(rcvs.size());
+    for (unsigned int i = 0; i < rcvs.size(); i++) {
+        auto& sl = rcvs[i];
+        LOGDEB("Setting up " << sl << endl);
+        ReceiverState sstate;
+        getReceiverState(sl, sstate);
+
+        switch (sstate.state) {
+        case ReceiverState::SCRS_GENERROR:
+        case ReceiverState::SCRS_NOOH:
+            LOGERR(sl << sstate.reason << endl);
+            reasons[i] = sstate.reason;
+            continue;
+        case ReceiverState::SCRS_STOPPED:
+        case ReceiverState::SCRS_PLAYING:
+        case ReceiverState::SCRS_NOTRECEIVER:
+            if (setReceiverPlaying(sstate)) {
+                LOGDEB(sl << " set up for playing " << endl);
+            } else {
+                LOGERR(sstate.reason << endl);
+                reasons[i] = sstate.reason;
+            }
         }
     }
     return true;
