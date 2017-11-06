@@ -125,5 +125,6 @@ pkgconfigdir = $(libdir)/pkgconfig
 pkgconfig_DATA = libupnpp.pc
 
 dist-hook:
-	test -z "`git status -s`" 
+	test -z "`git status -s | egrep -v '?? libupnpp-.*/'`" 
 	git tag -a libupnpp-v$(VERSION) -m 'version $(VERSION)'
+
