@@ -123,3 +123,7 @@ libupnpp_la_LIBADD = $(LIBUPNPP_LIBS)
 
 pkgconfigdir = $(libdir)/pkgconfig
 pkgconfig_DATA = libupnpp.pc
+
+dist-hook:
+	test -z "`git status -s`" 
+	git tag -a libupnpp-v$(VERSION) -m 'version $(VERSION)'
