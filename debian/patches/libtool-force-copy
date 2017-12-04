@@ -1,0 +1,20 @@
+Need to force copy of libtool m4 stuff else get version mismatch errors
+ Longer explanation would need an autotools guru. Actually it might be enough
+ to not have aclocal.m4 and ltmain.sh in the tar file, but I actually don't
+ know how they get in there.
+ .
+ libupnpp4 (0.16.1-1~ppa1~unstable) unstable; urgency=low
+ .
+   * EXPERIMENTS
+Author: Jean-Francois Dockes <jf@dockes.org>
+
+--- libupnpp4-0.16.1.orig/autogen.sh
++++ libupnpp4-0.16.1/autogen.sh
+@@ -1,6 +1,6 @@
+ #!/bin/sh
+ 
+ aclocal
+-libtoolize --copy
++libtoolize --copy --force
+ automake --add-missing --copy
+ autoconf
