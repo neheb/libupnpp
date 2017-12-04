@@ -113,6 +113,8 @@ nobase_include_HEADERS = \
     libupnpp/upnpputils.hxx \
     libupnpp/workqueue.h
 
+EXTRA_DIST = autogen.sh
+
 if LINUX
 # Curiously, -no-undefined seems to do nothing?? -Wl,-zdefs works though.
 # automake 1.14.1
