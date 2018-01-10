@@ -108,6 +108,8 @@ int LibUPnP::getInitError() const
     return m->init_error;
 }
 
+static const char* ccpDevNull = "/dev/null";
+
 LibUPnP::LibUPnP(bool serveronly, string* hwaddr,
                  const string ifname, const string inip, unsigned short port)
 {
@@ -144,6 +146,20 @@ LibUPnP::LibUPnP(bool serveronly, string* hwaddr,
     if (ifname.empty())
         strncpy(ip_address, inip.c_str(), ipalen);
 
+#if defined(HAVE_UPNPSETLOGLEVEL)
+    // We used to UpnpCloseLog() after UpnpInit(), but this can cause
+    // crashes because of the awful way upnpdebug.c is programmed, so
+    // no more. We do have to do something though because
+    // UpnpInitLog() creates the current filenames. The initial file
+    // names are IUpnpErrFile.txt and IUpnpInfoFile.txt, and they will
+    // be created in the current directory if debug is enabled and we
+    // do nothing. UpnpInitlog() is called by upnpapi.c:
+    // UpnpInit()->UpnpInitPreamble()->UpnpInitLog() So, set safe file
+    // names before calling UpnpInit() (needs to be static, the lib
+    // keeps a pointer to it). 
+    UpnpSetLogFileNames(ccpDevNull, ccpDevNull);
+#endif
+    
     m->init_error = UpnpInit(ip_address[0] ? ip_address : 0, port);
 
     if (m->init_error != UPNP_E_SUCCESS) {
@@ -154,10 +170,6 @@ LibUPnP::LibUPnP(bool serveronly, string* hwaddr,
 
     LOGDEB("LibUPnP: Using IP " << UpnpGetServerIpAddress() << " port " <<
            UpnpGetServerPort() << endl);
-
-#if defined(HAVE_UPNPSETLOGLEVEL)
-    UpnpCloseLog();
-#endif
 
     // Client initialization is simple, just do it. Defer device
     // initialization because it's more complicated.
@@ -208,13 +220,20 @@ void LibUPnP::setMaxContentLength(int bytes)
 
 bool LibUPnP::setLogFileName(const std::string& fn, LogLevel level)
 {
-    std::unique_lock<std::mutex> lock(m->mutex);
 #if defined(HAVE_UPNPSETLOGLEVEL)
+    std::unique_lock<std::mutex> lock(m->mutex);
     if (fn.empty() || level == LogLevelNone) {
-        UpnpCloseLog();
+        // Can't call UpnpCloseLog() ! This closes the FILEs without
+        // any further precautions -> crashes
+        UpnpSetLogFileNames(ccpDevNull, ccpDevNull);
+        UpnpInitLog();
     } else {
         setLogLevel(level);
-        UpnpSetLogFileNames(fn.c_str(), fn.c_str());
+        // the lib only keeps a pointer !
+        static string fnkeep(fn);
+        UpnpSetLogFileNames(fnkeep.c_str(), fnkeep.c_str());
+        // Because of the way upnpdebug.c is horribly coded, this
+        // loses 2 FILEs every time it's called.
         int code = UpnpInitLog();
         if (code != UPNP_E_SUCCESS) {
             LOGERR(errAsString("UpnpInitLog", code) << endl);
@@ -232,6 +251,10 @@ bool LibUPnP::setLogLevel(LogLevel level)
 #if defined(HAVE_UPNPSETLOGLEVEL)
     switch (level) {
     case LogLevelNone:
+        // This does not exist directly in pupnp, so log to
+        // /dev/null. SetLogFileName knows not to call us back in this
+        // case...
+        UpnpSetLogLevel(UPNP_CRITICAL);
         setLogFileName("", LogLevelNone);
         break;
     case LogLevelError:
