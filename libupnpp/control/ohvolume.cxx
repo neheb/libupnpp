@@ -17,19 +17,19 @@
  */
 #include "libupnpp/control/ohvolume.hxx"
 
-#include <stdlib.h>                     // for atoi
-#include <string.h>                     // for strcmp
+#include <stdlib.h>
+#include <string.h>
 #include <math.h>
-#include <upnp/upnp.h>                  // for UPNP_E_BAD_RESPONSE, etc
+#include <upnp/upnp.h>
 
-#include <functional>                   // for _Bind, bind, _1
-#include <ostream>                      // for endl, basic_ostream, etc
-#include <string>                       // for string, basic_string, etc
+#include <functional>
+#include <ostream>
+#include <string>
 
-#include "libupnpp/control/service.hxx"  // for VarEventReporter, Service
-#include "libupnpp/log.hxx"             // for LOGERR, LOGDEB1, LOGINF
-#include "libupnpp/soaphelp.hxx"        // for SoapIncoming, etc
-#include "libupnpp/upnpp_p.hxx"         // for stringToBool
+#include "libupnpp/control/service.hxx"
+#include "libupnpp/log.hxx"
+#include "libupnpp/soaphelp.hxx"
+#include "libupnpp/upnpp_p.hxx"
 
 using namespace std;
 using namespace std::placeholders;

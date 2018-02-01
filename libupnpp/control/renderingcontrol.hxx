@@ -51,8 +51,11 @@ public:
     static bool isRDCService(const std::string& st);
     virtual bool serviceTypeMatch(const std::string& tp);
 
-    /** @return 0 for success, upnp error else */
+    /** Set volume to input value (0-100).
+     * @return 0 for success, upnp error else 
+     */
     int setVolume(int volume, const std::string& channel = "Master");
+    /** @return current volume value (0-100) or negative for error. */
     int getVolume(const std::string& channel = "Master");
     int setMute(bool mute, const std::string& channel = "Master");
     bool getMute(const std::string& channel = "Master");

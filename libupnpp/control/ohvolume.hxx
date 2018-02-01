@@ -75,7 +75,15 @@ public:
     virtual bool serviceTypeMatch(const std::string& tp);
 
     int characteristics(OHVCharacteristics* c);
+    /** Retrieve volume level.
+     * @param[output] value place to store the retrieved value (0-100).
+     * @return 0 for success, < 0 for error.
+     */
     int volume(int *value);
+    /** Set volume level.
+     * @param value volume level to set (0-100).
+     * @return 0 for success or < 0 for error.
+     */
     int setVolume(int value);
     int volumeLimit(int *value);
     int mute(bool *value);

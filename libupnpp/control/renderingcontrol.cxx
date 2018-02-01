@@ -17,21 +17,21 @@
  */
 #include "libupnpp/control/renderingcontrol.hxx"
 
-#include <stdlib.h>                     // for atoi
-#include <upnp/upnp.h>                  // for UPNP_E_BAD_RESPONSE, etc
+#include <stdlib.h>
+#include <upnp/upnp.h>
 #include <math.h>
 
-#include <functional>                   // for _Bind, bind, _1
-#include <ostream>                      // for basic_ostream, endl, etc
-#include <string>                       // for string, operator<<, etc
-#include <utility>                      // for pair
+#include <functional>
+#include <ostream>
+#include <string>
+#include <utility>
 
 #include "libupnpp/control/description.hxx"
-#include "libupnpp/control/avlastchg.hxx"  // for decodeAVLastChange
-#include "libupnpp/control/service.hxx"  // for VarEventReporter, Service
-#include "libupnpp/log.hxx"             // for LOGERR, LOGDEB1, LOGINF
-#include "libupnpp/soaphelp.hxx"        // for SoapOutgoing, etc
-#include "libupnpp/upnpp_p.hxx"         // for stringToBool
+#include "libupnpp/control/avlastchg.hxx"
+#include "libupnpp/control/service.hxx"
+#include "libupnpp/log.hxx"
+#include "libupnpp/soaphelp.hxx"
+#include "libupnpp/upnpp_p.hxx"
 
 using namespace std;
 using namespace std::placeholders;
@@ -99,7 +99,8 @@ int RenderingControl::devVolTo0100(int dev_vol)
 void RenderingControl::evtCallback(
     const std::unordered_map<std::string, std::string>& props)
 {
-    LOGDEB1("RenderingControl::evtCallback: getReporter() " << getReporter() << endl);
+    LOGDEB1("RenderingControl::evtCallback: getReporter() " << getReporter()
+            << endl);
     for (std::unordered_map<std::string, std::string>::const_iterator it =
                 props.begin(); it != props.end(); it++) {
         if (!it->first.compare("LastChange")) {
@@ -138,8 +139,8 @@ void RenderingControl::registerCallback()
 
 void RenderingControl::setVolParams(int min, int max, int step)
 {
-    LOGDEB("RenderingControl::setVolParams: min " << min << " max " << max <<
-           " step " << step << endl);
+    LOGDEB0("RenderingControl::setVolParams: min " << min << " max " << max <<
+            " step " << step << endl);
     m_volmin = min >= 0 ? min : 0;
     m_volmax = max > 0 ? max : 100;
     m_volstep = step > 0 ? step : 1;
@@ -166,8 +167,8 @@ int RenderingControl::setVolume(int ivol, const string& channel)
         // Round up when going up, down when going down. Else the user
         // will be surprised by the GUI control going back if he does
         // not go a full step
-        desiredVolume = m_volmin +
-                        (goingUp ? int(ceil(ivol * fact)) : int(floor(ivol * fact)));
+        desiredVolume = m_volmin + (goingUp ? int(ceil(ivol * fact)) :
+                                    int(floor(ivol * fact)));
     }
     // Insure integer number of steps (are there devices where step != 1?)
     int remainder = (desiredVolume - m_volmin) % m_volstep;
@@ -178,10 +179,10 @@ int RenderingControl::setVolume(int ivol, const string& channel)
             desiredVolume -= remainder;
     }
 
-    LOGDEB("RenderingControl::setVolume: ivol " << ivol <<
-           " m_volmin " << m_volmin << " m_volmax " << m_volmax <<
-           " m_volstep " << m_volstep << " computed desiredVolume " <<
-           desiredVolume << endl);
+    LOGDEB0("RenderingControl::setVolume: ivol " << ivol <<
+            " m_volmin " << m_volmin << " m_volmax " << m_volmax <<
+            " m_volstep " << m_volstep << " computed desiredVolume " <<
+            desiredVolume << endl);
 
     SoapOutgoing args(getServiceType(), "SetVolume");
     args("InstanceID", "0")("Channel", channel)
@@ -205,7 +206,7 @@ int RenderingControl::getVolume(const string& channel)
                << endl);
         return UPNP_E_BAD_RESPONSE;
     }
-    LOGDEB("RenderingControl::getVolume: got " << dev_volume << endl);
+    LOGDEB0("RenderingControl::getVolume: got " << dev_volume << endl);
     // Output is always 0-100. Translate from device range
     return devVolTo0100(dev_volume);
 }

@@ -114,8 +114,12 @@ public:
     /** Retrieve init error if state not ok */
     int getInitError() const;
 
-    /** Build a unique persistent UUID for a root device. This uses a hash
-        of the input name (e.g.: friendlyName), and the host Ethernet address */
+    /** Build a unique stable UUID. 
+     * This uses a hash of the input name (e.g.: friendlyName), and the 
+     * Ethernet address.
+     * @param name device "friendly name"
+     * @param hw device ethernet address (as 12 ascii hexadecimal bytes)
+     */
     static std::string makeDevUUID(const std::string& name,
                                    const std::string& hw);
 
