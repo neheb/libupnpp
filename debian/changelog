@@ -1,8 +1,11 @@
 libupnpp4 (0.16.1-1~ppaPPAVERS~SERIES1) SERIES; urgency=low
 
-  * EXPERIMENTS
-  
- -- Jean-Francois Dockes <jf@dockes.org>  Tue, 28 Nov 2017 07:37:00 +0100
+  * Small additions to the Songcast control interface.
+  * Worked around possible crash when calling UpnpCloseLog().
+  * Mac OS X build tweaks.
+  * Small packaging/build tweaks.
+
+ -- Jean-Francois Dockes <jf@dockes.org>  Fri, 06 Apr 2018 16:43:00 +0100
  
 libupnpp4 (0.16.0-1~ppaPPAVERS~SERIES1) SERIES; urgency=low
 
