@@ -4,7 +4,7 @@
  * Author: Coleman Kane <ckane@intellitree.com>
  *
  * Mutilated and forced into single-file solution by <jf@dockes.org>
- * Copyright (c) 2013 J.F. Dockes
+ * Copyright (c) 2013-2018 J.F. Dockes
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -25,6 +25,7 @@
 
 #include <string.h>
 #include <expat.h>
+#include <sstream>
 
 #ifdef WIN32
 #define ssize_t int
@@ -77,8 +78,7 @@ public:
                               XML_FALSE);
 
                 if(local_status != XML_STATUS_OK) {
-                    status = local_status;
-                    last_error = XML_GetErrorCode(expat_parser);
+                    set_status(local_status);
                     break;
                 }
 
@@ -91,7 +91,12 @@ public:
         /* Finalize the parser */
         if((getStatus() == XML_STATUS_OK) ||
                 (getLastError() == XML_ERROR_FINISHED)) {
-            XML_Parse(expat_parser, getBuffer(), 0, XML_TRUE);
+            XML_Status local_status =
+                XML_Parse(expat_parser, getBuffer(), 0, XML_TRUE);
+            if(local_status != XML_STATUS_OK) {
+                set_status(local_status);
+                return false;
+            }
             return true;
         }
 
@@ -101,16 +106,25 @@ public:
     }
 
     /* Expose status, error, and control codes to users */
-    virtual bool Ready(void) {
+    virtual bool Ready(void) const {
         return valid_parser;
     }
-    virtual XML_Error getLastError(void) {
+    virtual XML_Error getLastError(void) const {
         return last_error;
     }
-    virtual XML_Status getStatus(void) {
+    virtual XML_Status getStatus(void) const {
         return status;
     }
-
+    virtual XML_Size getLastErrorLine(void) const {
+        return last_error_line;
+    }
+    virtual XML_Size getLastErrorColumn(void) const {
+        return last_error_column;
+    }
+    virtual std::string getLastErrorMessage(void) const {
+        return last_error_message;
+    }
+    
 protected:
     virtual XML_Char *getBuffer(void) {
         return xml_buffer;
@@ -187,9 +201,24 @@ private:
     bool valid_parser;
 
     /* Status and Error codes in the event of unforseen events */
+    void set_status(XML_Status ls) {
+        status = ls;
+        last_error = XML_GetErrorCode(expat_parser);
+        last_error_line = XML_GetCurrentLineNumber(expat_parser);
+        last_error_column= XML_GetCurrentColumnNumber(expat_parser);
+        std::ostringstream oss;
+        oss << XML_ErrorString(last_error) <<
+            " at line " << last_error_line << " column " <<
+            last_error_column;
+        last_error_message = oss.str();
+    }
+    
     XML_Status status;
     XML_Error last_error;
-
+    XML_Size last_error_line{0};
+    XML_Size last_error_column{0};
+    std::string last_error_message;
+    
     /* Expat callbacks.
      * The expatmm protocol is to pass (this) as the userData argument
      * in the XML_Parser structure. These static methods will convert

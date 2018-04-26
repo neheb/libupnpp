@@ -230,7 +230,12 @@ private:
 bool UPnPDirContent::parse(const std::string& input)
 {
     UPnPDirParser parser(*this, input);
-    return parser.Parse();
+    bool ret = parser.Parse();
+    if (ret == false) {
+        LOGERR("UPnPDirContent::parse: parser failed: " <<
+               parser.getLastErrorMessage() << " for:\n" << input << endl);
+    }
+    return ret;
 }
 
 static const string didl_header(
