@@ -35,7 +35,7 @@ build_linux=no
 build_mac=no
 # Detect the target system
 case "${host_os}" in
-    linux*) build_linux=yes;;
+    linux*|uclinux*) build_linux=yes;;
     darwin*) build_mac=yes;;
     *) AC_MSG_ERROR(["OS $host_os is not supported"]);;
 esac
