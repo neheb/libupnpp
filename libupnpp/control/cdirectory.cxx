@@ -20,27 +20,23 @@
 #include "libupnpp/control/cdirectory.hxx"
 
 #include <sys/types.h>
-#ifndef WIN32
-#include <regex.h>
-#else
-#include <regex>
-#endif
 
-#include <upnp/upnp.h>                  // for UPNP_E_SUCCESS, etc
-#include <upnp/upnptools.h>             // for UpnpGetErrorMessage
+#include <upnp/upnp.h>
+#include <upnp/upnptools.h>
 
-#include <functional>                   // for _Bind, bind, _1, _2
-#include <iostream>                     // for operator<<, basic_ostream, etc
-#include <set>                          // for set
-#include <string>                       // for string, operator<<, etc
-#include <vector>                       // for vector
+#include <functional>
+#include <iostream>
+#include <set>
+#include <string>
+#include <vector>
 
-#include "libupnpp/control/cdircontent.hxx"  // for UPnPDirContent
-#include "libupnpp/control/description.hxx"  // for UPnPDeviceDesc, etc
-#include "libupnpp/control/discovery.hxx"  // for UPnPDeviceDirectory, etc
-#include "libupnpp/log.hxx"             // for LOGDEB, LOGINF, LOGERR
-#include "libupnpp/soaphelp.hxx"        // for SoapOutgoing, SoapOutgoing, etc
-#include "libupnpp/upnpp_p.hxx"         // for csvToStrings
+#include "libupnpp/control/cdircontent.hxx"
+#include "libupnpp/control/description.hxx"
+#include "libupnpp/control/discovery.hxx"
+#include "libupnpp/log.hxx"
+#include "libupnpp/smallut.h"
+#include "libupnpp/soaphelp.hxx"
+#include "libupnpp/upnpp_p.hxx"
 
 using namespace std;
 using namespace std::placeholders;
@@ -89,64 +85,6 @@ void ContentDirectory::evtCallback(
     }
 }
 
-#ifndef WIN32
-class SimpleRegexp {
-public:
-    SimpleRegexp(const string& exp, int flags) : m_ok(false) {
-        if (regcomp(&m_expr, exp.c_str(), flags) == 0) {
-            m_ok = true;
-        }
-    }
-    ~SimpleRegexp() {
-        regfree(&m_expr);
-    }
-    bool simpleMatch(const string& val) const {
-        if (!ok())
-            return false;
-        if (regexec(&m_expr, val.c_str(), 0, 0, 0) == 0) {
-            return true;
-        } else {
-            return false;
-        }
-    }
-    bool operator() (const string& val) const {
-        return simpleMatch(val);
-    }
-
-    bool ok() const {
-        return m_ok;
-    }
-private:
-    bool m_ok;
-    regex_t m_expr;
-};
-#else
-class SimpleRegexp {
-public:
-    SimpleRegexp(const string& exp, int flags)
-        : m_expr(exp, basic_regex<char>::flag_type(flags)), m_ok(true) {}
-
-    bool simpleMatch(const string& val) const {
-        if (!ok())
-            return false;
-        return regex_match(val, m_expr);
-    }
-    bool operator() (const string& val) const {
-        return simpleMatch(val);
-    }
-
-    bool ok() const {
-        return m_ok;
-    }
-private:
-    basic_regex<char> m_expr;
-    bool m_ok;
-};
-#define REG_ICASE std::regex_constants::icase
-#define REG_NOSUB std::regex_constants::nosubs
-
-#endif
-
 /*
   manufacturer: Bubblesoft model BubbleUPnP Media Server
   manufacturer: Justin Maggard model Windows Media Connect compatible (MiniDLNA)
@@ -154,11 +92,12 @@ private:
   manufacturer: PacketVideo model TwonkyMedia Server
   manufacturer: ? model MediaTomb
 */
-static const SimpleRegexp bubble_rx("bubble", REG_ICASE|REG_NOSUB);
-static const SimpleRegexp mediatomb_rx("mediatomb", REG_ICASE|REG_NOSUB);
-static const SimpleRegexp minidlna_rx("minidlna", REG_ICASE|REG_NOSUB);
-static const SimpleRegexp minim_rx("minim", REG_ICASE|REG_NOSUB);
-static const SimpleRegexp twonky_rx("twonky", REG_ICASE|REG_NOSUB);
+static const int sreflags = SimpleRegexp::SRE_ICASE|SimpleRegexp::SRE_NOSUB;
+static const SimpleRegexp bubble_rx("bubble", sreflags);
+static const SimpleRegexp mediatomb_rx("mediatomb", sreflags);
+static const SimpleRegexp minidlna_rx("minidlna", sreflags);
+static const SimpleRegexp minim_rx("minim", sreflags);
+static const SimpleRegexp twonky_rx("twonky", sreflags);
 
 ContentDirectory::ContentDirectory(const UPnPDeviceDesc& device,
                                    const UPnPServiceDesc& service)
