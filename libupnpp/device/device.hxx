@@ -23,10 +23,10 @@
 #include <upnp/upnp.h>
 
 #include <functional>
-#include <unordered_map>
 #include <memory>
 #include <string>
 #include <vector>
+#include <map>
 
 #include "libupnpp/soaphelp.hxx"
 
@@ -42,7 +42,7 @@ namespace UPnPProvider {
 typedef std::function<int (const UPnPP::SoapIncoming&, UPnPP::SoapOutgoing&)>
 soapfun;
 
-// Definition of a virtual directory entry: data and mime type
+/** Definition of a virtual directory entry: data and MIME type */
 struct VDirContent {
     VDirContent(const std::string& ct, const std::string& mt)
         : content(ct), mimetype(mt) {}
@@ -52,46 +52,42 @@ struct VDirContent {
 
 /** 
  * Interface to link libupnp operations to a device implementation.
- * libupnp can only support a single root device per instance.
  */
 class UpnpDevice {
 public:
-    /** Construct device object. Do not start it (this is done by the
-     *   eventloop() call when everything is set up).
+    /** Construct a device object. 
+     *
+     * The device is not started. This will be done by the startloop() or 
+     * eventloop() call when everything is set up.
      *
      * @param deviceId uuid for device: "uuid:UUIDvalue"
-     * @param files for a root device, list of path/content pairs to
-     *  be added to the virtual directory. 
-     *  The description document *must* be named 'xxx/description.xml'
-     *  The file paths should include a sub-directory component.
-     *  The list must include the description document, but this will not
-     *  be directly served out. Instead a version modified by libupnp
-     *  (with URLBase possibly added/edited) will be served from '/'. 
-     *  Of course, the list and the paths in description.xml must be
-     *  consistent, e.g. the paths for the services SCDPURL documents.
-     *
-     *  The files parameter must be empty for embedded devices: all served 
-     *  files must be set with the root device, *including* embedded service
-     *  description files. files.empty() is also how we decide if we
-     *  are building a root or an embedded device. root should be built
-     *  first.
      */
-    UpnpDevice(const std::string& deviceId,
-               const std::unordered_map<std::string, VDirContent>& files);
+    UpnpDevice(const std::string& deviceId);
     ~UpnpDevice();
 
-    bool ipv4(std::string *host, unsigned short *port) const;
-    
-    // We only ever keep one instance of a serviceId. Multiple calls will
-    // only keep the last one.
-    void addService(UpnpService *, const std::string& serviceId);
-    void forgetService(const std::string& serviceId);
+    /** Retrieve the network endpoint the server is listening on */
+    static bool ipv4(std::string *host, unsigned short *port);
 
-    /**
-     * Add mapping from service+action-name to handler function.
+    /** Librarian utility: must be implemented for the services to retrieve
+     *  their service definition XML files, 
+     *
+     * This is also used by the base class (with an empty name) to retrieve an 
+     * XML text fragment to be added to the <device> node in the device 
+     * description XML. E.G. things like <serialNumber>42</serialNumber>. 
+     * *Mandatory*: deviceType and friendlyName *must* be in there.
+     * 
+     *  @param name the designator set in the service constructor 
+     *         (e.g. AVTransport.xml). The base class uses an empty name to 
+     *         retrieve the description properties (see above).
+     *  @param[output] contents the output data.
+     *  @return false for error.
      */
-    void addActionMapping(const UpnpService*,
-                          const std::string& actName, soapfun);
+    virtual bool readLibFile(const std::string& name,
+                             std::string& contents) = 0;
+
+    /** Add file to virtual directory. Returns path in @param path */
+    bool addVFile(const std::string& name, const std::string& contents,
+                  const std::string& mime, std::string& path);
 
     /**
      * Main routine. To be called by main() on the root device when done 
@@ -121,6 +117,8 @@ public:
      */
     void loopWakeup(); // To trigger an early event
 
+    const std::string& getDeviceId() const;
+    
     /**
      * To be called to get the event loop to return
      */
@@ -128,6 +126,31 @@ public:
 
     /** Check status */
     bool ok();
+
+
+    /* *******************************************************************
+     * Methods called by the service constructor to link the
+     * service object and its methods to the Device one, establishing
+     * the eventing and action communication. This is internal and
+     * should not be called by the library user. Not too sure how this
+     * could/should be expressed in C++... */
+    
+    /** Add service to our list. 
+     *
+     * We only ever keep one instance of a serviceId. Multiple calls 
+     * will only keep the last one. This is called from the generic 
+     * UpnpService constructor.
+     */
+    void addService(UpnpService *);
+    void forgetService(const std::string& serviceId);
+
+    /**
+     * Add mapping from service+action-name to handler function.
+     * This is called by the services implementations during their 
+     * initialization.
+     */
+    void addActionMapping(const UpnpService*,
+                          const std::string& actName, soapfun);
 
 private:
     class Internal;
@@ -144,14 +167,9 @@ private:
 class UpnpService {
 public:
     /**
-     * The main role of the constructor is to register the service action 
-     * callbacks by calling UpnpDevice::addActionMapping()
-     */
-    UpnpService(const std::string& stp,const std::string& sid, UpnpDevice *dev);
-
-    /**
-     * Constructor added to avoid changing the ABI when the noevents
-     * parameter was needed.
+     * The main role of the derived constructor is to register the
+     * service action callbacks by calling UpnpDevice::addActionMapping(). 
+     * The generic constructor registers the object with the device.
      *
      * @param noevents if set, the service will function normally except that
      *                 no calls will be made to libupnp to broadcast events.
@@ -160,7 +178,7 @@ public:
      *                 (in conjunction with a description doc edit).
      */
     UpnpService(const std::string& stp,const std::string& sid,
-                UpnpDevice *dev, bool noevents);
+                const std::string& xmlfn, UpnpDevice *dev, bool noevents=false);
 
     virtual ~UpnpService();
 
@@ -184,6 +202,7 @@ public:
                               std::vector<std::string>& values);
     virtual const std::string& getServiceType() const;
     virtual const std::string& getServiceId() const;
+    virtual const std::string& getXMLFn() const;
 
     /** Get value of the noevents property */
     bool noevents() const;
@@ -223,9 +242,6 @@ public:
     };
 
     
-protected:
-    const std::string m_serviceType;
-    const std::string m_serviceId;
 private:
     class Internal;
     Internal *m;

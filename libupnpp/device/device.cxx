@@ -32,6 +32,7 @@
 #include <thread>
 
 #include "libupnpp/log.hxx"
+#include "libupnpp/smallut.h"
 #include "libupnpp/ixmlwrap.hxx"
 #include "libupnpp/upnpplib.hxx"
 #include "libupnpp/upnpputils.hxx"
@@ -45,6 +46,9 @@ namespace UPnPProvider {
 
 class UpnpDevice::Internal {
 public:
+    Internal(UpnpDevice *dev)
+        : me(dev) {}
+    
     /* Generate event: called by the device event loop, which polls
      * the services. */
     void notifyEvent(const std::string& serviceId,
@@ -58,12 +62,24 @@ public:
     /* Per-device callback */
     int callBack(Upnp_EventType et, void* evp);
 
+    UpnpDevice *me;
     UPnPP::LibUPnP *lib;
     std::string deviceId;
-    std::string description;
 
     // In case startloop has been called: the event loop thread.
     std::thread loopthread;
+
+    // Subdirectory of the virtual file tree where we store the XML files
+    string devsubd;
+
+    // Device properties XML fragment: friendlyName, deviceType must
+    // be in there UDN must not because we add it. Others can be
+    // added: modelName, serialNumber, manufacturer etc.
+    string propsxml;
+    
+    // Description xml service list. Incrementally built as the services are
+    // added
+    string servicexml;
     
     // We keep the services in a map for easy access from id and in a
     // vector for ordered walking while fetching status. Order is
@@ -84,7 +100,7 @@ public:
 class UpnpDevice::InternalStatic {
 public:
     /* Static callback for libupnp. This looks up the appropriate
-     * device using the device ID (UDN), the calls its callback
+     * device using the device ID (UDN), then calls its callback
      * method */
     static int sCallBack(Upnp_EventType et, void* evp, void*);
 
@@ -124,19 +140,23 @@ static bool vectorstoargslists(const vector<string>& names,
 
 static const int expiretime = 3600;
 
-UpnpDevice::UpnpDevice(const string& deviceId,
-                       const std::unordered_map<string, VDirContent>& files)
+// Stuff we transform in the uuids when we use them in urls
+static string replchars{"\"#%;<>?[\\]^`{|}:/ "};
+
+UpnpDevice::UpnpDevice(const string& deviceId)
 {
     if (o == 0 && (o = new InternalStatic()) == 0) {
         LOGERR("UpnpDevice::UpnpDevice: out of memory" << endl);
         return;
     }
-    if ((m = new Internal()) == 0) {
+    if ((m = new Internal(this)) == 0) {
         LOGERR("UpnpDevice::UpnpDevice: out of memory" << endl);
         return;
     }
     m->deviceId = deviceId;
     m->needExit = false;
+    m->devsubd = string("/") + neutchars(m->deviceId, replchars, '-') +
+        string("/");
     //LOGDEB("UpnpDevice::UpnpDevice(" << m->deviceId << ")" << endl);
 
     m->lib = LibUPnP::getLibUPnP(true);
@@ -164,42 +184,6 @@ UpnpDevice::UpnpDevice(const string& deviceId,
         }
         o->devices[m->deviceId] = this;
     }
-
-    if (!files.empty()) {
-        // files will be empty for embedded devices, and hence
-        // description too (we test description emptyness to
-        // discriminate root/embedded in other places).
-        VirtualDir* theVD = VirtualDir::getVirtualDir();
-        if (theVD == 0) {
-            LOGFAT("UpnpDevice::UpnpDevice: can't get VirtualDir" << endl);
-            return;
-        }
-
-        for (const auto& it : files) {
-            if (!path_getsimple(it.first).compare("description.xml")) {
-                m->description = it.second.content;
-                break;
-            }
-        }
-        if (m->description.empty()) {
-            LOGFAT("UpnpDevice::UpnpDevice: no description.xml in xmlfiles"
-                   << endl);
-            return;
-        }
-
-        for (const auto& it : files) {
-            string dir = path_getfather(it.first);
-            string fn = path_getsimple(it.first);
-            // description.xml will be served by libupnp from / after
-            // inserting the URLBase element (which it knows how to
-            // compute), so we make sure not to serve our version from
-            // the virtual dir (if it is in /, it would override
-            // libupnp's).
-            if (fn.compare("description.xml")) {
-                theVD->addFile(dir, fn, it.second.content, it.second.mimetype);
-            }
-        }
-    }
 }
 
 UpnpDevice::~UpnpDevice()
@@ -207,10 +191,8 @@ UpnpDevice::~UpnpDevice()
     shouldExit();
     if (m->loopthread.joinable())
         m->loopthread.join();
-        
-    if (!m->description.empty()) {
-        UpnpUnRegisterRootDevice(m->dvh);
-    }
+    
+    UpnpUnRegisterRootDevice(m->dvh);
 
     std::unique_lock<std::mutex> lock(o->devices_lock);
     auto it = o->devices.find(m->deviceId);
@@ -218,7 +200,12 @@ UpnpDevice::~UpnpDevice()
         o->devices.erase(it);
 }
 
-bool UpnpDevice::ipv4(string *host, unsigned short *port) const
+const string& UpnpDevice::getDeviceId() const
+{
+    return m->deviceId;
+}
+
+bool UpnpDevice::ipv4(string *host, unsigned short *port)
 {
     char *hst = UpnpGetServerIpAddress();
     if (hst == 0) {
@@ -233,26 +220,84 @@ bool UpnpDevice::ipv4(string *host, unsigned short *port) const
     return true;
 }
 
+static string ipv4tostrurl(const string& host, unsigned short port)
+{
+    return string("http://") + host + ":" + SoapHelp::i2s(port);
+}
+
+// Calls registerRootDevice() to register us with the lib and start up
+// the web server for sending out description files.
 bool UpnpDevice::Internal::start()
 {
-    // Start up the web server for sending out description files. This also
-    // calls registerRootDevice()
     int ret;
-    if (!description.empty()) {
-        // Description is empty for embedded devices
-        if ((ret = lib->setupWebServer(description, &dvh)) != 0) {
-            LOGFAT("UpnpDevice: libupnp can't start service. Err " <<
-                   ret << endl);
-            return false;
-        }
+
+    string propsxml;
+    // Retrieve the XML fragment with friendlyname etc.
+    if (!me->readLibFile("", propsxml)) {
+        LOGERR("UpnpDevice::start: Could not read description XML properties\n");
+        return false;
+    }
+
+    // Finish building the device description XML file, and add it to
+    // the virtual directory.
+    string descxml(
+        "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n"
+        "<root xmlns=\"urn:schemas-upnp-org:device-1-0\">\n"
+        "  <specVersion>\n"
+        "    <major>1</major>\n"
+        "    <minor>1</minor>\n"
+        "  </specVersion>\n"
+        "  <device>\n"
+        );
+    descxml += propsxml;
+    descxml += "    <UDN>" + deviceId + "</UDN>\n";
+    descxml += "    <serviceList>\n";
+    descxml += servicexml;
+    descxml += "    </serviceList>\n"
+        "  </device>\n"
+        "</root>\n";
+
+    VirtualDir* theVD = VirtualDir::getVirtualDir();
+    if (nullptr != theVD) {
+        theVD->addFile(devsubd, "description.xml", descxml, "application/xml");
+    } else {
+        LOGERR("UpnpDevice: can't start: no VirtualDir??\n");
+        return false;
+    }
+
+    // Tell the pupnp lib to serve the description.
+    string host(UpnpGetServerIpAddress());
+    unsigned short port = UpnpGetServerPort();
+    string url = ipv4tostrurl(host, port) + devsubd + "description.xml";
+    if ((ret = lib->setupWebServer(url, &dvh)) != 0) {
+        LOGERR("UpnpDevice: libupnp can't start service. Err " << ret <<
+               endl);
+        return false;
     }
 
     if ((ret = UpnpSendAdvertisement(dvh, expiretime)) != 0) {
-        LOGERR(lib->errAsString("UpnpDevice: UpnpSendAdvertisement", ret)
-               << endl);
+        LOGERR("UpnpDevice::Internal::start(): sendAvertisement failed: " <<
+               lib->errAsString("UpnpDevice: UpnpSendAdvertisement", ret) <<
+               endl);
         return false;
     }
     return true;
+}
+
+
+bool UpnpDevice::addVFile(const string& name, const string& contents,
+                          const std::string& mime, string& path)
+{
+    VirtualDir* theVD = VirtualDir::getVirtualDir();
+    if (theVD) {
+        if (!theVD->addFile(m->devsubd, name, contents, mime)) {
+            return false;
+        }
+        path = m->devsubd + name;
+        return true;
+    } else {
+        return false;
+    }
 }
 
     
@@ -368,7 +413,7 @@ int UpnpDevice::Internal::callBack(Upnp_EventType et, void* evp)
         // Encode result data
         act->ActionResult = dt.buildSoapBody();
 
-        //LOGDEB("Response data: " << ixmlwPrintDoc(act->ActionResult) << endl);
+        LOGDEB1("Response data: " << ixmlwPrintDoc(act->ActionResult) << endl);
 
         return UPNP_E_SUCCESS;
     }
@@ -427,8 +472,9 @@ int UpnpDevice::Internal::callBack(Upnp_EventType et, void* evp)
     return UPNP_E_INVALID_PARAM;
 }
 
-void UpnpDevice::addService(UpnpService *serv, const std::string& serviceId)
+void UpnpDevice::addService(UpnpService *serv)
 {
+    const string& serviceId = serv->getServiceId();
     LOGDEB("UpnpDevice::addService: [" << serviceId << "]\n");
     std::unique_lock<std::mutex> lock(m->devlock);
 
@@ -438,6 +484,28 @@ void UpnpDevice::addService(UpnpService *serv, const std::string& serviceId)
     if (it != m->serviceids.end())
         m->serviceids.erase(it);
     m->serviceids.push_back(serviceId);
+
+    string servnick = neutchars(serv->getServiceType(), replchars, '-');
+
+    // Add the service description to the virtual directory
+    string scpdxml;
+    string xmlfn = serv->getXMLFn();
+    VirtualDir* theVD = VirtualDir::getVirtualDir();
+    if (!readLibFile(xmlfn, scpdxml)) {
+        LOGERR("UpnpDevice::addService: could not retrieve service definition"
+               "file: nm: [" << xmlfn << "]\n");
+    } else {
+        theVD->addFile(m->devsubd, servnick + ".xml",
+                       scpdxml, "application/xml");
+    }
+    m->servicexml +=
+        string("<service>\n") +
+        " <serviceType>" + serv->getServiceType() + "</serviceType>\n" +
+        " <serviceId>"   + serv->getServiceId() + "</serviceId>\n" +
+        " <SCPDURL>"     + m->devsubd + servnick + ".xml</SCPDURL>\n" +
+        " <controlURL>"  + m->devsubd + "ctl-" + servnick + "</controlURL>\n" +
+        " <eventSubURL>" + m->devsubd + "evt-" + servnick + "</eventSubURL>\n" +
+        "</service>\n";
 }
 
 void UpnpDevice::forgetService(const std::string& serviceId)
@@ -469,8 +537,9 @@ void UpnpDevice::Internal::notifyEvent(const string& serviceId,
                                        const vector<string>& names,
                                        const vector<string>& values)
 {
-//    LOGDEB1("UpnpDevice::notifyEvent " << serviceId << " " <<
-//           (names.empty() ? "Empty names??" : names[0]) << endl);
+    LOGDEB1("UpnpDevice::notifyEvent: deviceId " << deviceId << " serviceId " <<
+            serviceId << " nm[0] " << (names.empty()?"Empty names??" : names[0])
+            << endl);
     stringstream ss;
     for (unsigned int i = 0; i < names.size() && i < values.size(); i++) {
         ss << names[i] << "=" << values[i] << " ";
@@ -487,7 +556,7 @@ void UpnpDevice::Internal::notifyEvent(const string& serviceId,
                          serviceId.c_str(), &cnames[0], &cvalues[0],
                          int(cnames.size()));
     if (ret != UPNP_E_SUCCESS) {
-        LOGERR(lib->errAsString("UpnpDevice::notifyEvent: id", ret) <<
+        LOGERR("UpnpDevice::notifyEvent: " << lib->errAsString("UpnpNotify", ret) <<
                " for " << serviceId << endl);
     }
 }
@@ -632,24 +701,23 @@ public:
     Internal(bool noevs)
         : noevents(noevs), dev(0) {
     }
+    string serviceType;
+    string serviceId;
+    string xmlfn;
     bool noevents;
     UpnpDevice *dev;
 };
 
-UpnpService::UpnpService(const std::string& stp,
-                         const std::string& sid, UpnpDevice *dev)
-    : m_serviceType(stp), m_serviceId(sid), m(new Internal(false))
+UpnpService::UpnpService(
+    const std::string& stp, const std::string& sid, const std::string& xmlfn,
+    UpnpDevice *dev, bool noevs)
+    : m(new Internal(noevs))
 {
     m->dev = dev;
-    dev->addService(this, sid);
-}
-
-UpnpService::UpnpService(const std::string& stp,
-                         const std::string& sid, UpnpDevice *dev, bool noevs)
-    : m_serviceType(stp), m_serviceId(sid), m(new Internal(noevs))
-{
-    m->dev = dev;
-    dev->addService(this, sid);
+    m->serviceType = stp;
+    m->serviceId = sid;
+    m->xmlfn = xmlfn;
+    dev->addService(this);
 }
 
 UpnpDevice *UpnpService::getDevice()
@@ -665,7 +733,7 @@ UpnpService::~UpnpService()
 {
     if (m) {
         if (m->dev)
-            m->dev->forgetService(m_serviceId);
+            m->dev->forgetService(m->serviceId);
         delete m;
         m = 0;
     }
@@ -684,12 +752,17 @@ bool UpnpService::getEventData(bool, std::vector<std::string>&,
 
 const std::string& UpnpService::getServiceType() const
 {
-    return m_serviceType;
+    return m->serviceType;
 }
 
 const std::string& UpnpService::getServiceId() const
 {
-    return m_serviceId;
+    return m->serviceId;
+}
+
+const std::string& UpnpService::getXMLFn() const
+{
+    return m->xmlfn;
 }
 
 const std::string UpnpService::errString(int error) const

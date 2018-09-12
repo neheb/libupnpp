@@ -199,15 +199,21 @@ string LibUPnP::host()
 
 int LibUPnP::setupWebServer(const string& description, UpnpDevice_Handle *dvh)
 {
+    // If we send description as a string (UPNPREG_BUF_DESC), libupnp
+    // wants config_baseURL to be set, and it will serve the edited
+    // description (with URLBase added) from the root directory. Which
+    // is not nice. So we specify it as an URL, pointing to the
+    // version in the vdir: http://myip:myport/somedir/description.xml
+    // This is called from device.cxx where the corresponding right
+    // thing must be done of course.
     int res = UpnpRegisterRootDevice2(
-                  UPNPREG_BUF_DESC,
-                  description.c_str(),
-                  description.size(), /* Desc filename len, ignored */
-                  1, /* config_baseURL */
-                  o_callback, (void *)this, dvh);
+        UPNPREG_URL_DESC, description.c_str(), description.size(), 
+        0, /* config_baseURL */
+        o_callback, (void *)this, dvh);
 
     if (res != UPNP_E_SUCCESS) {
-        LOGERR(errAsString("UpnpRegisterRootDevice2", res) << " description " <<
+        LOGERR("LibUPnP::setupWebServer(): " <<
+               errAsString("UpnpRegisterRootDevice2", res) << " description " <<
                description << endl);
     }
     return res;
