@@ -103,6 +103,15 @@ public:
      */
     void eventloop();
 
+    /** 
+     * Start a thread to run the event loop and return immediately. 
+     *
+     * This is an alternative to running eventloop() from
+     * the main thread. The destructor will take care of the internal
+     * thread.
+     */
+    void startloop();
+    
     /**
      * To be called from a service action callback to wake up the
      * event loop early if something needs to be broadcast without

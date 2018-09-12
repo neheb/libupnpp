@@ -29,6 +29,7 @@
 #include <algorithm>
 #include <mutex>
 #include <condition_variable>
+#include <thread>
 
 #include "libupnpp/log.hxx"
 #include "libupnpp/ixmlwrap.hxx"
@@ -61,6 +62,9 @@ public:
     std::string deviceId;
     std::string description;
 
+    // In case startloop has been called: the event loop thread.
+    std::thread loopthread;
+    
     // We keep the services in a map for easy access from id and in a
     // vector for ordered walking while fetching status. Order is
     // determine by addService() call sequence.
@@ -200,6 +204,10 @@ UpnpDevice::UpnpDevice(const string& deviceId,
 
 UpnpDevice::~UpnpDevice()
 {
+    shouldExit();
+    if (m->loopthread.joinable())
+        m->loopthread.join();
+        
     if (!m->description.empty()) {
         UpnpUnRegisterRootDevice(m->dvh);
     }
@@ -484,10 +492,16 @@ void UpnpDevice::Internal::notifyEvent(const string& serviceId,
     }
 }
 
-int timespec_diffms(const struct timespec& old, const struct timespec& recent)
+static int timespec_diffms(const struct timespec& old,
+                           const struct timespec& recent)
 {
     return (recent.tv_sec - old.tv_sec) * 1000 +
            (recent.tv_nsec - old.tv_nsec) / (1000 * 1000);
+}
+
+void UpnpDevice::startloop()
+{
+    m->loopthread = std::thread(&UpnpDevice::eventloop, this);
 }
 
 // Loop on services, and poll each for changed data. Generate event
