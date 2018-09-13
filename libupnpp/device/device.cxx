@@ -62,9 +62,10 @@ public:
     /* Per-device callback */
     int callBack(Upnp_EventType et, void* evp);
 
-    UpnpDevice *me;
-    UPnPP::LibUPnP *lib;
-    std::string deviceId;
+    UpnpDevice *me{nullptr};
+    UpnpDevice *rootdev{nullptr};
+    UPnPP::LibUPnP *lib{nullptr};
+    string deviceId;
 
     // In case startloop has been called: the event loop thread.
     std::thread loopthread;
@@ -72,14 +73,21 @@ public:
     // Subdirectory of the virtual file tree where we store the XML files
     string devsubd;
 
-    // Device properties XML fragment: friendlyName, deviceType must
-    // be in there UDN must not because we add it. Others can be
-    // added: modelName, serialNumber, manufacturer etc.
-    string propsxml;
+    struct DevXML {
+        // Device properties XML fragment: friendlyName, deviceType
+        // must be in there UDN must not because we add it. Others can
+        // be added: modelName, serialNumber, manufacturer etc.
+        string propsxml;
+        // Description xml service list. Incrementally built as the
+        // services are added
+        string servicexml;
+    };
+    // This object description XML
+    DevXML myxml;
     
-    // Description xml service list. Incrementally built as the services are
-    // added
-    string servicexml;
+    // In case there are embedded devices, here is where they store their XML
+    // fragments. The key is the embedded device UDN/aka deviceId
+    map<string, DevXML> embedxml;
     
     // We keep the services in a map for easy access from id and in a
     // vector for ordered walking while fetching status. Order is
@@ -87,9 +95,9 @@ public:
     std::unordered_map<std::string, UpnpService*> servicemap;
     std::vector<std::string> serviceids;
     std::unordered_map<std::string, soapfun> calls;
-    bool needExit;
-    /* My device handle */
-    UpnpDevice_Handle dvh;
+    bool needExit{false};
+    /* My libupnp device handle */
+    UpnpDevice_Handle dvh{0};
     /* Lock for device operations. Held during a service callback
        Must not be held when using dvh to call into libupnp */
     std::mutex devlock;
@@ -154,10 +162,9 @@ UpnpDevice::UpnpDevice(const string& deviceId)
         return;
     }
     m->deviceId = deviceId;
-    m->needExit = false;
-    m->devsubd = string("/") + neutchars(m->deviceId, replchars, '-') +
+    m->devsubd = string("/") + neutchars(deviceId, replchars, '-') +
         string("/");
-    //LOGDEB("UpnpDevice::UpnpDevice(" << m->deviceId << ")" << endl);
+    //LOGDEB("UpnpDevice::UpnpDevice(" << deviceId << ")" << endl);
 
     m->lib = LibUPnP::getLibUPnP(true);
     if (!m->lib) {
@@ -186,13 +193,24 @@ UpnpDevice::UpnpDevice(const string& deviceId)
     }
 }
 
+UpnpDevice::UpnpDevice(UpnpDevice* rootdev, const string& deviceId)
+    : UpnpDevice(deviceId)
+{
+    if (nullptr != rootdev) {
+        m->rootdev = rootdev;
+        rootdev->m->embedxml[deviceId] = UpnpDevice::Internal::DevXML();
+    }
+}
+
 UpnpDevice::~UpnpDevice()
 {
     shouldExit();
     if (m->loopthread.joinable())
         m->loopthread.join();
-    
-    UpnpUnRegisterRootDevice(m->dvh);
+
+    if (nullptr != m->rootdev) {
+        UpnpUnRegisterRootDevice(m->dvh);
+    }
 
     std::unique_lock<std::mutex> lock(o->devices_lock);
     auto it = o->devices.find(m->deviceId);
@@ -229,15 +247,12 @@ static string ipv4tostrurl(const string& host, unsigned short port)
 // the web server for sending out description files.
 bool UpnpDevice::Internal::start()
 {
-    int ret;
-
-    string propsxml;
-    // Retrieve the XML fragment with friendlyname etc.
-    if (!me->readLibFile("", propsxml)) {
-        LOGERR("UpnpDevice::start: Could not read description XML properties\n");
-        return false;
+    // Nothing to do if I am an embedded device: advertisement is
+    // handled by my root device
+    if (nullptr != rootdev) {
+        return true;
     }
-
+    
     // Finish building the device description XML file, and add it to
     // the virtual directory.
     string descxml(
@@ -249,13 +264,26 @@ bool UpnpDevice::Internal::start()
         "  </specVersion>\n"
         "  <device>\n"
         );
-    descxml += propsxml;
+    descxml += myxml.propsxml;
     descxml += "    <UDN>" + deviceId + "</UDN>\n";
     descxml += "    <serviceList>\n";
-    descxml += servicexml;
-    descxml += "    </serviceList>\n"
-        "  </device>\n"
-        "</root>\n";
+    descxml += myxml.servicexml;
+    descxml += "    </serviceList>\n";
+    if (!embedxml.empty()) {
+        descxml += "    <devicelist>\n";
+        for  (const auto& entry : embedxml) {
+            descxml += "      <device>\n";
+            descxml += entry.second.propsxml;
+            descxml += "        <UDN>" + entry.first + "</UDN>\n";
+            descxml += "        <serviceList>\n";
+            descxml += entry.second.servicexml;
+            descxml += "        </serviceList>\n";
+            descxml += "      </device>\n";
+        }
+        descxml += "</devicelist>\n";
+    }
+        
+    descxml += "  </device>\n</root>\n";
 
     VirtualDir* theVD = VirtualDir::getVirtualDir();
     if (nullptr != theVD) {
@@ -268,6 +296,7 @@ bool UpnpDevice::Internal::start()
     // Tell the pupnp lib to serve the description.
     string host(UpnpGetServerIpAddress());
     unsigned short port = UpnpGetServerPort();
+    int ret;
     string url = ipv4tostrurl(host, port) + devsubd + "description.xml";
     if ((ret = lib->setupWebServer(url, &dvh)) != 0) {
         LOGERR("UpnpDevice: libupnp can't start service. Err " << ret <<
@@ -472,12 +501,36 @@ int UpnpDevice::Internal::callBack(Upnp_EventType et, void* evp)
     return UPNP_E_INVALID_PARAM;
 }
 
-void UpnpDevice::addService(UpnpService *serv)
+bool UpnpDevice::addService(UpnpService *serv)
 {
     const string& serviceId = serv->getServiceId();
     LOGDEB("UpnpDevice::addService: [" << serviceId << "]\n");
     std::unique_lock<std::mutex> lock(m->devlock);
 
+    string* propsxml;
+    string* servicexml;
+    if (nullptr == m->rootdev) {
+        propsxml = &m->myxml.propsxml;
+        servicexml = &m->myxml.servicexml;
+    } else {
+        auto it = m->rootdev->m->embedxml.find(m->deviceId);
+        if (it == m->rootdev->m->embedxml.end()) {
+            LOGERR("UpnpDevice::addservice: my Id " << m->deviceId <<
+                   " not found in root dev " << m->rootdev->m->deviceId << endl);
+            return false;
+        }
+        propsxml = &it->second.propsxml;
+        servicexml = &it->second.servicexml;
+    }
+
+    if (propsxml->empty()) {
+        // Retrieve the XML fragment with friendlyname etc.
+        if (!readLibFile("", *propsxml)) {
+            LOGERR("UpnpDevice::start: Could not read description XML props\n");
+            return false;
+        }
+    }
+    
     m->servicemap[serviceId] = serv;
     vector<string>::iterator it =
         std::find(m->serviceids.begin(), m->serviceids.end(), serviceId);
@@ -498,7 +551,7 @@ void UpnpDevice::addService(UpnpService *serv)
         theVD->addFile(m->devsubd, servnick + ".xml",
                        scpdxml, "application/xml");
     }
-    m->servicexml +=
+    *servicexml +=
         string("<service>\n") +
         " <serviceType>" + serv->getServiceType() + "</serviceType>\n" +
         " <serviceId>"   + serv->getServiceId() + "</serviceId>\n" +
@@ -506,6 +559,7 @@ void UpnpDevice::addService(UpnpService *serv)
         " <controlURL>"  + m->devsubd + "ctl-" + servnick + "</controlURL>\n" +
         " <eventSubURL>" + m->devsubd + "evt-" + servnick + "</eventSubURL>\n" +
         "</service>\n";
+    return true;
 }
 
 void UpnpDevice::forgetService(const std::string& serviceId)

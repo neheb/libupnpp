@@ -63,6 +63,18 @@ public:
      * @param deviceId uuid for device: "uuid:UUIDvalue"
      */
     UpnpDevice(const std::string& deviceId);
+
+    /** Construct an embedded device.
+     *
+     * The device is not started. This will be done by the startloop() or 
+     * eventloop() call when everything is set up.
+     * @param rootdev if not null, the device description will be
+     *    stored in the <devices> section of the root device (this device
+     *    will be embedded). Else behave as the other constructor.
+     *    !! The root device must not be already started. !!
+     */
+    UpnpDevice(UpnpDevice *rootdev, const std::string& deviceId);
+    
     ~UpnpDevice();
 
     /** Retrieve the network endpoint the server is listening on */
@@ -74,7 +86,8 @@ public:
      * This is also used by the base class (with an empty name) to retrieve an 
      * XML text fragment to be added to the <device> node in the device 
      * description XML. E.G. things like <serialNumber>42</serialNumber>. 
-     * *Mandatory*: deviceType and friendlyName *must* be in there.
+     * *Mandatory*: deviceType and friendlyName *must* be in there, 
+     * UDN *must not*
      * 
      *  @param name the designator set in the service constructor 
      *         (e.g. AVTransport.xml). The base class uses an empty name to 
@@ -141,7 +154,7 @@ public:
      * will only keep the last one. This is called from the generic 
      * UpnpService constructor.
      */
-    void addService(UpnpService *);
+    bool addService(UpnpService *);
     void forgetService(const std::string& serviceId);
 
     /**
