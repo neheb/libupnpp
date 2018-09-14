@@ -43,6 +43,20 @@ using namespace std;
 using namespace std::placeholders;
 using namespace UPnPP;
 
+#if UPNP_VERSION_MINOR < 8 && !defined(UpnpDiscovery_get_ErrCode)
+typedef struct Upnp_Discovery UpnpDiscovery;
+#define UpnpDiscovery_get_ErrCode(x) ((x)->ErrCode)
+#define UpnpDiscovery_get_Expires(x) ((x)->Expires)
+#define UpnpDiscovery_get_DeviceID_cstr(x) ((x)->DeviceId)
+#define UpnpDiscovery_get_DeviceType_cstr(x) ((x)->DeviceType)
+#define UpnpDiscovery_get_ServiceType_cstr(x) ((x)->ServiceType)
+#define UpnpDiscovery_get_ServiceVer_cstr(x) ((x)->ServiceVer)
+#define UpnpDiscovery_get_Location_cstr(x) ((x)->Location)
+#define UpnpDiscovery_get_Os_cstr(x) ((x)->Os)
+#define UpnpDiscovery_get_Date_cstr(x) ((x)->Date)
+#define UpnpDiscovery_get_Ext_cstr(x) ((x)->Ext)
+#endif
+
 namespace UPnPClient {
 
 // The singleton instance pointer
@@ -65,20 +79,19 @@ static bool search();
 // device.
 static bool deviceFound(const UPnPDeviceDesc&, const UPnPServiceDesc&);
 
-
-static string cluDiscoveryToStr(const struct Upnp_Discovery *disco)
+static string cluDiscoveryToStr(const UpnpDiscovery *disco)
 {
     stringstream ss;
-    ss << "ErrCode: " << disco->ErrCode << endl;
-    ss << "Expires: " << disco->Expires << endl;
-    ss << "DeviceId: " << disco->DeviceId << endl;
-    ss << "DeviceType: " << disco->DeviceType << endl;
-    ss << "ServiceType: " << disco->ServiceType << endl;
-    ss << "ServiceVer: " << disco->ServiceVer    << endl;
-    ss << "Location: " << disco->Location << endl;
-    ss << "Os: " << disco->Os << endl;
-    ss << "Date: " << disco->Date << endl;
-    ss << "Ext: " << disco->Ext << endl;
+    ss << "ErrCode: " << UpnpDiscovery_get_ErrCode(disco) << endl;
+    ss << "Expires: " << UpnpDiscovery_get_Expires(disco) << endl;
+    ss << "DeviceId: " << UpnpDiscovery_get_DeviceID_cstr(disco) << endl;
+    ss << "DeviceType: " << UpnpDiscovery_get_DeviceType(disco) << endl;
+    ss << "ServiceType: " << UpnpDiscovery_get_ServiceType(disco) << endl;
+    ss << "ServiceVer: " << UpnpDiscovery_get_ServiceVer(disco)    << endl;
+    ss << "Location: " << UpnpDiscovery_get_Location(disco) << endl;
+    ss << "Os: " << UpnpDiscovery_get_Os(disco) << endl;
+    ss << "Date: " << UpnpDiscovery_get_Date(disco) << endl;
+    ss << "Ext: " << UpnpDiscovery_get_Ext(disco) << endl;
 
     /** The host address of the device responding to the search. */
     // struct sockaddr_storage DestAddr;
@@ -90,9 +103,10 @@ static string cluDiscoveryToStr(const struct Upnp_Discovery *disco)
 // discovery thread.
 class DiscoveredTask {
 public:
-    DiscoveredTask(bool _alive, const struct Upnp_Discovery *disco)
-        : alive(_alive), url(disco->Location), deviceId(disco->DeviceId),
-          expires(disco->Expires)
+    DiscoveredTask(bool _alive, const UpnpDiscovery *disco)
+        : alive(_alive), url(UpnpDiscovery_get_Location_cstr(disco)),
+          deviceId(UpnpDiscovery_get_DeviceID_cstr(disco)),
+          expires(UpnpDiscovery_get_Expires(disco))
     {}
 
     bool alive;
@@ -116,20 +130,21 @@ static std::mutex o_downloading_mutex;
 // Example: ContentDirectories appearing and disappearing from the network
 // We queue a task for our worker thread(s)
 // We can get called by several threads.
-static int cluCallBack(Upnp_EventType et, void* evp, void*)
+static int cluCallBack(Upnp_EventType et, const void* evp, void*)
 {
     switch (et) {
     case UPNP_DISCOVERY_SEARCH_RESULT:
     case UPNP_DISCOVERY_ADVERTISEMENT_ALIVE:
     {
-        struct Upnp_Discovery *disco = (struct Upnp_Discovery *)evp;
+        UpnpDiscovery *disco = (UpnpDiscovery *)evp;
 
         // Devices send multiple messages for themselves, their subdevices and
         // services. AFAIK they all point to the same description.xml document,
         // which has all the interesting data. So let's try to only process
         // one message per device: the one which probably correspond to the
         // upnp "root device" message and has empty service and device types:
-        if (disco->DeviceType[0] || disco->ServiceType[0]) {
+        if (UpnpDiscovery_get_DeviceType_cstr(disco)[0] ||
+            UpnpDiscovery_get_ServiceType_cstr(disco)[0]) {
             LOGDEB1("discovery:cllb:SearchRes/Alive: ignoring message with "
                     "device/service type\n");
             return UPNP_E_SUCCESS;
@@ -187,7 +202,7 @@ static int cluCallBack(Upnp_EventType et, void* evp, void*)
     }
     case UPNP_DISCOVERY_ADVERTISEMENT_BYEBYE:
     {
-        struct Upnp_Discovery *disco = (struct Upnp_Discovery *)evp;
+        UpnpDiscovery *disco = (UpnpDiscovery *)evp;
         LOGDEB1("discovery:cllB:BYEBYE: " << cluDiscoveryToStr(disco) << endl);
         DiscoveredTask *tp = new DiscoveredTask(0, disco);
         if (!discoveredQueue.put(tp)) {

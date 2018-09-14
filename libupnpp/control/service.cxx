@@ -35,9 +35,16 @@ using namespace std;
 using namespace std::placeholders;
 using namespace UPnPP;
 
+#if UPNP_VERSION_MINOR < 8 && !defined(UpnpEvent_get_SID_cstr)
+typedef struct Upnp_Event UpnpEvent;
+#define UpnpEvent_get_SID_cstr(x) ((x)->Sid)
+#define UpnpEvent_get_EventKey(x) ((x)->EventKey)
+#define UpnpEvent_get_ChangedVariables(x) ((x)->ChangedVariables)
+#endif
+
 namespace UPnPClient {
 static bool initEvents();
-static int srvCB(Upnp_EventType et, void* vevp, void*);
+static int srvCB(Upnp_EventType et, const void* vevp, void*);
 
 // A small helper class for the functions which perform
 // UpnpSendAction calls: get rid of IXML docs when done.
@@ -262,7 +269,7 @@ template <class T> int Service::runSimpleAction(const std::string& actnm,
 
 static std::mutex cblock;
 // The static event callback given to libupnp
-static int srvCB(Upnp_EventType et, void* vevp, void*)
+static int srvCB(Upnp_EventType et, const void* vevp, void*)
 {
     std::unique_lock<std::mutex> lock(cblock);
 
@@ -282,13 +289,14 @@ static int srvCB(Upnp_EventType et, void* vevp, void*)
 
     case UPNP_EVENT_RECEIVED:
     {
-        struct Upnp_Event *evp = (struct Upnp_Event *)vevp;
+        UpnpEvent *evp = (UpnpEvent *)vevp;
         LOGDEB1("Service:srvCB: var change event: SID " <<
-                evp->Sid << " EventKey " << evp->EventKey <<
-                " changed " << ixmlwPrintDoc(evp->ChangedVariables) << endl);
+                UpnpEvent_get_SID_cstr(evp) << " EventKey " <<
+                UpnpEvent_get_EventKey(evp) << " changed " <<
+                ixmlwPrintDoc(UpnpEvent_get_ChangedVariables(evp)) << endl);
 
         std::unordered_map<string, string> props;
-        if (!decodePropertySet(evp->ChangedVariables, props)) {
+        if (!decodePropertySet(UpnpEvent_get_ChangedVariables(evp), props)) {
             LOGERR("Service::srvCB: could not decode EVENT propertyset" <<endl);
             return UPNP_E_BAD_RESPONSE;
         }
@@ -296,12 +304,12 @@ static int srvCB(Upnp_EventType et, void* vevp, void*)
         //LOGDEB("srvCB: " << entry.first << " -> " << entry.second << endl);
         //}
 
-        auto it = o_calls.find(evp->Sid);
+        auto it = o_calls.find(UpnpEvent_get_SID_cstr(evp));
         if (it != o_calls.end()) {
             (it->second)(props);
         } else {
-            LOGINF("Service::srvCB: no callback found for sid " << evp->Sid <<
-                   endl);
+            LOGINF("Service::srvCB: no callback found for sid " <<
+                   UpnpEvent_get_SID_cstr(evp) << endl);
         }
         break;
     }
