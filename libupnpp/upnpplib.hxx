@@ -155,7 +155,11 @@ private:
     LibUPnP(const LibUPnP &);
     LibUPnP& operator=(const LibUPnP &);
 
-    static int o_callback(Upnp_EventType, void *, void *);
+    static int o_callback(Upnp_EventType,
+#if UPNP_VERSION_MINOR >= 8
+                          const
+#endif
+                          void *, void *);
 };
 
 } // namespace UPnPP

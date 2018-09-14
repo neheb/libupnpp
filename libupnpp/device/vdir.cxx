@@ -33,6 +33,13 @@
 using namespace std;
 using namespace UPnPP;
 
+#if UPNP_VERSION_MAJOR > 1 || (UPNP_VERSION_MAJOR==1 && UPNP_VERSION_MINOR >= 8)
+#define V18VDIR 1
+#else
+#undef V18VDIR
+typedef struct File_Info UpnpFileInfo;
+#endif
+
 namespace UPnPProvider {
 
 static VirtualDir *theDir;
@@ -104,7 +111,12 @@ bool VirtualDir::addFile(const string& _path, const string& name,
 
     if (m_dirs.find(path) == m_dirs.end()) {
 	m_dirs[path] = DirEnt();
-        UpnpAddVirtualDir(path.c_str());
+        
+        UpnpAddVirtualDir(path.c_str()
+#ifdef V18VDIR
+                          , 0, 0
+#endif
+            );
     }
 
     FileEnt entry;
@@ -123,7 +135,11 @@ bool VirtualDir::addVDir(const std::string& _path, FileOps fops)
     pathcatslash(path);
     if (m_dirs.find(path) == m_dirs.end()) {
 	m_dirs[path] = DirEnt(true);
-        UpnpAddVirtualDir(path.c_str());
+        UpnpAddVirtualDir(path.c_str()
+#ifdef V18VDIR
+                          , 0, 0
+#endif
+            );
     }
     m_dirs[path].ops = fops;
     return true;
@@ -143,7 +159,11 @@ struct Handle {
     size_t offset;
 };
 
-static int vdclose(UpnpWebFileHandle fileHnd)
+static int vdclose(UpnpWebFileHandle fileHnd
+#if V18VDIR
+                   , const void*
+#endif
+    )
 {
     Handle *h = (Handle*)fileHnd;
     if (h->vhandle) {
@@ -153,7 +173,11 @@ static int vdclose(UpnpWebFileHandle fileHnd)
     return 0;
 }
 
-static int vdgetinfo(const char *fn, struct File_Info* info)
+static int vdgetinfo(const char *fn, UpnpFileInfo* info
+#if V18VDIR
+                     , const void*
+#endif
+    )
 {
     //LOGDEB("vdgetinfo: [" << fn << "] off_t " << sizeof(off_t) <<
     // " time_t " << sizeof(time_t) << endl);
@@ -163,11 +187,20 @@ static int vdgetinfo(const char *fn, struct File_Info* info)
 	VirtualDir::FileInfo inf;
 	int ret = dir->ops.getinfo(fn, &inf);
 	if (ret >= 0) {
+#if V18VDIR
+	    UpnpFileInfo_set_FileLength(info, inf.file_length);
+	    UpnpFileInfo_set_LastModified(info, inf.last_modified);
+	    UpnpFileInfo_set_IsDirectory(info, inf.is_directory);
+	    UpnpFileInfo_set_IsReadable(info, inf.is_readable);
+	    UpnpFileInfo_set_ContentType(info,
+                                         ixmlCloneDOMString(inf.mime.c_str()));
+#else
 	    info->file_length = inf.file_length;
 	    info->last_modified = inf.last_modified;
 	    info->is_directory = inf.is_directory;
 	    info->is_readable =  inf.is_readable;
 	    info->content_type = ixmlCloneDOMString(inf.mime.c_str());
+#endif
 	}
 	return ret;
     }
@@ -176,16 +209,29 @@ static int vdgetinfo(const char *fn, struct File_Info* info)
         return -1;
     }
 
+#if V18VDIR
+    UpnpFileInfo_set_FileLength(info, entry->content.size());
+    UpnpFileInfo_set_LastModified(info, entry->mtime);
+    UpnpFileInfo_set_IsDirectory(info, 0);
+    UpnpFileInfo_set_IsReadable(info, 1);
+    UpnpFileInfo_set_ContentType(info,
+                                 ixmlCloneDOMString(entry->mimetype.c_str()));
+#else
     info->file_length = entry->content.size();
     info->last_modified = entry->mtime;
     info->is_directory = 0;
     info->is_readable = 1;
     info->content_type = ixmlCloneDOMString(entry->mimetype.c_str());
+#endif
 
     return 0;
 }
 
-static UpnpWebFileHandle vdopen(const char* fn, enum UpnpOpenFileMode)
+static UpnpWebFileHandle vdopen(const char* fn, enum UpnpOpenFileMode
+#if V18VDIR
+                                , const void*
+#endif
+    )
 {
     //LOGDEB("vdopen: " << fn << endl);
     DirEnt *dir;
@@ -207,7 +253,11 @@ static UpnpWebFileHandle vdopen(const char* fn, enum UpnpOpenFileMode)
     return new Handle(entry);
 }
 
-static int vdread(UpnpWebFileHandle fileHnd, char* buf, size_t buflen)
+static int vdread(UpnpWebFileHandle fileHnd, char* buf, size_t buflen
+#if V18VDIR
+                  , const void*
+#endif
+    )
 {
     // LOGDEB("vdread: " << endl);
     if (buflen == 0) {
@@ -228,7 +278,11 @@ static int vdread(UpnpWebFileHandle fileHnd, char* buf, size_t buflen)
     return toread;
 }
 
-static int vdseek(UpnpWebFileHandle fileHnd, off_t offset, int origin)
+static int vdseek(UpnpWebFileHandle fileHnd, off_t offset, int origin
+#if V18VDIR
+                  , const void*
+#endif
+    )
 {
     // LOGDEB("vdseek: " << endl);
     Handle *h = (Handle *)fileHnd;
@@ -247,12 +301,36 @@ static int vdseek(UpnpWebFileHandle fileHnd, off_t offset, int origin)
     return offset;
 }
 
-static int vdwrite(UpnpWebFileHandle, char*, size_t)
+static int vdwrite(UpnpWebFileHandle, char*, size_t
+#if V18VDIR
+                  , const void*
+#endif
+    )
 {
     LOGERR("vdwrite" << endl);
     return -1;
 }
 
+#if V18VDIR
+VirtualDir *VirtualDir::getVirtualDir()
+{
+    if (theDir == 0) {
+        theDir = new VirtualDir();
+        if (UpnpVirtualDir_set_GetInfoCallback(vdgetinfo) || 
+            UpnpVirtualDir_set_OpenCallback(vdopen) ||
+            UpnpVirtualDir_set_ReadCallback(vdread) || 
+            UpnpVirtualDir_set_WriteCallback(vdwrite) ||
+            UpnpVirtualDir_set_SeekCallback(vdseek) ||
+            UpnpVirtualDir_set_CloseCallback(vdclose)) {
+            LOGERR("SetVirtualDirCallbacks failed" << endl);
+            delete theDir;
+            theDir = 0;
+            return 0;
+        }
+    }
+    return theDir;
+}
+#else
 static struct UpnpVirtualDirCallbacks myvdcalls = {
     vdgetinfo, vdopen, vdread, vdwrite, vdseek, vdclose
 };
@@ -270,5 +348,6 @@ VirtualDir *VirtualDir::getVirtualDir()
     }
     return theDir;
 }
+#endif
 
 }

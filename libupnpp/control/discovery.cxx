@@ -55,9 +55,12 @@ typedef struct Upnp_Discovery UpnpDiscovery;
 #define UpnpDiscovery_get_Os_cstr(x) ((x)->Os)
 #define UpnpDiscovery_get_Date_cstr(x) ((x)->Date)
 #define UpnpDiscovery_get_Ext_cstr(x) ((x)->Ext)
+#endif
+
+#if UPNP_VERSION_MAJOR > 1 || (UPNP_VERSION_MAJOR==1 && UPNP_VERSION_MINOR >= 8)
 #define CBCONST const
 #else
-#define CBCONST
+#define CBCONST 
 #endif
 
 namespace UPnPClient {
