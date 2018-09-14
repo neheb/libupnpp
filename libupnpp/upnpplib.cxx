@@ -114,7 +114,9 @@ int LibUPnP::getInitError() const
     return m->init_error;
 }
 
+#if defined(HAVE_UPNPSETLOGLEVEL)
 static const char* ccpDevNull = "/dev/null";
+#endif
 
 LibUPnP::LibUPnP(bool serveronly, string* hwaddr,
                  const string ifname, const string inip, unsigned short port)
