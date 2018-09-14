@@ -59,6 +59,9 @@ typedef struct Upnp_Subscription_Request UpnpSubscriptionRequest;
 #define UpnpSubscriptionRequest_get_ServiceId_cstr(x) ((x)->ServiceId)
 #define UpnpSubscriptionRequest_get_UDN_cstr(x) ((x)->UDN)
 #define UpnpSubscriptionRequest_get_SID_cstr(x) ((x)->Sid)
+#define CBCONST const
+#else
+#define CBCONST
 #endif
 
 namespace UPnPProvider {
@@ -103,7 +106,7 @@ public:
     /* Static callback for libupnp. This looks up the appropriate
      * device using the device ID (UDN), the calls its callback
      * method */
-    static int sCallBack(Upnp_EventType et, const void* evp, void*);
+    static int sCallBack(Upnp_EventType et, CBCONST void* evp, void*);
 
     /** Static array of devices for dispatching */
     static std::unordered_map<std::string, UpnpDevice *> devices;
@@ -270,7 +273,7 @@ bool UpnpDevice::Internal::start()
 
     
 // Main libupnp callback: use the device id and call the right device
-int UpnpDevice::InternalStatic::sCallBack(Upnp_EventType et, const void* evp,
+int UpnpDevice::InternalStatic::sCallBack(Upnp_EventType et, CBCONST void* evp,
         void*)
 {
     //LOGDEB("UpnpDevice::sCallBack" << endl);
@@ -372,7 +375,7 @@ int UpnpDevice::Internal::callBack(Upnp_EventType et, const void* evp)
                 if (ret > 0) {
 #if UPNP_VERSION_MINOR < 8
                     act->ErrCode = ret;
-                    strncpy(act->errStr,
+                    strncpy(act->ErrStr,
                             servit->second->errString(ret).c_str(), LINE_SIZE-1);
                     act->ErrStr[LINE_SIZE-1] = 0;
 #else
