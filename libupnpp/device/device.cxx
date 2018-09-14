@@ -61,9 +61,12 @@ typedef struct Upnp_Subscription_Request UpnpSubscriptionRequest;
 #define UpnpSubscriptionRequest_get_ServiceId_cstr(x) ((x)->ServiceId)
 #define UpnpSubscriptionRequest_get_UDN_cstr(x) ((x)->UDN)
 #define UpnpSubscriptionRequest_get_SID_cstr(x) ((x)->Sid)
+#endif
+
+#if UPNP_VERSION_MAJOR > 1 || (UPNP_VERSION_MAJOR==1 && UPNP_VERSION_MINOR >= 8)
 #define CBCONST const
 #else
-#define CBCONST
+#define CBCONST 
 #endif
 
 namespace UPnPProvider {

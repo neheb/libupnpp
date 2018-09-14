@@ -40,9 +40,12 @@ typedef struct Upnp_Event UpnpEvent;
 #define UpnpEvent_get_SID_cstr(x) ((x)->Sid)
 #define UpnpEvent_get_EventKey(x) ((x)->EventKey)
 #define UpnpEvent_get_ChangedVariables(x) ((x)->ChangedVariables)
+#endif
+
+#if UPNP_VERSION_MAJOR > 1 || (UPNP_VERSION_MAJOR==1 && UPNP_VERSION_MINOR >= 8)
 #define CBCONST const
 #else
-#define CBCONST
+#define CBCONST 
 #endif
 
 namespace UPnPClient {

@@ -48,6 +48,12 @@
 
 using namespace std;
 
+#if UPNP_VERSION_MAJOR > 1 || (UPNP_VERSION_MAJOR==1 && UPNP_VERSION_MINOR >= 8)
+#define CBCONST const
+#else
+#define CBCONST 
+#endif
+
 namespace UPnPP {
 
 static LibUPnP *theLib;
@@ -295,7 +301,7 @@ std::string LibUPnP::errAsString(const std::string& who, int code)
     return os.str();
 }
 
-int LibUPnP::o_callback(Upnp_EventType et, void* evp, void* cookie)
+int LibUPnP::o_callback(Upnp_EventType et, CBCONST void* evp, void* cookie)
 {
     LibUPnP *ulib = (LibUPnP *)cookie;
     if (ulib == 0) {
