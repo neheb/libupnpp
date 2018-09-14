@@ -40,11 +40,14 @@ typedef struct Upnp_Event UpnpEvent;
 #define UpnpEvent_get_SID_cstr(x) ((x)->Sid)
 #define UpnpEvent_get_EventKey(x) ((x)->EventKey)
 #define UpnpEvent_get_ChangedVariables(x) ((x)->ChangedVariables)
+#define CBCONST const
+#else
+#define CBCONST
 #endif
 
 namespace UPnPClient {
 static bool initEvents();
-static int srvCB(Upnp_EventType et, const void* vevp, void*);
+static int srvCB(Upnp_EventType et, CBCONST void* vevp, void*);
 
 // A small helper class for the functions which perform
 // UpnpSendAction calls: get rid of IXML docs when done.
@@ -269,7 +272,7 @@ template <class T> int Service::runSimpleAction(const std::string& actnm,
 
 static std::mutex cblock;
 // The static event callback given to libupnp
-static int srvCB(Upnp_EventType et, const void* vevp, void*)
+static int srvCB(Upnp_EventType et, CBCONST void* vevp, void*)
 {
     std::unique_lock<std::mutex> lock(cblock);
 

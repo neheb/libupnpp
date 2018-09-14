@@ -55,6 +55,9 @@ typedef struct Upnp_Discovery UpnpDiscovery;
 #define UpnpDiscovery_get_Os_cstr(x) ((x)->Os)
 #define UpnpDiscovery_get_Date_cstr(x) ((x)->Date)
 #define UpnpDiscovery_get_Ext_cstr(x) ((x)->Ext)
+#define CBCONST const
+#else
+#define CBCONST
 #endif
 
 namespace UPnPClient {
@@ -85,13 +88,13 @@ static string cluDiscoveryToStr(const UpnpDiscovery *disco)
     ss << "ErrCode: " << UpnpDiscovery_get_ErrCode(disco) << endl;
     ss << "Expires: " << UpnpDiscovery_get_Expires(disco) << endl;
     ss << "DeviceId: " << UpnpDiscovery_get_DeviceID_cstr(disco) << endl;
-    ss << "DeviceType: " << UpnpDiscovery_get_DeviceType(disco) << endl;
-    ss << "ServiceType: " << UpnpDiscovery_get_ServiceType(disco) << endl;
-    ss << "ServiceVer: " << UpnpDiscovery_get_ServiceVer(disco)    << endl;
-    ss << "Location: " << UpnpDiscovery_get_Location(disco) << endl;
-    ss << "Os: " << UpnpDiscovery_get_Os(disco) << endl;
-    ss << "Date: " << UpnpDiscovery_get_Date(disco) << endl;
-    ss << "Ext: " << UpnpDiscovery_get_Ext(disco) << endl;
+    ss << "DeviceType: " << UpnpDiscovery_get_DeviceType_cstr(disco) << endl;
+    ss << "ServiceType: " << UpnpDiscovery_get_ServiceType_cstr(disco) << endl;
+    ss << "ServiceVer: " << UpnpDiscovery_get_ServiceVer_cstr(disco)    << endl;
+    ss << "Location: " << UpnpDiscovery_get_Location_cstr(disco) << endl;
+    ss << "Os: " << UpnpDiscovery_get_Os_cstr(disco) << endl;
+    ss << "Date: " << UpnpDiscovery_get_Date_cstr(disco) << endl;
+    ss << "Ext: " << UpnpDiscovery_get_Ext_cstr(disco) << endl;
 
     /** The host address of the device responding to the search. */
     // struct sockaddr_storage DestAddr;
@@ -130,7 +133,7 @@ static std::mutex o_downloading_mutex;
 // Example: ContentDirectories appearing and disappearing from the network
 // We queue a task for our worker thread(s)
 // We can get called by several threads.
-static int cluCallBack(Upnp_EventType et, const void* evp, void*)
+static int cluCallBack(Upnp_EventType et, CBCONST void* evp, void*)
 {
     switch (et) {
     case UPNP_DISCOVERY_SEARCH_RESULT:
