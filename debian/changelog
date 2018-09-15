@@ -1,3 +1,13 @@
+libupnpp5 (0.17.0-1~ppaPPAVERS~SERIES1) SERIES; urgency=low
+
+  * Changed device initialization interface for better encapsulation of XML
+    information with the services/devices they describe.
+  * Add device own event threads, making it more convenient to run multiple
+    devices.
+  * Compatibility with libupnp/pupnp 1.8 branch.
+
+ -- Jean-Francois Dockes <jf@dockes.org>  Sat, 15 Sept 2018 09:25:00 +0100
+ 
 libupnpp4 (0.16.1-1~ppaPPAVERS~SERIES1) SERIES; urgency=low
 
   * Small additions to the Songcast control interface.

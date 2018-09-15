@@ -1,20 +1,20 @@
-Source: libupnpp4
+Source: libupnpp5
 Section: contrib/sound
 Priority: extra
 Maintainer: Jean-Francois Dockes <jf@dockes.org>
 Build-Depends: debhelper (>= 8.0.0), dh-autoreconf, autotools-dev, pkg-config,
                libupnp6-dev, libexpat1-dev, libcurl-dev
-Standards-Version: 3.9.5
+Standards-Version: 3.9.8
 Homepage: http://www.lesbonscomptes.com/upmpdcli
 
-Package: libupnpp4-dev
+Package: libupnpp5-dev
 Section: contrib/libdevel
 Architecture: any
-Depends: libupnpp4, ${misc:Depends}
+Depends: libupnpp5, ${misc:Depends}
 Description: C++ layer over libupnp (development files)
  Development library and include files for libupnpp
 
-Package: libupnpp4
+Package: libupnpp5
 Architecture: any
 Depends: ${shlibs:Depends}, ${misc:Depends}
 Description: C++ layer over libupnp.
