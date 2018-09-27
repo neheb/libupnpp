@@ -658,7 +658,7 @@ void UpnpDevice::Internal::notifyEvent(const string& serviceId,
     }
 }
 
-static int timespec_diffms(const struct timespec& old,
+static time_t timespec_diffms(const struct timespec& old,
                            const struct timespec& recent)
 {
     return (recent.tv_sec - old.tv_sec) * 1000 +
@@ -712,7 +712,7 @@ void UpnpDevice::eventloop()
             // Early wakeup. Only does something if it did not already
             // happen recently
             if (didearly) {
-                int millis = timespec_diffms(earlytime, wkuptime);
+                time_t millis = timespec_diffms(earlytime, wkuptime);
                 if (millis < loopwait_ms) {
                     // Do nothing. didearly stays true
                     // LOGDEB("eventloop: early, previous too close "<<endl);

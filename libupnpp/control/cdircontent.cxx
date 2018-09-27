@@ -60,7 +60,7 @@ protected:
     public:
         StackEl(const string& nm) : name(nm) {}
         string name;
-        XML_Size sta;
+        XML_Index sta;
         std::unordered_map<string,string> attributes;
         string data;
     };
@@ -148,10 +148,12 @@ protected:
             }
         } else if (!strcmp(name, "item")) {
             if (checkobjok()) {
-                unsigned int len = XML_GetCurrentByteIndex(expat_parser) -
-                                   m_path.back().sta;
-                m_tobj.m_didlfrag = m_input.substr(m_path.back().sta, len)
-                                    + "</item></DIDL-Lite>";
+                size_t len = XML_GetCurrentByteIndex(expat_parser) -
+                    m_path.back().sta;
+                if (len > 0) {
+                    m_tobj.m_didlfrag = m_input.substr(m_path.back().sta, len) +
+                        "</item>";
+                }
                 m_dir.m_items.push_back(m_tobj);
             }
         } else if (!parentname.compare("item") ||
@@ -244,12 +246,13 @@ static const string didl_header(
     " xmlns:dc=\"http://purl.org/dc/elements/1.1/\""
     " xmlns:upnp=\"urn:schemas-upnp-org:metadata-1-0/upnp/\""
     " xmlns:dlna=\"urn:schemas-dlna-org:metadata-1-0/\">");
+static const string didl_close("</DIDL-Lite>");
 
 // Maybe we'll do something about building didl from scratch if this
 // proves necessary.
 string UPnPDirObject::getdidl() const
 {
-    return didl_header + m_didlfrag;
+    return didl_header + m_didlfrag + didl_close;
 }
 
 } // namespace

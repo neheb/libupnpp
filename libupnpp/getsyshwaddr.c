@@ -135,7 +135,7 @@ int getsyshwaddr(const char *iface, char *ip, int ilen, char *buf, int hlen,
             fd = socket(AF_INET, SOCK_DGRAM, 0);
             if (fd < 0)
                 continue;
-            strncpy(ifr.ifr_name, p->ifa_name, IFNAMSIZ);
+            strncpy(ifr.ifr_name, p->ifa_name, IFNAMSIZ-1);
             if (ioctl(fd, SIOCGIFHWADDR, &ifr) < 0)
             {
                 close(fd);

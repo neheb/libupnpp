@@ -152,7 +152,7 @@ LibUPnP::LibUPnP(bool serveronly, string* hwaddr,
     // supplied IP address. If this is empty too, libupnp will choose
     // by itself (the first adapter).
     if (ifname.empty())
-        strncpy(ip_address, inip.c_str(), ipalen);
+        strncpy(ip_address, inip.c_str(), ipalen-1);
 
 #if defined(HAVE_UPNPSETLOGLEVEL)
     // We used to UpnpCloseLog() after UpnpInit(), but this can cause

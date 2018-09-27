@@ -27,7 +27,7 @@
 #include <expat.h>
 #include <sstream>
 
-#ifdef WIN32
+#ifdef _WIN32
 #define ssize_t int
 #endif
 
@@ -69,12 +69,12 @@ public:
         if(!Ready())
             return false;
 
-        int bytes_read;
+        ssize_t bytes_read;
         /* Loop, reading the XML source block by block */
         while((bytes_read = read_block()) >= 0) {
             if(bytes_read > 0) {
                 XML_Status local_status =
-                    XML_Parse(expat_parser, getReadBuffer(), bytes_read,
+                    XML_Parse(expat_parser, getReadBuffer(), (int)bytes_read,
                               XML_FALSE);
 
                 if(local_status != XML_STATUS_OK) {

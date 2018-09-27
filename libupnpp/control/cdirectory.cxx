@@ -108,8 +108,8 @@ ContentDirectory::ContentDirectory(const UPnPDeviceDesc& device,
     serviceInit(device, service);
 }
 
-bool ContentDirectory::serviceInit(const UPnPDeviceDesc& device,
-                                   const UPnPServiceDesc& service)
+bool ContentDirectory::serviceInit(const UPnPDeviceDesc&,
+                                   const UPnPServiceDesc&)
 {
     if (bubble_rx(getModelName())) {
         m_serviceKind = CDSKIND_BUBBLE;

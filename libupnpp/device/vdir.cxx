@@ -275,7 +275,7 @@ static int vdread(UpnpWebFileHandle fileHnd, char* buf, size_t buflen
                     h->entry->content.size() - h->offset : buflen;
     memcpy(buf, h->entry->content.c_str() + h->offset, toread);
     h->offset += toread;
-    return toread;
+    return (int)toread;
 }
 
 static int vdseek(UpnpWebFileHandle fileHnd, off_t offset, int origin
@@ -287,7 +287,7 @@ static int vdseek(UpnpWebFileHandle fileHnd, off_t offset, int origin
     // LOGDEB("vdseek: " << endl);
     Handle *h = (Handle *)fileHnd;
     if (h->vhandle) {
-	return h->dir->ops.seek(h->vhandle, offset, origin);
+	return (int)h->dir->ops.seek(h->vhandle, offset, origin);
     }
     if (origin == 0) {
         h->offset = offset;
@@ -298,7 +298,9 @@ static int vdseek(UpnpWebFileHandle fileHnd, off_t offset, int origin
     } else {
         return -1;
     }
-    return offset;
+    // Note that the upnp prototype is incorrect if sizeof(int)>sizeof(off_t
+    // but there is nothing we can do about it.
+    return (int)offset;
 }
 
 static int vdwrite(UpnpWebFileHandle, char*, size_t

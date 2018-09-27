@@ -155,8 +155,8 @@ protected:
      * Most services don't need specific initialization, so we provide a 
      * default implementation.
      */
-    virtual bool serviceInit(const UPnPDeviceDesc& device,
-                             const UPnPServiceDesc& service) {
+    virtual bool serviceInit(const UPnPDeviceDesc&,
+                             const UPnPServiceDesc&) {
         return true;
     }
 

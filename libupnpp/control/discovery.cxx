@@ -244,7 +244,7 @@ unsigned int UPnPDeviceDirectory::addCallback(UPnPDeviceDirectory::Visitor v)
     // quick-responding devices won't be found before the
     // delay ends and the user finally calls traverse().
     simpleTraverse(v);
-    return o_callbacks.size() - 1;
+    return (unsigned int)(o_callbacks.size() - 1);
 }
 
 void UPnPDeviceDirectory::delCallback(unsigned int idx)
@@ -435,7 +435,7 @@ static bool search()
             std::this_thread::sleep_for(std::chrono::milliseconds(100));
         }
         LOGDEB1("UPnPDeviceDirectory::search: calling upnpsearchasync" << endl);
-        int code1 = UpnpSearchAsync(lib->getclh(), o_searchTimeout, cp, lib);
+        int code1 = UpnpSearchAsync(lib->getclh(),(int)o_searchTimeout, cp,lib);
         if (code1 != UPNP_E_SUCCESS) {
             o_reason = LibUPnP::errAsString("UpnpSearchAsync", code1);
             LOGERR("UPnPDeviceDirectory::search: UpnpSearchAsync failed: " <<
@@ -538,7 +538,7 @@ bool UPnPDeviceDirectory::traverse(UPnPDeviceDirectory::Visitor visit)
     // end of the actual initial discovery.
     for (;!o_initialSearchDone;) {
         std::unique_lock<std::mutex> lock(devWaitLock);
-        int ms;
+        time_t ms;
         if ((ms = getRemainingDelayMs()) > 0) {
             devWaitCond.wait_for(lock, chrono::milliseconds(ms));
         } else {
@@ -569,7 +569,7 @@ static bool getDevBySelector(
 
     for (;;) {
         std::unique_lock<std::mutex> lock(devWaitLock);
-        int ms = UPnPDeviceDirectory::getTheDir()->getRemainingDelayMs();
+        time_t ms = UPnPDeviceDirectory::getTheDir()->getRemainingDelayMs();
         {
             std::unique_lock<std::mutex> lock(o_pool.m_mutex);
             for (auto& it : o_pool.m_devices) {

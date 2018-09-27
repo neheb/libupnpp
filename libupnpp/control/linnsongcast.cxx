@@ -159,7 +159,7 @@ void getReceiverState(const string& nm, ReceiverState& st, bool live)
 
     if (currentindex < 0 || currentindex >= int(sources.size())) {
         st.reason = nm +  ": bad index " + SoapHelp::i2s(currentindex) +
-                    " not inside sources of size " +  SoapHelp::i2s(sources.size());
+            " not inside sources of size " + SoapHelp::i2s(int(sources.size()));
         return;
     }
 

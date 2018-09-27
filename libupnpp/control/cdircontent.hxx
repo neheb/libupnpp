@@ -61,7 +61,7 @@ public:
  */
 class UPnPDirObject {
 public:
-    enum ObjType {item, container};
+    enum ObjType {objtnone = -1, item, container};
     // There are actually several kinds of containers:
     // object.container.storageFolder, object.container.person,
     // object.container.playlistContainer etc., but they all seem to
@@ -190,8 +190,8 @@ public:
         m_id.clear();
         m_pid.clear();
         m_title.clear();
-        m_type = (ObjType)-1;
-        m_iclass = (ItemClass)-1;
+        m_type = objtnone;
+        m_iclass = ITC_unknown;
         m_props.clear();
         m_resources.clear();
         m_didlfrag.clear();

@@ -205,7 +205,7 @@ TypedService *findTypedService(const std::string& devname,
         // into the wait loop.
         int callbackidx = superdir->addCallback(vis);
         if (cb.founddev.UDN.empty()) {
-            int ms;
+            time_t ms;
             while ((ms = superdir->getRemainingDelayMs()) > 100) {
                 discocv.wait_for(mylock, std::chrono::milliseconds(ms));
                 if (!cb.founddev.UDN.empty()) {
