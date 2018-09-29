@@ -51,6 +51,7 @@ typedef struct Upnp_Action_Request UpnpActionRequest;
 #define UpnpActionRequest_get_ErrCode(x) ((x)->ErrCode)
 #define UpnpActionRequest_get_ActionName_cstr(x) ((x)->ActionName)
 #define UpnpActionRequest_get_DevUDN_cstr(x) ((x)->DevUDN)
+#define UpnpActionRequest_get_ServiceID_cstr(x) ((x)->ServiceID)
 #define UpnpActionRequest_get_ActionRequest(x) ((x)->ActionRequest)
 #define UpnpActionRequest_get_ActionResult(x) ((x)->ActionResult)
 typedef struct Upnp_State_Var_Request UpnpStateVarRequest;
