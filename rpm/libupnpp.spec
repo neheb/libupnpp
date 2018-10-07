@@ -11,7 +11,6 @@ Requires(post): systemd
 Requires(preun): systemd
 Requires(postun): systemd
 BuildRequires:  libupnp-devel
-BuildRequires:  libmpdclient-devel
 BuildRequires:  expat-devel
 BuildRequires:  libcurl-devel
 BuildRequires:  systemd-units
