@@ -56,7 +56,12 @@ protected:
         UPnPDeviceDesc *dev;
         bool ismain = false;
         const string dl("devicelist");
-        if (find(m_path.begin(), m_path.end(), dl) == m_path.end()) {
+        const string dlu("deviceList");
+        // Arghh: upmpdcli wrongly used devicelist instead of
+        // deviceList. Support both as it is unlikely that anybody
+        // would use both.
+        if (find(m_path.begin(), m_path.end(), dl) == m_path.end() ||
+            find(m_path.begin(), m_path.end(), dlu) == m_path.end()) {
             dev = &m_device;
             ismain = true;
         } else {
