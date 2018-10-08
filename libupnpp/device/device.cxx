@@ -298,7 +298,7 @@ bool UpnpDevice::Internal::start()
     descxml += myxml.servicexml;
     descxml += "    </serviceList>\n";
     if (!embedxml.empty()) {
-        descxml += "    <devicelist>\n";
+        descxml += "    <deviceList>\n";
         for  (const auto& entry : embedxml) {
             descxml += "      <device>\n";
             descxml += entry.second.propsxml;
@@ -308,7 +308,7 @@ bool UpnpDevice::Internal::start()
             descxml += "        </serviceList>\n";
             descxml += "      </device>\n";
         }
-        descxml += "</devicelist>\n";
+        descxml += "</deviceList>\n";
     }
         
     descxml += "  </device>\n</root>\n";
