@@ -468,6 +468,12 @@ void UPnPDeviceDirectory::terminate()
 
 time_t UPnPDeviceDirectory::getRemainingDelayMs()
 {
+    if (o_initialSearchDone) {
+        // Once the initial search is done, the directory is
+        // supposedly up to date at all times, there is no remainingDelay.
+        return 0;
+    }
+    
     auto remain = std::chrono::seconds(o_searchTimeout) -
         (std::chrono::steady_clock::now() - o_lastSearch);
     // Let's give them a grace delay beyond the search window
@@ -481,7 +487,7 @@ time_t UPnPDeviceDirectory::getRemainingDelayMs()
 
 time_t UPnPDeviceDirectory::getRemainingDelay()
 {
-    time_t millis = getTheDir()->getRemainingDelayMs();
+    time_t millis = getRemainingDelayMs();
     if (millis <= 0)
         return 0;
     return millis >= 1000 ? millis / 1000 : 1;
