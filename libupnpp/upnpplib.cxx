@@ -41,7 +41,7 @@
 
 #include "libupnpp/getsyshwaddr.h"
 #include "libupnpp/log.hxx"
-#include "libupnpp/md5.hxx"
+#include "libupnpp/md5.h"
 #include "libupnpp/upnpp_p.hxx"
 #include "libupnpp/upnpplib.hxx"
 #include "libupnpp/upnpputils.hxx"
