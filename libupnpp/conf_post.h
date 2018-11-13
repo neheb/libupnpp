@@ -20,6 +20,12 @@
  * symbols.
  */
 
+#ifdef _WIN32
+#ifndef CONFIG_WINDOWS_INCLUDED
+#error Need to copy the Windows config file. Also adjust the version in there !
+#endif
+#endif
+
 // Get rid of macro names which could conflict with other package's
 #if defined(LIBUPNPP_NEED_PACKAGE_VERSION) && \
     !defined(LIBUPNPP_PACKAGE_VERSION_DEFINED)
