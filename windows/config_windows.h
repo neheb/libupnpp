@@ -69,7 +69,7 @@
 #define PACKAGE_NAME "libupnpp"
 
 /* Define to the full name and version of this package. */
-#define PACKAGE_STRING "libupnpp 0.15.2"
+#define PACKAGE_STRING "libupnpp 0.16.1"
 
 /* Define to the one symbol short name of this package. */
 #define PACKAGE_TARNAME "libupnpp"
@@ -78,7 +78,7 @@
 #define PACKAGE_URL "http://www.lesbonscomptes.com/upmpdcli"
 
 /* Define to the version of this package. */
-#define PACKAGE_VERSION "0.15.2"
+#define PACKAGE_VERSION "0.16.1"
 
 /* Define to 1 if you have the ANSI C header files. */
 #define STDC_HEADERS 1
@@ -94,5 +94,7 @@
 
 /* Define to `unsigned int' if <sys/types.h> does not define. */
 /* #undef size_t */
+
+#define CONFIG_WINDOWS_INCLUDED 1
 
 #include "libupnpp/conf_post.h"

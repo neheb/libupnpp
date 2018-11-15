@@ -20,6 +20,10 @@
  * symbols.
  */
 
+#if defined(_WIN32) && !defined(CONFIG_WINDOWS_INCLUDED)
+#error Need to copy the windows-specific config.h
+#endif
+
 // Get rid of macro names which could conflict with other package's
 #if defined(LIBUPNPP_NEED_PACKAGE_VERSION) && \
     !defined(LIBUPNPP_PACKAGE_VERSION_DEFINED)
