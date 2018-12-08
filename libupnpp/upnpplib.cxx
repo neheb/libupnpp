@@ -167,8 +167,20 @@ LibUPnP::LibUPnP(bool serveronly, string* hwaddr,
     // keeps a pointer to it). 
     UpnpSetLogFileNames(ccpDevNull, ccpDevNull);
 #endif
-    
-    m->init_error = UpnpInit(ip_address[0] ? ip_address : 0, port);
+
+    // Work around a bug in some releases of libupnp 1.8: when
+    // compiled with the reuseaddr option, the lib does not try higher
+    // ports if the initial one is busy. So do it ourselves if the
+    // specified port is 0 (meaning default : 49152)
+    int maxloop = (port == 0) ? 20 : 1;
+    for (int i = 0; i < maxloop; i++) {
+        m->init_error = UpnpInit(ip_address[0] ? ip_address : 0, port);
+        if (m->init_error != UPNP_E_SOCKET_BIND) {
+            break;
+        }
+        // bind() error: possibly increment and retry
+        port = 49152 + i + 1;
+    }
 
     if (m->init_error != UPNP_E_SUCCESS) {
         LOGERR(errAsString("UpnpInit", m->init_error) << endl);
