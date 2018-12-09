@@ -110,8 +110,7 @@ nobase_include_HEADERS = \
     libupnpp/soaphelp.hxx \
     libupnpp/upnpavutils.hxx \
     libupnpp/upnpplib.hxx \
-    libupnpp/upnpputils.hxx \
-    libupnpp/workqueue.h
+    libupnpp/upnpputils.hxx
 
 EXTRA_DIST = autogen.sh
 
