@@ -157,15 +157,17 @@ LibUPnP::LibUPnP(bool serveronly, string* hwaddr,
 #if defined(HAVE_UPNPSETLOGLEVEL)
     // We used to UpnpCloseLog() after UpnpInit(), but this can cause
     // crashes because of the awful way upnpdebug.c is programmed, so
-    // no more. We do have to do something though because
-    // UpnpInitLog() creates the current filenames. The initial file
-    // names are IUpnpErrFile.txt and IUpnpInfoFile.txt, and they will
-    // be created in the current directory if debug is enabled and we
-    // do nothing. UpnpInitlog() is called by upnpapi.c:
+    // no more. We do have to do something though because with older
+    // libupnp release (fixed around 1.8.5), UpnpInitLog() creates the
+    // current filenames. The initial file names are IUpnpErrFile.txt
+    // and IUpnpInfoFile.txt, and they will be created in the current
+    // directory if debug is enabled and we do nothing. UpnpInitlog()
+    // is called by upnpapi.c:
     // UpnpInit()->UpnpInitPreamble()->UpnpInitLog() So, set safe file
     // names before calling UpnpInit() (needs to be static, the lib
     // keeps a pointer to it). 
     UpnpSetLogFileNames(ccpDevNull, ccpDevNull);
+    UpnpSetLogLevel(UPNP_CRITICAL);
 #endif
 
     // Work around a bug in some releases of libupnp 1.8: when
@@ -248,14 +250,14 @@ bool LibUPnP::setLogFileName(const std::string& fn, LogLevel level)
 {
 #if defined(HAVE_UPNPSETLOGLEVEL)
     std::unique_lock<std::mutex> lock(m->mutex);
-    if (fn.empty() || level == LogLevelNone) {
+    if (level == LogLevelNone) {
         // Can't call UpnpCloseLog() ! This closes the FILEs without
         // any further precautions -> crashes
         UpnpSetLogFileNames(ccpDevNull, ccpDevNull);
         UpnpInitLog();
     } else {
         setLogLevel(level);
-        // the lib only keeps a pointer !
+        // the old lib only kept a pointer !
         static string fnkeep(fn);
         UpnpSetLogFileNames(fnkeep.c_str(), fnkeep.c_str());
         // Because of the way upnpdebug.c is horribly coded, this
