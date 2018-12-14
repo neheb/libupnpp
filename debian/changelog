@@ -1,3 +1,9 @@
+libupnpp4 (0.16.2-1~ppaPPAVERS~SERIES1) SERIES; urgency=low
+
+  * Compatibility with pupnp 1.8.x
+
+ -- Jean-Francois Dockes <jf@dockes.org>  Fri, 14 Dec 2018 16:48:00 +0100
+
 libupnpp4 (0.16.1-1~ppaPPAVERS~SERIES1) SERIES; urgency=low
 
   * Small additions to the Songcast control interface.

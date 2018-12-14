@@ -3,7 +3,7 @@
 # except that we sort or promise that no api and abi incompatibilities
 # occur with revision (3rd number) changes.
 # ! When changing the version, also change the defines in upnpplib.hxx !
-AC_INIT([libupnpp], [0.16.1], [jfd@lesbonscomptes.com],
+AC_INIT([libupnpp], [0.16.2], [jfd@lesbonscomptes.com],
              [libupnpp], [http://www.lesbonscomptes.com/upmpdcli])
 
 # Lib version info. See:
