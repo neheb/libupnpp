@@ -6,7 +6,7 @@ libupnpp5 (0.17.0-1~ppaPPAVERS~SERIES1) SERIES; urgency=low
     devices.
   * Compatibility with libupnp/pupnp 1.8 branch.
 
- -- Jean-Francois Dockes <jf@dockes.org>  Tue, 15 Jan 2018 17:36:00 +0100
+ -- Jean-Francois Dockes <jf@dockes.org>  Tue, 15 Jan 2019 17:36:00 +0100
  
 libupnpp4 (0.16.1-1~ppaPPAVERS~SERIES1) SERIES; urgency=low
 
