@@ -103,8 +103,8 @@ ContentDirectory::ContentDirectory(const UPnPDeviceDesc& device,
                                    const UPnPServiceDesc& service)
     : Service(device, service)
 {
-    LOGERR("ContentDirectory::ContentDirectory: manufacturer: " <<
-           getManufacturer() << " model " << getModelName() << endl);
+    LOGDEB("ContentDirectory::ContentDirectory: manufacturer: [" <<
+           getManufacturer() << "] model [" << getModelName() << "]\n");
     serviceInit(device, service);
 }
 
