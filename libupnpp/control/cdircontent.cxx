@@ -231,6 +231,9 @@ private:
 
 bool UPnPDirContent::parse(const std::string& input)
 {
+    if (input.empty()) {
+        return false;
+    }
     UPnPDirParser parser(*this, input);
     bool ret = parser.Parse();
     if (ret == false) {

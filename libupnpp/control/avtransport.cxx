@@ -321,13 +321,15 @@ int AVTransport::getPositionInfo(PositionInfo& info, int instanceID)
     data.get("TrackDuration", &s);
     info.trackduration = upnpdurationtos(s);
     data.get("TrackMetaData", &s);
-    UPnPDirContent meta;
-    meta.parse(s);
-    if (meta.m_items.size() > 0) {
-        info.trackmeta = meta.m_items[0];
-        LOGDEB1("AVTransport::getPositionInfo: size " <<
-                meta.m_items.size() << " current title: "
-                << meta.m_items[0].m_title << endl);
+    if (!s.empty()) {
+        UPnPDirContent meta;
+        meta.parse(s);
+        if (meta.m_items.size() > 0) {
+            info.trackmeta = meta.m_items[0];
+            LOGDEB1("AVTransport::getPositionInfo: size " <<
+                    meta.m_items.size() << " current title: "
+                    << meta.m_items[0].m_title << endl);
+        }
     }
     data.get("TrackURI", &info.trackuri);
     data.get("RelTime", &s);
