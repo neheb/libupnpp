@@ -28,6 +28,7 @@
 #include "libupnpp/expatmm.hxx"
 #include "libupnpp/log.hxx"
 #include "libupnpp/upnpp_p.hxx"
+#include "libupnpp/soaphelp.hxx"
 
 using namespace std;
 using namespace UPnPP;
@@ -234,11 +235,22 @@ bool UPnPDirContent::parse(const std::string& input)
     if (input.empty()) {
         return false;
     }
-    UPnPDirParser parser(*this, input);
+    const string *ipp = &input;
+
+    // Double-quoting happens. Just deal with it...
+    string unquoted;
+    if (input[0] == '&') {
+        LOGDEB0("UPnPDirContent::parse: unquoting over-quoted input: " <<
+                input << endl);
+        unquoted = SoapHelp::xmlUnquote(input);
+        ipp = &unquoted;
+    }
+
+    UPnPDirParser parser(*this, *ipp);
     bool ret = parser.Parse();
     if (ret == false) {
         LOGERR("UPnPDirContent::parse: parser failed: " <<
-               parser.getLastErrorMessage() << " for:\n" << input << endl);
+               parser.getLastErrorMessage() << " for:\n" << *ipp << endl);
     }
     return ret;
 }
