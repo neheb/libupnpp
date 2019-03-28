@@ -1,3 +1,9 @@
+libupnpp5 (0.17.1-1~ppaPPAVERS~SERIES1) SERIES; urgency=low
+
+  * Handle case of buggy client quoting DIDL twice.
+
+ -- Jean-Francois Dockes <jf@dockes.org>  Thu, 28 Mar 2019 09:34:00 +0100
+ 
 libupnpp5 (0.17.0-1~ppaPPAVERS~SERIES1) SERIES; urgency=low
 
   * Changed device initialization interface for better encapsulation of XML
