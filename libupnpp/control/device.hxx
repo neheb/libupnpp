@@ -18,7 +18,6 @@
 #ifndef _DEVICE_H_X_INCLUDED_
 #define _DEVICE_H_X_INCLUDED_
 
-#include "libupnpp/config.h"
 #include <memory>
 
 #include "libupnpp/control/description.hxx"

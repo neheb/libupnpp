@@ -15,24 +15,26 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
  *   02110-1301 USA
  */
+#include "libupnpp/config.h"
+
 #include "libupnpp/control/ohsender.hxx"
 #include "libupnpp/control/cdircontent.hxx"
 
-#include <stdlib.h>                     // for atoi
-#include <string.h>                     // for strcmp
-#include <upnp/upnp.h>                  // for UPNP_E_BAD_RESPONSE, etc
+#include <stdlib.h>
+#include <string.h>
+#include <upnp/upnp.h>
 
-#include <functional>                   // for _Bind, bind, _1
-#include <ostream>                      // for endl, basic_ostream, etc
-#include <string>                       // for string, basic_string, etc
-#include <utility>                      // for pair
-#include <vector>                       // for vector
+#include <functional>
+#include <ostream>
+#include <string>
+#include <utility>
+#include <vector>
 
 #include "libupnpp/upnpavutils.hxx"
-#include "libupnpp/control/service.hxx"  // for VarEventReporter, Service
-#include "libupnpp/log.hxx"             // for LOGERR, LOGDEB1, LOGINF
-#include "libupnpp/soaphelp.hxx"        // for SoapIncoming, etc
-#include "libupnpp/upnpp_p.hxx"         // for stringToBool
+#include "libupnpp/control/service.hxx"
+#include "libupnpp/log.hxx"
+#include "libupnpp/soaphelp.hxx"
+#include "libupnpp/upnpp_p.hxx"
 
 using namespace std;
 using namespace std::placeholders;

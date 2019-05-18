@@ -15,21 +15,23 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
  *   02110-1301 USA
  */
+#include "libupnpp/config.h"
+
 #include "libupnpp/control/avtransport.hxx"
 
-#include <stdlib.h>                     // for atoi
-#include <upnp/upnp.h>                  // for UPNP_E_SUCCESS, etc
+#include <stdlib.h>
+#include <upnp/upnp.h>
 
-#include <ostream>                      // for basic_ostream, endl, etc
-#include <string>                       // for string, basic_string, etc
-#include <utility>                      // for pair
-#include <vector>                       // for vector
+#include <ostream>
+#include <string>
+#include <utility>
+#include <vector>
 
-#include "libupnpp/control/avlastchg.hxx"  // for decodeAVLastChange
-#include "libupnpp/control/cdircontent.hxx"  // for UPnPDirContent, etc
-#include "libupnpp/log.hxx"             // for LOGERR, LOGDEB1, LOGDEB, etc
-#include "libupnpp/soaphelp.hxx"        // for SoapIncoming, etc
-#include "libupnpp/upnpavutils.hxx"     // for upnpdurationtos, etc
+#include "libupnpp/control/avlastchg.hxx"
+#include "libupnpp/control/cdircontent.hxx"
+#include "libupnpp/log.hxx"
+#include "libupnpp/soaphelp.hxx"
+#include "libupnpp/upnpavutils.hxx"
 #include "libupnpp/upnpp_p.hxx"
 #include "libupnpp/smallut.h" 
 

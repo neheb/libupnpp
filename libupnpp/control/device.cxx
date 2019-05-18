@@ -15,6 +15,8 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
  *   02110-1301 USA
  */
+#include "libupnpp/config.h"
+
 #include "libupnpp/control/device.hxx"
 
 #include "libupnpp/log.hxx"

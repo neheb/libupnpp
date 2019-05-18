@@ -17,16 +17,69 @@
  */
 #ifndef _UPNPP_H_X_INCLUDED_
 #define _UPNPP_H_X_INCLUDED_
-#include "libupnpp/config.h"
 
 /* Private shared defs for the library. Clients need not and should
    not include this */
 
+#include <upnp/upnp.h>
+
 #include <pthread.h>
 #include <time.h>
+
 #include <string>
+#include <mutex>
+#include <unordered_map>
+#include <vector>
+#include <utility>
+
+#include "libupnpp/config.h"
+#include "libupnpp/upnpplib.hxx"
+#include "libupnpp/soaphelp.hxx"
 
 namespace UPnPP {
+
+class SoapIncoming::Internal {
+public:
+    /* Construct by decoding the XML passed from libupnp. Call ok() to check
+     * if this went well.
+     *
+     * @param name We could get this from the XML doc, but get caller
+     *    gets it from libupnp, and passing it is simpler than retrieving
+     *    from the input top node where it has a namespace qualifier.
+     * @param actReq the XML document containing the SOAP data.
+     */
+    bool decode(const char *name, IXML_Document *actReq);
+    std::string name;
+    std::unordered_map<std::string, std::string> args;
+};
+
+class SoapOutgoing::Internal {
+public:
+    /* Build the SOAP call or response data XML document from the
+       vector of named values */
+    IXML_Document *buildSoapBody(bool isResp = true) const;
+
+    std::string serviceType;
+    std::string name;
+    std::vector<std::pair<std::string, std::string> > data;
+};
+
+/* Decode UPnP Event data. 
+ *
+ * In soaphelp.cxx: This is not soap, but it's quite close to
+ * the other code in there.
+ * The variable values are contained in a propertyset XML document:
+ *     <?xml version="1.0"?>
+ *     <e:propertyset xmlns:e="urn:schemas-upnp-org:event-1-0">
+ *       <e:property>
+ *         <variableName>new value</variableName>
+ *       </e:property>
+ *       <!-- Other variable names and values (if any) go here. -->
+ *     </e:propertyset>
+ */
+extern bool decodePropertySet(IXML_Document *doc,
+                              std::unordered_map<std::string, std::string>& out);
+
 
 // Concatenate paths. Caller should make sure it makes sense.
 extern std::string caturl(const std::string& s1, const std::string& s2);
@@ -41,6 +94,39 @@ template <class T> bool csvToStrings(const std::string& s, T &tokens);
 extern bool stringToBool(const std::string& s, bool *v);
 
 extern void timespec_now(struct timespec *ts);
+
+/** Translate libupnp event type to string */
+extern std::string evTypeAsString(Upnp_EventType);
+
+class LibUPnP::Internal {
+public:
+
+    /** Specify function to be called on given UPnP
+     *  event. The call will happen in the libupnp thread context.
+     */
+    void registerHandler(Upnp_EventType et, Upnp_FunPtr handler, void *cookie);
+
+    // A Handler object records the data from registerHandler.
+    class Handler {
+    public:
+        Handler()
+            : handler(0), cookie(0) {}
+        Handler(Upnp_FunPtr h, void *c)
+            : handler(h), cookie(c) {}
+        Upnp_FunPtr handler;
+        void *cookie;
+    };
+
+    int setupWebServer(const std::string& description, UpnpDevice_Handle *dvh);
+
+    UpnpClient_Handle getclh();
+    
+    bool ok;
+    int  init_error;
+    UpnpClient_Handle clh;
+    std::mutex mutex;
+    std::map<Upnp_EventType, Handler> handlers;
+};
 
 } // namespace
 

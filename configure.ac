@@ -23,7 +23,7 @@ AC_INIT([libupnpp], [0.17.1], [jfd@lesbonscomptes.com],
 # libupnpp packages are named libupnppX where X is the .so major number
 # (c-a). This allows packages for multiple incompatible ABIs to be
 # installed
-VERSION_INFO=8:1:0
+VERSION_INFO=8:2:0
 
 AC_PREREQ([2.53])
 AC_CONFIG_SRCDIR([libupnpp/upnpplib.hxx])

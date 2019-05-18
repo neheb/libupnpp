@@ -81,8 +81,6 @@ libupnpp_la_SOURCES = \
 
 nobase_include_HEADERS = \
     libupnpp/base64.hxx \
-    libupnpp/conf_post.h \
-    libupnpp/config.h \
     libupnpp/control/avtransport.hxx \
     libupnpp/control/cdircontent.hxx \
     libupnpp/control/cdirectory.hxx \

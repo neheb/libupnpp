@@ -18,15 +18,15 @@
 #include "libupnpp/config.h"
 #include "libupnpp/control/ohproduct.hxx"
 
-#include <string.h>                     // for strcmp
-#include <upnp/upnp.h>                  // for UPNP_E_BAD_RESPONSE, etc
-#include <ostream>                      // for endl
-#include <string>                       // for string
-#include <vector>                       // for vector
+#include <string.h>
+#include <upnp/upnp.h>
+#include <ostream>
+#include <string>
+#include <vector>
 
-#include "libupnpp/expatmm.hxx"         // for inputRefXMLParser
-#include "libupnpp/log.hxx"             // for LOGERR
-#include "libupnpp/soaphelp.hxx"        // for SoapIncoming, etc
+#include "libupnpp/expatmm.hxx"
+#include "libupnpp/log.hxx"
+#include "libupnpp/soaphelp.hxx"
 #include "libupnpp/upnpp_p.hxx"
 #include "libupnpp/smallut.h"
 

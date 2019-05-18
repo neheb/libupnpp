@@ -18,8 +18,6 @@
 #ifndef _RENDERINGCONTROL_HXX_INCLUDED_
 #define _RENDERINGCONTROL_HXX_INCLUDED_
 
-#include "libupnpp/config.h"
-
 #include <string>
 
 #include "service.hxx"

@@ -18,8 +18,6 @@
 #ifndef _OHSENDER_HXX_INCLUDED_
 #define _OHSENDER_HXX_INCLUDED_
 
-#include "libupnpp/config.h"
-
 #include <unordered_map>
 #include <string>
 

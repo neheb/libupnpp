@@ -18,15 +18,12 @@
 #ifndef _OHTIME_HXX_INCLUDED_
 #define _OHTIME_HXX_INCLUDED_
 
-#include "libupnpp/config.h"
-
 #include <unordered_map>
-#include <memory>                       // for shared_ptr
-#include <string>                       // for string
-#include <vector>                       // for vector
+#include <memory>
+#include <string>
+#include <vector>
 
-#include "service.hxx"                  // for Service
-
+#include "libupnpp/control/service.hxx"
 
 namespace UPnPClient {
 

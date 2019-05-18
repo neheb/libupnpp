@@ -18,13 +18,11 @@
 #ifndef _OHINFO_HXX_INCLUDED_
 #define _OHINFO_HXX_INCLUDED_
 
-#include <libupnpp/config.h>
-
 #include <unordered_map>
-#include <string>                       // for string
-#include <vector>                       // for vector
+#include <string>
+#include <vector>
 
-#include "service.hxx"                  // for Service
+#include "service.hxx"
 
 
 namespace UPnPClient {

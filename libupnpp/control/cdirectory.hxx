@@ -18,8 +18,6 @@
 #ifndef _UPNPDIR_HXX_INCLUDED_
 #define _UPNPDIR_HXX_INCLUDED_
 
-#include "libupnpp/config.h"
-
 #include <unordered_map>
 #include <set>
 #include <string>
@@ -27,6 +25,10 @@
 
 #include "libupnpp/control/service.hxx"
 
+// Let clients who don't care avoid including upnp.h
+#ifndef UPNP_E_SUCCESS
+#define UPNP_E_SUCCESS  0
+#endif
 
 namespace UPnPClient {
 

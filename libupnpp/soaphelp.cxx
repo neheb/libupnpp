@@ -17,6 +17,7 @@
  */
 #include "libupnpp/config.h"
 
+#include "libupnpp/upnpp_p.hxx"
 #include "libupnpp/soaphelp.hxx"
 
 #include <stdio.h>
@@ -25,18 +26,14 @@
 #include <iostream>
 #include <vector>
 
+#include <upnp/ixml.h>
+
 #include "libupnpp/log.hxx"
 #include "libupnpp/upnpp_p.hxx"
 
 using namespace std;
 
 namespace UPnPP {
-
-class SoapIncoming::Internal {
-public:
-    string name;
-    unordered_map<string, string> args;
-};
 
 SoapIncoming::SoapIncoming()
 {
@@ -72,9 +69,9 @@ void SoapIncoming::getMap(unordered_map<string, string>& out)
    This is used both for decoding action requests in the device and responses
    in the control point side
 */
-bool SoapIncoming::decode(const char *callnm, IXML_Document *actReq)
+bool SoapIncoming::Internal::decode(const char *callnm, IXML_Document *actReq)
 {
-    m->name = callnm;
+    name = callnm;
 
     IXML_NodeList* nl = 0;
     IXML_Node* topNode = ixmlNode_getFirstChild((IXML_Node *)actReq);
@@ -121,9 +118,9 @@ bool SoapIncoming::decode(const char *callnm, IXML_Document *actReq)
         if (value == 0) {
             value = "";
         }
-        m->args[name] = value;
+        args[name] = value;
     }
-    m->name = callnm;
+    name = callnm;
     ret = true;
 
 out:
@@ -240,12 +237,6 @@ string SoapHelp::i2s(int val)
     return string(cbuf);
 }
 
-class SoapOutgoing::Internal {
-public:
-    string serviceType;
-    string name;
-    vector<pair<string, string> > data;
-};
 
 SoapOutgoing::SoapOutgoing()
 {
@@ -288,28 +279,28 @@ SoapOutgoing& SoapOutgoing::operator()(const string& k, const string& v)
     return *this;
 }
 
-IXML_Document *SoapOutgoing::buildSoapBody(bool isResponse) const
+IXML_Document *SoapOutgoing::Internal::buildSoapBody(bool isResponse) const
 {
     IXML_Document *doc = ixmlDocument_createDocument();
     if (doc == 0) {
         cerr << "buildSoapBody: out of memory" << endl;
         return 0;
     }
-    string topname = string("u:") + m->name;
+    string topname = string("u:") + name;
     if (isResponse) {
         topname += "Response";
     }
 
     IXML_Element *top =
-        ixmlDocument_createElementNS(doc, m->serviceType.c_str(),
+        ixmlDocument_createElementNS(doc, serviceType.c_str(),
                                      topname.c_str());
-    ixmlElement_setAttribute(top, "xmlns:u", m->serviceType.c_str());
+    ixmlElement_setAttribute(top, "xmlns:u", serviceType.c_str());
 
-    for (unsigned i = 0; i < m->data.size(); i++) {
+    for (unsigned i = 0; i < data.size(); i++) {
         IXML_Element *elt =
-            ixmlDocument_createElement(doc, m->data[i].first.c_str());
+            ixmlDocument_createElement(doc, data[i].first.c_str());
         IXML_Node* textnode =
-            ixmlDocument_createTextNode(doc, m->data[i].second.c_str());
+            ixmlDocument_createTextNode(doc, data[i].second.c_str());
         ixmlNode_appendChild((IXML_Node*)elt, (IXML_Node*)textnode);
         ixmlNode_appendChild((IXML_Node*)top, (IXML_Node*)elt);
     }

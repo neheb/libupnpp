@@ -18,13 +18,10 @@
 #ifndef _AVTRANSPORT_HXX_INCLUDED_
 #define _AVTRANSPORT_HXX_INCLUDED_
 
-#include "libupnpp/config.h"
-
 #include <string>
 
-#include "libupnpp/control/cdircontent.hxx"  // for UPnPDirObject
-#include "libupnpp/control/service.hxx"  // for Service
-#include "libupnpp/log.hxx"
+#include "libupnpp/control/cdircontent.hxx"
+#include "libupnpp/control/service.hxx"
 
 namespace UPnPClient {
 

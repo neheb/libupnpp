@@ -17,7 +17,6 @@
  */
 #ifndef _UPNPPDISC_H_X_INCLUDED_
 #define _UPNPPDISC_H_X_INCLUDED_
-#include "libupnpp/config.h"
 
 #include <time.h>
 

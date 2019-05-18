@@ -17,15 +17,12 @@
  */
 #ifndef _SERVICE_H_X_INCLUDED_
 #define _SERVICE_H_X_INCLUDED_
-#include "libupnpp/config.h"
 
 #include <sys/types.h>
 
 #include <functional>
 #include <iostream>
 #include <string>
-
-#include <upnp/upnp.h>
 
 #include "libupnpp/control/cdircontent.hxx"
 #include "libupnpp/log.hxx"

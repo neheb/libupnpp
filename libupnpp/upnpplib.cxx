@@ -27,6 +27,9 @@
 #include <mach/mach.h>
 #endif
 
+#include "libupnpp/upnpp_p.hxx"
+
+#include <upnp/upnp.h>
 #include <upnp/ixml.h>
 #include <upnp/upnptools.h>
 #include <upnp/upnpdebug.h>
@@ -42,8 +45,6 @@
 #include "libupnpp/getsyshwaddr.h"
 #include "libupnpp/log.hxx"
 #include "libupnpp/md5.h"
-#include "libupnpp/upnpp_p.hxx"
-#include "libupnpp/upnpplib.hxx"
 #include "libupnpp/upnpputils.hxx"
 
 using namespace std;
@@ -58,26 +59,6 @@ namespace UPnPP {
 
 static LibUPnP *theLib;
 
-class LibUPnP::Internal {
-public:
-    // A Handler object records the data from registerHandler.
-    class Handler {
-    public:
-        Handler()
-            : handler(0), cookie(0) {}
-        Handler(Upnp_FunPtr h, void *c)
-            : handler(h), cookie(c) {}
-        Upnp_FunPtr handler;
-        void *cookie;
-    };
-
-    bool ok;
-    int  init_error;
-    UpnpClient_Handle clh;
-    std::mutex mutex;
-    std::map<Upnp_EventType, Handler> handlers;
-};
-
 LibUPnP *LibUPnP::getLibUPnP(bool serveronly, string* hwaddr,
                              const string ifname, const string ip,
                              unsigned short port)
@@ -89,7 +70,28 @@ LibUPnP *LibUPnP::getLibUPnP(bool serveronly, string* hwaddr,
         theLib = 0;
         return 0;
     }
+    LOGDEB("LibUPnP::getLibUPnP: theLib " << theLib << " theLib->m " <<
+           theLib->m << endl);
     return theLib;
+}
+
+static int o_callback(Upnp_EventType et, CBCONST void* evp, void* cookie)
+{
+    LibUPnP *ulib = (LibUPnP *)cookie;
+    if (ulib == 0) {
+        // Because the asyncsearch calls uses a null cookie.
+        cerr << "o_callback: NULL ulib!" << endl;
+        ulib = theLib;
+    }
+    LOGDEB("LibUPnP::o_callback: ulib " << ulib << " ulib->m " << ulib->m <<
+           " event type: " << evTypeAsString(et) << endl);
+
+    map<Upnp_EventType, LibUPnP::Internal::Handler>::iterator it =
+        ulib->m->handlers.find(et);
+    if (it != ulib->m->handlers.end()) {
+        (it->second.handler)(et, evp, it->second.cookie);
+    }
+    return UPNP_E_SUCCESS;
 }
 
 string LibUPnP::versionString()
@@ -99,9 +101,9 @@ string LibUPnP::versionString()
     return string("libupnpp ") + LIBUPNPP_PACKAGE_VERSION;
 }
 
-UpnpClient_Handle LibUPnP::getclh()
+UpnpClient_Handle LibUPnP::Internal::getclh()
 {
-    return m->clh;
+    return clh;
 }
 
 bool LibUPnP::ok() const
@@ -121,7 +123,7 @@ static const char* ccpDevNull = "/dev/null";
 LibUPnP::LibUPnP(bool serveronly, string* hwaddr,
                  const string ifname, const string inip, unsigned short port)
 {
-    LOGDEB1("LibUPnP: serveronly " << serveronly << " &hwaddr " << hwaddr <<
+    LOGDEB("LibUPnP: serveronly " << serveronly << " &hwaddr " << hwaddr <<
             " ifname [" << ifname << "] inip [" << inip << "] port " << port
             << endl);
 
@@ -219,7 +221,8 @@ string LibUPnP::host()
     return string();
 }
 
-int LibUPnP::setupWebServer(const string& description, UpnpDevice_Handle *dvh)
+int LibUPnP::Internal::setupWebServer(const string& description,
+                                      UpnpDevice_Handle *dvh)
 {
     // If we send description as a string (UPNPREG_BUF_DESC), libupnp
     // wants config_baseURL to be set, and it will serve the edited
@@ -231,7 +234,7 @@ int LibUPnP::setupWebServer(const string& description, UpnpDevice_Handle *dvh)
     int res = UpnpRegisterRootDevice2(
         UPNPREG_URL_DESC, description.c_str(), description.size(), 
         0, /* config_baseURL */
-        o_callback, (void *)this, dvh);
+        o_callback, (void *)theLib, dvh);
 
     if (res != UPNP_E_SUCCESS) {
         LOGERR("LibUPnP::setupWebServer(): " <<
@@ -298,15 +301,15 @@ bool LibUPnP::setLogLevel(LogLevel level)
 #endif
 }
 
-void LibUPnP::registerHandler(Upnp_EventType et, Upnp_FunPtr handler,
-                              void *cookie)
+void LibUPnP::Internal::registerHandler(Upnp_EventType et, Upnp_FunPtr handler,
+                                        void *cookie)
 {
-    std::unique_lock<std::mutex> lock(m->mutex);
+    std::unique_lock<std::mutex> lock(mutex);
     if (handler == 0) {
-        m->handlers.erase(et);
+        handlers.erase(et);
     } else {
         Internal::Handler h(handler, cookie);
-        m->handlers[et] = h;
+        handlers[et] = h;
     }
 }
 
@@ -315,23 +318,6 @@ std::string LibUPnP::errAsString(const std::string& who, int code)
     std::ostringstream os;
     os << who << " :" << code << ": " << UpnpGetErrorMessage(code);
     return os.str();
-}
-
-int LibUPnP::o_callback(Upnp_EventType et, CBCONST void* evp, void* cookie)
-{
-    LibUPnP *ulib = (LibUPnP *)cookie;
-    if (ulib == 0) {
-        // Because the asyncsearch calls uses a null cookie.
-        //cerr << "o_callback: NULL ulib!" << endl;
-        ulib = theLib;
-    }
-    LOGDEB1("LibUPnP::o_callback: event type: " << evTypeAsString(et) << endl);
-
-    map<Upnp_EventType, Internal::Handler>::iterator it = ulib->m->handlers.find(et);
-    if (it != ulib->m->handlers.end()) {
-        (it->second.handler)(et, evp, it->second.cookie);
-    }
-    return UPNP_E_SUCCESS;
 }
 
 LibUPnP::~LibUPnP()
@@ -363,7 +349,7 @@ string LibUPnP::makeDevUUID(const std::string& name, const std::string& hw)
 }
 
 
-string LibUPnP::evTypeAsString(Upnp_EventType et)
+string evTypeAsString(Upnp_EventType et)
 {
     switch (et) {
     case UPNP_CONTROL_ACTION_REQUEST:

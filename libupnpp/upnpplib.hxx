@@ -18,8 +18,6 @@
 #ifndef _LIBUPNP_H_X_INCLUDED_
 #define _LIBUPNP_H_X_INCLUDED_
 
-#include <upnp/upnp.h>
-
 #include <map>
 #include <string>
 
@@ -126,40 +124,15 @@ public:
     /** Translate libupnp integer error code (UPNP_E_XXX) to string */
     static std::string errAsString(const std::string& who, int code);
 
-/////////////////////////////////////////////////////////////////////////////
-    /* The methods which follow are normally for use by the
-     * intermediate layers in libupnpp, such as the base device class
-     * or the server directory, end-user code should not need them in
-     * general.
-     */
-
-    /** Private: specify function to be called on given UPnP
-     *  event. This will happen in the libupnp thread context.
-     */
-    void registerHandler(Upnp_EventType et, Upnp_FunPtr handler, void *cookie);
-
-    /** Private: translate libupnp event type to string */
-    static std::string evTypeAsString(Upnp_EventType);
-
-    int setupWebServer(const std::string& description, UpnpDevice_Handle *dvh);
-
-    UpnpClient_Handle getclh();
-
-private:
     class Internal;
     Internal *m;
 
+private:
     LibUPnP(bool serveronly, std::string *hwaddr,
             const std::string ifname, const std::string ip,
             unsigned short port);
     LibUPnP(const LibUPnP &);
     LibUPnP& operator=(const LibUPnP &);
-
-    static int o_callback(Upnp_EventType,
-#if UPNP_VERSION_MINOR >= 8
-                          const
-#endif
-                          void *, void *);
 };
 
 } // namespace UPnPP

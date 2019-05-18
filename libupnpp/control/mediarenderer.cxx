@@ -19,15 +19,15 @@
 
 #include "libupnpp/control/mediarenderer.hxx"
 
-#include <ostream>                      // for endl
-#include <string>                       // for string
-#include <utility>                      // for pair
-#include <vector>                       // for vector
+#include <ostream>
+#include <string>
+#include <utility>
+#include <vector>
 
-#include "libupnpp/control/description.hxx"  // for UPnPDeviceDesc, etc
-#include "libupnpp/control/discovery.hxx"  // for UPnPDeviceDirectory, etc
-#include "libupnpp/control/renderingcontrol.hxx"  // for RenderingControl, etc
-#include "libupnpp/log.hxx"             // for LOGERR, LOGINF
+#include "libupnpp/control/description.hxx"
+#include "libupnpp/control/discovery.hxx"
+#include "libupnpp/control/renderingcontrol.hxx"
+#include "libupnpp/log.hxx"
 
 using namespace std;
 using namespace std::placeholders;

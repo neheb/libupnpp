@@ -190,13 +190,13 @@ int Service::runAction(const SoapOutgoing& args, SoapIncoming& data)
         LOGINF("Service::runAction: no lib" << endl);
         return UPNP_E_OUTOF_MEMORY;
     }
-    UpnpClient_Handle hdl = lib->getclh();
+    UpnpClient_Handle hdl = lib->m->getclh();
 
     IXML_Document *request(0);
     IXML_Document *response(0);
     IxmlCleaner cleaner(&request, &response);
 
-    if ((request = args.buildSoapBody(false)) == 0) {
+    if ((request = args.m->buildSoapBody(false)) == 0) {
         LOGINF("Service::runAction: buildSoapBody failed" << endl);
         return  UPNP_E_OUTOF_MEMORY;
     }
@@ -216,7 +216,7 @@ int Service::runAction(const SoapOutgoing& args, SoapIncoming& data)
         } else {
             // A remote error then
             SoapIncoming error;
-            error.decode("UPnPError", response);
+            error.m->decode("UPnPError", response);
             int code = -1;
             string desc;
             error.get("errorCode", &code);
@@ -230,7 +230,7 @@ int Service::runAction(const SoapOutgoing& args, SoapIncoming& data)
     LOGDEB1("Service::runAction: rslt: [" <<
             ixmlwPrintDoc(response) << "]" << endl);
 
-    if (!data.decode(args.getName().c_str(), response)) {
+    if (!data.m->decode(args.getName().c_str(), response)) {
         LOGERR("Service::runAction: Could not decode response: " <<
                ixmlwPrintDoc(response) << endl);
         return UPNP_E_BAD_RESPONSE;
@@ -279,7 +279,7 @@ static int srvCB(Upnp_EventType et, CBCONST void* vevp, void*)
 {
     std::unique_lock<std::mutex> lock(cblock);
 
-    LOGDEB0("Service:srvCB: " << LibUPnP::evTypeAsString(et) << endl);
+    LOGDEB0("Service:srvCB: " << evTypeAsString(et) << endl);
 
     switch (et) {
     case UPNP_EVENT_RENEWAL_COMPLETE:
@@ -323,7 +323,7 @@ static int srvCB(Upnp_EventType et, CBCONST void* vevp, void*)
     default:
         // Ignore other events for now
         LOGDEB("Service:srvCB: unprocessed evt type: [" <<
-               LibUPnP::evTypeAsString(et) << "]"  << endl);
+               evTypeAsString(et) << "]"  << endl);
         break;
     }
 
@@ -348,11 +348,11 @@ static bool initEvents()
         LOGERR("Service::initEvents: Can't get lib" << endl);
         return false;
     }
-    lib->registerHandler(UPNP_EVENT_RENEWAL_COMPLETE, srvCB, 0);
-    lib->registerHandler(UPNP_EVENT_SUBSCRIBE_COMPLETE, srvCB, 0);
-    lib->registerHandler(UPNP_EVENT_UNSUBSCRIBE_COMPLETE, srvCB, 0);
-    lib->registerHandler(UPNP_EVENT_AUTORENEWAL_FAILED, srvCB, 0);
-    lib->registerHandler(UPNP_EVENT_RECEIVED, srvCB, 0);
+    lib->m->registerHandler(UPNP_EVENT_RENEWAL_COMPLETE, srvCB, 0);
+    lib->m->registerHandler(UPNP_EVENT_SUBSCRIBE_COMPLETE, srvCB, 0);
+    lib->m->registerHandler(UPNP_EVENT_UNSUBSCRIBE_COMPLETE, srvCB, 0);
+    lib->m->registerHandler(UPNP_EVENT_AUTORENEWAL_FAILED, srvCB, 0);
+    lib->m->registerHandler(UPNP_EVENT_RECEIVED, srvCB, 0);
     return true;
 }
 
@@ -365,7 +365,7 @@ bool Service::Internal::subscribe()
         return false;
     }
     int timeout = 1800;
-    int ret = UpnpSubscribe(lib->getclh(), eventURL.c_str(),
+    int ret = UpnpSubscribe(lib->m->getclh(), eventURL.c_str(),
                             &timeout, SID);
     if (ret != UPNP_E_SUCCESS) {
         LOGERR("Service:subscribe: failed: " << ret << " : " <<
@@ -385,7 +385,7 @@ bool Service::Internal::unSubscribe()
         return false;
     }
     if (SID[0]) {
-        int ret = UpnpUnSubscribe(lib->getclh(), SID);
+        int ret = UpnpUnSubscribe(lib->m->getclh(), SID);
         if (ret != UPNP_E_SUCCESS) {
             LOGERR("Service:unSubscribe: failed: " << ret << " : " <<
                    UpnpGetErrorMessage(ret) << endl);

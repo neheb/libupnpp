@@ -18,13 +18,9 @@
 #ifndef _SOAPHELP_H_X_INCLUDED_
 #define _SOAPHELP_H_X_INCLUDED_
 
-#include "libupnpp/config.h"
-
 #include <unordered_map>
 #include <memory>
 #include <string>
-
-#include <upnp/ixml.h>
 
 namespace UPnPP {
 
@@ -33,16 +29,6 @@ class SoapIncoming {
 public:
     SoapIncoming();
     ~SoapIncoming();
-
-    /** Construct by decoding the XML passed from libupnp. Call ok() to check
-     * if this went well.
-     *
-     * @param name We could get this from the XML doc, but get caller
-     *    gets it from libupnp, and passing it is simpler than retrieving
-     *    from the input top node where it has a namespace qualifier.
-     * @param actReq the XML document containing the SOAP data.
-     */
-    bool decode(const char *name, IXML_Document *actReq);
 
     /** Get action name */
     const std::string& getName() const;
@@ -55,7 +41,7 @@ public:
     bool get(const char *nm, std::string *value) const;
 
     void getMap(std::unordered_map<std::string, std::string>& out);
-private:
+
     class Internal;
     Internal *m;
 };
@@ -95,32 +81,11 @@ public:
 
     SoapOutgoing& operator()(const std::string& k, const std::string& v);
 
-    /** Build the SOAP call or response data XML document from the
-       vector of named values */
-    IXML_Document *buildSoapBody(bool isResp = true) const;
-
     const std::string& getName() const;
 
-private:
     class Internal;
     Internal *m;
 };
-
-
-/** Decode UPnP Event data. This is not soap, but it's quite close to
- *  the other code in here so whatever...
- *
- * The variable values are contained in a propertyset XML document:
- *     <?xml version="1.0"?>
- *     <e:propertyset xmlns:e="urn:schemas-upnp-org:event-1-0">
- *       <e:property>
- *         <variableName>new value</variableName>
- *       </e:property>
- *       <!-- Other variable names and values (if any) go here. -->
- *     </e:propertyset>
- */
-extern bool decodePropertySet(IXML_Document *doc,
-                              std::unordered_map<std::string, std::string>& out);
 
 
 } // namespace UPnPP

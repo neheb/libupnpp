@@ -31,7 +31,6 @@
 #include <thread>
 
 #include "libupnpp/log.hxx"
-#include "libupnpp/upnpplib.hxx"
 #include "libupnpp/upnpp_p.hxx"
 #include "libupnpp/upnpputils.hxx"
 #include "libupnpp/workqueue.h"
@@ -220,7 +219,7 @@ static int cluCallBack(Upnp_EventType et, CBCONST void* evp, void*)
     default:
         // Ignore other events for now
         LOGDEB("discovery:cluCallBack: unprocessed evt type: [" <<
-               LibUPnP::evTypeAsString(et) << "]"  << endl);
+               evTypeAsString(et) << "]"  << endl);
         break;
     }
 
@@ -390,11 +389,11 @@ UPnPDeviceDirectory::UPnPDeviceDirectory(time_t search_window)
         o_reason = "Can't get lib";
         return;
     }
-    lib->registerHandler(UPNP_DISCOVERY_SEARCH_RESULT, cluCallBack, this);
-    lib->registerHandler(UPNP_DISCOVERY_ADVERTISEMENT_ALIVE,
-                         cluCallBack, this);
-    lib->registerHandler(UPNP_DISCOVERY_ADVERTISEMENT_BYEBYE,
-                         cluCallBack, this);
+    lib->m->registerHandler(UPNP_DISCOVERY_SEARCH_RESULT, cluCallBack, this);
+    lib->m->registerHandler(UPNP_DISCOVERY_ADVERTISEMENT_ALIVE,
+                            cluCallBack, this);
+    lib->m->registerHandler(UPNP_DISCOVERY_ADVERTISEMENT_BYEBYE,
+                            cluCallBack, this);
 
     o_ok = search();
 }
@@ -435,7 +434,8 @@ static bool search()
             std::this_thread::sleep_for(std::chrono::milliseconds(100));
         }
         LOGDEB1("UPnPDeviceDirectory::search: calling upnpsearchasync" << endl);
-        int code1 = UpnpSearchAsync(lib->getclh(),(int)o_searchTimeout, cp,lib);
+        int code1 = UpnpSearchAsync(lib->m->getclh(),
+                                    (int)o_searchTimeout, cp, lib);
         if (code1 != UPNP_E_SUCCESS) {
             o_reason = LibUPnP::errAsString("UpnpSearchAsync", code1);
             LOGERR("UPnPDeviceDirectory::search: UpnpSearchAsync failed: " <<
@@ -459,9 +459,9 @@ void UPnPDeviceDirectory::terminate()
 {
     LibUPnP *lib = LibUPnP::getLibUPnP();
     if (lib) {
-        lib->registerHandler(UPNP_DISCOVERY_SEARCH_RESULT, 0, 0);
-        lib->registerHandler(UPNP_DISCOVERY_ADVERTISEMENT_ALIVE, 0, 0);
-        lib->registerHandler(UPNP_DISCOVERY_ADVERTISEMENT_BYEBYE, 0, 0);
+        lib->m->registerHandler(UPNP_DISCOVERY_SEARCH_RESULT, 0, 0);
+        lib->m->registerHandler(UPNP_DISCOVERY_ADVERTISEMENT_ALIVE, 0, 0);
+        lib->m->registerHandler(UPNP_DISCOVERY_ADVERTISEMENT_BYEBYE, 0, 0);
     }
     discoveredQueue.setTerminateAndWait();
 }

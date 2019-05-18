@@ -31,6 +31,8 @@
 #include <condition_variable>
 #include <thread>
 
+#include <upnp/upnp.h>
+
 #include "libupnpp/log.hxx"
 #include "libupnpp/smallut.h"
 #include "libupnpp/ixmlwrap.hxx"
@@ -210,11 +212,11 @@ UpnpDevice::UpnpDevice(const string& deviceId)
         std::unique_lock<std::mutex> lock(o->devices_lock);
         if (o->devices.empty()) {
             // First call: init callbacks
-            m->lib->registerHandler(UPNP_CONTROL_ACTION_REQUEST,
+            m->lib->m->registerHandler(UPNP_CONTROL_ACTION_REQUEST,
                                     o->sCallBack, this);
-            m->lib->registerHandler(UPNP_CONTROL_GET_VAR_REQUEST,
+            m->lib->m->registerHandler(UPNP_CONTROL_GET_VAR_REQUEST,
                                     o->sCallBack, this);
-            m->lib->registerHandler(UPNP_EVENT_SUBSCRIPTION_REQUEST,
+            m->lib->m->registerHandler(UPNP_EVENT_SUBSCRIPTION_REQUEST,
                                     o->sCallBack, this);
         }
         o->devices[m->deviceId] = this;
@@ -326,7 +328,7 @@ bool UpnpDevice::Internal::start()
     unsigned short port = UpnpGetServerPort();
     int ret;
     string url = ipv4tostrurl(host, port) + devsubd + "description.xml";
-    if ((ret = lib->setupWebServer(url, &dvh)) != 0) {
+    if ((ret = lib->m->setupWebServer(url, &dvh)) != 0) {
         LOGERR("UpnpDevice: libupnp can't start service. Err " << ret <<
                endl);
         return false;
@@ -449,8 +451,8 @@ int UpnpDevice::Internal::callBack(Upnp_EventType et, const void* evp)
             }
 
             SoapIncoming sc;
-            if (!sc.decode(actname.c_str(),
-                           UpnpActionRequest_get_ActionRequest(act))) {
+            if (!sc.m->decode(actname.c_str(),
+                              UpnpActionRequest_get_ActionRequest(act))) {
                 LOGERR("Error decoding Action call arguments" << endl);
                 return UPNP_E_INVALID_PARAM;
             }
@@ -479,10 +481,10 @@ int UpnpDevice::Internal::callBack(Upnp_EventType et, const void* evp)
         // Encode result data
 #if UPNP_VERSION_MINOR < 8
         act->ErrCode = UPNP_E_SUCCESS;
-        act->ActionResult = dt.buildSoapBody();
+        act->ActionResult = dt.m->buildSoapBody();
 #else
         UpnpActionRequest_set_ErrCode(act, UPNP_E_SUCCESS);
-        UpnpActionRequest_set_ActionResult(act, dt.buildSoapBody());
+        UpnpActionRequest_set_ActionResult(act, dt.m->buildSoapBody());
 #endif
         LOGDEB1("Response data: " <<
                 ixmlwPrintDoc(UpnpActionRequest_get_ActionResult(act)) << endl);
@@ -539,7 +541,7 @@ int UpnpDevice::Internal::callBack(Upnp_EventType et, const void* evp)
 
     default:
         LOGINF("UpnpDevice::callBack: unknown libupnp event type: " <<
-               LibUPnP::evTypeAsString(et).c_str() << endl);
+               evTypeAsString(et).c_str() << endl);
         return UPNP_E_INVALID_PARAM;
     }
     return UPNP_E_INVALID_PARAM;

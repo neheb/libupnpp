@@ -17,10 +17,8 @@
  */
 #ifndef _DEVICE_H_X_INCLUDED_
 #define _DEVICE_H_X_INCLUDED_
-#include "libupnpp/config.h"
 
 #include <pthread.h>
-#include <upnp/upnp.h>
 
 #include <functional>
 #include <memory>

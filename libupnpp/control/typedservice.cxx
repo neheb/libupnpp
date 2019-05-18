@@ -25,6 +25,8 @@
 #include <condition_variable>
 #include <chrono>
 
+#include <upnp/upnp.h>
+
 #include "libupnpp/control/discovery.hxx"
 #include "libupnpp/control/description.hxx"
 #include "libupnpp/log.hxx"

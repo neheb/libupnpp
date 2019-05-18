@@ -19,38 +19,13 @@
 
 #include "libupnpp/ixmlwrap.hxx"
 
-#include <upnp/ixml.h>                  // for IXML_Node, etc
+#include <upnp/ixml.h>
 
-#include <string>                       // for string
+#include <string>
 
 using std::string;
 
 namespace UPnPP {
-
-#if 0
-// Get the value for the first element in the document with the given name.
-// There should be only one such element for this to make any sense.
-string getFirstElementValue(IXML_Document *doc, const string& name)
-{
-    string ret;
-    IXML_NodeList *nodes =
-        ixmlDocument_getElementsByTagName(doc, name.c_str());
-
-    if (nodes) {
-        IXML_Node *first = ixmlNodeList_item(nodes, 0);
-        if (first) {
-            IXML_Node *dnode = ixmlNode_getFirstChild(first);
-            if (dnode) {
-                ret = ixmlNode_getNodeValue(dnode);
-            }
-        }
-    }
-
-    if(nodes)
-        ixmlNodeList_free(nodes);
-    return ret;
-}
-#endif
 
 string ixmlwPrintDoc(IXML_Document* doc)
 {

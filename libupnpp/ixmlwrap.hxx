@@ -18,19 +18,11 @@
 #ifndef _IXMLWRAP_H_INCLUDED_
 #define _IXMLWRAP_H_INCLUDED_
 
-#include <upnp/ixml.h>                  // for IXML_Document
+#include <upnp/ixml.h>
 
-#include <string>                       // for string
+#include <string>
 
 namespace UPnPP {
-
-#if 0
-/** Retrieve the text content for the first element of given name.
- * Returns an empty string if the element does not contain a text node */
-std::string getFirstElementValue(IXML_Document *doc,
-                                 const std::string& name);
-*
-#endif
 
 /** Return the result of ixmlPrintDocument as a string and take
  * care of freeing the memory. This is inefficient of course (one

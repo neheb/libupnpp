@@ -18,8 +18,6 @@
 #ifndef _OHRADIO_HXX_INCLUDED_
 #define _OHRADIO_HXX_INCLUDED_
 
-#include "libupnpp/config.h"
-
 #include <string>
 #include <vector>
 

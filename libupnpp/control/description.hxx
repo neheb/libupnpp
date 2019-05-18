@@ -18,8 +18,6 @@
 #ifndef _UPNPDEV_HXX_INCLUDED_
 #define _UPNPDEV_HXX_INCLUDED_
 
-#include "libupnpp/config.h"
-
 /**
  * UPnP Description phase: interpreting the device description which we
  * downloaded from the URL obtained by the discovery phase.

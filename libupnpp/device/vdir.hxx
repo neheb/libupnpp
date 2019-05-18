@@ -18,7 +18,11 @@
 #ifndef _VDIR_H_X_INCLUDED_
 #define _VDIR_H_X_INCLUDED_
 
-#include "libupnpp/config.h"
+// This is normally supplied by config.h for the internal C++ code,
+// but we now avoid exposing this in the public include files. Note
+// that this is not optional as libupnp is always built with large
+// file support and we need to be the same
+#define _FILE_OFFSET_BITS 64
 
 #include <time.h>
 #include <sys/types.h>

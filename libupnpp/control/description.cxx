@@ -23,11 +23,11 @@
 
 #include <algorithm>
 
-#include <string.h>                     // for strcmp
-#include <upnp/upnp.h>                  // for UpnpDownload...
+#include <string.h>
+#include <upnp/upnp.h>
 
 #include "libupnpp/upnpplib.hxx"
-#include "libupnpp/expatmm.hxx"         // for inputRefXMLParser
+#include "libupnpp/expatmm.hxx"
 #include "libupnpp/upnpp_p.hxx"
 #include "libupnpp/smallut.h"
 #include "libupnpp/log.hxx"

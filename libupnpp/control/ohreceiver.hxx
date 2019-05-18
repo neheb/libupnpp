@@ -18,11 +18,9 @@
 #ifndef _OHRECEIVER_HXX_INCLUDED_
 #define _OHRECEIVER_HXX_INCLUDED_
 
-#include "libupnpp/config.h"
-
 #include <unordered_map>
-#include <string>                       // for string
-#include <vector>                       // for vector
+#include <string>
+#include <vector>
 
 #include "libupnpp/control/service.hxx"
 #include "libupnpp/control/ohplaylist.hxx"

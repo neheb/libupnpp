@@ -17,7 +17,6 @@
  */
 #ifndef _TYPEDSERVICE_H_X_INCLUDED_
 #define _TYPEDSERVICE_H_X_INCLUDED_
-#include "libupnpp/config.h"
 
 #include <string>
 #include <vector>
