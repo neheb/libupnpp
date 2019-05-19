@@ -58,6 +58,7 @@ libupnpp_la_SOURCES = \
     libupnpp/device/vdir.hxx \
     libupnpp/base64.hxx \
     libupnpp/base64.cxx \
+    libupnpp/conf_post.h \
     libupnpp/expatmm.hxx \
     libupnpp/getsyshwaddr.c \
     libupnpp/getsyshwaddr.h \
@@ -126,4 +127,3 @@ pkgconfig_DATA = libupnpp.pc
 dist-hook:
 	test -z "`git status -s | egrep -v '?? libupnpp-.*/'`" 
 	git tag -a libupnpp-v$(VERSION) -m 'version $(VERSION)'
-
