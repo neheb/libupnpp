@@ -35,6 +35,10 @@
 #include "libupnpp/upnpp_p.hxx"
 #include "libupnpp/smallut.h" 
 
+#ifdef _WIN32
+#undef DeviceCapabilities
+#endif
+
 using namespace std;
 using namespace std::placeholders;
 using namespace UPnPP;

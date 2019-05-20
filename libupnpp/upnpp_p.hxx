@@ -20,6 +20,7 @@
 
 /* Private shared defs for the library. Clients need not and should
    not include this */
+#include <sys/types.h>
 
 #include <upnp/upnp.h>
 
