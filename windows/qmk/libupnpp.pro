@@ -5,7 +5,7 @@ TEMPLATE = lib
 
 # Need this because we have 2 device.cxx files
 CONFIG += object_parallel_to_source
-CONFIG  += qt warn_on thread release
+CONFIG  += qt warn_on thread
 CONFIG += staticlib
 
 DEFINES += UPNP_STATIC_LIB
@@ -66,7 +66,7 @@ SOURCES += \
 ../../libupnpp/getsyshwaddr.c \
 ../../libupnpp/ixmlwrap.cxx \
 ../../libupnpp/log.cpp \
-../../libupnpp/md5.cxx \
+../../libupnpp/md5.cpp \
 ../../libupnpp/smallut.cpp \
 ../../libupnpp/soaphelp.cxx \
 ../../libupnpp/upnpavutils.cxx \
