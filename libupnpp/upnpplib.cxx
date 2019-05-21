@@ -70,8 +70,6 @@ LibUPnP *LibUPnP::getLibUPnP(bool serveronly, string* hwaddr,
         theLib = 0;
         return 0;
     }
-    LOGDEB("LibUPnP::getLibUPnP: theLib " << theLib << " theLib->m " <<
-           theLib->m << endl);
     return theLib;
 }
 
@@ -83,8 +81,7 @@ static int o_callback(Upnp_EventType et, CBCONST void* evp, void* cookie)
         cerr << "o_callback: NULL ulib!" << endl;
         ulib = theLib;
     }
-    LOGDEB("LibUPnP::o_callback: ulib " << ulib << " ulib->m " << ulib->m <<
-           " event type: " << evTypeAsString(et) << endl);
+    LOGDEB1("LibUPnP::o_callback: event type: " << evTypeAsString(et) << endl);
 
     map<Upnp_EventType, LibUPnP::Internal::Handler>::iterator it =
         ulib->m->handlers.find(et);
