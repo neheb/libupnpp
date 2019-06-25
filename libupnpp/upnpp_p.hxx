@@ -24,6 +24,13 @@
 
 #include <upnp/upnp.h>
 
+#define PUPNP_AT_LEAST(A,B,C)                                           \
+    (UPNP_VERSION_MAJOR > (A) ||                                        \
+     (UPNP_VERSION_MAJOR == (A) &&                                      \
+      (UPNP_VERSION_MINOR > (B) ||                                      \
+       (UPNP_VERSION_MINOR == (B) && UPNP_VERSION_PATCH >= (C)))))
+
+
 #include <pthread.h>
 #include <time.h>
 

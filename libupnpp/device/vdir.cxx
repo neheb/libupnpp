@@ -33,10 +33,7 @@
 using namespace std;
 using namespace UPnPP;
 
-#if UPNP_VERSION_MAJOR > 1 || (UPNP_VERSION_MAJOR==1 && UPNP_VERSION_MINOR >= 8)
-#define V18VDIR 1
-#else
-#undef V18VDIR
+#if !PUPNP_AT_LEAST(1,8,0)
 typedef struct File_Info UpnpFileInfo;
 #endif
 
@@ -113,7 +110,7 @@ bool VirtualDir::addFile(const string& _path, const string& name,
 	m_dirs[path] = DirEnt();
         
         UpnpAddVirtualDir(path.c_str()
-#ifdef V18VDIR
+#if PUPNP_AT_LEAST(1,8,3)
                           , 0, 0
 #endif
             );
@@ -136,7 +133,7 @@ bool VirtualDir::addVDir(const std::string& _path, FileOps fops)
     if (m_dirs.find(path) == m_dirs.end()) {
 	m_dirs[path] = DirEnt(true);
         UpnpAddVirtualDir(path.c_str()
-#ifdef V18VDIR
+#if PUPNP_AT_LEAST(1,8,3)
                           , 0, 0
 #endif
             );
@@ -160,7 +157,7 @@ struct Handle {
 };
 
 static int vdclose(UpnpWebFileHandle fileHnd
-#if V18VDIR
+#if PUPNP_AT_LEAST(1,8,3)
                    , const void*
 #endif
     )
@@ -174,7 +171,7 @@ static int vdclose(UpnpWebFileHandle fileHnd
 }
 
 static int vdgetinfo(const char *fn, UpnpFileInfo* info
-#if V18VDIR
+#if PUPNP_AT_LEAST(1,8,3)
                      , const void*
 #endif
     )
@@ -187,7 +184,7 @@ static int vdgetinfo(const char *fn, UpnpFileInfo* info
 	VirtualDir::FileInfo inf;
 	int ret = dir->ops.getinfo(fn, &inf);
 	if (ret >= 0) {
-#if V18VDIR
+#if PUPNP_AT_LEAST(1,8,0)
 	    UpnpFileInfo_set_FileLength(info, inf.file_length);
 	    UpnpFileInfo_set_LastModified(info, inf.last_modified);
 	    UpnpFileInfo_set_IsDirectory(info, inf.is_directory);
@@ -209,7 +206,7 @@ static int vdgetinfo(const char *fn, UpnpFileInfo* info
         return -1;
     }
 
-#if V18VDIR
+#if PUPNP_AT_LEAST(1,8,0)
     UpnpFileInfo_set_FileLength(info, entry->content.size());
     UpnpFileInfo_set_LastModified(info, entry->mtime);
     UpnpFileInfo_set_IsDirectory(info, 0);
@@ -228,7 +225,7 @@ static int vdgetinfo(const char *fn, UpnpFileInfo* info
 }
 
 static UpnpWebFileHandle vdopen(const char* fn, enum UpnpOpenFileMode
-#if V18VDIR
+#if PUPNP_AT_LEAST(1,8,3)
                                 , const void*
 #endif
     )
@@ -254,7 +251,7 @@ static UpnpWebFileHandle vdopen(const char* fn, enum UpnpOpenFileMode
 }
 
 static int vdread(UpnpWebFileHandle fileHnd, char* buf, size_t buflen
-#if V18VDIR
+#if PUPNP_AT_LEAST(1,8,3)
                   , const void*
 #endif
     )
@@ -279,7 +276,7 @@ static int vdread(UpnpWebFileHandle fileHnd, char* buf, size_t buflen
 }
 
 static int vdseek(UpnpWebFileHandle fileHnd, off_t offset, int origin
-#if V18VDIR
+#if PUPNP_AT_LEAST(1,8,3)
                   , const void*
 #endif
     )
@@ -304,7 +301,7 @@ static int vdseek(UpnpWebFileHandle fileHnd, off_t offset, int origin
 }
 
 static int vdwrite(UpnpWebFileHandle, char*, size_t
-#if V18VDIR
+#if PUPNP_AT_LEAST(1,8,3)
                   , const void*
 #endif
     )
@@ -313,7 +310,7 @@ static int vdwrite(UpnpWebFileHandle, char*, size_t
     return -1;
 }
 
-#if V18VDIR
+#if PUPNP_AT_LEAST(1,8,0)
 VirtualDir *VirtualDir::getVirtualDir()
 {
     if (theDir == 0) {
