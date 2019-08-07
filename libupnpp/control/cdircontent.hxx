@@ -90,9 +90,6 @@ public:
     /// Properties as gathered from the XML document (album, artist, etc.),
     /// The map keys are the XML tag names except for title which has
     /// a proper field.
-    /// If there is a "role" attribute for a given
-    /// property, the value is stored under a prop@role key
-    /// (e.g. props["upnp:artist@role"] = "Composer")
     std::map<std::string, std::string> m_props;
 
     /// Resources: there may be several, for example for different
