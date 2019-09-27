@@ -527,12 +527,12 @@ int UpnpDevice::Internal::callBack(Upnp_EventType et, const void* evp)
         int ret = UpnpAcceptSubscription(
                 dvh, UpnpSubscriptionRequest_get_UDN_cstr(act),
                 UpnpSubscriptionRequest_get_ServiceId_cstr(act),
-                &cnames[0], &cvalues[0], int(cnames.size()),
+                cnames.size()?&cnames[0]:nullptr,
+                cnames.size()?&cvalues[0]:nullptr, int(cnames.size()),
                 UpnpSubscriptionRequest_get_SID_cstr(act));
         if (ret != UPNP_E_SUCCESS) {
             LOGERR(lib->errAsString(
-                       "UpnpDevice::callBack: UpnpAcceptSubscription", ret) <<
-                   endl);
+                       "UpnpDevice::callBack: UpnpAcceptSubscription", ret) << endl);
         }
 
         return ret;
