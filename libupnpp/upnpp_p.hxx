@@ -30,6 +30,9 @@
       (UPNP_VERSION_MINOR > (B) ||                                      \
        (UPNP_VERSION_MINOR == (B) && UPNP_VERSION_PATCH >= (C)))))
 
+#if PUPNP_AT_LEAST(1,8,0) && !PUPNP_AT_LEAST(1,8,5)
+#error PUPNP versions between 1.8.0 and 1.8.4 (included) do not work
+#endif
 
 #include <pthread.h>
 #include <time.h>
