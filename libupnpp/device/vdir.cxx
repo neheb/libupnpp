@@ -160,6 +160,9 @@ static int vdclose(UpnpWebFileHandle fileHnd
 #if PUPNP_AT_LEAST(1,8,3)
                    , const void*
 #endif
+#if PUPNP_AT_LEAST(1,10,0)
+                   , const void*
+#endif
     )
 {
     Handle *h = (Handle*)fileHnd;
@@ -173,6 +176,9 @@ static int vdclose(UpnpWebFileHandle fileHnd
 static int vdgetinfo(const char *fn, UpnpFileInfo* info
 #if PUPNP_AT_LEAST(1,8,3)
                      , const void*
+#endif
+#if PUPNP_AT_LEAST(1,10,0)
+                   , const void**
 #endif
     )
 {
@@ -228,6 +234,9 @@ static UpnpWebFileHandle vdopen(const char* fn, enum UpnpOpenFileMode
 #if PUPNP_AT_LEAST(1,8,3)
                                 , const void*
 #endif
+#if PUPNP_AT_LEAST(1,10,0)
+                   , const void*
+#endif
     )
 {
     //LOGDEB("vdopen: " << fn << endl);
@@ -254,6 +263,9 @@ static int vdread(UpnpWebFileHandle fileHnd, char* buf, size_t buflen
 #if PUPNP_AT_LEAST(1,8,3)
                   , const void*
 #endif
+#if PUPNP_AT_LEAST(1,10,0)
+                   , const void*
+#endif
     )
 {
     // LOGDEB("vdread: " << endl);
@@ -279,6 +291,9 @@ static int vdseek(UpnpWebFileHandle fileHnd, off_t offset, int origin
 #if PUPNP_AT_LEAST(1,8,3)
                   , const void*
 #endif
+#if PUPNP_AT_LEAST(1,10,0)
+                   , const void*
+#endif
     )
 {
     // LOGDEB("vdseek: " << endl);
@@ -303,6 +318,9 @@ static int vdseek(UpnpWebFileHandle fileHnd, off_t offset, int origin
 static int vdwrite(UpnpWebFileHandle, char*, size_t
 #if PUPNP_AT_LEAST(1,8,3)
                   , const void*
+#endif
+#if PUPNP_AT_LEAST(1,10,0)
+                   , const void*
 #endif
     )
 {
