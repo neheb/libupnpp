@@ -33,6 +33,7 @@
 #include "libupnpp/control/ohsender.hxx"
 #include "libupnpp/control/ohradio.hxx"
 #include "libupnpp/control/ohinfo.hxx"
+#include "libupnpp/control/conman.hxx"
 
 namespace UPnPClient {
 
@@ -57,6 +58,7 @@ public:
         for unimplemented services. */
     RDCH rdc();  // Rendering control
     AVTH avt();  // AVTransport
+    CNMH conman(); // Connection Manager
     OHPRH ohpr(); // OpenHome Product
     OHPLH ohpl(); // OpenHome Playlist
     OHTMH ohtm(); // OpenHome Time

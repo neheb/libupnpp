@@ -16,6 +16,8 @@ libupnpp_la_SOURCES = \
     libupnpp/control/cdircontent.hxx \
     libupnpp/control/cdirectory.cxx \
     libupnpp/control/cdirectory.hxx \
+    libupnpp/control/conman.cxx \
+    libupnpp/control/conman.hxx \
     libupnpp/control/description.cxx \
     libupnpp/control/description.hxx \
     libupnpp/control/device.hxx \
@@ -85,6 +87,7 @@ nobase_include_HEADERS = \
     libupnpp/control/avtransport.hxx \
     libupnpp/control/cdircontent.hxx \
     libupnpp/control/cdirectory.hxx \
+    libupnpp/control/conman.hxx \
     libupnpp/control/description.hxx \
     libupnpp/control/device.hxx \
     libupnpp/control/discovery.hxx \

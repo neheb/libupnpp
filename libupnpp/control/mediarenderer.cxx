@@ -42,6 +42,7 @@ class MediaRenderer::Internal {
 public:
     std::weak_ptr<RenderingControl> rdc;
     std::weak_ptr<AVTransport> avt;
+    std::weak_ptr<ConnectionManager> cnm;
     std::weak_ptr<OHProduct> ohpr;
     std::weak_ptr<OHPlaylist> ohpl;
     std::weak_ptr<OHTime> ohtm;
@@ -151,6 +152,24 @@ AVTH MediaRenderer::avt()
         LOGDEB("MediaRenderer: AVTransport service not found" << endl);
     m->avt = avtl;
     return avtl;
+}
+
+CNMH MediaRenderer::conman()
+{
+    CNMH cnml = m->cnm.lock();
+    if (cnml)
+        return cnml;
+    for (const auto& servdesc : desc()->services) {
+        if (ConnectionManager::isConManService(servdesc.serviceType)) {
+            cnml = CNMH(new ConnectionManager(servdesc.serviceType));
+            cnml->initFromDescription(*desc());
+            break;
+        }
+    }
+    if (!cnml)
+        LOGDEB("MediaRenderer: ConnectionManager service not found" << endl);
+    m->cnm = cnml;
+    return cnml;
 }
 
 OHPRH MediaRenderer::ohpr()
