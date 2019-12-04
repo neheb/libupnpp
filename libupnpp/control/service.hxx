@@ -83,15 +83,18 @@ public:
      * This allows separating the object construction and initialization.
      * The method can fail if the appropriate service is not found. 
      * It calls serviceInit() to perform any initialization specific to the 
-     * service type. 
+     * service type. This relies on serviceTypeMatch() implemented in the 
+     * derived class to find the right service.
      */
     bool initFromDescription(const UPnPDeviceDesc& description);
     
-    // Restart the subscription to get all the State variable values,
-    // in case we get the events before we are ready (e.g. before the
-    // connections are set in a qt app)
+    /** Restart the subscription to get all the State variable values,
+     * in case we get the events before we are ready (e.g. before the
+     * connections are set in a qt app) */
     virtual void reSubscribe();
 
+    /** Accessors for the values extracted from the device description during 
+     *  initialization */
     const std::string& getFriendlyName() const;
     const std::string& getDeviceId() const;
     const std::string& getServiceType() const;
@@ -109,7 +112,7 @@ public:
                           UPnPP::SoapIncoming& data);
 
     /** Run trivial action where there are neither input parameters
-       nor return data (beyond the status) */
+        nor return data (beyond the status) */
     int runTrivialAction(const std::string& actionName);
 
     /** Run action where there are no input parameters and a single
