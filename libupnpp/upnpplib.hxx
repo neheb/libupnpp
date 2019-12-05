@@ -24,7 +24,7 @@
 /** Version components. */
 #define LIBUPNPP_VERSION_MAJOR 0
 #define LIBUPNPP_VERSION_MINOR 17
-#define LIBUPNPP_VERSION_REVISION 2
+#define LIBUPNPP_VERSION_REVISION 3
 /// Got this from Xapian...
 #define LIBUPNPP_AT_LEAST(A,B,C)                                        \
     (LIBUPNPP_VERSION_MAJOR > (A) ||                                    \
@@ -32,10 +32,16 @@
       (LIBUPNPP_VERSION_MINOR > (B) ||                                  \
        (LIBUPNPP_VERSION_MINOR == (B) && LIBUPNPP_VERSION_REVISION >= (C)))))
 
-// Let clients who don't care avoid including upnp.h
+// Let clients avoid including upnp.h if they don't need it for other reasons
 #ifndef UPNP_E_SUCCESS
 #define UPNP_E_SUCCESS  0
 #endif
+
+// Feature test defines to help client programs, esp. for features
+// added without breaking api and avi
+
+// upnp/av connection manager control api 
+#define LIBUPNPP_HAS_UPNPAVCONMAN 1
 
 namespace UPnPP {
 
