@@ -45,6 +45,8 @@ int ConnectionManager::getProtocolInfo(
     std::vector<UPnPP::ProtocolinfoEntry>& sourceEntries,
     std::vector<UPnPP::ProtocolinfoEntry>& sinkEntries)
 {
+    sourceEntries.clear();
+    sinkEntries.clear();
     std::map<std::string, std::string> data;
     int ret = runAction("GetProtocolInfo", std::vector<std::string>(), data);
     if (ret != UPNP_E_SUCCESS) {
