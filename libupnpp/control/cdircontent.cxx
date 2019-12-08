@@ -40,9 +40,8 @@ string UPnPDirObject::nullstr;
 // An XML parser which builds directory contents from DIDL-lite input.
 class UPnPDirParser : public inputRefXMLParser {
 public:
-    UPnPDirParser(UPnPDirContent& dir, const string& input)
-        : inputRefXMLParser(input), m_dir(dir)
-    {
+    UPnPDirParser(UPnPDirContent& dir, const string& input, bool detailed)
+        : inputRefXMLParser(input), m_dir(dir), m_detailed(detailed) {
         //LOGDEB("UPnPDirParser: input: " << input << endl);
         m_okitems["object.item.audioItem"] = UPnPDirObject::ITC_audioItem;
         m_okitems["object.item.audioItem.musicTrack"] =
@@ -55,19 +54,17 @@ public:
         m_okitems["object.item.videoItem"] = UPnPDirObject::ITC_videoItem;
     }
     UPnPDirContent& m_dir;
-
 protected:
     class StackEl {
     public:
         StackEl(const string& nm) : name(nm) {}
         string name;
         XML_Index sta;
-        std::unordered_map<string,string> attributes;
+        std::map<string,string> attributes;
         string data;
     };
 
-    virtual void StartElement(const XML_Char *name, const XML_Char **attrs)
-    {
+    virtual void StartElement(const XML_Char *name, const XML_Char **attrs) {
         //LOGDEB("startElement: name [" << name << "]" << " bpos " <<
         //             XML_GetCurrentByteIndex(expat_parser) << endl);
 
@@ -82,7 +79,7 @@ protected:
         switch (name[0]) {
         case 'c':
             if (!strcmp(name, "container")) {
-                m_tobj.clear();
+                m_tobj.clear(m_detailed);
                 m_tobj.m_type = UPnPDirObject::container;
                 m_tobj.m_id = mapattrs["id"];
                 m_tobj.m_pid = mapattrs["parentID"];
@@ -90,7 +87,7 @@ protected:
             break;
         case 'i':
             if (!strcmp(name, "item")) {
-                m_tobj.clear();
+                m_tobj.clear(m_detailed);
                 m_tobj.m_type = UPnPDirObject::item;
                 m_tobj.m_id = mapattrs["id"];
                 m_tobj.m_pid = mapattrs["parentID"];
@@ -101,8 +98,7 @@ protected:
         }
     }
 
-    virtual bool checkobjok()
-    {
+    virtual bool checkobjok() {
         // We used to check id and pid not empty, but this is ok if we
         // are parsing a didl fragment sent from a control point. So
         // lets all ok and hope for the best.
@@ -110,8 +106,7 @@ protected:
                            !m_tobj.m_title.empty();*/
 
         if (ok && m_tobj.m_type == UPnPDirObject::item) {
-            map<string, UPnPDirObject::ItemClass>::const_iterator it;
-            it = m_okitems.find(m_tobj.m_props["upnp:class"]);
+            const auto& it = m_okitems.find(m_tobj.m_props["upnp:class"]);
             if (it == m_okitems.end()) {
                 // Only log this if the record comes from an MS as e.g. naims
                 // send records with empty classes (and empty id/pid)
@@ -133,8 +128,7 @@ protected:
         return ok;
     }
 
-    virtual void EndElement(const XML_Char *name)
-    {
+    virtual void EndElement(const XML_Char *name) {
         string parentname;
         if (m_path.size() == 1) {
             parentname = "root";
@@ -174,9 +168,7 @@ protected:
                     // sampleFrequency="44100" nrAudioChannels="2">
                     UPnPResource res;
                     res.m_uri = m_path.back().data;
-                    for (auto it : m_path.back().attributes) {
-                        res.m_props[it.first] = it.second;
-                    }
+                    res.m_props = m_path.back().attributes;
                     m_tobj.m_resources.push_back(res);
                 } else {
                     addprop(name, m_path.back().data);
@@ -191,8 +183,7 @@ protected:
         m_path.pop_back();
     }
 
-    virtual void CharacterData(const XML_Char *s, int len)
-    {
+    virtual void CharacterData(const XML_Char *s, int len) {
         if (s == 0 || *s == 0)
             return;
         string str(s, len);
@@ -203,10 +194,15 @@ private:
     vector<StackEl> m_path;
     UPnPDirObject m_tobj;
     map<string, UPnPDirObject::ItemClass> m_okitems;
+    bool m_detailed;
 
     void addprop(const string& nm, const string& data) {
         // e.g <upnp:artist role="AlbumArtist">Jojo</upnp:artist>
         auto& mapattrs = m_path.back().attributes;
+        if (m_tobj.m_allprops) {
+            (*m_tobj.m_allprops)[nm].push_back(
+                UPnPDirObject::PropertyValue(data, mapattrs));
+        }
         auto roleit = mapattrs.find("role");
         string rolevalue;
         if (roleit != mapattrs.end()) {
@@ -230,7 +226,7 @@ private:
     }
 };
 
-bool UPnPDirContent::parse(const std::string& input)
+bool UPnPDirContent::parse(const std::string& input, bool detailed)
 {
     if (input.empty()) {
         return false;
@@ -246,7 +242,7 @@ bool UPnPDirContent::parse(const std::string& input)
         ipp = &unquoted;
     }
 
-    UPnPDirParser parser(*this, *ipp);
+    UPnPDirParser parser(*this, *ipp, detailed);
     bool ret = parser.Parse();
     if (ret == false) {
         LOGERR("UPnPDirContent::parse: parser failed: " <<

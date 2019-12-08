@@ -1,4 +1,4 @@
-Source: libupnpp5
+Source: libupnpp9
 Section: contrib/sound
 Priority: extra
 Maintainer: Jean-Francois Dockes <jf@dockes.org>

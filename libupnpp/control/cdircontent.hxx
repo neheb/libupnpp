@@ -1,4 +1,4 @@
-/* Copyright (C) 2006-2016 J.F.Dockes
+/* Copyright (C) 2006-2019 J.F.Dockes
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -23,6 +23,7 @@
 #include <string>
 #include <utility>
 #include <vector>
+#include <memory>
 
 #include "libupnpp/upnpavutils.hxx"
 
@@ -30,10 +31,10 @@ namespace UPnPClient {
 
 /**
  * UPnP resource. A resource describes one of the entities associated with
- * a directory entry. This would be typically the audio file URI, and
- * its characteristics (sample rate etc.) as attributes, but there can
- * be several resources associated to one entry, for example for
- * multiple encoding formats.
+ * a directory entry. This would be typically the audio file URI, with
+ * its characteristics (sample rate etc.) as attributes. 
+ * There can be several resource elements in a directory entry, e.g. for
+ * different encoding formats.
  */
 class UPnPResource {
 public:
@@ -53,7 +54,6 @@ public:
     }
 };
 
-
 /**
  * UPnP Media Server directory entry, converted from XML data.
  *
@@ -61,6 +61,10 @@ public:
  */
 class UPnPDirObject {
 public:
+
+    /////////
+    //  Types
+
     enum ObjType {objtnone = -1, item, container};
     // There are actually several kinds of containers:
     // object.container.storageFolder, object.container.person,
@@ -76,6 +80,40 @@ public:
                     ITC_audioItem_playlist = ITC_playlist // hist compat
                    };
 
+    /// A PropertyValue object describes one instance of a property
+    /// (the name of which is the key in the parent map), with its
+    /// attribute values). Most UPnP directory object properties have
+    /// no attributes, so the attributes storage is dynamically
+    /// allocated to save space. Beware that attrs can be the nullptr.
+    struct PropertyValue {
+        PropertyValue() {}
+        PropertyValue(const std::string& v,
+                      const std::map<std::string, std::string>& a)
+            : value(v) {
+            if (!a.empty()) {
+                attrs = new std::map<std::string, std::string>(a);
+            }
+        }
+        PropertyValue& operator=(PropertyValue const&) = delete;
+        PropertyValue(PropertyValue const& l)
+            : value(l.value) {
+            if (l.attrs) {
+                attrs = new std::map<std::string, std::string>(*l.attrs);
+            }
+        }
+        ~PropertyValue() {
+            delete attrs;
+        }
+        std::string value;
+        // Not using shared_ptr here because we are optimizing size in
+        // the common case of absent attributes.
+        std::map <std::string, std::string> *attrs{nullptr};
+    };
+    typedef std::map<std::string, std::vector<PropertyValue>> PropertyMap;
+    
+    ///////////////
+    // Data fields
+    
     /// Object Id
     std::string m_id;
     /// Parent Object Id
@@ -87,43 +125,54 @@ public:
     /// Item type details
     ItemClass m_iclass;
 
-    /// Properties as gathered from the XML document (album, artist, etc.),
-    /// The map keys are the XML tag names except for title which has
-    /// a proper field.
+    /// Basic/compat storage for the properties, with multiple values
+    /// concatenated. See m_allprops for an extended version.
+    ///
+    /// Properties as gathered from the XML document (album, artist,
+    /// etc.), The map keys are the XML tag names except for title
+    /// which has a proper field. Multiple values for a given key are
+    /// concatenated with ", " as a separator, possibly qualified by
+    /// 'role' which is the only attribute we look at.
     std::map<std::string, std::string> m_props;
 
+    /// Extended storage for properties, with support for multiple
+    /// values, and for storing the attributes. The key is the
+    /// property name (e.g. "artist"). See PropertyMap and 
+    /// 
+    /// This is only created if the @param detailed parse param is true
+    std::shared_ptr<PropertyMap> m_allprops{std::shared_ptr<PropertyMap>()};
+    
     /// Resources: there may be several, for example for different
     /// audio formats of the same track, each with an URI and
     /// descriptor fields.
     std::vector<UPnPResource> m_resources;
 
+
+    ///////////////////
+    // Methods
+    
     /** Get named property
      * @param name (e.g. upnp:artist, upnp:album...). Use m_title instead 
      *         for dc:title.
      * @param[out] value the parameter value if found
      * @return true if found.
      */
-    bool getprop(const std::string& name, std::string& value) const
-    {
-        std::map<std::string, std::string>::const_iterator it =
-            m_props.find(name);
+    bool getprop(const std::string& name, std::string& value) const {
+        const auto it = m_props.find(name);
         if (it == m_props.end())
             return false;
         value = it->second;
         return true;
     }
+
     /** Get named property
      * @param name (e.g. upnp:artist, upnp:album...). Use m_title instead
      *     for dc:title.
      * @return value if found, empty string if not found.
      */
-    const std::string& getprop(const std::string& name) const
-    {
-        std::map<std::string, std::string>::const_iterator it =
-            m_props.find(name);
-        if (it == m_props.end())
-            return nullstr;
-        return it->second;
+    const std::string& getprop(const std::string& name) const {
+        const auto it = m_props.find(name);
+        return (it == m_props.end()) ? nullstr : it->second;
     }
 
     /** Get named resource attribute.
@@ -135,17 +184,14 @@ public:
      * @return true if found, else false.
      */
     bool getrprop(unsigned int ridx, const std::string& nm, std::string& val)
-    const
-    {
+    const {
         if (ridx >= m_resources.size())
             return false;
-        std::map<std::string, std::string>::const_iterator it =
-            m_resources[ridx].m_props.find(nm);
+        const auto it = m_resources[ridx].m_props.find(nm);
         if (it == m_resources[ridx].m_props.end())
             return false;
         val = it->second;
         return true;
-
     }
 
     /** Simplified interface to retrieving values: we don't distinguish
@@ -161,11 +207,11 @@ public:
         return val;
     }
 
-    /** Return duration in seconds. 
+    /** Return resource duration in seconds. 
+     * @param ridx resource index.
      * @return duration or 1 if the attribute is not found.
      */
-    int getDurationSeconds(unsigned ridx = 0) const
-    {
+    int getDurationSeconds(unsigned ridx = 0) const {
         std::string sdur;
         if (!getrprop(ridx, "duration", sdur)) {
             //?? Avoid returning 0, who knows...
@@ -176,26 +222,29 @@ public:
 
     /**
      * Get a DIDL document suitable for sending to a mediaserver. Only
-     * works for items, not containers. The idea is that we may have
+     * works for items, not containers. We may have
      * missed useful stuff while parsing the data from the content
      * directory, so we send the original if we can.
      */
     std::string getdidl() const;
 
-    void clear()
-    {
+    void clear(bool detailed=false) {
         m_id.clear();
         m_pid.clear();
         m_title.clear();
         m_type = objtnone;
         m_iclass = ITC_unknown;
         m_props.clear();
+        if (detailed) {
+            m_allprops = std::shared_ptr<PropertyMap>(new PropertyMap);
+        } else {
+            m_allprops = std::shared_ptr<PropertyMap>();
+        }
         m_resources.clear();
         m_didlfrag.clear();
     }
 
-    std::string dump() const
-    {
+    std::string dump() const {
         std::ostringstream os;
         os << "UPnPDirObject: " << (m_type == item ? "item" : "container") <<
            " id [" << m_id << "] pid [" << m_pid <<
@@ -225,7 +274,7 @@ public:
 
 private:
     friend class UPnPDirParser;
-    // didl text for element, sans header
+    // DIDL text for element, sans header
     std::string m_didlfrag;
     static std::string nullstr;
 };
@@ -257,8 +306,10 @@ public:
      * chunks are from the same container, but given that UPnP Ids are
      * actually global, nothing really bad will happen if you mix
      * up...
+     *
+     * @param detailed if true, populate the m_allprops field.
      */
-    bool parse(const std::string& didltext);
+    bool parse(const std::string& didltext, bool detailed = false);
 };
 
 } // namespace
