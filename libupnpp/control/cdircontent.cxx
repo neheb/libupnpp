@@ -199,10 +199,13 @@ private:
     void addprop(const string& nm, const string& data) {
         // e.g <upnp:artist role="AlbumArtist">Jojo</upnp:artist>
         auto& mapattrs = m_path.back().attributes;
+
         if (m_tobj.m_allprops) {
             (*m_tobj.m_allprops)[nm].push_back(
                 UPnPDirObject::PropertyValue(data, mapattrs));
+            return;
         }
+        // "old" format with concatenated string output
         auto roleit = mapattrs.find("role");
         string rolevalue;
         if (roleit != mapattrs.end()) {
@@ -224,6 +227,7 @@ private:
             }
         }
     }
+
 };
 
 bool UPnPDirContent::parse(const std::string& input, bool detailed)
