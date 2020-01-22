@@ -27,6 +27,7 @@
 #include "libupnpp/control/cdircontent.hxx"
 #include "libupnpp/log.hxx"
 #include "libupnpp/soaphelp.hxx"
+#include "libupnpp/upnperrcodes.hxx"
 
 namespace UPnPClient {
 

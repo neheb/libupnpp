@@ -84,7 +84,20 @@ dnl add it on some systems.
 dnl AC_CHECK_LIB([threadutil], [TimerThreadRemove], [],
 dnl     AC_MSG_ERROR([libthreadutil (part of libupnp) not found]))
 
-PKG_CHECK_MODULES([upnp], [libupnp], [], AC_MSG_ERROR([libupnp not found]))
+PKG_CHECK_MODULES([upnp], [libnpupnp], [upnpfound=yes], [upnpfound=no])
+if test X$upnpfound != Xyes ; then
+    PKG_CHECK_MODULES([upnp], [libupnp], [upnpfound=yes], [upnpfound=no])
+	if test X$upnpfound = Xyes ; then
+        AC_MSG_RESULT([Using old libupnp])
+    fi
+else
+    AC_MSG_RESULT([Using libnpupnp])
+fi
+if test X$upnpfound != Xyes ; then
+  AC_MSG_ERROR([Neither libnpupnp nor libupnp were found, we need an UPnP lib!])
+fi
+echo '$UPNP_CFLAGS[' $UPNP_CFLAGS '] $UPNP_LIBS [' $UPNP_LIBS ']'
+
 PKG_CHECK_MODULES([curl], [libcurl], [], AC_MSG_ERROR([libcurl not found]))
 PKG_CHECK_MODULES([expat], [expat], [],AC_MSG_ERROR([expat not found]))
 

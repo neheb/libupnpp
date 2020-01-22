@@ -110,6 +110,7 @@ nobase_include_HEADERS = \
     libupnpp/log.h \
     libupnpp/log.hxx \
     libupnpp/soaphelp.hxx \
+    libupnpp/upnperrcodes.hxx \
     libupnpp/upnpavutils.hxx \
     libupnpp/upnpplib.hxx \
     libupnpp/upnpputils.hxx

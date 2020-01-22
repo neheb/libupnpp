@@ -25,11 +25,6 @@
 
 #include "libupnpp/control/service.hxx"
 
-// Let clients who don't care avoid including upnp.h
-#ifndef UPNP_E_SUCCESS
-#define UPNP_E_SUCCESS  0
-#endif
-
 namespace UPnPClient {
 
 class ContentDirectory;

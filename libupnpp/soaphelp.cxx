@@ -29,7 +29,7 @@
 #include <upnp/ixml.h>
 
 #include "libupnpp/log.hxx"
-#include "libupnpp/upnpp_p.hxx"
+#include "libupnpp/smallut.h"
 
 using namespace std;
 
@@ -229,12 +229,9 @@ string SoapHelp::xmlUnquote(const string& in)
     return out;
 }
 
-// Yes inefficient. whatever...
 string SoapHelp::i2s(int val)
 {
-    char cbuf[30];
-    sprintf(cbuf, "%d", val);
-    return string(cbuf);
+    return lltodecstr(val);
 }
 
 

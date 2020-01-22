@@ -27,6 +27,7 @@
 #include <map>
 
 #include "libupnpp/soaphelp.hxx"
+#include "libupnpp/upnperrcodes.hxx"
 
 namespace UPnPP {
 class LibUPnP;
