@@ -60,32 +60,28 @@ public:
     {}
 
 protected:
-    virtual void StartElement(const XML_Char *name, const XML_Char **) {
-        m_path.push_back(name);
-    }
     virtual void EndElement(const XML_Char *name) {
         if (!strcmp(name, "Source")) {
             m_sources.push_back(m_tsrc);
             m_tsrc.clear();
         }
-        m_path.pop_back();
     }
     virtual void CharacterData(const XML_Char *s, int len) {
         if (s == 0 || *s == 0)
             return;
         string str(s, len);
         trimstring(str);
-        switch (m_path.back()[0]) {
+        switch (m_path.back().name[0]) {
         case 'N':
-            if (!m_path.back().compare("Name"))
+            if (!m_path.back().name.compare("Name"))
                 m_tsrc.name = str;
             break;
         case 'T':
-            if (!m_path.back().compare("Type"))
+            if (!m_path.back().name.compare("Type"))
                 m_tsrc.type = str;
             break;
         case 'V':
-            if (!m_path.back().compare("Visible"))
+            if (!m_path.back().name.compare("Visible"))
                 stringToBool(str, &m_tsrc.visible);
             break;
         }
@@ -93,7 +89,6 @@ protected:
 
 private:
     vector<OHProduct::Source>& m_sources;
-    std::vector<std::string> m_path;
     OHProduct::Source m_tsrc;
 };
 

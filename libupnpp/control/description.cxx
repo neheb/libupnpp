@@ -40,28 +40,21 @@ namespace UPnPClient {
 class UPnPDeviceParser : public inputRefXMLParser {
 public:
     UPnPDeviceParser(const string& input, UPnPDeviceDesc& device)
-        : inputRefXMLParser(input), m_device(device)
-    {}
+        : inputRefXMLParser(input), m_device(device) {}
 
 protected:
-    virtual void StartElement(const XML_Char *name, const XML_Char **)
-    {
-        m_path.push_back(name);
-    }
-    virtual void EndElement(const XML_Char *name)
-    {
-        m_path.pop_back();
+    virtual void EndElement(const XML_Char *name) {
         trimstring(m_chardata, " \t\n\r");
 
         UPnPDeviceDesc *dev;
         bool ismain = false;
-        const string dl("devicelist");
-        const string dlu("deviceList");
         // Arghh: upmpdcli wrongly used devicelist instead of
         // deviceList. Support both as it is unlikely that anybody
         // would use both.
-        if (find(m_path.begin(), m_path.end(), dl) == m_path.end() ||
-            find(m_path.begin(), m_path.end(), dlu) == m_path.end()) {
+        if (find_if(m_path.begin(), m_path.end(),
+					[] (const StackEl& el) {
+						return !stringlowercmp("devicelist", el.name);})
+			== m_path.end()) {
             dev = &m_device;
             ismain = true;
         } else {
@@ -104,8 +97,7 @@ protected:
         m_chardata.clear();
     }
 
-    virtual void CharacterData(const XML_Char *s, int len)
-    {
+    virtual void CharacterData(const XML_Char *s, int len) {
         if (s == 0 || *s == 0)
             return;
 
@@ -115,7 +107,6 @@ protected:
 
 private:
     UPnPDeviceDesc& m_device;
-    std::vector<std::string> m_path;
     string m_chardata;
     UPnPServiceDesc m_tservice;
     UPnPDeviceDesc m_tdevice;
@@ -152,32 +143,15 @@ UPnPDeviceDesc::UPnPDeviceDesc(const string& url, const string& description)
 class ServiceDescriptionParser : public inputRefXMLParser {
 public:
     ServiceDescriptionParser(UPnPServiceDesc::Parsed& out, const string& input)
-        : inputRefXMLParser(input), m_parsed(out)
-    {
+        : inputRefXMLParser(input), m_parsed(out) {
     }
 
 protected:
-    class StackEl {
-    public:
-        StackEl(const string& nm) : name(nm) {}
-        string name;
-        XML_Size start_index;
-        std::unordered_map<string,string> attributes;
-        string data;
-    };
-
-    virtual void StartElement(const XML_Char *name, const XML_Char **attrs)
-    {
+    virtual void StartElement(const XML_Char *name, const XML_Char **attrs) {
         //LOGDEB("startElement: name [" << name << "]" << " bpos " <<
         //             XML_GetCurrentByteIndex(expat_parser) << endl);
-
-        m_path.push_back(StackEl(name));
         StackEl& lastelt = m_path.back();
-        lastelt.start_index = XML_GetCurrentByteIndex(expat_parser);
-        for (int i = 0; attrs[i] != 0; i += 2) {
-            lastelt.attributes[attrs[i]] = attrs[i+1];
-        }
-
+		
         switch (name[0]) {
         case 'a':
             if (!strcmp(name, "action")) {
@@ -189,8 +163,7 @@ protected:
         case 's':
             if (!strcmp(name, "stateVariable")) {
                 m_tvar.clear();
-                std::unordered_map<string,string>::iterator it =
-                    lastelt.attributes.find("sendEvents");
+                auto it = lastelt.attributes.find("sendEvents");
                 if (it != lastelt.attributes.end()) {
                     stringToBool(it->second, &m_tvar.sendEvents);
                 }
@@ -272,8 +245,6 @@ protected:
             }
             break;
         }
-
-        m_path.pop_back();
     }
 
     virtual void CharacterData(const XML_Char *s, int len)
@@ -284,7 +255,6 @@ protected:
     }
 
 private:
-    vector<StackEl> m_path;
     UPnPServiceDesc::Parsed& m_parsed;
     UPnPServiceDesc::Argument m_targ;
     UPnPServiceDesc::Action m_tact;

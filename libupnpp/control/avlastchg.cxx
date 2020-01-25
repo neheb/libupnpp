@@ -30,13 +30,12 @@ namespace UPnPClient {
 
 class LastchangeParser : public inputRefXMLParser {
 public:
-    LastchangeParser(const string& input, std::unordered_map<string,string>& props)
-        : inputRefXMLParser(input), m_props(props)
-    {}
+    LastchangeParser(const string& input,
+                     std::unordered_map<string,string>& props)
+        : inputRefXMLParser(input), m_props(props) {}
 
 protected:
-    virtual void StartElement(const XML_Char *name, const XML_Char **attrs)
-    {
+    virtual void StartElement(const XML_Char *name, const XML_Char **attrs) {
         //LOGDEB("LastchangeParser: begin " << name << endl);
         for (int i = 0; attrs[i] != 0; i += 2) {
             //LOGDEB("    " << attrs[i] << " -> " << attrs[i+1] << endl);

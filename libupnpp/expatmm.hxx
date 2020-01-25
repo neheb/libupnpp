@@ -13,7 +13,7 @@
  *
  * This library is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.	 See the GNU
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * Lesser General Public License for more details.
  *
  * You should have received a copy of the GNU Lesser General
@@ -26,6 +26,9 @@
 #include <string.h>
 #include <expat.h>
 #include <sstream>
+#include <string>
+#include <map>
+#include <vector>
 
 #ifdef _WIN32
 #define ssize_t int
@@ -126,6 +129,16 @@ public:
     }
     
 protected:
+    class StackEl {
+    public:
+        StackEl(const char* nm) : name(nm) {}
+		std::string name;
+        XML_Size start_index;
+        std::map<std::string,std::string> attributes;
+		std::string data;
+    };
+	std::vector<StackEl> m_path;
+
     virtual XML_Char *getBuffer(void) {
         return xml_buffer;
     }
@@ -227,11 +240,22 @@ private:
     static void _element_start_handler(void *userData, const XML_Char *name,
                                        const XML_Char **atts) {
         ExpatXMLParser *me = (ExpatXMLParser*)userData;
-        if(me != NULL) me->StartElement(name, atts);
+		if(me != NULL) {
+			me->m_path.push_back(StackEl(name));
+			StackEl& lastelt = me->m_path.back();
+			lastelt.start_index = XML_GetCurrentByteIndex(me->expat_parser);
+			for (int i = 0; atts[i] != 0; i += 2) {
+				lastelt.attributes[atts[i]] = atts[i+1];
+			}
+			me->StartElement(name, atts);
+		}
     }
     static void _element_end_handler(void *userData, const XML_Char *name) {
         ExpatXMLParser *me = (ExpatXMLParser*)userData;
-        if(me != NULL) me->EndElement(name);
+        if(me != NULL) {
+			me->EndElement(name);
+			me->m_path.pop_back();
+		}
     }
     static void _character_data_handler(void *userData,
                                         const XML_Char *s, int len) {

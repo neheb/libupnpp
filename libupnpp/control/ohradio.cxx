@@ -252,9 +252,6 @@ public:
     }
 
 protected:
-    virtual void StartElement(const XML_Char *name, const XML_Char **) {
-        m_path.push_back(name);
-    }
     virtual void EndElement(const XML_Char *name) {
         if (!strcmp(name, "Entry")) {
             UPnPDirContent dir;
@@ -273,23 +270,21 @@ protected:
             m_tt.clear();
             m_tdidl.clear();
         }
-        m_path.pop_back();
     }
     virtual void CharacterData(const XML_Char *s, int len) {
         if (s == 0 || *s == 0)
             return;
         string str(s, len);
-        if (!m_path.back().compare("Id"))
+        if (!m_path.back().name.compare("Id"))
             m_tt.id = atoi(str.c_str());
-        else if (!m_path.back().compare("Uri"))
+        else if (!m_path.back().name.compare("Uri"))
             m_tt.url = str;
-        else if (!m_path.back().compare("Metadata"))
+        else if (!m_path.back().name.compare("Metadata"))
             m_tdidl += str;
     }
 
 private:
     vector<OHPlaylist::TrackListEntry>* m_v;
-    std::vector<std::string> m_path;
     OHPlaylist::TrackListEntry m_tt;
     string m_tdidl;
 };

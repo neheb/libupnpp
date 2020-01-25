@@ -55,27 +55,11 @@ public:
     }
     UPnPDirContent& m_dir;
 protected:
-    class StackEl {
-    public:
-        StackEl(const string& nm) : name(nm) {}
-        string name;
-        XML_Index sta;
-        std::map<string,string> attributes;
-        string data;
-    };
 
     virtual void StartElement(const XML_Char *name, const XML_Char **attrs) {
         //LOGDEB("startElement: name [" << name << "]" << " bpos " <<
         //             XML_GetCurrentByteIndex(expat_parser) << endl);
-
-        m_path.push_back(StackEl(name));
-        m_path.back().sta = XML_GetCurrentByteIndex(expat_parser);
         auto& mapattrs = m_path.back().attributes;
-        mapattrs.clear();
-        for (int i = 0; attrs[i] != 0; i += 2) {
-            mapattrs[attrs[i]] = attrs[i+1];
-        }
-
         switch (name[0]) {
         case 'c':
             if (!strcmp(name, "container")) {
@@ -144,10 +128,10 @@ protected:
         } else if (!strcmp(name, "item")) {
             if (checkobjok()) {
                 size_t len = XML_GetCurrentByteIndex(expat_parser) -
-                    m_path.back().sta;
+                    m_path.back().start_index;
                 if (len > 0) {
-                    m_tobj.m_didlfrag = m_input.substr(m_path.back().sta, len) +
-                        "</item>";
+                    m_tobj.m_didlfrag = m_input.substr(
+                        m_path.back().start_index, len) +  "</item>";
                 }
                 m_dir.m_items.push_back(m_tobj);
             }
@@ -179,8 +163,6 @@ protected:
                 break;
             }
         }
-
-        m_path.pop_back();
     }
 
     virtual void CharacterData(const XML_Char *s, int len) {
@@ -191,7 +173,6 @@ protected:
     }
 
 private:
-    vector<StackEl> m_path;
     UPnPDirObject m_tobj;
     map<string, UPnPDirObject::ItemClass> m_okitems;
     bool m_detailed;
