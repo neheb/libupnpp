@@ -76,7 +76,7 @@ bool SoapIncoming::Internal::decode(const char *callnm, IXML_Document *actReq)
     IXML_NodeList* nl = 0;
     IXML_Node* topNode = ixmlNode_getFirstChild((IXML_Node *)actReq);
     if (topNode == 0) {
-        LOGERR("SoapIncoming: Empty Action request (no topNode) ??" << endl);
+        LOGDEB("SoapIncoming: Empty XML document (no root child) ??" << endl);
         return false;
     }
     //LOGDEB("SoapIncoming: top node name: " << ixmlNode_getNodeName(topNode)
