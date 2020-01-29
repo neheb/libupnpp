@@ -9,6 +9,9 @@
 /* Define to 1 if you have the <inttypes.h> header file. */
 #undef HAVE_INTTYPES_H
 
+/* Define to 1 if you have the `ixml' library (-lixml). */
+#undef HAVE_LIBIXML
+
 /* Define to 1 if you have the `pthread' library (-lpthread). */
 #undef HAVE_LIBPTHREAD
 
@@ -65,6 +68,12 @@
 
 /* Define to the version of this package. */
 #undef PACKAGE_VERSION
+
+/* The pupnp vdir callbacks take 1 cookie */
+#undef PUPNP_VDIR_1COOKIE
+
+/* The pupnp vdir callbacks take 2 cookies */
+#undef PUPNP_VDIR_2COOKIES
 
 /* Define to 1 if you have the ANSI C header files. */
 #undef STDC_HEADERS

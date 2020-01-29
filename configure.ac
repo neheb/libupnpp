@@ -84,6 +84,9 @@ dnl add it on some systems.
 dnl AC_CHECK_LIB([threadutil], [TimerThreadRemove], [],
 dnl     AC_MSG_ERROR([libthreadutil (part of libupnp) not found]))
 
+# We do need libixml for now
+AC_CHECK_LIB([ixml], [ixmlNode_getNodeName], [], [])
+
 PKG_CHECK_MODULES([upnp], [libnpupnp], [upnpfound=yes], [upnpfound=no])
 if test X$upnpfound != Xyes ; then
     PKG_CHECK_MODULES([upnp], [libupnp], [upnpfound=yes], [upnpfound=no])
@@ -101,10 +104,37 @@ echo '$UPNP_CFLAGS[' $UPNP_CFLAGS '] $UPNP_LIBS [' $UPNP_LIBS ']'
 PKG_CHECK_MODULES([curl], [libcurl], [], AC_MSG_ERROR([libcurl not found]))
 PKG_CHECK_MODULES([expat], [expat], [],AC_MSG_ERROR([expat not found]))
 
+AC_MSG_CHECKING([if the virtual dir callbacks use no cookies])
+AC_COMPILE_IFELSE([AC_LANG_SOURCE([
+#include <upnp/upnp.h>
+static int vdread(UpnpWebFileHandle fileHnd, char* buf, size_t buflen){return 0;}
+static void myfunc() {UpnpVirtualDir_set_ReadCallback(vdread);}
+])],[AC_MSG_RESULT(yes);vd0cookies=yes],[AC_MSG_RESULT(no);vd0cookies=no])
+
+AC_MSG_CHECKING([if the virtual dir callbacks use 1 cookie])
+AC_COMPILE_IFELSE([AC_LANG_SOURCE([
+#include <upnp/upnp.h>
+static int vdread(UpnpWebFileHandle fileHnd, char* buf, size_t buflen, const void*ck1){return 0;}
+static void myfunc() {UpnpVirtualDir_set_ReadCallback(vdread);}
+])],[AC_MSG_RESULT(yes);vd1cookie=yes],[AC_MSG_RESULT(no);vd1cookie=no])
+
+AC_MSG_CHECKING([if the virtual dir callbacks use 2 cookies])
+AC_COMPILE_IFELSE([AC_LANG_SOURCE([
+#include <upnp/upnp.h>
+static int vdread(UpnpWebFileHandle fileHnd, char* buf, size_t buflen,const void*ck1,const void*ck2){return 0;}
+static void myfunc() {UpnpVirtualDir_set_ReadCallback(vdread);}
+])],[AC_MSG_RESULT(yes);vd2cookies=yes],[AC_MSG_RESULT(no);vd2cookies=no])
+
+if test X$vd1cookie = Xyes ; then
+   AC_DEFINE(PUPNP_VDIR_1COOKIE, [], [The pupnp vdir callbacks take 1 cookie])
+elif test test X$vd2cookies = Xyes ; then
+   AC_DEFINE(PUPNP_VDIR_2COOKIES, [], [The pupnp vdir callbacks take 2 cookies])
+fi
+
 LIBUPNPP_LIBS="$LIBS $upnp_LIBS $curl_LIBS $expat_LIBS"
 echo "LIBUPNPP_LIBS $LIBUPNPP_LIBS"
 
-LIBS="$upnp_LIBS"
+LIBS="$LIBUPNPP_LIBS"
 AC_CHECK_FUNCS([getifaddrs] [UpnpSetLogLevel])
 
 LIBS=""

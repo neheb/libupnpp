@@ -33,9 +33,7 @@
 using namespace std;
 using namespace UPnPP;
 
-#if !PUPNP_AT_LEAST(1,8,0)
 typedef struct File_Info UpnpFileInfo;
-#endif
 
 namespace UPnPProvider {
 
@@ -87,14 +85,14 @@ static FileEnt *vdgetentry(const char *pathname, DirEnt **de)
     }
     *de = &dir->second;
     if (dir->second.isvd) {
-	return 0;
+        return 0;
     } else {
-	auto f = dir->second.files.find(name);
-	if (f == dir->second.files.end()) {
-	    LOGERR("VirtualDir::vdgetentry: no file: " << path << endl);
-	    return 0;
-	}
-	return &(f->second);
+        auto f = dir->second.files.find(name);
+        if (f == dir->second.files.end()) {
+            LOGERR("VirtualDir::vdgetentry: no file: " << path << endl);
+            return 0;
+        }
+        return &(f->second);
     }
 }
 
@@ -107,10 +105,10 @@ bool VirtualDir::addFile(const string& _path, const string& name,
     //LOGDEB("VirtualDir::addFile: path " << path << " name " << name << endl);
 
     if (m_dirs.find(path) == m_dirs.end()) {
-	m_dirs[path] = DirEnt();
+        m_dirs[path] = DirEnt();
         
         UpnpAddVirtualDir(path.c_str()
-#if PUPNP_AT_LEAST(1,8,3)
+#if defined(PUPNP_VDIR_1COOKIE) || defined(PUPNP_VDIR_2COOKIES)
                           , 0, 0
 #endif
             );
@@ -131,9 +129,9 @@ bool VirtualDir::addVDir(const std::string& _path, FileOps fops)
     string path(_path);
     pathcatslash(path);
     if (m_dirs.find(path) == m_dirs.end()) {
-	m_dirs[path] = DirEnt(true);
+        m_dirs[path] = DirEnt(true);
         UpnpAddVirtualDir(path.c_str()
-#if PUPNP_AT_LEAST(1,8,3)
+#if defined(PUPNP_VDIR_1COOKIE) || defined(PUPNP_VDIR_2COOKIES)
                           , 0, 0
 #endif
             );
@@ -157,28 +155,28 @@ struct Handle {
 };
 
 static int vdclose(UpnpWebFileHandle fileHnd
-#if PUPNP_AT_LEAST(1,8,3)
+#if defined(PUPNP_VDIR_1COOKIE) || defined(PUPNP_VDIR_2COOKIES)
                    , const void*
 #endif
-#if PUPNP_AT_LEAST(1,10,0)
+#if defined(PUPNP_VDIR_2COOKIES)
                    , const void*
 #endif
     )
 {
     Handle *h = (Handle*)fileHnd;
     if (h->vhandle) {
-	h->dir->ops.close(h->vhandle);
+        h->dir->ops.close(h->vhandle);
     }
     delete h;
     return 0;
 }
 
 static int vdgetinfo(const char *fn, UpnpFileInfo* info
-#if PUPNP_AT_LEAST(1,8,3)
+#if defined(PUPNP_VDIR_1COOKIE) || defined(PUPNP_VDIR_2COOKIES)
                      , const void*
 #endif
-#if PUPNP_AT_LEAST(1,10,0)
-                   , const void**
+#if defined(PUPNP_VDIR_2COOKIES)
+                     , const void**
 #endif
     )
 {
@@ -187,25 +185,25 @@ static int vdgetinfo(const char *fn, UpnpFileInfo* info
     DirEnt *dir;
     FileEnt *entry = vdgetentry(fn, &dir);
     if (dir && dir->isvd) {
-	VirtualDir::FileInfo inf;
-	int ret = dir->ops.getinfo(fn, &inf);
-	if (ret >= 0) {
+        VirtualDir::FileInfo inf;
+        int ret = dir->ops.getinfo(fn, &inf);
+        if (ret >= 0) {
 #if PUPNP_AT_LEAST(1,8,0)
-	    UpnpFileInfo_set_FileLength(info, inf.file_length);
-	    UpnpFileInfo_set_LastModified(info, inf.last_modified);
-	    UpnpFileInfo_set_IsDirectory(info, inf.is_directory);
-	    UpnpFileInfo_set_IsReadable(info, inf.is_readable);
-	    UpnpFileInfo_set_ContentType(info,
+            UpnpFileInfo_set_FileLength(info, inf.file_length);
+            UpnpFileInfo_set_LastModified(info, inf.last_modified);
+            UpnpFileInfo_set_IsDirectory(info, inf.is_directory);
+            UpnpFileInfo_set_IsReadable(info, inf.is_readable);
+            UpnpFileInfo_set_ContentType(info,
                                          ixmlCloneDOMString(inf.mime.c_str()));
 #else
-	    info->file_length = inf.file_length;
-	    info->last_modified = inf.last_modified;
-	    info->is_directory = inf.is_directory;
-	    info->is_readable =  inf.is_readable;
-	    info->content_type = ixmlCloneDOMString(inf.mime.c_str());
+            info->file_length = inf.file_length;
+            info->last_modified = inf.last_modified;
+            info->is_directory = inf.is_directory;
+            info->is_readable =  inf.is_readable;
+            info->content_type = ixmlCloneDOMString(inf.mime.c_str());
 #endif
-	}
-	return ret;
+        }
+        return ret;
     }
     if (entry == 0) {
         LOGERR("vdgetinfo: no entry for " << fn << endl);
@@ -231,11 +229,11 @@ static int vdgetinfo(const char *fn, UpnpFileInfo* info
 }
 
 static UpnpWebFileHandle vdopen(const char* fn, enum UpnpOpenFileMode
-#if PUPNP_AT_LEAST(1,8,3)
+#if defined(PUPNP_VDIR_1COOKIE) || defined(PUPNP_VDIR_2COOKIES)
                                 , const void*
 #endif
-#if PUPNP_AT_LEAST(1,10,0)
-                   , const void*
+#if defined(PUPNP_VDIR_2COOKIES)
+                                , const void*
 #endif
     )
 {
@@ -244,12 +242,12 @@ static UpnpWebFileHandle vdopen(const char* fn, enum UpnpOpenFileMode
     FileEnt *entry = vdgetentry(fn, &dir);
 
     if (dir && dir->isvd) {
-	void *vh = dir->ops.open(fn);
-	if (vh) {
-	    return new Handle(nullptr, dir, vh);
-	} else {
-	    return NULL;
-	}
+        void *vh = dir->ops.open(fn);
+        if (vh) {
+            return new Handle(nullptr, dir, vh);
+        } else {
+            return NULL;
+        }
     }
 
     if (entry == 0) {
@@ -260,11 +258,11 @@ static UpnpWebFileHandle vdopen(const char* fn, enum UpnpOpenFileMode
 }
 
 static int vdread(UpnpWebFileHandle fileHnd, char* buf, size_t buflen
-#if PUPNP_AT_LEAST(1,8,3)
+#if defined(PUPNP_VDIR_1COOKIE) || defined(PUPNP_VDIR_2COOKIES)
                   , const void*
 #endif
-#if PUPNP_AT_LEAST(1,10,0)
-                   , const void*
+#if defined(PUPNP_VDIR_2COOKIES)
+                  , const void*
 #endif
     )
 {
@@ -274,32 +272,32 @@ static int vdread(UpnpWebFileHandle fileHnd, char* buf, size_t buflen
     }
     Handle *h = (Handle *)fileHnd;
     if (h->vhandle) {
-	return h->dir->ops.read(h->vhandle, buf, buflen);
+        return h->dir->ops.read(h->vhandle, buf, buflen);
     }
 
     if (h->offset >= h->entry->content.size()) {
         return 0;
     }
     size_t toread = buflen > h->entry->content.size() - h->offset ?
-                    h->entry->content.size() - h->offset : buflen;
+        h->entry->content.size() - h->offset : buflen;
     memcpy(buf, h->entry->content.c_str() + h->offset, toread);
     h->offset += toread;
     return (int)toread;
 }
 
 static int vdseek(UpnpWebFileHandle fileHnd, off_t offset, int origin
-#if PUPNP_AT_LEAST(1,8,3)
+#if defined(PUPNP_VDIR_1COOKIE) || defined(PUPNP_VDIR_2COOKIES)
                   , const void*
 #endif
-#if PUPNP_AT_LEAST(1,10,0)
-                   , const void*
+#if defined(PUPNP_VDIR_2COOKIES)
+                  , const void*
 #endif
     )
 {
     // LOGDEB("vdseek: " << endl);
     Handle *h = (Handle *)fileHnd;
     if (h->vhandle) {
-	return (int)h->dir->ops.seek(h->vhandle, offset, origin);
+        return (int)h->dir->ops.seek(h->vhandle, offset, origin);
     }
     if (origin == 0) {
         h->offset = offset;
@@ -316,10 +314,10 @@ static int vdseek(UpnpWebFileHandle fileHnd, off_t offset, int origin
 }
 
 static int vdwrite(UpnpWebFileHandle, char*, size_t
-#if PUPNP_AT_LEAST(1,8,3)
-                  , const void*
+#if defined(PUPNP_VDIR_1COOKIE) || defined(PUPNP_VDIR_2COOKIES)
+                   , const void*
 #endif
-#if PUPNP_AT_LEAST(1,10,0)
+#if defined(PUPNP_VDIR_2COOKIES)
                    , const void*
 #endif
     )
