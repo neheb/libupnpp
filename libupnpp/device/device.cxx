@@ -317,23 +317,30 @@ bool UpnpDevice::Internal::start()
 
     VirtualDir* theVD = VirtualDir::getVirtualDir();
     if (nullptr != theVD) {
-        theVD->addFile(devsubd, "description.xml", descxml, "application/xml");
+#ifndef SETUP_DESCRIPTION_BY_BUFFER
+        theVD->addFile(devsubd, "description.xml", descxml, "text/xml");
+#endif
     } else {
         LOGERR("UpnpDevice: can't start: no VirtualDir??\n");
         return false;
     }
 
     // Tell the pupnp lib to serve the description.
-    string host(UpnpGetServerIpAddress());
-    unsigned short port = UpnpGetServerPort();
     int ret;
-    string url = ipv4tostrurl(host, port) + devsubd + "description.xml";
-    if ((ret = lib->m->setupWebServer(url, &dvh)) != 0) {
-        LOGERR("UpnpDevice: libupnp can't start service. Err " << ret <<
-               endl);
+#ifdef SETUP_DESCRIPTION_BY_BUFFER
+    if ((ret = lib->m->setupWebServer(descxml, &dvh)) != 0) {
+        LOGERR("UpnpDevice: libupnp can't start service. Err " << ret << endl);
         return false;
     }
-
+#else
+    string host(UpnpGetServerIpAddress());
+    unsigned short port = UpnpGetServerPort();
+    string url = ipv4tostrurl(host, port) + devsubd + "description.xml";
+    if ((ret = lib->m->setupWebServer(url, &dvh)) != 0) {
+        LOGERR("UpnpDevice: libupnp can't start service. Err " << ret << endl);
+        return false;
+    }
+#endif
     if ((ret = UpnpSendAdvertisement(dvh, expiretime)) != 0) {
         LOGERR("UpnpDevice::Internal::start(): sendAvertisement failed: " <<
                lib->errAsString("UpnpDevice: UpnpSendAdvertisement", ret) <<

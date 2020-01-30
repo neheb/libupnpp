@@ -47,6 +47,12 @@
 #include "libupnpp/upnpplib.hxx"
 #include "libupnpp/soaphelp.hxx"
 
+// define this for testing setting the description document as memory
+// buffer Note: this does not work well for embedded devices (npupnp
+// issue?), did not try to debug. Also does not work for multiple
+// roots (would need a way to specify a different doc name).
+#undef SETUP_DESCRIPTION_BY_BUFFER
+
 namespace UPnPP {
 
 class SoapIncoming::Internal {

@@ -229,7 +229,12 @@ int LibUPnP::Internal::setupWebServer(const string& description,
     // This is called from device.cxx where the corresponding right
     // thing must be done of course.
     int res = UpnpRegisterRootDevice2(
-        UPNPREG_URL_DESC, description.c_str(), description.size(), 
+#ifdef SETUP_DESCRIPTION_BY_BUFFER
+        UPNPREG_BUF_DESC,
+#else
+        UPNPREG_URL_DESC,
+#endif
+		description.c_str(), description.size(), 
         0, /* config_baseURL */
         o_callback, (void *)theLib, dvh);
 
