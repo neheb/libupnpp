@@ -103,13 +103,13 @@ fi
 if test X$upnpfound != Xyes ; then
   AC_MSG_ERROR([Neither libnpupnp nor libupnp were found, we need an UPnP lib!])
 fi
-echo '$UPNP_CFLAGS[' $UPNP_CFLAGS '] $UPNP_LIBS [' $UPNP_LIBS ']'
+echo '$upnp_CFLAGS[' $upnp_CFLAGS '] $upnp_LIBS [' $upnp_LIBS ']'
 
 PKG_CHECK_MODULES([curl], [libcurl], [], AC_MSG_ERROR([libcurl not found]))
 PKG_CHECK_MODULES([expat], [expat], [],AC_MSG_ERROR([expat not found]))
 
 SAVED_CFLAGS="$CFLAGS"
-CFLAGS="$CFLAGS -Werror=incompatible-pointer-types"
+CFLAGS="$upnp_CFLAGS $CFLAGS -Werror=incompatible-pointer-types"
 
 AC_MSG_CHECKING([if the virtual dir callbacks use no cookies])
 AC_COMPILE_IFELSE([AC_LANG_SOURCE([
@@ -136,7 +136,7 @@ CFLAGS="$SAVED_CFLAGS"
 
 if test X$vd1cookie = Xyes ; then
    AC_DEFINE(PUPNP_VDIR_1COOKIE, [], [The pupnp vdir callbacks take 1 cookie])
-elif test test X$vd2cookies = Xyes ; then
+elif test X$vd2cookies = Xyes ; then
    AC_DEFINE(PUPNP_VDIR_2COOKIES, [], [The pupnp vdir callbacks take 2 cookies])
 fi
 
