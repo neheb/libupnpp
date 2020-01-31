@@ -49,6 +49,10 @@ LT_INIT
 
 AC_PROG_CXX
 AC_PROG_LIBTOOL
+AC_CHECK_PROG([pkg_config], [pkg-config], [yes], [no])
+if test X$pkg_config != Xyes ; then
+   AC_MSG_ERROR([pkg-config program needed and not found])
+fi
 
 # libupnp is configured with large file support, and we need to do the same,
 # else a difference in off_t size impacts struct File_Info and prevents the
