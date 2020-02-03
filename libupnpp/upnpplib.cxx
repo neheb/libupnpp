@@ -175,7 +175,11 @@ LibUPnP::LibUPnP(bool serveronly, string* hwaddr,
     // specified port is 0 (meaning default : 49152)
     int maxloop = (port == 0) ? 20 : 1;
     for (int i = 0; i < maxloop; i++) {
+#ifdef UPNP_ENABLE_IPV6
+        m->init_error = UpnpInit2(ifname.empty()?nullptr:ifname.c_str(), port);
+#else
         m->init_error = UpnpInit(ip_address[0] ? ip_address : 0, port);
+#endif
         if (m->init_error != UPNP_E_SOCKET_BIND) {
             break;
         }
