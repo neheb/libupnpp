@@ -35,7 +35,6 @@
 
 #include "libupnpp/log.hxx"
 #include "libupnpp/smallut.h"
-#include "libupnpp/ixmlwrap.hxx"
 #include "libupnpp/upnpplib.hxx"
 #include "libupnpp/upnpputils.hxx"
 #include "libupnpp/upnpp_p.hxx"
@@ -44,33 +43,7 @@
 using namespace std;
 using namespace UPnPP;
 
-#if UPNP_VERSION_MINOR < 8 && !defined(UpnpEvent_get_SID_cstr)
-typedef struct Upnp_Event UpnpEvent;
-#define UpnpEvent_get_SID_cstr(x) ((x)->Sid)
-#define UpnpEvent_get_EventKey(x) ((x)->EventKey)
-#define UpnpEvent_get_ChangedVariables(x) ((x)->ChangedVariables)
-typedef struct Upnp_Action_Request UpnpActionRequest;
-#define UpnpActionRequest_get_ErrCode(x) ((x)->ErrCode)
-#define UpnpActionRequest_get_ActionName_cstr(x) ((x)->ActionName)
-#define UpnpActionRequest_get_DevUDN_cstr(x) ((x)->DevUDN)
-#define UpnpActionRequest_get_ServiceID_cstr(x) ((x)->ServiceID)
-#define UpnpActionRequest_get_ActionRequest(x) ((x)->ActionRequest)
-#define UpnpActionRequest_get_ActionResult(x) ((x)->ActionResult)
-typedef struct Upnp_State_Var_Request UpnpStateVarRequest;
-#define UpnpStateVarRequest_get_DevUDN_cstr(x) ((x)->DevUDN)
-#define UpnpStateVarRequest_get_ServiceID_cstr(x) ((x)->ServiceID)
-#define UpnpStateVarRequest_get_StateVarName_cstr(x) ((x)->StateVarName)
-typedef struct Upnp_Subscription_Request UpnpSubscriptionRequest;
-#define UpnpSubscriptionRequest_get_ServiceId_cstr(x) ((x)->ServiceId)
-#define UpnpSubscriptionRequest_get_UDN_cstr(x) ((x)->UDN)
-#define UpnpSubscriptionRequest_get_SID_cstr(x) ((x)->Sid)
-#endif
-
-#if UPNP_VERSION_MAJOR > 1 || (UPNP_VERSION_MAJOR==1 && UPNP_VERSION_MINOR >= 8)
 #define CBCONST const
-#else
-#define CBCONST 
-#endif
 
 namespace UPnPProvider {
 
@@ -213,11 +186,11 @@ UpnpDevice::UpnpDevice(const string& deviceId)
         if (o->devices.empty()) {
             // First call: init callbacks
             m->lib->m->registerHandler(UPNP_CONTROL_ACTION_REQUEST,
-                                    o->sCallBack, this);
+                                       o->sCallBack, this);
             m->lib->m->registerHandler(UPNP_CONTROL_GET_VAR_REQUEST,
-                                    o->sCallBack, this);
+                                       o->sCallBack, this);
             m->lib->m->registerHandler(UPNP_EVENT_SUBSCRIPTION_REQUEST,
-                                    o->sCallBack, this);
+                                       o->sCallBack, this);
         }
         o->devices[m->deviceId] = this;
     }
@@ -255,15 +228,15 @@ const string& UpnpDevice::getDeviceId() const
 
 bool UpnpDevice::ipv4(string *host, unsigned short *port)
 {
-    char *hst = UpnpGetServerIpAddress();
+    const char *hst = UpnpGetServerIpAddress();
     if (hst == 0) {
-	return false;
+        return false;
     }
     if (port) {
-	*port = UpnpGetServerPort();
+        *port = UpnpGetServerPort();
     }
     if (host) {
-	*host = string(hst);
+        *host = string(hst);
     }
     return true;
 }
@@ -368,8 +341,8 @@ bool UpnpDevice::addVFile(const string& name, const string& contents,
 
     
 // Main libupnp callback: use the device id and call the right device
-int UpnpDevice::InternalStatic::sCallBack(Upnp_EventType et, CBCONST void* evp,
-        void*)
+int UpnpDevice::InternalStatic::sCallBack(
+    Upnp_EventType et, CBCONST void* evp, void*)
 {
     //LOGDEB("UpnpDevice::sCallBack" << endl);
 
@@ -380,7 +353,7 @@ int UpnpDevice::InternalStatic::sCallBack(Upnp_EventType et, CBCONST void* evp,
         break;
 
     case UPNP_CONTROL_GET_VAR_REQUEST:
-        deviceid=UpnpStateVarRequest_get_DevUDN_cstr((UpnpStateVarRequest *)evp);
+        return UPNP_E_INVALID_PARAM;
         break;
 
     case UPNP_EVENT_SUBSCRIPTION_REQUEST:
@@ -407,8 +380,7 @@ int UpnpDevice::InternalStatic::sCallBack(Upnp_EventType et, CBCONST void* evp,
         }
     }
 
-    // LOGDEB("UpnpDevice::sCallBack: device found: [" << it->second
-    // << "]" << endl);
+    //LOGDEB("UpnpDevice::sCallBack: device found: ["<<it->second<<"]"<<endl);
     return (it->second)->m->callBack(et, evp);
 }
 
@@ -436,11 +408,10 @@ int UpnpDevice::Internal::callBack(Upnp_EventType et, const void* evp)
         UpnpActionRequest *act = (UpnpActionRequest *)evp;
 
         LOGDEB("UPNP_CONTROL_ACTION_REQUEST: " <<
-               UpnpActionRequest_get_ActionName_cstr(act) << ". Params: " <<
-               ixmlwPrintDoc(UpnpActionRequest_get_ActionRequest(act)) << endl);
+               UpnpActionRequest_get_ActionName_cstr(act) << " args: " <<
+               SoapHelp::argsToStr(act->args.begin(), act->args.end()) << endl);
 
-        std::unordered_map<string, UpnpService*>::const_iterator servit =
-            findService(UpnpActionRequest_get_ServiceID_cstr(act));
+        auto servit = findService(UpnpActionRequest_get_ServiceID_cstr(act));
         if (servit == servicemap.end()) {
             return UPNP_E_INVALID_PARAM;
         }
@@ -450,19 +421,15 @@ int UpnpDevice::Internal::callBack(Upnp_EventType et, const void* evp)
         {
             std::unique_lock<std::mutex> lock(devlock);
 
-            std::unordered_map<std::string, soapfun>::iterator callit =
-                calls.find(actname + UpnpActionRequest_get_ServiceID_cstr(act));
+            auto callit = calls.find(
+                actname + UpnpActionRequest_get_ServiceID_cstr(act));
             if (callit == calls.end()) {
                 LOGINF("UpnpDevice: No such action: " << actname << endl);
                 return UPNP_E_INVALID_PARAM;
             }
 
             SoapIncoming sc;
-            if (!sc.m->decode(actname.c_str(),
-                              UpnpActionRequest_get_ActionRequest(act))) {
-                LOGERR("Error decoding Action call arguments" << endl);
-                return UPNP_E_INVALID_PARAM;
-            }
+            sc.m->args.insert(act->args.begin(), act->args.end());
 
             // Call the action routine
             int ret = callit->second(sc, dt);
@@ -485,17 +452,11 @@ int UpnpDevice::Internal::callBack(Upnp_EventType et, const void* evp)
             }
         }
 
-        // Encode result data
-#if UPNP_VERSION_MINOR < 8
-        act->ErrCode = UPNP_E_SUCCESS;
-        act->ActionResult = dt.m->buildSoapBody();
-#else
+        // Set result data
         UpnpActionRequest_set_ErrCode(act, UPNP_E_SUCCESS);
-        UpnpActionRequest_set_ActionResult(act, dt.m->buildSoapBody());
-#endif
-        LOGDEB1("Response data: " <<
-                ixmlwPrintDoc(UpnpActionRequest_get_ActionResult(act)) << endl);
-
+        act->resdata = dt.m->data;
+        LOGDEB("Response data: " <<
+               SoapHelp::argsToStr(act->resdata.begin(), act->resdata.end()));
         return UPNP_E_SUCCESS;
     }
     break;
@@ -504,9 +465,7 @@ int UpnpDevice::Internal::callBack(Upnp_EventType et, const void* evp)
         // Note that the "Control: query for variable" action is
         // deprecated (upnp arch v1), and we should never get these.
     {
-        UpnpStateVarRequest *act = (UpnpStateVarRequest *)evp;
-        LOGDEB("UPNP_CONTROL_GET_VAR__REQUEST?: " <<
-               UpnpStateVarRequest_get_StateVarName_cstr(act) << endl);
+        LOGDEB("UPNP_CONTROL_GET_VAR__REQUEST??\n");
     }
     break;
 
@@ -532,14 +491,14 @@ int UpnpDevice::Internal::callBack(Upnp_EventType et, const void* evp)
         vector<const char *> cnames, cvalues;
         vectorstoargslists(names, values, qvalues, cnames, cvalues);
         int ret = UpnpAcceptSubscription(
-                dvh, UpnpSubscriptionRequest_get_UDN_cstr(act),
-                UpnpSubscriptionRequest_get_ServiceId_cstr(act),
-                cnames.size()?&cnames[0]:nullptr,
-                cnames.size()?&cvalues[0]:nullptr, int(cnames.size()),
-                UpnpSubscriptionRequest_get_SID_cstr(act));
+            dvh, UpnpSubscriptionRequest_get_UDN_cstr(act),
+            UpnpSubscriptionRequest_get_ServiceId_cstr(act),
+            cnames.size()?&cnames[0]:nullptr,
+            cnames.size()?&cvalues[0]:nullptr, int(cnames.size()),
+            UpnpSubscriptionRequest_get_SID_cstr(act));
         if (ret != UPNP_E_SUCCESS) {
-            LOGERR(lib->errAsString(
-                       "UpnpDevice::callBack: UpnpAcceptSubscription", ret) << endl);
+            LOGERR(lib->errAsString("UpnpDevice::callBack: "
+                                    "UpnpAcceptSubscription", ret) << endl);
         }
 
         return ret;
@@ -669,10 +628,10 @@ void UpnpDevice::Internal::notifyEvent(const string& serviceId,
 }
 
 static time_t timespec_diffms(const struct timespec& old,
-                           const struct timespec& recent)
+                              const struct timespec& recent)
 {
     return (recent.tv_sec - old.tv_sec) * 1000 +
-           (recent.tv_nsec - old.tv_nsec) / (1000 * 1000);
+        (recent.tv_nsec - old.tv_nsec) / (1000 * 1000);
 }
 
 void UpnpDevice::startloop()
@@ -830,9 +789,9 @@ UpnpService::UpnpService(
 UpnpDevice *UpnpService::getDevice()
 {
     if (m) {
-	return m->dev;
+        return m->dev;
     } else {
-	return nullptr;
+        return nullptr;
     }
 }
 

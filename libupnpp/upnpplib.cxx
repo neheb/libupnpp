@@ -30,7 +30,6 @@
 #include "libupnpp/upnpp_p.hxx"
 
 #include <upnp/upnp.h>
-#include <upnp/ixml.h>
 #include <upnp/upnptools.h>
 #include <upnp/upnpdebug.h>
 
@@ -49,11 +48,7 @@
 
 using namespace std;
 
-#if UPNP_VERSION_MAJOR > 1 || (UPNP_VERSION_MAJOR==1 && UPNP_VERSION_MINOR >= 8)
 #define CBCONST const
-#else
-#define CBCONST 
-#endif
 
 namespace UPnPP {
 
@@ -121,8 +116,8 @@ LibUPnP::LibUPnP(bool serveronly, string* hwaddr,
                  const string ifname, const string inip, unsigned short port)
 {
     LOGDEB("LibUPnP: serveronly " << serveronly << " &hwaddr " << hwaddr <<
-            " ifname [" << ifname << "] inip [" << inip << "] port " << port
-            << endl);
+           " ifname [" << ifname << "] inip [" << inip << "] port " << port
+           << endl);
 
     if ((m = new Internal()) == 0) {
         LOGERR("LibUPnP::LibUPnP: out of memory" << endl);
@@ -209,14 +204,11 @@ LibUPnP::LibUPnP(bool serveronly, string* hwaddr,
             LOGERR(errAsString("UpnpRegisterClient", m->init_error) << endl);
         }
     }
-
-    // Servers sometimes make errors (e.g.: minidlna returns bad utf-8).
-    ixmlRelaxParser(1);
 }
 
 string LibUPnP::host()
 {
-    char *cp = UpnpGetServerIpAddress();
+    const char *cp = UpnpGetServerIpAddress();
     if (cp)
         return cp;
     return string();
@@ -238,7 +230,7 @@ int LibUPnP::Internal::setupWebServer(const string& description,
 #else
         UPNPREG_URL_DESC,
 #endif
-		description.c_str(), description.size(), 
+        description.c_str(), description.size(), 
         0, /* config_baseURL */
         o_callback, (void *)theLib, dvh);
 

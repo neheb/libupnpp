@@ -64,8 +64,6 @@ libupnpp_la_SOURCES = \
     libupnpp/expatmm.hxx \
     libupnpp/getsyshwaddr.c \
     libupnpp/getsyshwaddr.h \
-    libupnpp/ixmlwrap.cxx \
-    libupnpp/ixmlwrap.hxx \
     libupnpp/log.cpp \
     libupnpp/log.h \
     libupnpp/log.hxx \

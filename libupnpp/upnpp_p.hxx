@@ -24,16 +24,6 @@
 
 #include <upnp/upnp.h>
 
-#define PUPNP_AT_LEAST(A,B,C)                                           \
-    (UPNP_VERSION_MAJOR > (A) ||                                        \
-     (UPNP_VERSION_MAJOR == (A) &&                                      \
-      (UPNP_VERSION_MINOR > (B) ||                                      \
-       (UPNP_VERSION_MINOR == (B) && UPNP_VERSION_PATCH >= (C)))))
-
-#if PUPNP_AT_LEAST(1,8,0) && !PUPNP_AT_LEAST(1,8,4)
-#error PUPNP versions between 1.8.0 and 1.8.3 (included) do not work
-#endif
-
 #include <pthread.h>
 #include <time.h>
 
@@ -57,46 +47,16 @@ namespace UPnPP {
 
 class SoapIncoming::Internal {
 public:
-    /* Construct by decoding the XML passed from libupnp. Call ok() to check
-     * if this went well.
-     *
-     * @param name We could get this from the XML doc, but get caller
-     *    gets it from libupnp, and passing it is simpler than retrieving
-     *    from the input top node where it has a namespace qualifier.
-     * @param actReq the XML document containing the SOAP data.
-     */
-    bool decode(const char *name, IXML_Document *actReq);
     std::string name;
     std::unordered_map<std::string, std::string> args;
 };
 
 class SoapOutgoing::Internal {
 public:
-    /* Build the SOAP call or response data XML document from the
-       vector of named values */
-    IXML_Document *buildSoapBody(bool isResp = true) const;
-
     std::string serviceType;
     std::string name;
     std::vector<std::pair<std::string, std::string> > data;
 };
-
-/* Decode UPnP Event data. 
- *
- * In soaphelp.cxx: This is not soap, but it's quite close to
- * the other code in there.
- * The variable values are contained in a propertyset XML document:
- *     <?xml version="1.0"?>
- *     <e:propertyset xmlns:e="urn:schemas-upnp-org:event-1-0">
- *       <e:property>
- *         <variableName>new value</variableName>
- *       </e:property>
- *       <!-- Other variable names and values (if any) go here. -->
- *     </e:propertyset>
- */
-extern bool decodePropertySet(IXML_Document *doc,
-                              std::unordered_map<std::string, std::string>& out);
-
 
 // Concatenate paths. Caller should make sure it makes sense.
 extern std::string caturl(const std::string& s1, const std::string& s2);

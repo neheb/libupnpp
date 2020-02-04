@@ -18,6 +18,11 @@
 #ifndef _SOAPHELP_H_X_INCLUDED_
 #define _SOAPHELP_H_X_INCLUDED_
 
+// This module used to be necessary to decode/encode XML DOM trees
+// from/to the libupnp interface. The npupnp interface uses C++
+// objects instead, so there is not much left in here, but it has
+// successfully isolated the client code from the change.
+
 #include <unordered_map>
 #include <memory>
 #include <string>
@@ -61,6 +66,15 @@ inline std::string val2s(int val)
 inline std::string val2s(bool val)
 {
     return i2s(int(val));
+}
+template <class InputIterator>
+std::string argsToStr(InputIterator first, InputIterator last)
+{
+    std::string out;
+    for (auto it = first; it != last; it++) {
+        out += it->first + " = " + it->second + "\n";
+    }
+    return out;
 }
 }
 

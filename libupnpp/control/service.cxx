@@ -19,52 +19,26 @@
 
 #include "libupnpp/control/service.hxx"
 
-#include <upnp/upnp.h>                  // for Upnp_Event, UPNP_E_SUCCESS, etc
-#include <upnp/upnptools.h>             // for UpnpGetErrorMessage
+#include <upnp/upnp.h>
+#include <upnp/upnptools.h>
 
-#include <string>                       // for string, char_traits, etc
-#include <utility>                      // for pair
+#include <string>
+#include <utility>
 
-#include "libupnpp/control/description.hxx"  // for UPnPDeviceDesc, etc
-#include "libupnpp/ixmlwrap.hxx"
-#include "libupnpp/log.hxx"             // for LOGDEB1, LOGINF, LOGERR, etc
-#include "libupnpp/upnpp_p.hxx"         // for caturl
-#include "libupnpp/upnpplib.hxx"        // for LibUPnP
+#include "libupnpp/control/description.hxx"
+#include "libupnpp/log.hxx"
+#include "libupnpp/upnpp_p.hxx"
+#include "libupnpp/upnpplib.hxx"
 
 using namespace std;
 using namespace std::placeholders;
 using namespace UPnPP;
 
-#if UPNP_VERSION_MINOR < 8 && !defined(UpnpEvent_get_SID_cstr)
-typedef struct Upnp_Event UpnpEvent;
-#define UpnpEvent_get_SID_cstr(x) ((x)->Sid)
-#define UpnpEvent_get_EventKey(x) ((x)->EventKey)
-#define UpnpEvent_get_ChangedVariables(x) ((x)->ChangedVariables)
-#endif
-
-#if UPNP_VERSION_MAJOR > 1 || (UPNP_VERSION_MAJOR==1 && UPNP_VERSION_MINOR >= 8)
 #define CBCONST const
-#else
-#define CBCONST 
-#endif
 
 namespace UPnPClient {
 static bool initEvents();
 static int srvCB(Upnp_EventType et, CBCONST void* vevp, void*);
-
-// A small helper class for the functions which perform
-// UpnpSendAction calls: get rid of IXML docs when done.
-class IxmlCleaner {
-public:
-    IXML_Document **rqpp, **rspp;
-    IxmlCleaner(IXML_Document** _rqpp, IXML_Document **_rspp)
-        : rqpp(_rqpp), rspp(_rspp) {}
-    ~IxmlCleaner()
-    {
-        if (*rqpp) ixmlDocument_free(*rqpp);
-        if (*rspp) ixmlDocument_free(*rspp);
-    }
-};
 
 class Service::Internal {
 public:
@@ -192,52 +166,27 @@ int Service::runAction(const SoapOutgoing& args, SoapIncoming& data)
     }
     UpnpClient_Handle hdl = lib->m->getclh();
 
-    IXML_Document *request(0);
-    IXML_Document *response(0);
-    IxmlCleaner cleaner(&request, &response);
-
-    if ((request = args.m->buildSoapBody(false)) == 0) {
-        LOGINF("Service::runAction: buildSoapBody failed" << endl);
-        return  UPNP_E_OUTOF_MEMORY;
-    }
-
     LOGDEB1("Service::runAction: url [" << m->actionURL <<
-           " serviceType " << m->serviceType <<
-           " rqst: [" << ixmlwPrintDoc(request) << "]" << endl);
+            " serviceType " << m->serviceType <<
+            " rqst: [" << "TBD SOME REQUEST" << "]" << endl);
 
-    int ret = UpnpSendAction(hdl, m->actionURL.c_str(), m->serviceType.c_str(),
-                             0 /*devUDN*/, request, &response);
-
+    std::vector<std::pair<std::string, std::string>> response;
+    int errcode;
+    std::string errdesc;
+    int ret =  UpnpSendAction(hdl, "", m->actionURL, m->serviceType,
+                              args.m->name, args.m->data, response, &errcode,
+                              errdesc);
     if (ret != UPNP_E_SUCCESS) {
-		LOGINF("Service::runAction: UpnpSendAction returned " << ret << 
-			   " for request:\n" << ixmlwPrintDoc(request));
+        LOGINF("Service::runAction: UpnpSendAction returned " << ret << endl);
         if (ret < 0) {
             LOGINF("    error message: " << UpnpGetErrorMessage(ret) << endl);
         } else {
-            // A remote error then
-            SoapIncoming error;
-            if (error.m->decode("UPnPError", response)) {
-				int code = -1;
-				string desc;
-				error.get("errorCode", &code);
-				error.get("errorDescription", &desc);
-				LOGINF("    Response errorCode: " << code <<
-					   " errorDescription: " << desc << endl);
-			} else {
-				LOGINF("Error response doc was empty or could not be decoded: ["
-					   << ixmlwPrintDoc(response) << "]\n");
-			}
+            LOGINF("    Response errorCode: " << errcode <<
+                   " errorDescription: " << errdesc << endl);
         }
         return ret;
     }
-    LOGDEB1("Service::runAction: rslt: [" <<
-            ixmlwPrintDoc(response) << "]" << endl);
-
-    if (!data.m->decode(args.getName().c_str(), response)) {
-        LOGERR("Service::runAction: Could not decode response: " <<
-               ixmlwPrintDoc(response) << endl);
-        return UPNP_E_BAD_RESPONSE;
-    }
+    data.m->args.insert(response.begin(), response.end());
     return UPNP_E_SUCCESS;
 }
 
@@ -249,8 +198,8 @@ int Service::runTrivialAction(const std::string& actionName)
 }
 
 template <class T> int Service::runSimpleGet(const std::string& actnm,
-        const std::string& valnm,
-        T *valuep)
+                                             const std::string& valnm,
+                                             T *valuep)
 {
     SoapOutgoing args(m->serviceType, actnm);
     SoapIncoming data;
@@ -267,8 +216,8 @@ template <class T> int Service::runSimpleGet(const std::string& actnm,
 }
 
 template <class T> int Service::runSimpleAction(const std::string& actnm,
-        const std::string& valnm,
-        T value)
+                                                const std::string& valnm,
+                                                T value)
 {
     SoapOutgoing args(m->serviceType, actnm);
     args(valnm, SoapHelp::val2s(value));
@@ -302,20 +251,12 @@ static int srvCB(Upnp_EventType et, CBCONST void* vevp, void*)
         LOGDEB1("Service:srvCB: var change event: SID " <<
                 UpnpEvent_get_SID_cstr(evp) << " EventKey " <<
                 UpnpEvent_get_EventKey(evp) << " changed " <<
-                ixmlwPrintDoc(UpnpEvent_get_ChangedVariables(evp)) << endl);
-
-        std::unordered_map<string, string> props;
-        if (!decodePropertySet(UpnpEvent_get_ChangedVariables(evp), props)) {
-            LOGERR("Service::srvCB: could not decode EVENT propertyset" <<endl);
-            return UPNP_E_BAD_RESPONSE;
-        }
-        //for (auto& entry: props) {
-        //LOGDEB("srvCB: " << entry.first << " -> " << entry.second << endl);
-        //}
+                SoapHelp::argsToString(evp->ChangedVariables.begin(),
+                                       evp->ChangedVariables.end()) << endl);
 
         auto it = o_calls.find(UpnpEvent_get_SID_cstr(evp));
         if (it != o_calls.end()) {
-            (it->second)(props);
+            (it->second)(evp->ChangedVariables);
         } else {
             LOGINF("Service::srvCB: no callback found for sid " <<
                    UpnpEvent_get_SID_cstr(evp) << endl);

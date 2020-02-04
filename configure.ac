@@ -88,9 +88,6 @@ dnl add it on some systems.
 dnl AC_CHECK_LIB([threadutil], [TimerThreadRemove], [],
 dnl     AC_MSG_ERROR([libthreadutil (part of libupnp) not found]))
 
-# We do need libixml for now
-AC_CHECK_LIB([ixml], [ixmlNode_getNodeName], [], [])
-
 PKG_CHECK_MODULES([upnp], [libnpupnp], [upnpfound=yes], [upnpfound=no])
 if test X$upnpfound != Xyes ; then
     PKG_CHECK_MODULES([upnp], [libupnp], [upnpfound=yes], [upnpfound=no])
