@@ -105,8 +105,10 @@ echo '$upnp_CFLAGS[' $upnp_CFLAGS '] $upnp_LIBS [' $upnp_LIBS ']'
 PKG_CHECK_MODULES([curl], [libcurl], [], AC_MSG_ERROR([libcurl not found]))
 PKG_CHECK_MODULES([expat], [expat], [],AC_MSG_ERROR([expat not found]))
 
-SAVED_CFLAGS="$CFLAGS"
-CFLAGS="$upnp_CFLAGS $CFLAGS -Werror=incompatible-pointer-types"
+AC_LANG_PUSH([C++])
+
+SAVED_CXXFLAGS="$CXXFLAGS"
+CXXFLAGS="$upnp_CFLAGS $CFLAGS $CXXFLAGS -Werror=incompatible-pointer-types"
 
 AC_MSG_CHECKING([if the virtual dir callbacks use no cookies])
 AC_COMPILE_IFELSE([AC_LANG_SOURCE([
@@ -129,12 +131,16 @@ static int vdread(UpnpWebFileHandle fileHnd, char* buf, size_t buflen,const void
 void myfunc() {UpnpVirtualDir_set_ReadCallback(vdread);}
 ])],[AC_MSG_RESULT(yes);vd2cookies=yes],[AC_MSG_RESULT(no);vd2cookies=no])
 
-CFLAGS="$SAVED_CFLAGS"
+CXXFLAGS="$SAVED_CXXFLAGS"
 
-if test X$vd1cookie = Xyes ; then
+if test X$vd0cookie = Xyes ; then
+   true
+elif test X$vd1cookie = Xyes ; then
    AC_DEFINE(PUPNP_VDIR_1COOKIE, [], [The pupnp vdir callbacks take 1 cookie])
 elif test X$vd2cookies = Xyes ; then
    AC_DEFINE(PUPNP_VDIR_2COOKIES, [], [The pupnp vdir callbacks take 2 cookies])
+else
+   AC_MSG_ERROR([Vdir cookie test compiles all failed ! Check config.log])
 fi
 
 LIBUPNPP_LIBS="$LIBS $upnp_LIBS $curl_LIBS $expat_LIBS"

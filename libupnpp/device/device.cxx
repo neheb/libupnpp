@@ -435,16 +435,11 @@ int UpnpDevice::Internal::callBack(Upnp_EventType et, const void* evp)
             int ret = callit->second(sc, dt);
             if (ret != UPNP_E_SUCCESS) {
                 if (ret > 0) {
-#if UPNP_VERSION_MINOR < 8
                     act->ErrCode = ret;
-                    strncpy(act->ErrStr,
-                            servit->second->errString(ret).c_str(), LINE_SIZE-1);
+                    strncpy(
+						act->ErrStr,
+						servit->second->errString(ret).c_str(), LINE_SIZE-1);
                     act->ErrStr[LINE_SIZE-1] = 0;
-#else
-                    UpnpActionRequest_set_ErrCode(act, ret);
-                    UpnpActionRequest_strcpy_ErrStr(
-                        act, servit->second->errString(ret).c_str());
-#endif
                 }
                 LOGERR("UpnpDevice: Action failed: " << sc.getName() <<
                        " code " << ret << endl);
