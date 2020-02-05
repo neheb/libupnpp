@@ -27,7 +27,6 @@
 #include "libupnpp/control/ohradio.hxx"
 #include "libupnpp/log.hxx"             // for LOGERR
 #include "libupnpp/soaphelp.hxx"        // for SoapIncoming, etc
-#include "libupnpp/upnpp_p.hxx"         // for stringToBool, trimstring
 
 using namespace std;
 using namespace std::placeholders;

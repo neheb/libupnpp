@@ -42,25 +42,7 @@ using namespace std;
 using namespace std::placeholders;
 using namespace UPnPP;
 
-#if UPNP_VERSION_MINOR < 8 && !defined(UpnpDiscovery_get_ErrCode)
-typedef struct Upnp_Discovery UpnpDiscovery;
-#define UpnpDiscovery_get_ErrCode(x) ((x)->ErrCode)
-#define UpnpDiscovery_get_Expires(x) ((x)->Expires)
-#define UpnpDiscovery_get_DeviceID_cstr(x) ((x)->DeviceId)
-#define UpnpDiscovery_get_DeviceType_cstr(x) ((x)->DeviceType)
-#define UpnpDiscovery_get_ServiceType_cstr(x) ((x)->ServiceType)
-#define UpnpDiscovery_get_ServiceVer_cstr(x) ((x)->ServiceVer)
-#define UpnpDiscovery_get_Location_cstr(x) ((x)->Location)
-#define UpnpDiscovery_get_Os_cstr(x) ((x)->Os)
-#define UpnpDiscovery_get_Date_cstr(x) ((x)->Date)
-#define UpnpDiscovery_get_Ext_cstr(x) ((x)->Ext)
-#endif
-
-#if UPNP_VERSION_MAJOR > 1 || (UPNP_VERSION_MAJOR==1 && UPNP_VERSION_MINOR >= 8)
 #define CBCONST const
-#else
-#define CBCONST 
-#endif
 
 namespace UPnPClient {
 

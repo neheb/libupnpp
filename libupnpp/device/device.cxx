@@ -30,6 +30,7 @@
 #include <mutex>
 #include <condition_variable>
 #include <thread>
+#include <chrono>
 
 #include <upnp/upnp.h>
 
@@ -617,16 +618,9 @@ void UpnpDevice::Internal::notifyEvent(const string& serviceId,
                          serviceId.c_str(), &cnames[0], &cvalues[0],
                          int(cnames.size()));
     if (ret != UPNP_E_SUCCESS) {
-        LOGERR("UpnpDevice::notifyEvent: " << lib->errAsString("UpnpNotify", ret) <<
-               " for " << serviceId << endl);
+        LOGERR("UpnpDevice::notifyEvent: " <<
+			   lib->errAsString("UpnpNotify", ret)<<" for "<< serviceId << endl);
     }
-}
-
-static time_t timespec_diffms(const struct timespec& old,
-                              const struct timespec& recent)
-{
-    return (recent.tv_sec - old.tv_sec) * 1000 +
-        (recent.tv_nsec - old.tv_nsec) / (1000 * 1000);
 }
 
 void UpnpDevice::startloop()
@@ -649,7 +643,7 @@ void UpnpDevice::eventloop()
 
     int count = 0;
     // Polling the services every 1 S
-    const int loopwait_ms = 1000;
+    const std::chrono::milliseconds loopwait_ms(1000);
     // Full state every 10 S. This should not be necessary, but it
     // ensures that CPs get updated about our state even if they miss
     // some events. For example, the Songcast windows sender does not
@@ -657,27 +651,22 @@ void UpnpDevice::eventloop()
     // repeated few seconds later, with bad consequences on further
     // operations
     const int nloopstofull = 10;
-    struct timespec wkuptime, earlytime;
+	static std::chrono::steady_clock::time_point wkuptime, earlytime;
     bool didearly = false;
 
     for (;;) {
-        timespec_now(&wkuptime);
-        timespec_addnanos(&wkuptime, loopwait_ms * 1000 * 1000);
-
-        //LOGDEB("eventloop: now " << time(0) << " wkup at "<<
-        //    wkuptime.tv_sec << " S " << wkuptime.tv_nsec << " ns" << endl);
+		wkuptime = std::chrono::steady_clock::now() + loopwait_ms;
 
         std::unique_lock<std::mutex> lock(m->evlooplock);
-        std::cv_status err =
-            m->evloopcond.wait_for(lock, chrono::milliseconds(loopwait_ms));
+        std::cv_status err = m->evloopcond.wait_for(lock, loopwait_ms);
         if (m->needExit) {
             break;
         } else if (err == std::cv_status::no_timeout) {
             // Early wakeup. Only does something if it did not already
-            // happen recently
+            // happen recently, else go back to sleep (at top of loop)
             if (didearly) {
-                time_t millis = timespec_diffms(earlytime, wkuptime);
-                if (millis < loopwait_ms) {
+				auto sincearly = wkuptime - earlytime;
+                if (sincearly < loopwait_ms) {
                     // Do nothing. didearly stays true
                     // LOGDEB("eventloop: early, previous too close "<<endl);
                     continue;

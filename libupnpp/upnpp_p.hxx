@@ -70,8 +70,6 @@ template <class T> bool csvToStrings(const std::string& s, T &tokens);
 // with [FfNnYyTt01]
 extern bool stringToBool(const std::string& s, bool *v);
 
-extern void timespec_now(struct timespec *ts);
-
 /** Translate libupnp event type to string */
 extern std::string evTypeAsString(Upnp_EventType);
 

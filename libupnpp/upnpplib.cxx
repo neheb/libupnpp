@@ -148,22 +148,6 @@ LibUPnP::LibUPnP(bool serveronly, string* hwaddr,
     if (ifname.empty())
         strncpy(ip_address, inip.c_str(), ipalen-1);
 
-#if defined(HAVE_UPNPSETLOGLEVEL)
-    // We used to UpnpCloseLog() after UpnpInit(), but this can cause
-    // crashes because of the awful way upnpdebug.c is programmed, so
-    // no more. We do have to do something though because with older
-    // libupnp release (fixed around 1.8.5), UpnpInitLog() creates the
-    // current filenames. The initial file names are IUpnpErrFile.txt
-    // and IUpnpInfoFile.txt, and they will be created in the current
-    // directory if debug is enabled and we do nothing. UpnpInitlog()
-    // is called by upnpapi.c:
-    // UpnpInit()->UpnpInitPreamble()->UpnpInitLog() So, set safe file
-    // names before calling UpnpInit() (needs to be static, the lib
-    // keeps a pointer to it). 
-    UpnpSetLogFileNames(ccpDevNull, ccpDevNull);
-    UpnpSetLogLevel(UPNP_CRITICAL);
-#endif
-
     // Work around a bug in some releases of libupnp 1.8: when
     // compiled with the reuseaddr option, the lib does not try higher
     // ports if the initial one is busy. So do it ourselves if the
@@ -387,21 +371,6 @@ string evTypeAsString(Upnp_EventType et)
 
 /////////////////////// Small global helpers
 
-/** Get rid of white space at both ends */
-void trimstring(string &s, const char *ws)
-{
-    string::size_type pos = s.find_first_not_of(ws);
-    if (pos == string::npos) {
-        s.clear();
-        return;
-    }
-    s.replace(0, pos, string());
-
-    pos = s.find_last_not_of(ws);
-    if (pos != string::npos && pos != s.length()-1)
-        s.replace(pos+1, string::npos, string());
-}
-
 string caturl(const string& s1, const string& s2)
 {
     string out(s1);
@@ -542,138 +511,12 @@ bool stringToBool(const string& s, bool *value)
     return true;
 }
 
-//  s1 is already uppercase
-int stringuppercmp(const string & s1, const string& s2)
-{
-    string::const_iterator it1 = s1.begin();
-    string::const_iterator it2 = s2.begin();
-    string::size_type size1 = s1.length(), size2 = s2.length();
-    int c2;
-
-    if (size1 > size2) {
-        while (it1 != s1.end()) {
-            c2 = ::toupper(*it2);
-            if (*it1 != c2) {
-                return *it1 > c2 ? 1 : -1;
-            }
-            ++it1;
-            ++it2;
-        }
-        return size1 == size2 ? 0 : 1;
-    } else {
-        while (it2 != s2.end()) {
-            c2 = ::toupper(*it2);
-            if (*it1 != c2) {
-                return *it1 > c2 ? 1 : -1;
-            }
-            ++it1;
-            ++it2;
-        }
-        return size1 == size2 ? 0 : -1;
-    }
-}
-
-#ifdef _MSC_VER
-// Note: struct timespec is defined by pthread.h (from pthreads-w32)
-#ifndef CLOCK_REALTIME
-#define CLOCK_REALTIME 0
-#endif
-
-LARGE_INTEGER getFILETIMEoffset()
-{
-    SYSTEMTIME s;
-    FILETIME f;
-    LARGE_INTEGER t;
-
-    s.wYear = 1970;
-    s.wMonth = 1;
-    s.wDay = 1;
-    s.wHour = 0;
-    s.wMinute = 0;
-    s.wSecond = 0;
-    s.wMilliseconds = 0;
-    SystemTimeToFileTime(&s, &f);
-    t.QuadPart = f.dwHighDateTime;
-    t.QuadPart <<= 32;
-    t.QuadPart |= f.dwLowDateTime;
-    return (t);
-}
-
-int clock_gettime(int X, struct timespec *tv)
-{
-    LARGE_INTEGER           t;
-    FILETIME            f;
-    double                  microseconds;
-    static LARGE_INTEGER    offset;
-    static double           frequencyToMicroseconds;
-    static int              initialized = 0;
-    static BOOL             usePerformanceCounter = 0;
-
-    if (!initialized) {
-        LARGE_INTEGER performanceFrequency;
-        initialized = 1;
-        usePerformanceCounter = QueryPerformanceFrequency(&performanceFrequency);
-        if (usePerformanceCounter) {
-            QueryPerformanceCounter(&offset);
-            frequencyToMicroseconds = (double)performanceFrequency.QuadPart / 1000000.;
-        }
-        else {
-            offset = getFILETIMEoffset();
-            frequencyToMicroseconds = 10.;
-        }
-    }
-    if (usePerformanceCounter) QueryPerformanceCounter(&t);
-    else {
-        GetSystemTimeAsFileTime(&f);
-        t.QuadPart = f.dwHighDateTime;
-        t.QuadPart <<= 32;
-        t.QuadPart |= f.dwLowDateTime;
-    }
-
-    t.QuadPart -= offset.QuadPart;
-    microseconds = (double)t.QuadPart / frequencyToMicroseconds;
-    t.QuadPart = (long long)microseconds;
-    tv->tv_sec = t.QuadPart / 1000000;
-    tv->tv_nsec = (t.QuadPart % 1000000) * 1000;
-    return (0);
-}
-#endif
-
-void timespec_now(struct timespec *tsp)
-{
-#ifdef __MACH__ // Mac OS X does not have clock_gettime, use clock_get_time
-    clock_serv_t cclock;
-    mach_timespec_t mts;
-    host_get_clock_service(mach_host_self(), CALENDAR_CLOCK, &cclock);
-    clock_get_time(cclock, &mts);
-    mach_port_deallocate(mach_task_self(), cclock);
-    tsp->tv_sec = mts.tv_sec;
-    tsp->tv_nsec = mts.tv_nsec;
-#else
-    clock_gettime(CLOCK_REALTIME, tsp);
-#endif
-}
-
-
-static const int BILLION = 1000 * 1000 * 1000;
-
-void timespec_addnanos(struct timespec *ts, long long nanos)
-{
-    nanos = nanos + ts->tv_nsec;
-    long long secs = 0;
-    if (nanos > BILLION) {
-        secs = nanos / BILLION;
-        nanos -= secs * BILLION;
-    }
-    ts->tv_sec += secs;
-    ts->tv_nsec = long(nanos);
-}
-
 static void takeadapt(void *tok, const char *name)
 {
     vector<string>* ads = (vector<string>*)tok;
     ads->push_back(name);
 }
+
 bool getAdapterNames(vector<string>& names)
 {
     return getsyshwaddr("!?#@", 0, 0, 0, 0, takeadapt, &names) == 0;
