@@ -6,15 +6,10 @@ Group:          Applications/Multimedia
 License:        GPLv2+
 URL:            http://www.lesbonscomptes.com/updmpdcli
 Source0:        http://www.lesbonscomptes.com/upmpdcli/downloads/libupnpp-%{version}.tar.gz
-Patch0:         no_pupnp_versioncheck.patch
 Requires(pre):  shadow-utils
-Requires(post): systemd
-Requires(preun): systemd
-Requires(postun): systemd
-BuildRequires:  libupnp-devel
+BuildRequires:  libnpupnp
 BuildRequires:  expat-devel
 BuildRequires:  libcurl-devel
-BuildRequires:  systemd-units
 BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
 %description
@@ -23,7 +18,6 @@ upmpdcli and upplay
 
 %prep
 %setup -q
-%patch0 -p1
 
 %build
 %configure
