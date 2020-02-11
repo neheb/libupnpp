@@ -62,7 +62,6 @@ AC_TYPE_SIZE_T
 AC_TYPE_OFF_T
 AC_DEFINE([_LARGE_FILE_SOURCE], [], [Large files support])
 AC_DEFINE([_FILE_OFFSET_BITS], [64], [File Offset size])
-AC_CHECK_LIB([rt], [clock_gettime], [], [])
 AC_CHECK_LIB([pthread], [pthread_create], [], [])
 
 # Check that std::future is available.
@@ -82,24 +81,13 @@ AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[#include <future>]],
 AC_MSG_RESULT([$have_std_future])
 AC_LANG_POP
 
-dnl The following check for libthreadutil is normally unnecessary and even
-dnl problematic. libupnpp does not use it directly, Still you may need it to
-dnl add it on some systems.
-dnl AC_CHECK_LIB([threadutil], [TimerThreadRemove], [],
-dnl     AC_MSG_ERROR([libthreadutil (part of libupnp) not found]))
-
 PKG_CHECK_MODULES([upnp], [libnpupnp], [upnpfound=yes], [upnpfound=no])
 if test X$upnpfound != Xyes ; then
-    PKG_CHECK_MODULES([upnp], [libupnp], [upnpfound=yes], [upnpfound=no])
-	if test X$upnpfound = Xyes ; then
-        AC_MSG_RESULT([Using old libupnp])
-    fi
-else
+  AC_MSG_ERROR([libnpupnp not found])
+else  
     AC_MSG_RESULT([Using libnpupnp])
 fi
-if test X$upnpfound != Xyes ; then
-  AC_MSG_ERROR([Neither libnpupnp nor libupnp were found, we need an UPnP lib!])
-fi
+
 echo '$upnp_CFLAGS[' $upnp_CFLAGS '] $upnp_LIBS [' $upnp_LIBS ']'
 
 PKG_CHECK_MODULES([curl], [libcurl], [], AC_MSG_ERROR([libcurl not found]))
