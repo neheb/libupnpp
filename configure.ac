@@ -91,17 +91,13 @@ dnl     AC_MSG_ERROR([libthreadutil (part of libupnp) not found]))
 # We do need libixml for now
 AC_CHECK_LIB([ixml], [ixmlNode_getNodeName], [], [])
 
-PKG_CHECK_MODULES([upnp], [libnpupnp], [upnpfound=yes], [upnpfound=no])
-if test X$upnpfound != Xyes ; then
-    PKG_CHECK_MODULES([upnp], [libupnp], [upnpfound=yes], [upnpfound=no])
-	if test X$upnpfound = Xyes ; then
-        AC_MSG_RESULT([Using old libupnp])
-    fi
-else
-    AC_MSG_RESULT([Using libnpupnp])
+PKG_CHECK_MODULES([upnp], [libupnp], [upnpfound=yes], [upnpfound=no])
+if test X$upnpfound = Xyes ; then
+       AC_MSG_RESULT([Using old libupnp])
 fi
+
 if test X$upnpfound != Xyes ; then
-  AC_MSG_ERROR([Neither libnpupnp nor libupnp were found, we need an UPnP lib!])
+  AC_MSG_ERROR([libupnp not found, we need an UPnP lib!])
 fi
 echo '$upnp_CFLAGS[' $upnp_CFLAGS '] $upnp_LIBS [' $upnp_LIBS ']'
 
