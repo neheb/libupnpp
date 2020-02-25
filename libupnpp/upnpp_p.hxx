@@ -24,6 +24,8 @@
 
 #include <upnp/upnp.h>
 
+typedef struct _IXML_Document IXML_Document;
+
 #define PUPNP_AT_LEAST(A,B,C)                                           \
     (UPNP_VERSION_MAJOR > (A) ||                                        \
      (UPNP_VERSION_MAJOR == (A) &&                                      \

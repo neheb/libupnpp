@@ -33,7 +33,6 @@
 using namespace std;
 using namespace UPnPP;
 
-typedef struct File_Info UpnpFileInfo;
 
 namespace UPnPProvider {
 
