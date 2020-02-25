@@ -1,3 +1,9 @@
+libupnpp6 (0.18.0-2~ppaPPAVERS~SERIES1) SERIES; urgency=low
+
+  * Rebuild with libnpupnp 2.1.0
+
+ -- Jean-Francois Dockes <jf@dockes.org>  Mon, 24 Feb 2020 15:38:00 +0100
+ 
 libupnpp6 (0.18.0-1~ppaPPAVERS~SERIES1) SERIES; urgency=low
 
   * Return more detailed data in directory records-> abi change
