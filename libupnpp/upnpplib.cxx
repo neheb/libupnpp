@@ -270,12 +270,8 @@ bool LibUPnP::setLogLevel(LogLevel level)
         UpnpSetLogLevel(UPNP_CRITICAL);
         setLogFileName("", LogLevelNone);
         break;
-    case LogLevelError:
-        UpnpSetLogLevel(UPNP_CRITICAL);
-        break;
-    case LogLevelDebug:
-        UpnpSetLogLevel(UPNP_ALL);
-        break;
+	default:
+        UpnpSetLogLevel(Upnp_LogLevel(level));
     }
     return true;
 #else
