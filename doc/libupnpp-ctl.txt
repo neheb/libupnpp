@@ -1,8 +1,9 @@
 = Libupnpp for Control Points
 
-Libupnpp is a C++ wrapper for link:http://pupnp.sourceforge.net/[libupnp],
-a.k.a Portable UPnP, which is a direct descendant of the Open Source SDK
-released by Intel in support of UPnP development.
+Libupnpp is a pass:[C++] wrapper for link:http://pupnp.sourceforge.net/[libupnp]
+a.k.a Portable UPnP (up to branch 0.17), or its pass:[C++] descendant,
+link:http://framagit.org/medoc92/npupnp[libnpupnp] (versions 0.18 and
+later).
 
 Libupnpp can be used to implement UPnP devices and services, or Control
 Points.

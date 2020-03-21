@@ -1,3 +1,9 @@
+libupnpp6 (0.18.0-3~ppaPPAVERS~SERIES1) SERIES; urgency=low
+
+  * Rebuild with libnpupnp 2.2.1
+
+ -- Jean-Francois Dockes <jf@dockes.org>  Thu, 19 Mar 2020 16:38:00 +0100
+ 
 libupnpp6 (0.18.0-2~ppaPPAVERS~SERIES1) SERIES; urgency=low
 
   * Rebuild with libnpupnp 2.1.0
