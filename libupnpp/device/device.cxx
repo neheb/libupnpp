@@ -451,8 +451,8 @@ int UpnpDevice::Internal::callBack(Upnp_EventType et, const void* evp)
         // Set result data
         UpnpActionRequest_set_ErrCode(act, UPNP_E_SUCCESS);
         act->resdata = dt.m->data;
-        LOGDEB("Response data: " <<
-               SoapHelp::argsToStr(act->resdata.begin(), act->resdata.end()));
+        LOGDEB("Response data: " << SoapHelp::argsToStr(
+                   act->resdata.begin(), act->resdata.end()) << endl);
         return UPNP_E_SUCCESS;
     }
     break;
