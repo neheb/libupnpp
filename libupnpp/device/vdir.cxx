@@ -22,6 +22,9 @@
 #include <string.h>
 #include <upnp/ixml.h>
 #include <upnp/upnp.h>
+#if UPNP_VERSION < 10800
+typedef struct File_Info UpnpFileInfo;
+#endif
 
 #include <iostream>
 #include <utility>
