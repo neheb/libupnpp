@@ -45,6 +45,7 @@
 #include "libupnpp/log.hxx"
 #include "libupnpp/md5.h"
 #include "libupnpp/upnpputils.hxx"
+#include "libupnpp/smallut.h"
 
 using namespace std;
 
@@ -133,10 +134,21 @@ LibUPnP::LibUPnP(bool serveronly, string* hwaddr,
     char ip_address[ipalen];
     ip_address[0] = 0;
     if (hwaddr || !ifname.empty()) {
+        const char *ifnm{nullptr};
+        std::vector<std::string> vnm;
+        if (!ifname.empty()) {
+            stringToStrings(ifname, vnm);
+            if (!vnm.empty() && vnm[0] != "*") {
+                ifnm = vnm[0].c_str();
+            }
+        }
         char mac[20];
-        if (getsyshwaddr(ifname.c_str(), ip_address, ipalen, mac, 13,0,0) < 0) {
-            LOGERR("LibUPnP::LibUPnP: failed retrieving addr" << endl);
-            return;
+        if (getsyshwaddr(ifnm, ip_address, ipalen, mac, 13,0,0) &&
+			// maybe this is a windows adapter with space chars in the name,
+			// retry with full name
+			getsyshwaddr(ifname.c_str(), ip_address, ipalen, mac, 13,0,0) < 0) {
+			LOGERR("LibUPnP::LibUPnP: failed retrieving ether addr" << endl);
+			return;
         }
         if (hwaddr)
             *hwaddr = string(mac);
@@ -270,7 +282,7 @@ bool LibUPnP::setLogLevel(LogLevel level)
         UpnpSetLogLevel(UPNP_CRITICAL);
         setLogFileName("", LogLevelNone);
         break;
-	default:
+    default:
         UpnpSetLogLevel(Upnp_LogLevel(level));
     }
     return true;
