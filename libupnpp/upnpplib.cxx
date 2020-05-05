@@ -41,11 +41,11 @@
 #include <utility>
 #include <vector>
 
-#include "libupnpp/getsyshwaddr.h"
 #include "libupnpp/log.hxx"
 #include "libupnpp/md5.h"
 #include "libupnpp/upnpputils.hxx"
 #include "libupnpp/smallut.h"
+#include "libupnpp/netif.h"
 
 using namespace std;
 
@@ -127,62 +127,39 @@ LibUPnP::LibUPnP(bool serveronly, string* hwaddr,
 
     m->ok = false;
 
-    // If our caller wants to retrieve an ethernet address (typically
-    // for uuid purposes), or has specified an interface we have to
-    // look at the network config.
-    const int ipalen(100);
-    char ip_address[ipalen];
-    ip_address[0] = 0;
-    if (hwaddr || !ifname.empty()) {
-        const char *ifnm{nullptr};
-        std::vector<std::string> vnm;
-        if (!ifname.empty()) {
-            stringToStrings(ifname, vnm);
-            if (!vnm.empty() && vnm[0] != "*") {
-                ifnm = vnm[0].c_str();
-            }
-        }
-        char mac[20];
-        if (getsyshwaddr(ifnm, ip_address, ipalen, mac, 13,0,0) &&
-			// maybe this is a windows adapter with space chars in the name,
-			// retry with full name
-			getsyshwaddr(ifname.c_str(), ip_address, ipalen, mac, 13,0,0) < 0) {
-			LOGERR("LibUPnP::LibUPnP: failed retrieving ether addr" << endl);
-			return;
-        }
-        if (hwaddr)
-            *hwaddr = string(mac);
-    }
-
     // If the interface name was not specified, we possibly use the
     // supplied IP address. If this is empty too, libupnp will choose
     // by itself (the first adapter).
-    if (ifname.empty())
-        strncpy(ip_address, inip.c_str(), ipalen-1);
-
-    // Work around a bug in some releases of libupnp 1.8: when
-    // compiled with the reuseaddr option, the lib does not try higher
-    // ports if the initial one is busy. So do it ourselves if the
-    // specified port is 0 (meaning default : 49152)
-    int maxloop = (port == 0) ? 20 : 1;
-    for (int i = 0; i < maxloop; i++) {
-#ifdef UPNP_ENABLE_IPV6
-        m->init_error = UpnpInit2(ifname.empty()?nullptr:ifname.c_str(), port);
-#else
-        m->init_error = UpnpInit(ip_address[0] ? ip_address : 0, port);
-#endif
-        if (m->init_error != UPNP_E_SOCKET_BIND) {
-            break;
-        }
-        // bind() error: possibly increment and retry
-        port = 49152 + i + 1;
-    }
-
+	if (ifname.empty()) {
+        m->init_error = UpnpInit(inip.c_str(), port);
+	} else {
+        m->init_error = UpnpInitWithOptions(
+			ifname.c_str(), port, 0, UPNP_OPTION_END);
+	}
     if (m->init_error != UPNP_E_SUCCESS) {
         LOGERR(errAsString("UpnpInit", m->init_error) << endl);
         return;
     }
     setMaxContentLength(2000*1024);
+
+	if (hwaddr) {
+		auto *ifs = NetIF::Interfaces::theInterfaces();
+		hwaddr->clear();
+		if (ifs) {
+			NetIF::Interfaces::Filter
+				filt{.needs={NetIF::Interface::Flags::HASIPV4},
+					 .rejects={NetIF::Interface::Flags::LOOPBACK}
+			};
+			auto vifs = ifs->select(filt);
+			if (!vifs.empty()) {
+				*hwaddr = hexprint(vifs[0].gethwaddr(), ':');
+			}
+		}
+		if (hwaddr->empty()) {
+			LOGERR("LibUPnP: could not retrieve network hardware address\n");
+			return;
+		}
+	}
 
     LOGDEB("LibUPnP: Using IP " << UpnpGetServerIpAddress() << " port " <<
            UpnpGetServerPort() << endl);
@@ -519,15 +496,20 @@ bool stringToBool(const string& s, bool *value)
     return true;
 }
 
-static void takeadapt(void *tok, const char *name)
-{
-    vector<string>* ads = (vector<string>*)tok;
-    ads->push_back(name);
-}
-
 bool getAdapterNames(vector<string>& names)
 {
-    return getsyshwaddr("!?#@", 0, 0, 0, 0, takeadapt, &names) == 0;
+	auto *ifs = NetIF::Interfaces::theInterfaces();
+	if (ifs) {
+		NetIF::Interfaces::Filter
+			filt{.needs={NetIF::Interface::Flags::HASIPV4},
+				 .rejects={NetIF::Interface::Flags::LOOPBACK}};
+		auto vifs = ifs->select(filt);
+		for (const auto& adapter : vifs) {
+			names.push_back(adapter.getname());
+		}
+		return true;
+	}
+	return false;
 }
 
 }

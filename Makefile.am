@@ -62,13 +62,13 @@ libupnpp_la_SOURCES = \
     libupnpp/base64.cxx \
     libupnpp/conf_post.h \
     libupnpp/expatmm.hxx \
-    libupnpp/getsyshwaddr.c \
-    libupnpp/getsyshwaddr.h \
     libupnpp/log.cpp \
     libupnpp/log.h \
     libupnpp/log.hxx \
     libupnpp/md5.cpp \
     libupnpp/md5.h \
+    libupnpp/netif.cpp \
+    libupnpp/netif.h \
     libupnpp/smallut.cpp \
     libupnpp/smallut.h \
     libupnpp/soaphelp.cxx \
