@@ -1,3 +1,10 @@
+libupnpp6 (0.19.0-3~ppaPPAVERS~SERIES1) SERIES; urgency=low
+
+  * Small changes for libnpupnp 4.0.0.
+  * Use the netif module to access network interface information.
+
+ -- Jean-Francois Dockes <jf@dockes.org>  Thu, 19 Mar 2020 16:38:00 +0100
+ 
 libupnpp6 (0.18.0-3~ppaPPAVERS~SERIES1) SERIES; urgency=low
 
   * Rebuild with libnpupnp 2.2.1
