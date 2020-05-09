@@ -152,7 +152,7 @@ LibUPnP::LibUPnP(bool serveronly, string* hwaddr,
 			};
 			auto vifs = ifs->select(filt);
 			if (!vifs.empty()) {
-				*hwaddr = hexprint(vifs[0].gethwaddr(), ':');
+				*hwaddr = hexprint(vifs[0].gethwaddr());
 			}
 		}
 		if (hwaddr->empty()) {
@@ -307,11 +307,19 @@ string LibUPnP::makeDevUUID(const std::string& name, const std::string& hw)
     // f81d4fae-7dec-11d0-a765-00a0c91e6bf6
     // Where the last 12 chars are provided by the hw addr
 
+	// Make very sure that there are no colons in the hw because this
+	// trips some CPs (kazoo as usual...)
+	std::string nhw;
+	for (unsigned int i = 0;i < hw.size();i++) {
+		if (hw[i] != ':')
+			nhw += hw[i];
+	}
+	
     char uuid[100];
     sprintf(uuid, "%02x%02x%02x%02x-%02x%02x-%02x%02x-%02x%02x-%s",
             digest[0]&0xff, digest[1]&0xff, digest[2]&0xff, digest[3]&0xff,
             digest[4]&0xff, digest[5]&0xff,  digest[6]&0xff, digest[7]&0xff,
-            digest[8]&0xff, digest[9]&0xff, hw.c_str());
+            digest[8]&0xff, digest[9]&0xff, nhw.c_str());
     return uuid;
 }
 
