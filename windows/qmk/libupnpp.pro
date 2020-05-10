@@ -16,16 +16,18 @@ DEFINES -= _UNICODE
 DEFINES += _MBCS
 DEFINES += PSAPI_VERSION=1
 
+
 INCLUDEPATH += ../../
 INCLUDEPATH += c:/users/bill/documents/upnp/expat-2.1.0/lib
-INCLUDEPATH += c:/users/bill/documents/upnp/pupnp/include
-INCLUDEPATH += c:/users/bill/documents/upnp/curl-7.43.0/include
+#INCLUDEPATH += c:/users/bill/documents/upnp/pupnp/include
+INCLUDEPATH += c:/users/bill/documents/upnp/npupnp/inc
+INCLUDEPATH += c:/users/bill/documents/upnp/curl-7.70.0/include
 
 LIBS += c:/users/bill/documents/upnp/expat-2.1.0/.libs/libexpat.a
-LIBS += c:/users/bill/documents/upnp/curl-7.43.0/lib/libcurl.a
-LIBS += c:/users/bill/documents/upnp/pupnp/upnp/.libs/libupnp.a
-LIBS += c:/users/bill/documents/upnp/pupnp/ixml/.libs/libixml.a
-LIBS += c:/users/bill/documents/upnp/pupnp/threadutil/.libs/libthreadutil.a
+LIBS += c:/users/bill/documents/upnp/curl-7.70.0/lib/libcurl.a
+#LIBS += c:/users/bill/documents/upnp/pupnp/upnp/.libs/libupnp.a
+#LIBS += c:/users/bill/documents/upnp/pupnp/ixml/.libs/libixml.a
+#LIBS += c:/users/bill/documents/upnp/pupnp/threadutil/.libs/libthreadutil.a
 LIBS += -liphlpapi
 LIBS += -lwldap32
 LIBS += -lws2_32
@@ -44,6 +46,7 @@ SOURCES += \
 ../../libupnpp/control/avtransport.cxx \
 ../../libupnpp/control/cdircontent.cxx \
 ../../libupnpp/control/cdirectory.cxx \
+../../libupnpp/control/conman.cxx \
 ../../libupnpp/control/description.cxx \
 ../../libupnpp/control/device.cxx \
 ../../libupnpp/control/discovery.cxx \
@@ -61,10 +64,9 @@ SOURCES += \
 ../../libupnpp/control/ohvolume.cxx \
 ../../libupnpp/control/renderingcontrol.cxx \
 ../../libupnpp/control/service.cxx \
+../../libupnpp/control/typedservice.cxx \
 ../../libupnpp/device/device.cxx \
 ../../libupnpp/device/vdir.cxx \
-../../libupnpp/getsyshwaddr.c \
-../../libupnpp/ixmlwrap.cxx \
 ../../libupnpp/log.cpp \
 ../../libupnpp/md5.cpp \
 ../../libupnpp/smallut.cpp \

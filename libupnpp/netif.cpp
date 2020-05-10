@@ -34,16 +34,34 @@
 #include <vector>
 #include <iostream>
 #include <algorithm>
+#include <numeric>
 
 #ifndef _WIN32
+
+#include <sys/types.h>
 #include <arpa/inet.h>
 #include <netinet/in.h>
 #include <net/if.h>
+#include <ifaddrs.h>
+#ifdef __linux__
+#include <netpacket/packet.h>
 #else
+#include <net/if_dl.h>
+#endif
+
+#else /* _WIN32 -> */
+#undef _WIN32_WINNT
+#define _WIN32_WINNT 0x0600
+
 #include <winsock2.h>
 #include <iphlpapi.h>
+#include <ws2tcpip.h>
+
+#ifndef __MINGW32__
 #include "inet_pton.h"
 #endif
+
+#endif /* _WIN32 */
 
 
 namespace NetIF {
@@ -130,13 +148,32 @@ bool IPAddr::ok() const
 	return m->ok;
 }
 
-void IPAddr::copyToStorage(struct sockaddr_storage *dest) const
+bool IPAddr::copyToStorage(struct sockaddr_storage *dest) const
 {
-	if (m->ok) {
-		memcpy(dest, &m->address, sizeof(struct sockaddr_storage));
-	} else {
+	if (!m->ok) {
 		memset(dest, 0, sizeof(struct sockaddr_storage));
+		return false;
 	}
+	memcpy(dest, &m->address, sizeof(struct sockaddr_storage));
+	return true;
+}
+
+bool IPAddr::copyToAddr(struct sockaddr *dest) const
+{
+	if (!m->ok) {
+		return false;
+	}
+	switch (m->saddr->sa_family) {
+	case AF_INET:
+		memcpy(dest, m->saddr, sizeof(struct sockaddr_in));
+		break;
+	case AF_INET6:
+		memcpy(dest, m->saddr, sizeof(struct sockaddr_in6));
+		break;
+	default:
+		return false;
+	}
+	return true;
 }
 
 const struct sockaddr_storage& IPAddr::getaddr() const
@@ -367,13 +404,6 @@ public:
 
 
 #ifndef _WIN32
-#include <sys/types.h>
-#include <ifaddrs.h>
-#ifdef __linux__
-#include <netpacket/packet.h>
-#else
-#include <net/if_dl.h>
-#endif
 
 Interfaces::Internal::Internal()
 {
@@ -453,14 +483,24 @@ Interfaces::Internal::Internal()
 
 #else /* _WIN32 ->*/
 
+static uint32_t netprefixlentomask(uint8_t pfxlen)
+{
+	uint32_t out{0};
+	pfxlen = std::min(pfxlen, uint8_t(31));
+	for (int i = 0; i < pfxlen; i++) {
+		out |= 1 << (31-i);
+	}
+	return out;
+}
+
 Interfaces::Internal::Internal()
 {
 	PIP_ADAPTER_ADDRESSES adapts{nullptr};
 	PIP_ADAPTER_ADDRESSES adapts_item;
 	PIP_ADAPTER_UNICAST_ADDRESS uni_addr;
-	SOCKADDR *ip_addr;
 	ULONG adapts_sz = 0;
 	ULONG ret;
+	std::vector<Interface> vifs;
 
 	/* Get Adapters addresses required size. */
 	ret = GetAdaptersAddresses(
@@ -485,7 +525,6 @@ Interfaces::Internal::Internal()
 		goto out;
 	}
 
-	std::vector<Interface> vifs;
 	adapts_item = adapts;
 	while (nullptr != adapts_item) {
 		auto ifit = find_if(vifs.begin(), vifs.end(),
@@ -499,9 +538,9 @@ Interfaces::Internal::Internal()
 		/* We're converting chars using the current code page. It would be nicer
 		   to convert to UTF-8 */
 		char tmpnm[256];
-		wcstombs(tmpIfName, adapts_item->FriendlyName, sizeof(tmpnm));
+               wcstombs(tmpnm, adapts_item->FriendlyName, sizeof(tmpnm));
 		ifit->m->friendlyname = tmpnm;
-		if (!(adapts_item->Flags & IP_ADAPTER_NO_MULTICAST)) {
+		if ((adapts_item->Flags & IP_ADAPTER_NO_MULTICAST)) {
 			ifit->m->setflag(Interface::Flags::MULTICAST);
 		}
 		if (adapts_item->OperStatus == IfOperStatusUp) {
@@ -519,17 +558,28 @@ Interfaces::Internal::Internal()
 						   adapts_item->PhysicalAddressLength);
 		uni_addr = adapts_item->FirstUnicastAddress;
 		while (uni_addr) {
-			ip_addr = uni_addr->Address.lpSockaddr;
+			SOCKADDR *ip_addr = 
+				reinterpret_cast<SOCKADDR*>(uni_addr->Address.lpSockaddr);
 			switch (ip_addr->sa_family) {
 			case AF_INET:
-			case AF_INET6:
-				ifit->m->addresses.emplace_back((struct sockaddr*)&ip_addr);
-				ifit->m->netmasks.emplace_back(ifa->ifa_netmask);
-			if (ifa->ifa_addr->sa_family == AF_INET6) {
-				ifit->m->setflag(Interface::Flags::HASIPV6);
-			} else {
+			{
 				ifit->m->setflag(Interface::Flags::HASIPV4);
+				ifit->m->addresses.emplace_back(ip_addr);
+				uint32_t mask =
+					netprefixlentomask(uni_addr->OnLinkPrefixLength);
+				struct sockaddr_in sa;
+				memset(&sa, 0, sizeof(sa));
+				sa.sin_addr.s_addr = mask;
+				ifit->m->netmasks.emplace_back((struct sockaddr*)&sa);
 			}
+			break;
+			case AF_INET6:
+				ifit->m->setflag(Interface::Flags::HASIPV6);
+				ifit->m->addresses.emplace_back(ip_addr);
+				// Not for now...
+				ifit->m->netmasks.emplace_back();
+				break;
+
 			default:
 				break;
 			}
@@ -540,6 +590,7 @@ Interfaces::Internal::Internal()
 		/* Next adapter. */
 		adapts_item = adapts_item->Next;
 	}
+	interfaces.swap(vifs);
 
 out:
 	free(adapts);
@@ -593,11 +644,10 @@ std::vector<Interface> Interfaces::select(const Filter& filt) const
 	}
 	std::vector<Interface> out;
 	const std::vector<Interface>& ifs = theInterfaces()->m->interfaces;
-	for (const auto& entry : ifs) {
-		if ((entry.m->flags & yesflags) == yesflags
-			&& (entry.m->flags & noflags) == 0)
-			out.push_back(entry);
-	}
+	std::copy_if(ifs.begin(), ifs.end(), std::back_inserter(out),
+		[=](const NetIF::Interface &entry){
+					 return (entry.m->flags & yesflags) == yesflags &&
+						 (entry.m->flags & noflags) == 0;});
 	return out;
 }
 
