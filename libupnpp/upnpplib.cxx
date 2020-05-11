@@ -513,7 +513,7 @@ bool getAdapterNames(vector<string>& names)
 				 .rejects={NetIF::Interface::Flags::LOOPBACK}};
 		auto vifs = ifs->select(filt);
 		for (const auto& adapter : vifs) {
-			names.push_back(adapter.getname());
+			names.push_back(adapter.getfriendlyname());
 		}
 		return true;
 	}
