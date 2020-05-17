@@ -1,13 +1,4 @@
-libupnpp6 (0.18.0-1~ppaPPAVERS~SERIES1) SERIES; urgency=low
-
-  * Return more detailed data in directory records-> abi change
-  * Export UPNP_E error codes, avoiding the necessity to include upnp.h in
-    clients
-  * Improve detection of vdir cookie parameters at configure time
-
- -- Jean-Francois Dockes <jf@dockes.org>  Wed, 29 Jan 2020 09:08:00 +0100
- 
-libupnpp5 (0.17.2-1~ppaPPAVERS~SERIES1) SERIES; urgency=low
+libupnpp6 (0.17.2-1~ppaPPAVERS~SERIES1) SERIES; urgency=low
 
   * Fix crashing bug: change to stdlibc++ on Buster revealed bug in
     subscription/event handling libupnpp code.
