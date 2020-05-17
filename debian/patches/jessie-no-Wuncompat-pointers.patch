@@ -1,0 +1,13 @@
+diff --git a/configure.ac b/configure.ac
+index b5be815..f75c2b8 100644
+--- a/configure.ac
++++ b/configure.ac
+@@ -96,7 +96,7 @@ PKG_CHECK_MODULES([expat], [expat], [],AC_MSG_ERROR([expat not found]))
+ AC_LANG_PUSH([C++])
+ 
+ SAVED_CXXFLAGS="$CXXFLAGS"
+-CXXFLAGS="$upnp_CFLAGS $CFLAGS $CXXFLAGS -Werror=incompatible-pointer-types"
++CXXFLAGS="$upnp_CFLAGS $CFLAGS $CXXFLAGS"
+ 
+ AC_MSG_CHECKING([if the virtual dir callbacks use no cookies])
+ AC_COMPILE_IFELSE([AC_LANG_SOURCE([
