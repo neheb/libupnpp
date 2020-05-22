@@ -461,20 +461,19 @@ Interfaces::Internal::Internal()
 		}
 		break;
 #ifdef __linux__
-			case AF_PACKET:
-			{
-				auto sll =
-					reinterpret_cast<struct sockaddr_ll*>(ifa->ifa_addr);
-				ifit->m->sethwaddr((const char*)sll->sll_addr, sll->sll_halen);
-			}
-				break;
+		case AF_PACKET:
+		{
+			auto sll = reinterpret_cast<struct sockaddr_ll*>(ifa->ifa_addr);
+			ifit->m->sethwaddr((const char*)sll->sll_addr, sll->sll_halen);
+		}
+		break;
 #else
-			case AF_LINK:
-			{
-				auto sdl = reinterpret_case<struct sockaddr_dl*>(p->ifa_addr);
-				ifit->m->sethwaddr((const char*)sdl->sdl_addr, sdl->sdl_alen);
-			}
-			break;
+		case AF_LINK:
+		{
+			auto sdl = reinterpret_cast<struct sockaddr_dl*>(ifa->ifa_addr);
+			ifit->m->sethwaddr((const char*)LLADDR(sdl), sdl->sdl_alen);
+		}
+		break;
 #endif
 		default:
 			// common: AF_PACKET: 17
@@ -618,6 +617,12 @@ Interfaces::~Interfaces()
 	delete m;
 }
 
+bool Interfaces::refresh()
+{
+	delete m;
+	m = new Internal();
+	return true;
+}
 
 Interfaces *theInterfacesP;
 
