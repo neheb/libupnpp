@@ -438,8 +438,8 @@ int UpnpDevice::Internal::callBack(Upnp_EventType et, const void* evp)
                 if (ret > 0) {
                     act->ErrCode = ret;
                     strncpy(
-						act->ErrStr,
-						servit->second->errString(ret).c_str(), LINE_SIZE-1);
+                        act->ErrStr,
+                        servit->second->errString(ret).c_str(), LINE_SIZE-1);
                     act->ErrStr[LINE_SIZE-1] = 0;
                 }
                 LOGERR("UpnpDevice: Action failed: " << sc.getName() <<
@@ -619,7 +619,7 @@ void UpnpDevice::Internal::notifyEvent(const string& serviceId,
                          int(cnames.size()));
     if (ret != UPNP_E_SUCCESS) {
         LOGERR("UpnpDevice::notifyEvent: " <<
-			   lib->errAsString("UpnpNotify", ret)<<" for "<< serviceId << endl);
+               lib->errAsString("UpnpNotify", ret)<<" for "<< serviceId << endl);
     }
 }
 
@@ -651,11 +651,11 @@ void UpnpDevice::eventloop()
     // repeated few seconds later, with bad consequences on further
     // operations
     const int nloopstofull = 10;
-	static std::chrono::steady_clock::time_point wkuptime, earlytime;
+    static std::chrono::steady_clock::time_point wkuptime, earlytime;
     bool didearly = false;
 
     for (;;) {
-		wkuptime = std::chrono::steady_clock::now() + loopwait_ms;
+        wkuptime = std::chrono::steady_clock::now() + loopwait_ms;
 
         std::unique_lock<std::mutex> lock(m->evlooplock);
         std::cv_status err = m->evloopcond.wait_for(lock, loopwait_ms);
@@ -665,7 +665,7 @@ void UpnpDevice::eventloop()
             // Early wakeup. Only does something if it did not already
             // happen recently, else go back to sleep (at top of loop)
             if (didearly) {
-				auto sincearly = wkuptime - earlytime;
+                auto sincearly = wkuptime - earlytime;
                 if (sincearly < loopwait_ms) {
                     // Do nothing. didearly stays true
                     // LOGDEB("eventloop: early, previous too close "<<endl);

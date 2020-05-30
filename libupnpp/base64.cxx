@@ -143,15 +143,15 @@ bool base64_decode(const string& in, string& out)
      * on a byte boundary, and/or with erroneous trailing characters.
      */
 
-    if (ch == Pad64) {		/* We got a pad char. */
-        ch = in[ii++];		/* Skip it, get next. */
+    if (ch == Pad64) {        /* We got a pad char. */
+        ch = in[ii++];        /* Skip it, get next. */
         switch (state) {
-        case 0:		/* Invalid = in first position */
-        case 1:		/* Invalid = in second position */
+        case 0:        /* Invalid = in first position */
+        case 1:        /* Invalid = in second position */
             DPRINT((stderr, "base64_dec: pad char in state 0/1\n"));
             return false;
 
-        case 2:		/* Valid, means one byte of info */
+        case 2:        /* Valid, means one byte of info */
             /* Skip any number of spaces. */
             for (; ii < in.length(); ch = in[ii++])
                 if (!isspace((unsigned char)ch))
@@ -162,11 +162,11 @@ bool base64_decode(const string& in, string& out)
                 // Well, there are bad encoders out there. Let it pass
                 // return false;
             }
-            ch = in[ii++];		/* Skip the = */
+            ch = in[ii++];        /* Skip the = */
         /* Fall through to "single trailing =" case. */
         /* FALLTHROUGH */
 
-        case 3:	    /* Valid, means two bytes of info */
+        case 3:        /* Valid, means two bytes of info */
             /*
              * We know this char is an =.  Is there anything but
              * whitespace after it?
@@ -287,8 +287,8 @@ Usage(void)
 
 static int     op_flags;
 #define OPT_MOINS 0x1
-#define OPT_i	  0x2
-#define OPT_P	  0x4
+#define OPT_i      0x2
+#define OPT_P      0x4
 
 using namespace UPnPP;
 

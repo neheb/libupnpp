@@ -130,36 +130,36 @@ LibUPnP::LibUPnP(bool serveronly, string* hwaddr,
     // If the interface name was not specified, we possibly use the
     // supplied IP address. If this is empty too, libupnp will choose
     // by itself (the first adapter).
-	if (ifname.empty()) {
+    if (ifname.empty()) {
         m->init_error = UpnpInit(inip.c_str(), port);
-	} else {
+    } else {
         m->init_error = UpnpInitWithOptions(
-			ifname.c_str(), port, 0, UPNP_OPTION_END);
-	}
+            ifname.c_str(), port, 0, UPNP_OPTION_END);
+    }
     if (m->init_error != UPNP_E_SUCCESS) {
         LOGERR(errAsString("UpnpInit", m->init_error) << endl);
         return;
     }
     setMaxContentLength(2000*1024);
 
-	if (hwaddr) {
-		auto *ifs = NetIF::Interfaces::theInterfaces();
-		hwaddr->clear();
-		if (ifs) {
-			NetIF::Interfaces::Filter
-				filt{.needs={NetIF::Interface::Flags::HASIPV4},
-					 .rejects={NetIF::Interface::Flags::LOOPBACK}
-			};
-			auto vifs = ifs->select(filt);
-			if (!vifs.empty()) {
-				*hwaddr = hexprint(vifs[0].gethwaddr());
-			}
-		}
-		if (hwaddr->empty()) {
-			LOGERR("LibUPnP: could not retrieve network hardware address\n");
-			return;
-		}
-	}
+    if (hwaddr) {
+        auto *ifs = NetIF::Interfaces::theInterfaces();
+        hwaddr->clear();
+        if (ifs) {
+            NetIF::Interfaces::Filter
+                filt{.needs={NetIF::Interface::Flags::HASIPV4},
+                     .rejects={NetIF::Interface::Flags::LOOPBACK}
+            };
+            auto vifs = ifs->select(filt);
+            if (!vifs.empty()) {
+                *hwaddr = hexprint(vifs[0].gethwaddr());
+            }
+        }
+        if (hwaddr->empty()) {
+            LOGERR("LibUPnP: could not retrieve network hardware address\n");
+            return;
+        }
+    }
 
     LOGDEB("LibUPnP: Using IP " << UpnpGetServerIpAddress() << " port " <<
            UpnpGetServerPort() << endl);
@@ -307,14 +307,14 @@ string LibUPnP::makeDevUUID(const std::string& name, const std::string& hw)
     // f81d4fae-7dec-11d0-a765-00a0c91e6bf6
     // Where the last 12 chars are provided by the hw addr
 
-	// Make very sure that there are no colons in the hw because this
-	// trips some CPs (kazoo as usual...)
-	std::string nhw;
-	for (unsigned int i = 0;i < hw.size();i++) {
-		if (hw[i] != ':')
-			nhw += hw[i];
-	}
-	
+    // Make very sure that there are no colons in the hw because this
+    // trips some CPs (kazoo as usual...)
+    std::string nhw;
+    for (unsigned int i = 0;i < hw.size();i++) {
+        if (hw[i] != ':')
+            nhw += hw[i];
+    }
+    
     char uuid[100];
     sprintf(uuid, "%02x%02x%02x%02x-%02x%02x-%02x%02x-%02x%02x-%s",
             digest[0]&0xff, digest[1]&0xff, digest[2]&0xff, digest[3]&0xff,
@@ -506,18 +506,18 @@ bool stringToBool(const string& s, bool *value)
 
 bool getAdapterNames(vector<string>& names)
 {
-	auto *ifs = NetIF::Interfaces::theInterfaces();
-	if (ifs) {
-		NetIF::Interfaces::Filter
-			filt{.needs={NetIF::Interface::Flags::HASIPV4},
-				 .rejects={NetIF::Interface::Flags::LOOPBACK}};
-		auto vifs = ifs->select(filt);
-		for (const auto& adapter : vifs) {
-			names.push_back(adapter.getfriendlyname());
-		}
-		return true;
-	}
-	return false;
+    auto *ifs = NetIF::Interfaces::theInterfaces();
+    if (ifs) {
+        NetIF::Interfaces::Filter
+            filt{.needs={NetIF::Interface::Flags::HASIPV4},
+                 .rejects={NetIF::Interface::Flags::LOOPBACK}};
+        auto vifs = ifs->select(filt);
+        for (const auto& adapter : vifs) {
+            names.push_back(adapter.getfriendlyname());
+        }
+        return true;
+    }
+    return false;
 }
 
 }

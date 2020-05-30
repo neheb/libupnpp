@@ -52,9 +52,9 @@ protected:
         // deviceList. Support both as it is unlikely that anybody
         // would use both.
         if (find_if(m_path.begin(), m_path.end(),
-					[] (const StackEl& el) {
-						return !stringlowercmp("devicelist", el.name);})
-			== m_path.end()) {
+                    [] (const StackEl& el) {
+                        return !stringlowercmp("devicelist", el.name);})
+            == m_path.end()) {
             dev = &m_device;
             ismain = true;
         } else {
@@ -151,7 +151,7 @@ protected:
         //LOGDEB("startElement: name [" << name << "]" << " bpos " <<
         //             XML_GetCurrentByteIndex(expat_parser) << endl);
         StackEl& lastelt = m_path.back();
-		
+        
         switch (name[0]) {
         case 'a':
             if (!strcmp(name, "action")) {

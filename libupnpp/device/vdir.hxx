@@ -64,25 +64,25 @@ public:
 
     class FileInfo {
     public:
-	FileInfo()
-	    : file_length(0), last_modified(0), is_directory(false),
-	      is_readable(true) {
-	}
-	
-	off_t file_length;
-	time_t last_modified;
-	bool is_directory;
-	bool is_readable;
-	std::string mime;
+    FileInfo()
+        : file_length(0), last_modified(0), is_directory(false),
+          is_readable(true) {
+    }
+    
+    off_t file_length;
+    time_t last_modified;
+    bool is_directory;
+    bool is_readable;
+    std::string mime;
     };
 
     class FileOps {
     public:
-	std::function<int (const std::string&, FileInfo*)> getinfo;
-	std::function<void *(const std::string&)> open;
-	std::function<int (void *hdl, char* buf, size_t cnt)> read;
-	std::function<off_t (void *hdl, off_t offs, int whence)> seek;
-	std::function<void (void *hdl)> close;
+    std::function<int (const std::string&, FileInfo*)> getinfo;
+    std::function<void *(const std::string&)> open;
+    std::function<int (void *hdl, char* buf, size_t cnt)> read;
+    std::function<off_t (void *hdl, off_t offs, int whence)> seek;
+    std::function<void (void *hdl)> close;
     };
 
     /// Add virtual directory entry. Any request for a path below this point
