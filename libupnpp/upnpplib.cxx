@@ -134,7 +134,7 @@ LibUPnP::LibUPnP(bool serveronly, string* hwaddr,
         m->init_error = UpnpInit(inip.c_str(), port);
     } else {
         m->init_error = UpnpInitWithOptions(
-            ifname.c_str(), port, 0, UPNP_OPTION_END);
+            ifname.c_str(), port, UPNP_FLAG_IPV6, UPNP_OPTION_END);
     }
     if (m->init_error != UPNP_E_SUCCESS) {
         LOGERR(errAsString("UpnpInit", m->init_error) << endl);
@@ -161,8 +161,9 @@ LibUPnP::LibUPnP(bool serveronly, string* hwaddr,
         }
     }
 
-    LOGDEB("LibUPnP: Using IP " << UpnpGetServerIpAddress() << " port " <<
-           UpnpGetServerPort() << endl);
+    LOGINF("LibUPnP: Using IPV4 " << UpnpGetServerIpAddress() << " port " <<
+           UpnpGetServerPort() << " IPV6 " << UpnpGetServerIp6Address() <<
+           " port " << UpnpGetServerPort6() << endl);
 
     // Client initialization is simple, just do it. Defer device
     // initialization because it's more complicated.

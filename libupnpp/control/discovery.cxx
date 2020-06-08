@@ -165,7 +165,8 @@ static int cluCallBack(Upnp_EventType et, CBCONST void* evp, void*)
         }
 
         LOGDEB1("discovery:cluCallback:: downloading " << tp->url << endl);
-        if (!downloadUrlWithCurl(tp->url, tp->description, 5)) {
+        if (!downloadUrlWithCurl(
+                tp->url, tp->description, 5, &disco->DestAddr)) {
             LOGERR("discovery:cllb: downloadUrlWithCurl error for: " <<
                    tp->url << endl);
             {   std::unique_lock<std::mutex> lock(o_downloading_mutex);

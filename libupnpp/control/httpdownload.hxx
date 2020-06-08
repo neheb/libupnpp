@@ -20,10 +20,15 @@
 
 #include <string>
 
+struct sockaddr_storage;
+
 namespace UPnPClient {
 
-extern bool downloadUrlWithCurl(const std::string& url,
-                                std::string& out, long timeoutsecs);
+extern bool downloadUrlWithCurl(
+    const std::string& url, std::string& out, long timeoutsecs,
+    // Used during discovery: if this is an ipv6 url with a link-local address,
+    // we will need the scope id.
+    struct sockaddr_storage *saddr = nullptr);
 
 }
 
