@@ -62,7 +62,6 @@ bool downloadUrlWithCurl(const string& url, string& out, long timeoutsecs,
     if (nullptr != saddr && saddr->ss_family == AF_INET6) {
         struct sockaddr_in6 *sa6p = (struct sockaddr_in6 *)saddr;
         scopeid = (long)sa6p->sin6_scope_id;
-        std::cerr << "HTTPDOWNLOAD: got scopeid " << scopeid << "\n";
     }
         
     curl_easy_setopt(curl, CURLOPT_URL, url.c_str());
