@@ -19,25 +19,26 @@ access to library internals than an external module would).
 
 Limitations:
 
-- The underlying libupnp only supports a single IP interface.
-- The libupnpp methods are blocking. Multithreading will be needed to
-  achieve parallelism in your program (in any case the underlying libupnp
-  uses threads, so multithreading support is a requirement).
+- The old libupnp underlying library only supports a single IP
+  interface. The newer libnpupnp supports multiple interfaces for IPV4, but
+  a single one for IPV6 at the moment.
+- Most libupnpp methods are blocking. Multithreading will be needed to
+  achieve parallelism in your program (in any case libupnpp and the
+  underlying library  use threads, so multithreading support is a requirement).
 
 link:refdoc/html/index.html[Reference documentation (doxygen)]
 
 == The Library object
 
 The library is represented by a global singleton with a number of utility
-methods, mostly related to setting parameters for the underlying libupnp
-library.
+methods, mostly related to setting parameters for the underlying library.
 
 The link:refdoc/html/classUPnPP_1_1LibUPnP.html#a00ef52e413804a5f6dca74e2459749c7[instanciation call] takes a number of arguments to specify
 non-default values, e.g. for the IP address or interface to use.
 
-If you have no need for the non-default parameter values, or the utility
-methods, there is no necessity to explicitly instanciate the library
-object, this will be done internally as needed.
+If you have no need for the non-default parameter values, or the singleton
+utility methods, there is no necessity to explicitly instanciate the
+library object, this will be done internally as needed.
 
 
 == Discovery
@@ -59,7 +60,12 @@ Example code for accessing a device for which you know the 'friendly name':
 
 ----
 
+This call may delay for a couple seconds if the library was just activated,
+and an UPnP search is being waited for. During program execution, the call
+should return immediately.
 
+Other methods of the device directory objects allow enumerating the devices
+which advertised themselves on the network.
 
 == Description
 
@@ -71,9 +77,12 @@ device is provided by a
 link:refdoc/html/classUPnPClient_1_1UPnPDeviceDesc.html[UPnPClient::UPnPDeviceDesc]
 object.
 
-When using the devices and services predefined by the library, this is
-largely an opaque structure, which you will get through the discovery
-interface, and pass to a Device or Service constructor.
+When using the devices and services predefined by the library, this may be
+managed as an opaque structure, which you will get through the discovery
+interface, and pass to a Device or Service constructor. However its
+internals are accessible and contain the full parsed description of the
+device, its services and possible sub-devices, and a copy of the raw data.
+
 
 == Devices
 
@@ -188,61 +197,19 @@ method, to specify what functions should be called when an event arrives.
 NOTE: The event functions are called from a separate thread
 and some synchronization will usually be required.
 
-Some details of event handling in libupnpp have changed as of version
-0.16.
-
-== Event handling in version 0.15 and before
-
-Services implemented by the library always subscribe to events. This
-happens in the object constructor, by a call to the class derived
-registerCallback() method. Example:
-
-----
-avtransport.hxx:
-
-class AVTransport : public Service {
-   ...
-    AVTransport(const UPnPDeviceDesc& device,
-                const UPnPServiceDesc& service)
-        : Service(device, service) {
-        registerCallback();
-    }
-...
-
-avtransport.cxx:
-
-void AVTransport::registerCallback()
-{
-    Service::registerCallback(bind(&AVTransport::evtCallback, this, _1));
-}
-----
-
-'Service::registerCallback()' performs the UPnP subscription and takes note
-of the function to call when an event arrive.
-
-This means that a subscription (needing a network exchange) is performed
-each time a Service object is built, even if events are not actually needed
-by the user.
-
-The Service base class destructor erases the callback hook and cancels the
-event subscription.
-
-=== Event handling for version 0.16 and later
-
-As of version 0.16 of the library, the event subscription is only performed
-if and when 'installReporter()' is called. If you don't need events, you
-will not incur their overhead.
+The event subscription is only performed by libupnpp if and when the
+service `installReporter()` method is called.
 
 == Logging
 
-Both 'libupnp' and 'libupnpp' have configurable error and debug logging.
+Both 'libupnp/libnpupnp' and 'libupnpp' have configurable error and debug logging.
 
 === libupnp logging
 
-The log from 'libupnp' is very detailed and mostly useful for low level
-debugging of UPnP issues. The logging functions in 'libupnp' are
-conditionnally compiled, and may not be enabled for your distribution (you
-can check UPNP_HAVE_DEBUG in 'include/upnp/upnpconfig.h').
+The log from the base library is very detailed and mostly useful for low
+level debugging of UPnP issues. The logging functions in are conditionally
+compiled, and may not be enabled for your distribution (you can check
+UPNP_HAVE_DEBUG in 'include/upnp/upnpconfig.h').
 
 If the 'libupnp' logging functions are enabled, you can control them
 through the
@@ -288,8 +255,10 @@ The methods in the base class and in the helper modules make it very easy
 to write the derived class.
 
 NOTE: libupnpp has no provision to use the service description XML document
-to define the service client methods. However, the device side has a script
-to turn a service description into an implementation device-side skeleton.
+to define the service client methods, except, partially, when using the
+link:refdoc/html/classUPnPClient_1_1TypedService.html[TypedService]
+class. However, the device side has a script to turn a service description
+into an implementation device-side skeleton.
 
 The derived class main constructor will take Device and Service description
 structures are arguments and will need to call the base class
@@ -375,9 +344,8 @@ link:refdoc/html/classUPnPClient_1_1Service.html#a1de907ba9604a20aaf3611e71ded44
 virtual bool UPnPClient::Service::serviceTypeMatch(const std::string& tp)=0; 	
 ----
 
-This is only needed for library version 0.16 and later. It is used by the
-base class to find a matching service description in the device description
-service list, which is done when calling
+This is used by the base class to find a matching service description in
+the device description service list, which is done when calling
 link:refdoc/html/classUPnPClient_1_1Service.html#afb13c0cc50b44c9c62e024961cf23b75[initFromDescription()].
 
 The latter method is useful for building an object in two phases, first an

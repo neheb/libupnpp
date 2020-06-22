@@ -54,8 +54,8 @@ public:
     /// Service event URL.
     std::string eventSubURL;
 
-    void clear()
-    {
+    /// Reset all data
+    void clear() {
         serviceType.clear();
         serviceId.clear();
         SCPDURL.clear();
@@ -63,8 +63,8 @@ public:
         eventSubURL.clear();
     }
 
-    std::string dump() const
-    {
+    /// Debug: return the basic parsed data as a string
+    std::string dump() const {
         std::ostringstream os;
         os << "SERVICE {serviceType [" << serviceType <<
            "] serviceId [" << serviceId <<
