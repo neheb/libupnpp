@@ -1,3 +1,9 @@
+libupnpp6 (0.19.2-1~ppaPPAVERS~SERIES1) SERIES; urgency=low
+
+  * Use the same version of netif as libnpupnp to allow static builds
+
+ -- Jean-Francois Dockes <jf@dockes.org>  Mon, 22 Jun 2020 14:50:00 +0200
+ 
 libupnpp6 (0.19.1-1~ppaPPAVERS~SERIES1) SERIES; urgency=low
 
   * Oops generated uuids containing colons
