@@ -190,6 +190,22 @@ IPAddr::Family IPAddr::family() const
     }
 }
 
+IPAddr::Scope IPAddr::scopetype() const
+{
+    if (!m->ok)
+        return Scope::Invalid;
+    if (family() != Family::IPV6)
+        return Scope::Invalid;
+    if (IN6_IS_ADDR_LINKLOCAL(
+            &((struct sockaddr_in6 *)(m->saddr))->sin6_addr)) {
+        return Scope::LINK;
+    } else if (IN6_IS_ADDR_SITELOCAL(
+        &((struct sockaddr_in6 *)(m->saddr))->sin6_addr)) {
+        return Scope::SITE;
+    }
+    return Scope::GLOBAL;
+}
+
 std::string IPAddr::straddr() const
 {
     if (!ok())
@@ -355,13 +371,10 @@ const IPAddr *Interface::firstipv6addr(IPAddr::Scope scope) const
         return nullptr;
     }
     for (const auto& entry: m->addresses) {
-        if (entry.family() == IPAddr::Family::IPV6) {
-            if (scope == IPAddr::Scope::LINK) {
-                if (!IN6_IS_ADDR_LINKLOCAL(
-                        &((struct sockaddr_in6 *)(entry.m->saddr))->sin6_addr))    {
-                    continue;
-                }
-            }
+        if (entry.family() == IPAddr::Family::IPV6 &&
+            (scope != IPAddr::Scope::LINK ||
+             IN6_IS_ADDR_LINKLOCAL(
+                 &((struct sockaddr_in6 *)(entry.m->saddr))->sin6_addr))) {
             return &entry;
         }
     }
@@ -553,9 +566,7 @@ Interfaces::Internal::Internal()
         if (adapts_item->IfType == IF_TYPE_SOFTWARE_LOOPBACK) {
             ifit->m->setflag(Interface::Flags::LOOPBACK);
         }
-        // Note: upnpapi.c used IfIndex instead. In any case the MS
-        // doc states that the values are not persistent, so I don't
-        // know what this is good for.
+        // Note: upnpapi.c used IfIndex instead.
         ifit->m->index = adapts_item->Ipv6IfIndex;
         /* The MAC is in the pAdapter->Address char array */
         ifit->m->sethwaddr((const char *)adapts_item->PhysicalAddress,
