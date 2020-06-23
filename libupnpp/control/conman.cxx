@@ -16,10 +16,10 @@
  *   02110-1301 USA
  */
 #include "libupnpp/config.h"
+#include "libupnpp/control/conman.hxx"
 
 #include <upnp/upnp.h>
 
-#include "libupnpp/control/conman.hxx"
 #include "libupnpp/upnpavutils.hxx"
 
 using namespace std;
