@@ -44,6 +44,7 @@ SOURCES += \
 ../../libupnpp/control/avtransport.cxx \
 ../../libupnpp/control/cdircontent.cxx \
 ../../libupnpp/control/cdirectory.cxx \
+../../libupnpp/control/conman.cxx \
 ../../libupnpp/control/description.cxx \
 ../../libupnpp/control/device.cxx \
 ../../libupnpp/control/discovery.cxx \
@@ -61,6 +62,7 @@ SOURCES += \
 ../../libupnpp/control/ohvolume.cxx \
 ../../libupnpp/control/renderingcontrol.cxx \
 ../../libupnpp/control/service.cxx \
+../../libupnpp/control/typedservice.cxx \
 ../../libupnpp/device/device.cxx \
 ../../libupnpp/device/vdir.cxx \
 ../../libupnpp/getsyshwaddr.c \
