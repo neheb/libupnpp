@@ -25,6 +25,10 @@
 #include <string>
 #include <sys/types.h>
 
+#ifndef _WIN32
+#include <netinet/in.h>
+#endif
+
 #include <curl/curl.h>
 
 #include "libupnpp/log.hxx"
