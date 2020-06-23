@@ -20,6 +20,8 @@ DEFINES += PSAPI_VERSION=1
 INCLUDEPATH += ../../
 INCLUDEPATH += c:/users/bill/documents/upnp/expat-2.1.0/lib
 #INCLUDEPATH += c:/users/bill/documents/upnp/pupnp/include
+# Note that the following needs a pseudo install in the build dir:
+# cd inc;mkdir upnp;cp *.h upnp;
 INCLUDEPATH += c:/users/bill/documents/upnp/npupnp/inc
 INCLUDEPATH += c:/users/bill/documents/upnp/curl-7.70.0/include
 
@@ -69,6 +71,7 @@ SOURCES += \
 ../../libupnpp/device/vdir.cxx \
 ../../libupnpp/log.cpp \
 ../../libupnpp/md5.cpp \
+../../libupnpp/netif.cpp \
 ../../libupnpp/smallut.cpp \
 ../../libupnpp/soaphelp.cxx \
 ../../libupnpp/upnpavutils.cxx \

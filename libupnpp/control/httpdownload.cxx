@@ -24,7 +24,6 @@
 #include <stdio.h>
 #include <string>
 #include <sys/types.h>
-#include <netinet/in.h>
 
 #include <curl/curl.h>
 
