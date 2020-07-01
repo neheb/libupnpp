@@ -71,7 +71,6 @@ SOURCES += \
 ../../libupnpp/device/vdir.cxx \
 ../../libupnpp/log.cpp \
 ../../libupnpp/md5.cpp \
-../../libupnpp/netif.cpp \
 ../../libupnpp/smallut.cpp \
 ../../libupnpp/soaphelp.cxx \
 ../../libupnpp/upnpavutils.cxx \
