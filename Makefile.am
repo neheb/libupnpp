@@ -67,8 +67,6 @@ libupnpp_la_SOURCES = \
     libupnpp/log.hxx \
     libupnpp/md5.cpp \
     libupnpp/md5.h \
-    libupnpp/netif.cpp \
-    libupnpp/netif.h \
     libupnpp/smallut.cpp \
     libupnpp/smallut.h \
     libupnpp/soaphelp.cxx \
