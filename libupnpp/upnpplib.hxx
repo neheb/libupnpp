@@ -88,24 +88,26 @@ public:
     /** Returns something like "libupnpp 0.14.0 libupnp x.y.z" */
     static std::string versionString();
 
-    /** libupnp (pupnp) logging: this is distinct from libupnpp logging */
-    /** libupnp log levels */
-    enum LogLevel {LogLevelNone, LogLevelError, LogLevelDebug};
-    /** Set libupnp log file name and activate/deactivate logging.
+    /** libnpupnp (pupnp) logging: this is distinct from libupnpp logging */
+    /** libnpupnp log levels */
+    enum LogLevel {LogLevelNone, LogLevelError, LogLevelInfo, LogLevelDebug,
+                   LogLevelAll};
+
+    /** Set libnpupnp log file name and activate/deactivate logging.
      *
-     * This does nothing if libupnp was built with logging
-     * disabled. It may be useful for debugging in some case. You
-     * should not use the same file as the one used for libupnpp
-     * logging.
+     * Do not use the same file as the one used for libupnpp logging.
      *
-     * @param fn file name to use. Use empty string to turn logging off.
+     * @param fn file name to use. Use an empty string log to stderr. 
+     *  LogLevelNone to turn off.
      */
-    bool setLogFileName(const std::string& fn, LogLevel level = LogLevelError);
-    /** Set libupnp log level. 
+    static bool setLogFileName(
+        const std::string& fn, LogLevel level = LogLevelError);
+
+    /** Set libnpupnp log level. 
      *
-     * @return true if libupnp logging is enabled, else false.
+     * @return true if logging is enabled, else false.
      */
-    bool setLogLevel(LogLevel level);
+    static bool setLogLevel(LogLevel level);
 
     /** Set max library buffer size for reading content from servers. 
      * 

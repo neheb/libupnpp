@@ -32,6 +32,7 @@
 #include <upnp/upnp.h>
 #include <upnp/upnptools.h>
 #include <upnp/upnpdebug.h>
+#include <upnp/netif.h>
 
 #include <iostream>
 #include <map>
@@ -45,7 +46,6 @@
 #include "libupnpp/md5.h"
 #include "libupnpp/upnpputils.hxx"
 #include "libupnpp/smallut.h"
-#include "libupnpp/netif.h"
 
 using namespace std;
 
@@ -108,10 +108,6 @@ int LibUPnP::getInitError() const
 {
     return m->init_error;
 }
-
-#if defined(HAVE_UPNPSETLOGLEVEL)
-static const char* ccpDevNull = "/dev/null";
-#endif
 
 LibUPnP::LibUPnP(bool serveronly, string* hwaddr,
                  const string ifname, const string inip, unsigned short port)
@@ -224,24 +220,12 @@ void LibUPnP::setMaxContentLength(int bytes)
 bool LibUPnP::setLogFileName(const std::string& fn, LogLevel level)
 {
 #if defined(HAVE_UPNPSETLOGLEVEL)
-    std::unique_lock<std::mutex> lock(m->mutex);
-    if (level == LogLevelNone) {
-        // Can't call UpnpCloseLog() ! This closes the FILEs without
-        // any further precautions -> crashes
-        UpnpSetLogFileNames(ccpDevNull, ccpDevNull);
-        UpnpInitLog();
-    } else {
-        setLogLevel(level);
-        // the old lib only kept a pointer !
-        static string fnkeep(fn);
-        UpnpSetLogFileNames(fnkeep.c_str(), fnkeep.c_str());
-        // Because of the way upnpdebug.c is horribly coded, this
-        // loses 2 FILEs every time it's called.
-        int code = UpnpInitLog();
-        if (code != UPNP_E_SUCCESS) {
-            LOGERR(errAsString("UpnpInitLog", code) << endl);
-            return false;
-        }
+    setLogLevel(level);
+    UpnpSetLogFileNames(fn.c_str(), "");
+    int code = UpnpInitLog();
+    if (code != UPNP_E_SUCCESS) {
+        LOGERR(errAsString("UpnpInitLog", code) << endl);
+        return false;
     }
     return true;
 #else
@@ -252,17 +236,7 @@ bool LibUPnP::setLogFileName(const std::string& fn, LogLevel level)
 bool LibUPnP::setLogLevel(LogLevel level)
 {
 #if defined(HAVE_UPNPSETLOGLEVEL)
-    switch (level) {
-    case LogLevelNone:
-        // This does not exist directly in pupnp, so log to
-        // /dev/null. SetLogFileName knows not to call us back in this
-        // case...
-        UpnpSetLogLevel(UPNP_CRITICAL);
-        setLogFileName("", LogLevelNone);
-        break;
-    default:
-        UpnpSetLogLevel(Upnp_LogLevel(level));
-    }
+    UpnpSetLogLevel(Upnp_LogLevel(level));
     return true;
 #else
     return false;
