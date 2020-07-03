@@ -819,8 +819,9 @@ const std::string UpnpService::errString(int error) const
 {
     switch (error) {
     case UPNP_INVALID_ACTION: return "Invalid Action";
-    case UPNP_INVALID_ARGS: return "Invalid Args";
-    case UPNP_INVALID_VAR: return "Invalid Var";
+    case UPNP_INVALID_ARGS: return "Invalid Arguments";
+    case UPNP_INVALID_VAR: return "Invalid Variable";
+    case UPNP_ACTION_CONFLICT: return "Action Conflict";
     case UPNP_ACTION_FAILED: return "Action Failed";
     case UPNP_ARG_VALUE_INVALID: return "Arg Value Invalid";
     case UPNP_ARG_VALUE_OUT_OF_RANGE: return "Arg Value Out Of Range";

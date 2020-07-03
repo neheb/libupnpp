@@ -228,13 +228,15 @@ public:
     virtual const std::string errString(int error) const;
 
     virtual const std::string serviceErrString(int) const {
-        return "Unknown error";
+        return "";
     }
     // Common (service-type-independant) error codes
     enum UPnPError {
         UPNP_INVALID_ACTION = 401,
         UPNP_INVALID_ARGS = 402,
         UPNP_INVALID_VAR = 404,
+        // This one mine...
+        UPNP_ACTION_CONFLICT = 409,
         UPNP_ACTION_FAILED = 501,
 
         /* 600-699 common action errors */

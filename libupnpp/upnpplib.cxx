@@ -82,7 +82,7 @@ static int o_callback(Upnp_EventType et, CBCONST void* evp, void* cookie)
     map<Upnp_EventType, LibUPnP::Internal::Handler>::iterator it =
         ulib->m->handlers.find(et);
     if (it != ulib->m->handlers.end()) {
-        (it->second.handler)(et, evp, it->second.cookie);
+        return (it->second.handler)(et, evp, it->second.cookie);
     }
     return UPNP_E_SUCCESS;
 }
