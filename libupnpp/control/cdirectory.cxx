@@ -212,12 +212,9 @@ int ContentDirectory::readDirSlice(const string& objectId, int offset,
         return UPNP_E_BAD_RESPONSE;
     }
 
-#if 0
-    cerr << "CDService::readDirSlice: count " << count <<
-         " offset " << offset <<
-         " total " << *total << endl;
-    cerr << " result " << tbuf << endl;
-#endif
+    LOGDEB0("ContentDirectory::readDirSlice: got count " << count <<
+            " offset " << offset << " total " << *total << "Data:\n" <<
+            tbuf << "\n");
 
     dirbuf.parse(tbuf);
 

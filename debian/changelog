@@ -1,3 +1,12 @@
+libupnpp6 (0.19.3-1~ppaPPAVERS~SERIES1) SERIES; urgency=low
+
+  * Improved reporting of UPnP errors
+  * Improved message log initialisation: now static so can be done before
+    actually accessing the library object.
+  * Use the NetIF interface from libnpupnp instead of duplicating the module.
+
+ -- Jean-Francois Dockes <jf@dockes.org>  Sun, 04 Jul 2020 10:00:00 +0200
+ 
 libupnpp6 (0.19.2-1~ppaPPAVERS~SERIES1) SERIES; urgency=low
 
   * Use the same version of netif as libnpupnp to allow static builds
