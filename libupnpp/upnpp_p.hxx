@@ -97,7 +97,7 @@ public:
     UpnpClient_Handle getclh();
     
     bool ok;
-    int  init_error;
+    static int init_error;
     UpnpClient_Handle clh;
     std::mutex mutex;
     std::map<Upnp_EventType, Handler> handlers;

@@ -101,12 +101,14 @@ UpnpClient_Handle LibUPnP::Internal::getclh()
 
 bool LibUPnP::ok() const
 {
-    return m->ok;
+    return m && m->ok;
 }
 
-int LibUPnP::getInitError() const
+int LibUPnP::Internal::init_error;
+
+int LibUPnP::getInitError()
 {
-    return m->init_error;
+    return Internal::init_error;
 }
 
 LibUPnP::LibUPnP(bool serveronly, string* hwaddr,
@@ -123,14 +125,19 @@ LibUPnP::LibUPnP(bool serveronly, string* hwaddr,
 
     m->ok = false;
 
-    // If the interface name was not specified, we possibly use the
-    // supplied IP address. If this is empty too, libupnp will choose
-    // by itself (the first adapter).
-    if (ifname.empty()) {
+    if (ifname.empty() && !inip.empty()) {
+        // If the interface name was not specified, and the IP address
+        // is supplied, call the old (n)pupnp init method.
         m->init_error = UpnpInit(inip.c_str(), port);
     } else {
+        // We use a short wait if serveronly is not set. This is not
+        // correct really, what we'd want to test is something like
+        // clientonly, or better, this should really be an explicit
+        // option of the lib. Solves upplay init for now anyway.
         m->init_error = UpnpInitWithOptions(
-            ifname.c_str(), port, UPNP_FLAG_IPV6, UPNP_OPTION_END);
+            ifname.c_str(), port, UPNP_FLAG_IPV6,
+            UPNP_OPTION_NETWORK_WAIT, serveronly ? 60 : 1,
+            UPNP_OPTION_END);
     }
     if (m->init_error != UPNP_E_SUCCESS) {
         LOGERR(errAsString("UpnpInit", m->init_error) << endl);

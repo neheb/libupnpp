@@ -2,8 +2,9 @@
 # Software version. There is no direct link with the library version_info
 # except that we sort or promise that no api and abi incompatibilities
 # occur with revision (3rd number) changes.
-# ! When changing the version, also change the defines in upnpplib.hxx !
-AC_INIT([libupnpp], [0.19.3], [jfd@lesbonscomptes.com],
+
+# !!!! When changing the version, also change the defines in upnpplib.hxx !!!
+AC_INIT([libupnpp], [0.19.4], [jfd@lesbonscomptes.com],
              [libupnpp], [http://www.lesbonscomptes.com/upmpdcli])
 
 # Lib version info. See:

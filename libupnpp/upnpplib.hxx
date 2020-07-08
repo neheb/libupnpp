@@ -24,7 +24,7 @@
 /** Version components. */
 #define LIBUPNPP_VERSION_MAJOR 0
 #define LIBUPNPP_VERSION_MINOR 19
-#define LIBUPNPP_VERSION_REVISION 2
+#define LIBUPNPP_VERSION_REVISION 4
 /// Got this from Xapian...
 #define LIBUPNPP_AT_LEAST(A,B,C)                                        \
     (LIBUPNPP_VERSION_MAJOR > (A) ||                                    \
@@ -60,21 +60,17 @@ public:
      * This initializes libupnp, possibly setting an address and port, possibly
      * registering a client if serveronly is false.
      *
-     * Note: libupnp uses a single v4 address/interface (and a v6 one if
-     * enabled). This can be specified in the initialization call,
-     * else it will pick the first non-loopback one. There is no way
-     * to have a single instance of the library listen on multiple
-     * interfaces.
-     *
      * @param serveronly no client init
      * @param hwaddr returns the hardware address for the specified network
      *   interface, or the first one is ifname is empty. If the IP address is
      *   specified instead of the interface name, the hardware address
      *   returned is not necessarily the one matching the IP.
-     * @param ifname if not empty, network interface to use. Translated to
-     *   IP address for the UpnpInit() call.
+     * @param ifname if not empty, network interface to use. Passed to 
+     *   libnpupnp. Null or empty to use the first interface, 
+     *   "*" for all interfaces,
+     *   or space-separated list of interface names.
      * @param ip if not empty, IP address to use. Only used if ifname is empty.
-     * @param port   port parameter to UpnpInit() (0 for default).
+     * @param port port parameter to UpnpInit() (0 for default).
      * @return 0 for failure.
      */
     static LibUPnP* getLibUPnP(bool serveronly = false, std::string* hwaddr = 0,
@@ -123,7 +119,7 @@ public:
     bool ok() const;
 
     /** Retrieve init error if state not ok */
-    int getInitError() const;
+    static int getInitError();
 
     /** Build a unique stable UUID. 
      * This uses a hash of the input name (e.g.: friendlyName), and the 
