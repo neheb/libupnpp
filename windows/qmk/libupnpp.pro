@@ -10,36 +10,30 @@ CONFIG += staticlib
 
 DEFINES += UPNP_STATIC_LIB
 DEFINES += CURL_STATICLIB
-DEFINES += WIN32
-DEFINES -= UNICODE
-DEFINES -= _UNICODE
-DEFINES += _MBCS
 DEFINES += PSAPI_VERSION=1
 
-
 INCLUDEPATH += ../../
-INCLUDEPATH += c:/users/bill/documents/upnp/expat-2.1.0/lib
-#INCLUDEPATH += c:/users/bill/documents/upnp/pupnp/include
 # Note that the following needs a pseudo install in the build dir:
 # cd inc;mkdir upnp;cp *.h upnp;
 INCLUDEPATH += c:/users/bill/documents/upnp/npupnp/inc
-INCLUDEPATH += c:/users/bill/documents/upnp/curl-7.70.0/include
 
-LIBS += c:/users/bill/documents/upnp/expat-2.1.0/.libs/libexpat.a
-LIBS += c:/users/bill/documents/upnp/curl-7.70.0/lib/libcurl.a
-#LIBS += c:/users/bill/documents/upnp/pupnp/upnp/.libs/libupnp.a
-#LIBS += c:/users/bill/documents/upnp/pupnp/ixml/.libs/libixml.a
-#LIBS += c:/users/bill/documents/upnp/pupnp/threadutil/.libs/libthreadutil.a
+## W7 with mingw
+contains(QMAKE_CC, gcc){
+  INCLUDEPATH += c:/users/bill/documents/upnp/expat-2.1.0/lib
+  INCLUDEPATH += c:/users/bill/documents/upnp/curl-7.70.0/include
+  QMAKE_CXXFLAGS += -std=c++11 -Wno-unused-parameter
+}
+
 LIBS += -liphlpapi
 LIBS += -lwldap32
 LIBS += -lws2_32
 
-contains(QMAKE_CC, gcc){
-    # MingW
-    QMAKE_CXXFLAGS += -std=c++11 -Wno-unused-parameter
-}
+# W10 with msvc 2017
 contains(QMAKE_CC, cl){
-    # Visual Studio
+  DEFINES += NOMINMAX
+  INCLUDEPATH += c:/users/bill/documents/upnp/expat-2.2.9/Source/lib
+  INCLUDEPATH += c:/users/bill/documents/upnp/curl-7.70.0/include
+  INCLUDEPATH += c:/users/bill/documents/upnp/libmicrohttpd-0.9.65-w32-bin/x86/VS2017/Release-static/
 }
 
 SOURCES += \

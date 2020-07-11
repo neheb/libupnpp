@@ -18,8 +18,6 @@
 #ifndef _DEVICE_H_X_INCLUDED_
 #define _DEVICE_H_X_INCLUDED_
 
-#include <pthread.h>
-
 #include <functional>
 #include <memory>
 #include <string>

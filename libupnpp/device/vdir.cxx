@@ -150,7 +150,7 @@ struct Handle {
     FileEnt *entry;
     DirEnt *dir;
     void *vhandle;
-    size_t offset;
+    int64_t offset;
 };
 
 static int vdclose(UpnpWebFileHandle fileHnd
@@ -259,14 +259,14 @@ static int vdread(UpnpWebFileHandle fileHnd, char* buf, size_t buflen
     if (h->offset >= h->entry->content.size()) {
         return 0;
     }
-    size_t toread = buflen > h->entry->content.size() - h->offset ?
-        h->entry->content.size() - h->offset : buflen;
+    size_t toread = size_t(buflen > h->entry->content.size() - h->offset ?
+                           h->entry->content.size() - h->offset : buflen);
     memcpy(buf, h->entry->content.c_str() + h->offset, toread);
     h->offset += toread;
     return (int)toread;
 }
 
-static int vdseek(UpnpWebFileHandle fileHnd, off_t offset, int origin
+static int vdseek(UpnpWebFileHandle fileHnd, int64_t offset, int origin
 #if defined(PUPNP_VDIR_1COOKIE) || defined(PUPNP_VDIR_2COOKIES)
                   , const void*
 #endif
@@ -278,7 +278,8 @@ static int vdseek(UpnpWebFileHandle fileHnd, off_t offset, int origin
     // LOGDEB("vdseek: " << endl);
     Handle *h = (Handle *)fileHnd;
     if (h->vhandle) {
-        return (int)h->dir->ops.seek(h->vhandle, offset, origin);
+        return h->dir->ops.seek(h->vhandle, (off_t)offset, origin) ==
+            (off_t)offset ? 0 : UPNP_E_INVALID_ARGUMENT;
     }
     if (origin == 0) {
         h->offset = offset;
@@ -287,11 +288,9 @@ static int vdseek(UpnpWebFileHandle fileHnd, off_t offset, int origin
     } else if (origin == 2) {
         h->offset = h->entry->content.size() + offset;
     } else {
-        return -1;
+        return UPNP_E_INVALID_ARGUMENT;
     }
-    // Note that the upnp prototype is incorrect if sizeof(int)>sizeof(off_t
-    // but there is nothing we can do about it.
-    return (int)offset;
+    return 0;
 }
 
 static int vdwrite(UpnpWebFileHandle, char*, size_t

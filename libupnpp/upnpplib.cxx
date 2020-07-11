@@ -149,10 +149,9 @@ LibUPnP::LibUPnP(bool serveronly, string* hwaddr,
         auto *ifs = NetIF::Interfaces::theInterfaces();
         hwaddr->clear();
         if (ifs) {
-            NetIF::Interfaces::Filter
-                filt{.needs={NetIF::Interface::Flags::HASIPV4},
-                     .rejects={NetIF::Interface::Flags::LOOPBACK}
-            };
+            NetIF::Interfaces::Filter filt;
+            filt.needs = {NetIF::Interface::Flags::HASIPV4};
+            filt.rejects = {NetIF::Interface::Flags::LOOPBACK};
             auto vifs = ifs->select(filt);
             if (!vifs.empty()) {
                 *hwaddr = hexprint(vifs[0].gethwaddr());
@@ -490,9 +489,9 @@ bool getAdapterNames(vector<string>& names)
 {
     auto *ifs = NetIF::Interfaces::theInterfaces();
     if (ifs) {
-        NetIF::Interfaces::Filter
-            filt{.needs={NetIF::Interface::Flags::HASIPV4},
-                 .rejects={NetIF::Interface::Flags::LOOPBACK}};
+        NetIF::Interfaces::Filter filt;
+        filt.needs = {NetIF::Interface::Flags::HASIPV4};
+        filt.rejects = {NetIF::Interface::Flags::LOOPBACK};
         auto vifs = ifs->select(filt);
         for (const auto& adapter : vifs) {
             names.push_back(adapter.getfriendlyname());

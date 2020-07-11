@@ -24,7 +24,6 @@
 
 #include <upnp/upnp.h>
 
-#include <pthread.h>
 #include <time.h>
 
 #include <string>
