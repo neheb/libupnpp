@@ -30,13 +30,11 @@
 #include <map>
 #include <vector>
 
-#ifdef _MSC_VER 
+#ifdef _MSC_VER
 #define EXPATMM_SSIZE_T int
 #else
 #define EXPATMM_SSIZE_T ssize_t
 #endif
-
-namespace UPnPP {
 
 class ExpatXMLParser {
 public:
@@ -309,7 +307,7 @@ private:
         expat_parser = XML_ParserCreate(NULL);
 
         if(expat_parser == NULL) {
-            delete xml_buffer;
+            delete [] xml_buffer;
             xml_buffer = NULL;
             return;
         }
@@ -354,7 +352,5 @@ protected:
 protected:
     const std::string& m_input;
 };
-
-} // End namespace
 
 #endif /* _EXPATMM_EXPATXMLPARSER_H */

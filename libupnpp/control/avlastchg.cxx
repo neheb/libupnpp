@@ -23,7 +23,6 @@
 #include "libupnpp/expatmm.hxx"         // for inputRefXMLParser
 
 using namespace std;
-using namespace UPnPP;
 
 namespace UPnPClient {
 

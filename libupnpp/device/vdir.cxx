@@ -256,7 +256,7 @@ static int vdread(UpnpWebFileHandle fileHnd, char* buf, size_t buflen
         return h->dir->ops.read(h->vhandle, buf, buflen);
     }
 
-    if (h->offset >= h->entry->content.size()) {
+    if (h->offset >= (int64_t)h->entry->content.size()) {
         return 0;
     }
     size_t toread = size_t(buflen > h->entry->content.size() - h->offset ?
