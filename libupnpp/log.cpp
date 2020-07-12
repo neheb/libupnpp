@@ -21,6 +21,10 @@
 #include <fstream>
 #include <time.h>
 
+#ifdef _MSC_VER
+#define localtime_r(A,B) localtime_s(B,A)
+#endif
+
 using namespace std;
 
 Logger::Logger(const std::string& fn)
