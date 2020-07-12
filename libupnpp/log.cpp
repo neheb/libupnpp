@@ -19,6 +19,7 @@
 
 #include <errno.h>
 #include <fstream>
+#include <time.h>
 
 using namespace std;
 
@@ -54,6 +55,17 @@ bool Logger::reopen(const std::string& fn)
     return true;
 }
 
+const char *Logger::datestring()
+{
+    time_t clk = time(0);
+    struct tm tmb;
+    localtime_r(&clk, &tmb);
+    if (strftime(m_datebuf, LOGGER_DATESIZE, m_datefmt.c_str(), &tmb)) {
+        return m_datebuf;
+    } else {
+        return "";
+    }
+}
 static Logger *theLog;
 
 Logger *Logger::getTheLog(const string& fn)
