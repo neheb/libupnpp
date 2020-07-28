@@ -19,7 +19,7 @@
 #include "libupnpp/control/ohproduct.hxx"
 
 #include <string.h>
-#include <upnp/upnp.h>
+#include <upnp.h>
 #include <ostream>
 #include <string>
 #include <vector>

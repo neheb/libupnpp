@@ -24,7 +24,7 @@
 #include <algorithm>
 
 #include <string.h>
-#include <upnp/upnp.h>
+#include <upnp.h>
 
 #include "libupnpp/upnpplib.hxx"
 #include "libupnpp/expatmm.hxx"

@@ -21,7 +21,7 @@
 #include <time.h>
 #include <stdio.h>
 
-#include <upnp/upnp.h>
+#include <upnp.h>
 
 #include <unordered_set>
 #include <map>

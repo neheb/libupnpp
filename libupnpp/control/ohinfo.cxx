@@ -19,7 +19,7 @@
 #include "libupnpp/control/ohinfo.hxx"
 
 #include <string.h>                     // for strcmp
-#include <upnp/upnp.h>                  // for UPNP_E_BAD_RESPONSE, etc
+#include <upnp.h>                  // for UPNP_E_BAD_RESPONSE, etc
 #include <ostream>                      // for endl
 #include <string>                       // for string
 #include <vector>                       // for vector

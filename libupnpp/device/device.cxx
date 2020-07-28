@@ -32,7 +32,7 @@
 #include <thread>
 #include <chrono>
 
-#include <upnp/upnp.h>
+#include <upnp.h>
 
 #include "libupnpp/log.hxx"
 #include "libupnpp/smallut.h"

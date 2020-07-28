@@ -22,7 +22,7 @@
    not include this */
 #include <sys/types.h>
 
-#include <upnp/upnp.h>
+#include <upnp.h>
 
 #include <time.h>
 

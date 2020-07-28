@@ -22,7 +22,7 @@
 
 #include <stdlib.h>
 #include <string.h>
-#include <upnp/upnp.h>
+#include <upnp.h>
 
 #include <functional>
 #include <ostream>

@@ -21,8 +21,8 @@
 
 #include <sys/types.h>
 
-#include <upnp/upnp.h>
-#include <upnp/upnptools.h>
+#include <upnp.h>
+#include <upnptools.h>
 
 #include <functional>
 #include <iostream>

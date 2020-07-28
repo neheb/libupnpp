@@ -29,9 +29,9 @@
 
 #include "libupnpp/upnpp_p.hxx"
 
-#include <upnp/upnp.h>
-#include <upnp/upnptools.h>
-#include <upnp/upnpdebug.h>
+#include <upnp.h>
+#include <upnptools.h>
+#include <upnpdebug.h>
 #include <upnp/netif.h>
 
 #include <iostream>

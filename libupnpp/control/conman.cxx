@@ -17,7 +17,7 @@
  */
 #include "libupnpp/config.h"
 
-#include <upnp/upnp.h>
+#include <upnp.h>
 
 #include "libupnpp/control/conman.hxx"
 #include "libupnpp/upnpavutils.hxx"

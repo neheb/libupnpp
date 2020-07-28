@@ -20,7 +20,7 @@
 #include "libupnpp/control/renderingcontrol.hxx"
 
 #include <stdlib.h>
-#include <upnp/upnp.h>
+#include <upnp.h>
 #include <math.h>
 
 #include <functional>

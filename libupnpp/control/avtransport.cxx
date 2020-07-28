@@ -20,7 +20,7 @@
 #include "libupnpp/control/avtransport.hxx"
 
 #include <stdlib.h>
-#include <upnp/upnp.h>
+#include <upnp.h>
 
 #include <ostream>
 #include <string>
