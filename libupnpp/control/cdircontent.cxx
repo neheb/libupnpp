@@ -56,7 +56,7 @@ public:
     UPnPDirContent& m_dir;
 protected:
 
-    virtual void StartElement(const XML_Char *name, const XML_Char **attrs) {
+    virtual void StartElement(const XML_Char *name, const XML_Char **) {
         //LOGDEB("startElement: name [" << name << "]" << " bpos " <<
         //             XML_GetCurrentByteIndex(expat_parser) << endl);
         auto& mapattrs = m_path.back().attributes;

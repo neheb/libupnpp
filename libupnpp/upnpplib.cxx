@@ -32,7 +32,7 @@
 #include <upnp.h>
 #include <upnptools.h>
 #include <upnpdebug.h>
-#include <upnp/netif.h>
+#include <netif.h>
 
 #include <iostream>
 #include <map>

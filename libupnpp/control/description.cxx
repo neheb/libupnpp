@@ -147,7 +147,7 @@ public:
     }
 
 protected:
-    virtual void StartElement(const XML_Char *name, const XML_Char **attrs) {
+    virtual void StartElement(const XML_Char *name, const XML_Char **) {
         //LOGDEB("startElement: name [" << name << "]" << " bpos " <<
         //             XML_GetCurrentByteIndex(expat_parser) << endl);
         StackEl& lastelt = m_path.back();
