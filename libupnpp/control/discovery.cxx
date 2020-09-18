@@ -44,6 +44,10 @@ using namespace UPnPP;
 
 #define CBCONST const
 
+#ifndef DISCO_HTTP_TIMEOUT
+#define DISCO_HTTP_TIMEOUT 5
+#endif
+
 namespace UPnPClient {
 
 // The singleton instance pointer
@@ -166,7 +170,7 @@ static int cluCallBack(Upnp_EventType et, CBCONST void* evp, void*)
 
         LOGDEB1("discovery:cluCallback:: downloading " << tp->url << endl);
         if (!downloadUrlWithCurl(
-                tp->url, tp->description, 5, &disco->DestAddr)) {
+                tp->url, tp->description,DISCO_HTTP_TIMEOUT, &disco->DestAddr)) {
             LOGERR("discovery:cllb: downloadUrlWithCurl error for: " <<
                    tp->url << endl);
             {   std::unique_lock<std::mutex> lock(o_downloading_mutex);
