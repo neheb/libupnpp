@@ -32,17 +32,17 @@ AC_CONFIG_HEADERS([libupnpp/config.h])
 AH_BOTTOM([#include "libupnpp/conf_post.h"])
 
 AC_CANONICAL_HOST
-build_linux=no
-build_mac=no
 # Detect the target system
 case "${host_os}" in
     linux*|uclinux*) build_linux=yes;;
     darwin*) build_mac=yes;;
-    *) AC_MSG_ERROR(["OS $host_os is not supported"]);;
+    *freebsd*) build_freebsd=yes;;
+    *) AC_MSG_WARN(["OS $host_os is unknown"]);;
 esac
 # Pass the conditionals to automake
 AM_CONDITIONAL([LINUX], [test "$build_linux" = "yes"])
 AM_CONDITIONAL([OSX], [test "$build_mac" = "yes"])
+AM_CONDITIONAL([FREEBSD], [test "$build_freebsd" = "yes"])
 
 AM_INIT_AUTOMAKE([1.10 no-define subdir-objects foreign])
 AC_DISABLE_STATIC

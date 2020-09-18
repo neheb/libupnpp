@@ -121,7 +121,12 @@ endif
 
 libupnpp_la_LIBADD = $(LIBUPNPP_LIBS)
 
+if FREEBSD
+pkgconfigdir=${prefix}/libdata/pkgconfig
+else
 pkgconfigdir = $(libdir)/pkgconfig
+endif
+
 pkgconfig_DATA = libupnpp.pc
 
 dist-hook:
