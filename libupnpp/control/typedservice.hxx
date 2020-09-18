@@ -72,6 +72,10 @@ protected:
                              const UPnPServiceDesc& service);
 
 private:
+    // Suppress warning about the normal Service class runAction being
+    // hidden.  Maybe it could be used, but we don't really need it
+    // (it's called by our own runAction()).
+    using Service::runAction;
     class Internal;
     Internal *m{0};
     TypedService();
