@@ -63,12 +63,6 @@
 /* Define to the version of this package. */
 #undef PACKAGE_VERSION
 
-/* The pupnp vdir callbacks take 1 cookie */
-#undef PUPNP_VDIR_1COOKIE
-
-/* The pupnp vdir callbacks take 2 cookies */
-#undef PUPNP_VDIR_2COOKIES
-
 /* Define to 1 if you have the ANSI C header files. */
 #undef STDC_HEADERS
 

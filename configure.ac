@@ -99,39 +99,6 @@ AC_LANG_PUSH([C++])
 SAVED_CXXFLAGS="$CXXFLAGS"
 CXXFLAGS="$upnp_CFLAGS $CFLAGS $CXXFLAGS -Werror=incompatible-pointer-types"
 
-AC_MSG_CHECKING([if the virtual dir callbacks use no cookies])
-AC_COMPILE_IFELSE([AC_LANG_SOURCE([
-#include <upnp.h>
-static int vdread(UpnpWebFileHandle fileHnd, char* buf, size_t buflen){return 0;}
-void myfunc() {UpnpVirtualDir_set_ReadCallback(vdread);}
-])],[AC_MSG_RESULT(yes);vd0cookies=yes],[AC_MSG_RESULT(no);vd0cookies=no])
-
-AC_MSG_CHECKING([if the virtual dir callbacks use 1 cookie])
-AC_COMPILE_IFELSE([AC_LANG_SOURCE([
-#include <upnp.h>
-static int vdread(UpnpWebFileHandle fileHnd, char* buf, size_t buflen, const void*ck1){return 0;}
-void myfunc() {UpnpVirtualDir_set_ReadCallback(vdread);}
-])],[AC_MSG_RESULT(yes);vd1cookie=yes],[AC_MSG_RESULT(no);vd1cookie=no])
-
-AC_MSG_CHECKING([if the virtual dir callbacks use 2 cookies])
-AC_COMPILE_IFELSE([AC_LANG_SOURCE([
-#include <upnp.h>
-static int vdread(UpnpWebFileHandle fileHnd, char* buf, size_t buflen,const void*ck1,const void*ck2){return 0;}
-void myfunc() {UpnpVirtualDir_set_ReadCallback(vdread);}
-])],[AC_MSG_RESULT(yes);vd2cookies=yes],[AC_MSG_RESULT(no);vd2cookies=no])
-
-CXXFLAGS="$SAVED_CXXFLAGS"
-
-if test X$vd0cookie = Xyes ; then
-   true
-elif test X$vd1cookie = Xyes ; then
-   AC_DEFINE(PUPNP_VDIR_1COOKIE, [], [The pupnp vdir callbacks take 1 cookie])
-elif test X$vd2cookies = Xyes ; then
-   AC_DEFINE(PUPNP_VDIR_2COOKIES, [], [The pupnp vdir callbacks take 2 cookies])
-else
-   AC_MSG_ERROR([Vdir cookie test compiles all failed ! Check config.log])
-fi
-
 LIBUPNPP_LIBS="$LIBS $upnp_LIBS $curl_LIBS $expat_LIBS"
 echo "LIBUPNPP_LIBS $LIBUPNPP_LIBS"
 
