@@ -36,7 +36,7 @@ typedef std::shared_ptr<OHInfo> OHIFH;
 /**
  * OHInfo Service client class.
  */
-class OHInfo : public Service {
+class UPNPP_API OHInfo : public Service {
 public:
 
     OHInfo(const UPnPDeviceDesc& device, const UPnPServiceDesc& service)
@@ -58,8 +58,9 @@ protected:
     static const std::string SType;
 
 private:
-    void evtCallback(const std::unordered_map<std::string, std::string>&);
-    void registerCallback();
+    void UPNPP_LOCAL evtCallback(
+        const std::unordered_map<std::string, std::string>&);
+    void UPNPP_LOCAL registerCallback();
 };
 
 } // namespace UPnPClient

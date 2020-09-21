@@ -4,7 +4,7 @@
 # occur with revision (3rd number) changes.
 
 # !!!! When changing the version, also change the defines in upnpplib.hxx !!!
-AC_INIT([libupnpp], [0.19.4], [jfd@lesbonscomptes.com],
+AC_INIT([libupnpp], [0.19.5], [jfd@lesbonscomptes.com],
              [libupnpp], [http://www.lesbonscomptes.com/upmpdcli])
 
 # Lib version info. See:
@@ -86,25 +86,18 @@ PKG_CHECK_MODULES([upnp], [libnpupnp], [upnpfound=yes], [upnpfound=no])
 if test X$upnpfound != Xyes ; then
   AC_MSG_ERROR([libnpupnp not found])
 else  
-    AC_MSG_RESULT([Using libnpupnp])
+  AC_MSG_RESULT([Using libnpupnp])
 fi
-
 echo '$upnp_CFLAGS[' $upnp_CFLAGS '] $upnp_LIBS [' $upnp_LIBS ']'
 
 PKG_CHECK_MODULES([curl], [libcurl], [], AC_MSG_ERROR([libcurl not found]))
 PKG_CHECK_MODULES([expat], [expat], [],AC_MSG_ERROR([expat not found]))
-
-AC_LANG_PUSH([C++])
-
-SAVED_CXXFLAGS="$CXXFLAGS"
-CXXFLAGS="$upnp_CFLAGS $CFLAGS $CXXFLAGS -Werror=incompatible-pointer-types"
 
 LIBUPNPP_LIBS="$LIBS $upnp_LIBS $curl_LIBS $expat_LIBS"
 echo "LIBUPNPP_LIBS $LIBUPNPP_LIBS"
 
 LIBS="$LIBUPNPP_LIBS"
 AC_CHECK_FUNCS([getifaddrs] [UpnpSetLogLevel])
-
 LIBS=""
                      
 AC_SUBST(LIBUPNPP_LIBS)

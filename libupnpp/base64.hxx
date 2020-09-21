@@ -19,10 +19,12 @@
 #define _BASE64_H_INCLUDED_
 #include <string>
 
+#include "upnppexports.hxx"
+
 namespace UPnPP {
 
-void base64_encode(const std::string& in, std::string& out);
-bool base64_decode(const std::string& in, std::string& out);
+void UPNPP_API base64_encode(const std::string& in, std::string& out);
+bool UPNPP_API base64_decode(const std::string& in, std::string& out);
 inline std::string base64_encode(const std::string& in)
 {
     std::string o;

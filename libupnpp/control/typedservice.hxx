@@ -37,7 +37,7 @@ namespace UPnPClient {
  * The easiest way to build a usable object is to use the 
  * findTypedService() helper function.
  */
-class TypedService : public Service {
+class UPNPP_API TypedService : public Service {
 public:
 
     /** Build an empty object. Will be later initialized by 
@@ -59,7 +59,7 @@ public:
      * @param[out] retdata the output returned from the action. 
      *       map used instead of unordered_map for swig 2.0 compatibility.
      * @return a libupnp error code, 0 for success.
-    */
+     */
     virtual int runAction(const std::string& name,
                           std::vector<std::string> args,
                           std::map<std::string, std::string>& retdata);
@@ -76,11 +76,12 @@ private:
     // hidden.  Maybe it could be used, but we don't really need it
     // (it's called by our own runAction()).
     using Service::runAction;
-    class Internal;
+    class UPNPP_LOCAL Internal;
     Internal *m{0};
     TypedService();
-    void evtCallback(const std::unordered_map<std::string, std::string>&);
-    void registerCallback();
+    void UPNPP_LOCAL evtCallback(
+        const std::unordered_map<std::string, std::string>&);
+    void UPNPP_LOCAL registerCallback();
 };
 
 
@@ -100,9 +101,8 @@ private:
  * @return an allocated TypedService. Ownership is tranferred to the caller, 
  *   who will have to delete the object when done.
  */
-extern TypedService *findTypedService(const std::string& devname,
-                                      const std::string& servicetype,
-                                      bool fuzzy);
+TypedService UPNPP_API *findTypedService(
+    const std::string& devname, const std::string& servicetype, bool fuzzy);
 
 } // namespace UPnPClient
 

@@ -28,6 +28,8 @@
 #include <string>
 #include <sstream>
 
+#include "libupnpp/upnppexports.hxx"
+
 namespace UPnPClient {
 
 /** Data holder for a UPnP service, parsed from the device XML description.
@@ -41,7 +43,7 @@ namespace UPnPClient {
  * retrieve them (e.g. min/max volume values for AVT RenderingControl). 
  * Also, if you wanted to define dynamic methods from the description data.
  */
-class UPnPServiceDesc {
+class UPNPP_API UPnPServiceDesc {
 public:
     /// Service Type e.g. urn:schemas-upnp-org:service:ConnectionManager:1
     std::string serviceType;
@@ -67,16 +69,16 @@ public:
     std::string dump() const {
         std::ostringstream os;
         os << "SERVICE {serviceType [" << serviceType <<
-           "] serviceId [" << serviceId <<
-           "] SCPDURL [" << SCPDURL <<
-           "] controlURL [" << controlURL <<
-           "] eventSubURL [" << eventSubURL <<
-           "] }" << std::endl;
+            "] serviceId [" << serviceId <<
+            "] SCPDURL [" << SCPDURL <<
+            "] controlURL [" << controlURL <<
+            "] eventSubURL [" << eventSubURL <<
+            "] }" << std::endl;
         return os.str();
     }
 
     /** Description of an action argument: name, direction, state
-       variable it relates to (which will yield the type) */
+        variable it relates to (which will yield the type) */
     struct Argument {
         std::string name;
         bool todevice;
@@ -137,7 +139,7 @@ public:
  * User-level code gets access to the data by using the device directory 
  * traversal methods.
  */
-class UPnPDeviceDesc {
+class UPNPP_API UPnPDeviceDesc {
 public:
     /** Build device from the XML description downloaded during discovery.
      * This is an internal library call, used from the discovery module.
@@ -180,15 +182,14 @@ public:
     void clear() {
         *this = UPnPDeviceDesc();
     }
-    std::string dump() const
-    {
+    std::string dump() const {
         std::ostringstream os;
         os << "DEVICE " << " {deviceType [" << deviceType <<
-           "] friendlyName [" << friendlyName <<
-           "] UDN [" << UDN <<
-           "] URLBase [" << URLBase << "] Services:" << std::endl;
+            "] friendlyName [" << friendlyName <<
+            "] UDN [" << UDN <<
+            "] URLBase [" << URLBase << "] Services:" << std::endl;
         for (std::vector<UPnPServiceDesc>::const_iterator it = services.begin();
-                it != services.end(); it++) {
+             it != services.end(); it++) {
             os << "    " << it->dump();
         }
         for (const auto& it: embedded) {

@@ -50,7 +50,7 @@ typedef std::shared_ptr<ContentDirectory> CDSH;
  * The value chosen may be affected by the UpnpSetMaxContentLength
  * (2000*1024) done during initialization, but this should be ample.
  */
-class ContentDirectory : public Service {
+class UPNPP_API ContentDirectory : public Service {
 public:
 
     /** Construct by copying data from device and service objects. */
@@ -155,8 +155,9 @@ private:
     int m_rdreqcnt{200}; // Slice size to use when reading
     ServiceKind m_serviceKind{CDSKIND_UNKNOWN};
 
-    void evtCallback(const std::unordered_map<std::string, std::string>&);
-    void registerCallback();
+    void UPNPP_LOCAL
+        evtCallback(const std::unordered_map<std::string, std::string>&);
+    void UPNPP_LOCAL registerCallback();
 };
 
 }

@@ -47,7 +47,7 @@ typedef std::shared_ptr<MediaRenderer> MRDH;
  * create the different services (and cache handles to them). There is
  * actually not much that it does that could not be done by normal functions.
  */
-class MediaRenderer : public Device {
+class UPNPP_API MediaRenderer : public Device {
 public:
     /** Build from device description */
     MediaRenderer(const UPnPDeviceDesc& desc);
@@ -81,7 +81,7 @@ public:
 protected:
     static const std::string DType;
 private:
-    class Internal;
+    class UPNPP_LOCAL Internal;
     Internal *m;
 };
 

@@ -37,7 +37,7 @@ typedef std::shared_ptr<OHProduct> OHPRH;
  * OHProduct Service client class.
  *
  */
-class OHProduct : public Service {
+class UPNPP_API OHProduct : public Service {
 public:
 
     OHProduct(const UPnPDeviceDesc& device, const UPnPServiceDesc& service)
@@ -74,8 +74,9 @@ protected:
     /* My service type string */
     static const std::string SType;
 private:
-    void evtCallback(const std::unordered_map<std::string, std::string>&);
-    void registerCallback();
+    void UPNPP_LOCAL evtCallback(
+        const std::unordered_map<std::string, std::string>&);
+    void UPNPP_LOCAL registerCallback();
 };
 
 } // namespace UPnPClient

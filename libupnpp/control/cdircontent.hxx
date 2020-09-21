@@ -36,7 +36,7 @@ namespace UPnPClient {
  * There can be several resource elements in a directory entry, e.g. for
  * different encoding formats.
  */
-class UPnPResource {
+class UPNPP_API UPnPResource {
 public:
     /// URI Value
     std::string m_uri;
@@ -59,7 +59,7 @@ public:
  *
  * This is a dumb data holder class, a struct with helpers.
  */
-class UPnPDirObject {
+class UPNPP_API UPnPDirObject {
 public:
 
     /////////
@@ -283,7 +283,7 @@ private:
  * Image of a MediaServer Directory Service container (directory),
  * possibly containing items and subordinate containers.
  */
-class UPnPDirContent {
+class UPNPP_API UPnPDirContent {
 public:
     std::vector<UPnPDirObject> m_containers;
     std::vector<UPnPDirObject> m_items;

@@ -38,7 +38,7 @@ typedef std::shared_ptr<OHPlaylist> OHPLH;
  * OHPlaylist Service client class.
  *
  */
-class OHPlaylist : public Service {
+class UPNPP_API OHPlaylist : public Service {
 public:
 
     OHPlaylist(const UPnPDeviceDesc& device, const UPnPServiceDesc& service)
@@ -100,8 +100,9 @@ protected:
     static const std::string SType;
 
 private:
-    void evtCallback(const std::unordered_map<std::string, std::string>&);
-    void registerCallback();
+    void UPNPP_LOCAL evtCallback(
+        const std::unordered_map<std::string, std::string>&);
+    void UPNPP_LOCAL registerCallback();
 };
 
 } // namespace UPnPClient

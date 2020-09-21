@@ -26,7 +26,7 @@ namespace UPnPClient {
 class ConnectionManager;
 typedef std::shared_ptr<ConnectionManager> CNMH;
 
-class ConnectionManager : public TypedService {
+class UPNPP_API ConnectionManager : public TypedService {
 public:
     ConnectionManager(const std::string& tp)
         : TypedService(tp) {

@@ -35,7 +35,7 @@ typedef std::shared_ptr<RenderingControl> RDCH;
  * RenderingControl Service client class.
  *
  */
-class RenderingControl : public Service {
+class UPNPP_API RenderingControl : public Service {
 public:
 
     /** Construct by copying data from device and service objects. */
@@ -71,11 +71,12 @@ protected:
     int m_volstep{1};
 
 private:
-    void evtCallback(const std::unordered_map<std::string, std::string>&);
-    void registerCallback();
+    void UPNPP_LOCAL evtCallback(
+        const std::unordered_map<std::string, std::string>&);
+    void UPNPP_LOCAL registerCallback();
     /** Set volume parameters from service state variable table values */
-    void setVolParams(int min, int max, int step);
-    int devVolTo0100(int);
+    void UPNPP_LOCAL setVolParams(int min, int max, int step);
+    int UPNPP_LOCAL devVolTo0100(int);
 };
 
 } // namespace UPnPClient

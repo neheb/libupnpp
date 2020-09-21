@@ -62,7 +62,7 @@
 #define PACKAGE_URL "http://www.lesbonscomptes.com/upmpdcli"
 
 /* Define to the version of this package. */
-#define PACKAGE_VERSION "0.19.4"
+#define PACKAGE_VERSION "0.19.5"
 
 /* The pupnp vdir callbacks take 1 cookie */
 /* #undef PUPNP_VDIR_1COOKIE */

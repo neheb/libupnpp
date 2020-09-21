@@ -27,10 +27,12 @@
 #include <memory>
 #include <string>
 
+#include "upnppexports.hxx"
+
 namespace UPnPP {
 
 /** Decode incoming Soap call data */
-class SoapIncoming {
+class UPNPP_API SoapIncoming {
 public:
     SoapIncoming();
     ~SoapIncoming();
@@ -47,14 +49,14 @@ public:
 
     void getMap(std::unordered_map<std::string, std::string>& out);
 
-    class Internal;
+    class UPNPP_LOCAL Internal;
     Internal *m;
 };
 
 namespace SoapHelp {
-std::string xmlQuote(const std::string& in);
-std::string xmlUnquote(const std::string& in);
-std::string i2s(int val);
+std::string UPNPP_API xmlQuote(const std::string& in);
+std::string UPNPP_API xmlUnquote(const std::string& in);
+std::string UPNPP_API i2s(int val);
 inline std::string val2s(const std::string& val)
 {
     return val;
@@ -68,7 +70,7 @@ inline std::string val2s(bool val)
     return i2s(int(val));
 }
 template <class InputIterator>
-std::string argsToStr(InputIterator first, InputIterator last)
+std::string UPNPP_API argsToStr(InputIterator first, InputIterator last)
 {
     std::string out;
     for (auto it = first; it != last; it++) {
@@ -85,7 +87,7 @@ std::string argsToStr(InputIterator first, InputIterator last)
  * The generic UpnpDevice callback fills up name and service type, the
  * device call only needs to fill the data vector.
  */
-class SoapOutgoing {
+class UPNPP_API SoapOutgoing {
 public:
     SoapOutgoing();
     SoapOutgoing(const std::string& st, const std::string& nm);
@@ -97,7 +99,7 @@ public:
 
     const std::string& getName() const;
 
-    class Internal;
+    class UPNPP_LOCAL Internal;
     Internal *m;
 };
 

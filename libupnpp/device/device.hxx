@@ -26,6 +26,7 @@
 
 #include "libupnpp/soaphelp.hxx"
 #include "libupnpp/upnperrcodes.hxx"
+#include "libupnpp/upnppexports.hxx"
 
 namespace UPnPP {
 class LibUPnP;
@@ -50,7 +51,7 @@ struct VDirContent {
 /** 
  * Interface to link libupnp operations to a device implementation.
  */
-class UpnpDevice {
+class UPNPP_API UpnpDevice {
 public:
     /** Construct a device object. 
      *
@@ -183,7 +184,7 @@ public:
                           const std::string& actName, soapfun);
 
 private:
-    class Internal;
+    class UPNPP_LOCAL Internal;
     Internal *m;
     class InternalStatic;
     static InternalStatic *o;
@@ -194,7 +195,7 @@ private:
  * encapsulating the service actions and event callback. In most cases, the
  * services will need full access to the device state anyway.
  */
-class UpnpService {
+class UPNPP_API UpnpService {
 public:
     /**
      * The main role of the derived constructor is to register the
@@ -282,7 +283,7 @@ public:
 
     
 private:
-    class Internal;
+    class UPNPP_LOCAL Internal;
     Internal *m;
 };
 

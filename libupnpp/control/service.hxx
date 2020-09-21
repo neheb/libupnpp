@@ -24,10 +24,11 @@
 #include <iostream>
 #include <string>
 
-#include "libupnpp/control/cdircontent.hxx"
+#include "libupnpp/upnppexports.hxx"
 #include "libupnpp/log.hxx"
 #include "libupnpp/soaphelp.hxx"
 #include "libupnpp/upnperrcodes.hxx"
+#include "libupnpp/control/cdircontent.hxx"
 
 namespace UPnPClient {
 
@@ -45,7 +46,7 @@ class Service;
  * state variable data I am aware of. Of course, other types of data can 
  * be reported as a character string, leaving the parsing to the client code.
  */
-class VarEventReporter {
+class UPNPP_API VarEventReporter {
 public:
     virtual ~VarEventReporter() {}
     /** Report change to named integer state variable */
@@ -68,7 +69,7 @@ typedef
 std::function<void (const std::unordered_map<std::string, std::string>&)>
 evtCBFunc;
 
-class Service {
+class UPNPP_API Service {
 public:
     /** Construct by copying data from device and service objects. */
     Service(const UPnPDeviceDesc& device, const UPnPServiceDesc& service);
@@ -185,7 +186,7 @@ private:
     Service(Service const&);
     Service& operator=(Service const&);
 
-    class Internal;
+    class UPNPP_LOCAL Internal;
     Internal *m{nullptr};
 };
 

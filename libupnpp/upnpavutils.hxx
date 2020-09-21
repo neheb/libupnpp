@@ -22,16 +22,18 @@
 #include <vector>
 #include <unordered_map>
 
+#include "upnppexports.hxx"
+
 namespace UPnPP {
 
 /** Format milliseconds into H+:MM:SS */
-extern std::string upnpduration(int ms);
+std::string UPNPP_API upnpduration(int ms);
 
 /** H+:MM:SS to seconds */
-extern int upnpdurationtos(const std::string& dur);
+int UPNPP_API upnpdurationtos(const std::string& dur);
 
 /** Decode OH playlist id array */
-extern bool ohplIdArrayToVec(const std::string& data, std::vector<int> *ids);
+bool UPNPP_API ohplIdArrayToVec(const std::string& data, std::vector<int> *ids);
 
 /** Decoded protocolinfo entry data */
 struct ProtocolinfoEntry {
@@ -43,12 +45,12 @@ struct ProtocolinfoEntry {
 };
     
 /** Decode one protocolinfo entry */
-extern bool parseProtoInfEntry(const std::string& protoinfo,
-                               ProtocolinfoEntry& e);
+bool UPNPP_API parseProtoInfEntry(const std::string& protoinfo,
+                                  ProtocolinfoEntry& e);
 
 /** Decode comma-separated bunch of entries */
-bool parseProtocolInfo(const std::string& pinfo,
-                       std::vector<ProtocolinfoEntry>& entries);
+bool UPNPP_API parseProtocolInfo(const std::string& pinfo,
+                                 std::vector<ProtocolinfoEntry>& entries);
     
 }
 

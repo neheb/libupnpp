@@ -34,7 +34,7 @@ typedef std::shared_ptr<OHSender> OHSNH;
 /**
  * OHSender client class.
  */
-class OHSender : public Service {
+class UPNPP_API OHSender : public Service {
 public:
 
     OHSender(const UPnPDeviceDesc& device, const UPnPServiceDesc& service)
@@ -54,8 +54,9 @@ protected:
     static const std::string SType;
 
 private:
-    void evtCallback(const std::unordered_map<std::string, std::string>&);
-    void registerCallback();
+    void UPNPP_LOCAL evtCallback(
+        const std::unordered_map<std::string, std::string>&);
+    void UPNPP_LOCAL registerCallback();
 };
 
 } // namespace UPnPClient

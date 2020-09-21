@@ -20,6 +20,7 @@
 
 #include <memory>
 
+#include "libupnpp/upnppexports.hxx"
 #include "libupnpp/control/description.hxx"
 
 namespace UPnPClient {
@@ -38,7 +39,7 @@ typedef std::shared_ptr<Device> DVCH;
  * the UPnPDeviceDesc directly. It's there just in case we want to add
  * something in there one day
  */
-class Device {
+class UPNPP_API Device {
 public:
     Device();
     Device(const UPnPDeviceDesc& desc);
@@ -46,7 +47,7 @@ public:
     const UPnPDeviceDesc *desc() const;
 
 private:
-    class Internal;
+    class UPNPP_LOCAL Internal;
     Internal *m;
 };
 

@@ -37,7 +37,7 @@ typedef std::shared_ptr<OHRadio> OHRDH;
  * OHRadio Service client class.
  *
  */
-class OHRadio : public Service {
+class UPNPP_API OHRadio : public Service {
 public:
 
     OHRadio(const UPnPDeviceDesc& device, const UPnPServiceDesc& service)
@@ -77,8 +77,9 @@ protected:
     static const std::string SType;
 
 private:
-    void evtCallback(const std::unordered_map<std::string, std::string>&);
-    void registerCallback();
+    void UPNPP_LOCAL evtCallback(
+        const std::unordered_map<std::string, std::string>&);
+    void UPNPP_LOCAL registerCallback();
 };
 
 } // namespace UPnPClient

@@ -35,7 +35,7 @@ typedef std::shared_ptr<AVTransport> AVTH;
  * AVTransport Service client class.
  *
  */
-class AVTransport : public Service {
+class UPNPP_API AVTransport : public Service {
 public:
 
     /** Construct by copying data from device and service objects. */
@@ -147,8 +147,9 @@ protected:
     int CTAStringToBits(const std::string& actions, int& iacts);
 
 private:
-    void evtCallback(const std::unordered_map<std::string, std::string>&);
-    void registerCallback();
+    void UPNPP_LOCAL evtCallback(
+        const std::unordered_map<std::string, std::string>&);
+    void UPNPP_LOCAL registerCallback();
 };
 
 } // namespace UPnPClient

@@ -37,7 +37,7 @@ typedef std::shared_ptr<OHTime> OHTMH;
  * OHTime Service client class.
  *
  */
-class OHTime : public Service {
+class UPNPP_API OHTime : public Service {
 public:
 
     OHTime(const UPnPDeviceDesc& device, const UPnPServiceDesc& service)
@@ -62,8 +62,9 @@ protected:
     static const std::string SType;
 
 private:
-    void evtCallback(const std::unordered_map<std::string, std::string>&);
-    void registerCallback();
+    void UPNPP_LOCAL evtCallback(
+        const std::unordered_map<std::string, std::string>&);
+    void UPNPP_LOCAL registerCallback();
 };
 
 } // namespace UPnPClient

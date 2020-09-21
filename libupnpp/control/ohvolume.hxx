@@ -58,7 +58,7 @@ struct OHVCharacteristics {
  * OHVolume Service client class.
  *
  */
-class OHVolume : public Service {
+class UPNPP_API OHVolume : public Service {
 public:
 
     OHVolume(const UPnPDeviceDesc& device, const UPnPServiceDesc& service)
@@ -92,11 +92,12 @@ protected:
     static const std::string SType;
 
 private:
-    void evtCallback(const std::unordered_map<std::string, std::string>&);
-    void registerCallback();
-    int devVolTo0100(int);
-    int vol0100ToDev(int vol);
-    int maybeInitVolmax();
+    void UPNPP_LOCAL evtCallback(
+        const std::unordered_map<std::string, std::string>&);
+    void UPNPP_LOCAL registerCallback();
+    int UPNPP_LOCAL devVolTo0100(int);
+    int UPNPP_LOCAL vol0100ToDev(int vol);
+    int UPNPP_LOCAL maybeInitVolmax();
 
     int m_volmax{-1};
 };

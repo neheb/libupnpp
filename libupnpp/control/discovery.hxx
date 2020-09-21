@@ -24,6 +24,8 @@
 #include <functional>
 #include <unordered_map>
 
+#include "libupnpp/upnppexports.hxx"
+
 namespace UPnPClient {
 class UPnPDeviceDesc;
 }
@@ -56,7 +58,7 @@ namespace UPnPClient {
  *  - The discovery service processing thread, which also runs the callbacks.
  *  - The user thread (typically the main thread), which calls traverse.
  */
-class UPnPDeviceDirectory {
+class UPNPP_API UPnPDeviceDirectory {
 public:
     /** Retrieve the singleton object for the discovery service,
      * and possibly start it up if this is the first call. This does 
@@ -133,9 +135,9 @@ public:
     const std::string getReason();
 
 private:
-    UPnPDeviceDirectory(const UPnPDeviceDirectory &);
-    UPnPDeviceDirectory& operator=(const UPnPDeviceDirectory &);
-    UPnPDeviceDirectory(time_t search_window);
+    UPnPDeviceDirectory(const UPnPDeviceDirectory &) = delete;
+    UPnPDeviceDirectory& operator=(const UPnPDeviceDirectory &) = delete;
+    UPNPP_LOCAL UPnPDeviceDirectory(time_t search_window);
 };
 
 } // namespace UPnPClient

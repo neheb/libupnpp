@@ -21,15 +21,18 @@
 #include <string>
 #include <vector>
 
+#include "upnppexports.hxx"
+
 namespace UPnPP {
 
-extern void timespec_addnanos(struct timespec *ts, long long nanos);
+void UPNPP_APItimespec_addnanos(struct timespec *ts, long long nanos);
 
 // Get the list of network adapters. Note: under Windows, this returns
 // the Adapter descriptions, because the names are GUIds which appear
 // nowhere in the system GUI, and what is called "name" in the GUI is
 // nowhere to be seen in the API...
-extern bool getAdapterNames(std::vector<std::string>& names);
+bool UPNPP_API getAdapterNames(std::vector<std::string>& names);
+
 }
 
 #endif /* _UPNPPUTILS_H_X_INCLUDED_ */

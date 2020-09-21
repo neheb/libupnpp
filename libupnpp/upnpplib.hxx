@@ -21,10 +21,12 @@
 #include <map>
 #include <string>
 
+#include "upnppexports.hxx"
+
 /** Version components. */
 #define LIBUPNPP_VERSION_MAJOR 0
 #define LIBUPNPP_VERSION_MINOR 19
-#define LIBUPNPP_VERSION_REVISION 4
+#define LIBUPNPP_VERSION_REVISION 5
 /// Got this from Xapian...
 #define LIBUPNPP_AT_LEAST(A,B,C)                                        \
     (LIBUPNPP_VERSION_MAJOR > (A) ||                                    \
@@ -51,7 +53,7 @@ namespace UPnPP {
  * performed internally as needed, you only need to call it if you need to set 
  * specific parameters.
  */
-class LibUPnP {
+class UPNPP_API LibUPnP {
 public:
     ~LibUPnP();
 
@@ -133,7 +135,7 @@ public:
     /** Translate libupnp integer error code (UPNP_E_XXX) to string */
     static std::string errAsString(const std::string& who, int code);
 
-    class Internal;
+    class UPNPP_LOCAL Internal;
     Internal *m;
 
 private:

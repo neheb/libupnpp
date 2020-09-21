@@ -39,16 +39,16 @@ namespace Songcast {
  * Search the device for a Sender service and, if found, create and
  * return a service object.
  */
-extern OHSNH senderService(DVCH dev);
+OHSNH UPNPP_API senderService(DVCH dev);
 
 /**
  * Find device with given name (try friendly, then uuid), and
  * return the result of senderService()
  */
-extern OHSNH getSender(const std::string& nm, std::string& reason);
+OHSNH UPNPP_API getSender(const std::string& nm, std::string& reason);
 
 /** Everything you need to know about a Sender */
-struct SenderState {
+struct UPNPP_API SenderState {
     std::string nm;
     std::string UDN;
     std::string uri;
@@ -73,17 +73,17 @@ struct SenderState {
  *    field will hold a handle to it on return.
  * @return st.reason is empty for success, else it holds an explanation string.
  */
-extern void getSenderState(const std::string& nm, SenderState& st,
-                           bool live = true);
+void UPNPP_API getSenderState(const std::string& nm, SenderState& st,
+                              bool live = true);
 
 /** Retrieve status data for all found Senders */
-extern void listSenders(std::vector<SenderState>& vscs);
+void UPNPP_API listSenders(std::vector<SenderState>& vscs);
 
 /** Everything you need to know about a Receiver */
-struct ReceiverState {
+struct UPNPP_API ReceiverState {
     enum SCState {SCRS_GENERROR, SCRS_NOOH, SCRS_NOTRECEIVER,
                   SCRS_STOPPED, SCRS_PLAYING
-                 };
+    };
     SCState state;
     int receiverSourceIndex;
     std::string nm;
@@ -114,7 +114,7 @@ struct ReceiverState {
  * @param sourceindex index of the source
  *
  */
-extern bool setSourceIndex(const std::string& rdrnm, int sourceindex);
+bool UPNPP_API setSourceIndex(const std::string& rdrnm, int sourceindex);
 
 /** Set the source index by name for the renderer nm (friendly or uuid)
  *
@@ -122,8 +122,8 @@ extern bool setSourceIndex(const std::string& rdrnm, int sourceindex);
  * @param name name of the source
  *
  */
-extern bool setSourceIndexByName(const std::string& rdrnm,
-                                 const std::string& name);
+bool UPNPP_API setSourceIndexByName(const std::string& rdrnm,
+                                    const std::string& name);
 
 /** Retrieve the Receiver service status for device nm (friendly or uuid)
  *
@@ -131,50 +131,50 @@ extern bool setSourceIndexByName(const std::string& rdrnm,
  *    field will hold Service handles on return
  * @return st.reason will be empty on success.
  */
-extern void getReceiverState(const std::string& nm, ReceiverState& st,
-                             bool live = true);
+void UPNPP_API getReceiverState(const std::string& nm, ReceiverState& st,
+                                bool live = true);
 /** Get status for all found Receiver services */
-extern void listReceivers(std::vector<ReceiverState>& vscs);
+void UPNPP_API listReceivers(std::vector<ReceiverState>& vscs);
 
-extern bool setReceiverPlaying(ReceiverState st);
-extern bool setReceiverPlaying(ReceiverState st,
-                               const std::string& uri,
-                               const std::string& meta);
-extern bool stopReceiver(ReceiverState st);
+bool UPNPP_API setReceiverPlaying(ReceiverState st);
+bool UPNPP_API setReceiverPlaying(ReceiverState st,
+                                  const std::string& uri,
+                                  const std::string& meta);
+bool UPNPP_API stopReceiver(ReceiverState st);
 
-extern void setReceiversFromSender(const std::string& sendernm,
-                                   const std::vector<std::string>& rcvnms);
+void UPNPP_API setReceiversFromSender(const std::string& sendernm,
+                                      const std::vector<std::string>& rcvnms);
 /**
  * @return false for initial error. True if any slave setup was attempted. 
  *        Errors are indicated by a non-empty string in the reasons slot.
  */
-extern bool setReceiversFromSenderWithStatus(
+bool UPNPP_API setReceiversFromSenderWithStatus(
     const std::string& sendernm,
     const std::vector<std::string>& rcvnms,
     std::vector<std::string>& reasons);
 
-extern void setReceiversFromReceiver(const std::string& rcvnm,
-                                     const std::vector<std::string>& rcvnms);
+void UPNPP_API setReceiversFromReceiver(const std::string& rcvnm,
+                                        const std::vector<std::string>& rcvnms);
 /**
  * @return false for initial error. True if any slave setup was attempted. 
  *        Errors are indicated by a non-empty string in the reasons slot.
  */
-extern bool setReceiversFromReceiverWithStatus(
+bool UPNPP_API setReceiversFromReceiverWithStatus(
     const std::string& rcvnm,
     const std::vector<std::string>& rcvnms,
     std::vector<std::string>& reasons);
 
-extern void stopReceivers(const std::vector<std::string>& rcvnms);
+void UPNPP_API stopReceivers(const std::vector<std::string>& rcvnms);
 /**
  * @return false for initial error. True if any slave setup was attempted. 
  *        Errors are indicated by a non-empty string in the reasons slot.
  */
-extern bool stopReceiversWithStatus(const std::vector<std::string>& rcvnms,
-                                    std::vector<std::string>& reasons);
+bool UPNPP_API stopReceiversWithStatus(const std::vector<std::string>& rcvnms,
+                                       std::vector<std::string>& reasons);
 
-extern void setReceiversPlaying(const std::vector<std::string>& rcvnms);
+void UPNPP_API setReceiversPlaying(const std::vector<std::string>& rcvnms);
 
-extern bool setReceiversPlayingWithStatus(
+bool UPNPP_API setReceiversPlayingWithStatus(
     const std::vector<std::string>& rcvnms,
     std::vector<std::string>& reasons);
 
