@@ -1,6 +1,6 @@
 Source: libupnpp6
 Section: contrib/sound
-Priority: extra
+Priority: optional
 Maintainer: Jean-Francois Dockes <jf@dockes.org>
 Build-Depends: debhelper (>= 8.0.0), dh-autoreconf, autotools-dev, pkg-config,
                libnpupnp1-dev (>= 2.2.0), libexpat1-dev, libcurl-dev
