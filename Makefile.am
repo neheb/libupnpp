@@ -74,6 +74,8 @@ libupnpp_la_SOURCES = \
     libupnpp/control/typedservice.hxx \
     libupnpp/device/device.cxx \
     libupnpp/device/device.hxx \
+    libupnpp/device/service.cxx \
+    libupnpp/device/service.hxx \
     libupnpp/device/vdir.cxx \
     libupnpp/device/vdir.hxx \
     libupnpp/base64.hxx \
@@ -125,6 +127,7 @@ nobase_include_HEADERS = \
     libupnpp/control/service.hxx \
     libupnpp/control/typedservice.hxx \
     libupnpp/device/device.hxx \
+    libupnpp/device/service.hxx \
     libupnpp/device/vdir.hxx \
     libupnpp/log.h \
     libupnpp/log.hxx \

@@ -600,16 +600,15 @@ void UpnpDevice::Internal::notifyEvent(const string& serviceId,
                                        const vector<string>& values)
 {
     LOGDEB1("UpnpDevice::notifyEvent: deviceId " << deviceId << " serviceId " <<
-            serviceId << " nm[0] " << (names.empty()?"Empty names??" : names[0])
-            << endl);
+            serviceId << " chg[0] " << (names.empty() ? "Empty names??" :
+                                        names[0] + "->" + values[0]) << "\n");
+    if (names.empty())
+        return;
+
     stringstream ss;
     for (unsigned int i = 0; i < names.size() && i < values.size(); i++) {
         ss << names[i] << "=" << values[i] << " ";
     }
-    LOGDEB1("UpnpDevice::notifyEvent " << serviceId << " " <<
-            (names.empty() ? "Empty names??" : ss.str()) << endl);
-    if (names.empty())
-        return;
     vector<const char *> cnames, cvalues;
     vector<string> qvalues;
     vectorstoargslists(names, values, qvalues, cnames, cvalues);
@@ -640,7 +639,7 @@ void UpnpDevice::eventloop()
         LOGERR("Device would not start" << endl);
         return;
     }
-
+    
     int count = 0;
     // Polling the services every 1 S
     const std::chrono::milliseconds loopwait_ms(1000);
@@ -726,6 +725,23 @@ void UpnpDevice::eventloop()
     }
 }
 
+bool UpnpDevice::start()
+{
+    if (!m->start()) {
+        LOGERR("Device would not start" << endl);
+        return false;
+    }
+    return true;
+}
+
+void UpnpDevice::notifyEvent(
+    const UpnpService *service, const std::vector<std::string>& names,
+    const std::vector<std::string>& values)
+{
+    const std::string& id = service->getServiceId();
+    m->notifyEvent(id, names, values);
+}
+
 // Can't take the loop lock here. We're called from the service and
 // hold the device lock. The locks would be taken in opposite order,
 // causing a potential deadlock:
@@ -745,102 +761,4 @@ void UpnpDevice::shouldExit()
     m->evloopcond.notify_all();
 }
 
-
-class UpnpService::Internal {
-public:
-    Internal(bool noevs)
-        : noevents(noevs), dev(0) {
-    }
-    string serviceType;
-    string serviceId;
-    string xmlfn;
-    bool noevents;
-    UpnpDevice *dev;
-};
-
-UpnpService::UpnpService(
-    const std::string& stp, const std::string& sid, const std::string& xmlfn,
-    UpnpDevice *dev, bool noevs)
-    : m(new Internal(noevs))
-{
-    m->dev = dev;
-    m->serviceType = stp;
-    m->serviceId = sid;
-    m->xmlfn = xmlfn;
-    dev->addService(this);
-}
-
-UpnpDevice *UpnpService::getDevice()
-{
-    if (m) {
-        return m->dev;
-    } else {
-        return nullptr;
-    }
-}
-
-UpnpService::~UpnpService()
-{
-    if (m) {
-        if (m->dev)
-            m->dev->forgetService(m->serviceId);
-        delete m;
-        m = 0;
-    }
-}
-
-bool UpnpService::noevents() const
-{
-    return m && m->noevents;
-}
-
-bool UpnpService::getEventData(bool, std::vector<std::string>&,
-                               std::vector<std::string>&)
-{
-    return true;
-}
-
-const std::string& UpnpService::getServiceType() const
-{
-    return m->serviceType;
-}
-
-const std::string& UpnpService::getServiceId() const
-{
-    return m->serviceId;
-}
-
-const std::string& UpnpService::getXMLFn() const
-{
-    return m->xmlfn;
-}
-
-const std::string UpnpService::errString(int error) const
-{
-    switch (error) {
-    case UPNP_INVALID_ACTION: return "Invalid Action";
-    case UPNP_INVALID_ARGS: return "Invalid Arguments";
-    case UPNP_INVALID_VAR: return "Invalid Variable";
-    case UPNP_ACTION_CONFLICT: return "Action Conflict";
-    case UPNP_ACTION_FAILED: return "Action Failed";
-    case UPNP_ARG_VALUE_INVALID: return "Arg Value Invalid";
-    case UPNP_ARG_VALUE_OUT_OF_RANGE: return "Arg Value Out Of Range";
-    case UPNP_OPTIONAL_ACTION_NOT_IMPLEMENTED:
-        return "Optional Action Not Implemented";
-    case UPNP_OUT_OF_MEMORY: return "Out Of MEMORY";
-    case UPNP_HUMAN_INTERVENTION_REQUIRED: return "Human Intervention Required";
-    case UPNP_STRING_ARGUMENT_TOO_LONG: return "String Argument Too Long";
-    case UPNP_ACTION_NOT_AUTHORIZED: return "Action Not Authorized";
-    case UPNP_SIGNATURE_FAILING: return "Signature Failing";
-    case UPNP_SIGNATURE_MISSING: return "Signature Missing";
-    case UPNP_NOT_ENCRYPTED: return "Not Encrypted";
-    case UPNP_INVALID_SEQUENCE: return "Invalid Sequence";
-    case UPNP_INVALID_CONTROL_URLS: return "Invalid Control URLS";
-    case UPNP_NO_SUCH_SESSION: return "No Such Session";
-    default:
-        break;
-    }
-    return serviceErrString(error);
-}
-
-}// End namespace UPnPProvider
+} // End namespace UPnPProvider
