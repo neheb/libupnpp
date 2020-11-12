@@ -187,7 +187,7 @@ void AVTransport::evtCallback(
                        !it1->first.compare("NextAVTransportURIMetaData") ||
                        !it1->first.compare("CurrentTrackMetaData")) {
                 UPnPDirContent meta;
-                if (!meta.parse(it1->second)) {
+                if (!it1->second.empty() && !meta.parse(it1->second)) {
                     LOGERR("AVTransport event: bad metadata: [" <<
                            it1->second << "]" << endl);
                 } else {
@@ -281,7 +281,8 @@ int AVTransport::getMediaInfo(MediaInfo& info, int instanceID)
     data.get("CurrentURI", &info.cururi);
     data.get("CurrentURIMetaData", &s);
     UPnPDirContent meta;
-    meta.parse(s);
+    if (!s.empty())
+        meta.parse(s);
     if (meta.m_items.size() > 0)
         info.curmeta = meta.m_items[0];
     meta.clear();
@@ -405,25 +406,28 @@ int AVTransport::CTAStringToBits(const string& actions, int& iacts)
         return UPNP_E_BAD_RESPONSE;
     }
     iacts = 0;
-    for (vector<string>::iterator it = sacts.begin(); it != sacts.end(); it++) {
-        trimstring(*it);
-        if (!it->compare("Next")) {
+    for (auto& act : sacts) {
+        trimstring(act);
+        // It's not clear if the values are case sensitive, they are
+        // as below in the doc. gmediarender for one, uses
+        // all-caps. So let's compare insensitively.
+        if (!stringicmp(act, "Next")) {
             iacts |= TPA_Next;
-        } else if (!it->compare("Pause")) {
+        } else if (!stringicmp(act, "Pause")) {
             iacts |= TPA_Pause;
-        } else if (!it->compare("Play")) {
+        } else if (!stringicmp(act, "Play")) {
             iacts |= TPA_Play;
-        } else if (!it->compare("Previous")) {
+        } else if (!stringicmp(act, "Previous")) {
             iacts |= TPA_Previous;
-        } else if (!it->compare("Seek")) {
+        } else if (!stringicmp(act, "Seek")) {
             iacts |= TPA_Seek;
-        } else if (!it->compare("Stop")) {
+        } else if (!stringicmp(act, "Stop")) {
             iacts |= TPA_Stop;
-        } else if (it->empty()) {
+        } else if (act.empty()) {
             continue;
         } else {
             LOGERR("AVTransport::CTAStringToBits: unknown action in " <<
-                   actions << " : [" << *it << "]" << endl);
+                   actions << " : [" << act << "]" << endl);
         }
     }
     return 0;
