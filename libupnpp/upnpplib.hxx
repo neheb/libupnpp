@@ -57,16 +57,20 @@ class UPNPP_API LibUPnP {
 public:
     ~LibUPnP();
 
-    /** Retrieve the singleton LibUPnP object
+    /** Retrieve the singleton LibUPnP object.
+     *
+     * Using this call with arguments is deprecated. Call init() then
+     * getLibUPnP() without arguments instead.
      *
      * This initializes libupnp, possibly setting an address and port, possibly
      * registering a client if serveronly is false.
      *
      * @param serveronly no client init
-     * @param hwaddr returns the hardware address for the specified network
-     *   interface, or the first one is ifname is empty. If the IP address is
-     *   specified instead of the interface name, the hardware address
-     *   returned is not necessarily the one matching the IP.
+     * @param[output] hwaddr returns the hardware address for the
+     *   specified network interface, or the first one is ifname is
+     *   empty. If the IP address is specified instead of the interface
+     *   name, the hardware address returned is not necessarily the one
+     *   matching the IP.
      * @param ifname if not empty, network interface to use. Passed to 
      *   libnpupnp. Null or empty to use the first interface, 
      *   "*" for all interfaces,
@@ -80,9 +84,40 @@ public:
                                const std::string ip = std::string(),
                                unsigned short port = 0);
 
+    enum InitFlags {
+        UPNPPINIT_FLAG_NONE = 0,
+        UPNPPINIT_FLAG_NOIPV6 = 1,
+        UPNPPINIT_FLAG_SERVERONLY = 2,
+    };
+
+    enum InitOption {
+        /** Terminate the VARARGs list. */
+        UPNPPINIT_OPTION_END = 0,
+        /** Names of the interfaces to use. Space-separated list. If not
+         * set, we will use the first interface. If set to '*', will use
+         * all. const std::string* follows. */
+        UPNPPINIT_OPTION_IFNAMES,
+        /** Use single IPV4 address. This is incompatible with OPTION_IFNAMES. 
+         * const std::string* address in dot notation follows. */
+        UPNPPINIT_OPTION_IPV4,
+        /** IP Port to use. The lower lib default is 49152. 
+         * int follows */
+        UPNPPINIT_OPTION_PORT,
+    };
+
+    /** Initialize the library.
+     *
+     * On success you will then call getLibUPnP() to access the object instance.
+     * @param flags OR'd InitFlags.
+     * @param ... A list of InitOption and values, ended by UPNPPINIT_OPTION_END.
+     * @return false for failure, true for success. 
+     */
+    static bool init(unsigned int flags, ...);
+
     /// Return the IP v4 address as dotted notation
     std::string host();
-    
+    /// Return one ethernet address.
+    std::string hwaddr();
     /** Returns something like "libupnpp 0.14.0 libupnp x.y.z" */
     static std::string versionString();
 
@@ -139,9 +174,7 @@ public:
     Internal *m;
 
 private:
-    LibUPnP(bool serveronly, std::string *hwaddr,
-            const std::string ifname, const std::string ip,
-            unsigned short port);
+    LibUPnP();
     LibUPnP(const LibUPnP &);
     LibUPnP& operator=(const LibUPnP &);
 };

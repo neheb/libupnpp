@@ -1,3 +1,11 @@
+libupnpp6 (0.20.0-1~ppaPPAVERS~SERIES1) SERIES; urgency=low
+
+  * Allow alternate method of event generation by letting the device code
+    run its event loop instead of polling the services for changes.
+  * Add new initialization method allowing easier extensibility of options.
+
+ -- Jean-Francois Dockes <jf@dockes.org>  Sun, 15 Nov 2020 12:20:00 +0100
+ 
 libupnpp6 (0.19.4-1~ppaPPAVERS~SERIES1) SERIES; urgency=low
 
   * Small fixes.
