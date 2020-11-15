@@ -22,6 +22,8 @@
 #include <stdio.h>
 #include <string.h>
 #include <time.h>
+#include <cstdarg>
+
 #ifdef __MACH__
 #include <mach/clock.h>
 #include <mach/mach.h>
@@ -55,16 +57,70 @@ namespace UPnPP {
 
 static LibUPnP *theLib;
 
+struct UPnPOptions {
+    unsigned int flags;
+    std::string ifnames;
+    std::string ipv4;
+    int port;
+    
+};
+static UPnPOptions options;
+
+bool LibUPnP::init(unsigned int flags, ...)
+{
+    va_list ap;
+
+    if (nullptr != theLib) {
+        std::cerr << "LibUPnP::init: lib already initialized\n";
+        return false;
+    }
+    options.flags = flags;
+
+    va_start(ap, flags);
+    for (;;) {
+        int option = static_cast<InitOption>(va_arg(ap, int));
+        if (option == UPNP_OPTION_END) {
+            break;
+        }
+        switch (option) {
+        case UPNPPINIT_OPTION_IFNAMES:
+            options.ifnames = *((std::string*)(va_arg(ap, std::string*)));
+            break;
+        case UPNPPINIT_OPTION_IPV4:
+            options.ipv4 = *((std::string*)(va_arg(ap, std::string*)));
+            break;
+        case UPNPPINIT_OPTION_PORT:
+            options.port = va_arg(ap, int);
+            break;
+        default:
+            std::cerr << "LibUPnP::init: unknown option value " << option <<"\n";
+        }
+    }
+    if (!options.ipv4.empty() && !options.ifnames.empty()) {
+        std::cerr << "LibUPnP::init: can't set both ifnames and ipv4\n";
+        return false;
+    }
+    theLib = new LibUPnP();
+    return nullptr != theLib;
+}
+
 LibUPnP *LibUPnP::getLibUPnP(bool serveronly, string* hwaddr,
                              const string ifname, const string ip,
                              unsigned short port)
 {
-    if (theLib == 0)
-        theLib = new LibUPnP(serveronly, hwaddr, ifname, ip, port);
+    if (nullptr == theLib) {
+        init(serveronly?UPNPPINIT_FLAG_SERVERONLY:0,
+             UPNPPINIT_OPTION_IFNAMES, &ifname,
+             UPNPPINIT_OPTION_IPV4, &ip,
+             UPNPPINIT_OPTION_PORT, int(port),
+             UPNPPINIT_OPTION_END);
+        if (nullptr != theLib && nullptr != hwaddr) {
+            *hwaddr = theLib->hwaddr();
+        }
+    }
     if (theLib && !theLib->ok()) {
         delete theLib;
-        theLib = 0;
-        return 0;
+        theLib = nullptr;
     }
     return theLib;
 }
@@ -111,12 +167,31 @@ int LibUPnP::getInitError()
     return Internal::init_error;
 }
 
-LibUPnP::LibUPnP(bool serveronly, string* hwaddr,
-                 const string ifname, const string inip, unsigned short port)
+std::string LibUPnP::hwaddr()
 {
-    LOGDEB("LibUPnP: serveronly " << serveronly << " &hwaddr " << hwaddr <<
-           " ifname [" << ifname << "] inip [" << inip << "] port " << port
-           << endl);
+    std::string addr;
+    auto *ifs = NetIF::Interfaces::theInterfaces();
+    if (ifs) {
+        NetIF::Interfaces::Filter filt;
+        filt.needs = {NetIF::Interface::Flags::HASIPV4};
+        filt.rejects = {NetIF::Interface::Flags::LOOPBACK};
+        auto vifs = ifs->select(filt);
+        if (!vifs.empty()) {
+            addr = hexprint(vifs[0].gethwaddr());
+        }
+    }
+    if (addr.empty()) {
+        LOGERR("LibUPnP: could not retrieve network hardware address\n");
+    }
+    return addr;
+}
+
+LibUPnP::LibUPnP()
+{
+    bool serveronly = 0 != (options.flags&UPNPPINIT_FLAG_SERVERONLY);
+    LOGDEB("LibUPnP: serveronly " << serveronly << " ifnames [" <<
+           options.ifnames << "] inip [" << options.ipv4 << "] port " <<
+           options.port << endl);
 
     if ((m = new Internal()) == 0) {
         LOGERR("LibUPnP::LibUPnP: out of memory" << endl);
@@ -125,17 +200,21 @@ LibUPnP::LibUPnP(bool serveronly, string* hwaddr,
 
     m->ok = false;
 
-    if (ifname.empty() && !inip.empty()) {
+    if (options.ifnames.empty() && !options.ipv4.empty()) {
         // If the interface name was not specified, and the IP address
         // is supplied, call the old (n)pupnp init method.
-        m->init_error = UpnpInit(inip.c_str(), port);
+        m->init_error = UpnpInit(options.ipv4.c_str(), options.port);
     } else {
         // We use a short wait if serveronly is not set. This is not
         // correct really, what we'd want to test is something like
         // clientonly, or better, this should really be an explicit
         // option of the lib. Solves upplay init for now anyway.
+        int flags = 0;
+        if (0 == (options.flags & UPNPPINIT_FLAG_NOIPV6)) {
+            flags |= UPNP_FLAG_IPV6;
+        }        
         m->init_error = UpnpInitWithOptions(
-            ifname.c_str(), port, UPNP_FLAG_IPV6,
+            options.ifnames.c_str(), options.port, flags,
             UPNP_OPTION_NETWORK_WAIT, serveronly ? 60 : 1,
             UPNP_OPTION_END);
     }
@@ -144,24 +223,6 @@ LibUPnP::LibUPnP(bool serveronly, string* hwaddr,
         return;
     }
     setMaxContentLength(2000*1024);
-
-    if (hwaddr) {
-        auto *ifs = NetIF::Interfaces::theInterfaces();
-        hwaddr->clear();
-        if (ifs) {
-            NetIF::Interfaces::Filter filt;
-            filt.needs = {NetIF::Interface::Flags::HASIPV4};
-            filt.rejects = {NetIF::Interface::Flags::LOOPBACK};
-            auto vifs = ifs->select(filt);
-            if (!vifs.empty()) {
-                *hwaddr = hexprint(vifs[0].gethwaddr());
-            }
-        }
-        if (hwaddr->empty()) {
-            LOGERR("LibUPnP: could not retrieve network hardware address\n");
-            return;
-        }
-    }
 
     LOGINF("LibUPnP: Using IPV4 " << UpnpGetServerIpAddress() << " port " <<
            UpnpGetServerPort() << " IPV6 " << UpnpGetServerIp6Address() <<
