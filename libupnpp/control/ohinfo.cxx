@@ -95,6 +95,10 @@ int OHInfo::metatext(UPnPDirObject *dirent)
         LOGERR("OHInfo::Read: missing Value in response" << endl);
         return UPNP_E_BAD_RESPONSE;
     }
+    if (didl.empty()) {
+        *dirent = UPnPDirObject();
+        return UPNP_E_SUCCESS;
+    }
     return OHRadio::decodeMetadata("OHInfo::metatext", didl, dirent);
 }
 
