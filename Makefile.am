@@ -161,6 +161,6 @@ if LINUX
 	nm -g --defined-only --demangle .libs/libupnpp.so | grep ' T ' | \
            awk '{print $$3}' | diff - $(top_srcdir)/symbols-reference
 endif
-	test -z "`git status -s | egrep -v '?? libupnpp-.*/'`" 
+	test -z "`git status -s | egrep -v '?? libupnpp-.*/|?? libutility.a'`" 
 	vers=`echo $(VERSION) | sed -e 's/~/_/g'`;\
 	git tag -a libupnpp-v$$vers -m "version $$vers"

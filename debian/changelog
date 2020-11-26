@@ -1,3 +1,9 @@
+libupnpp6 (0.20.1-1~ppaPPAVERS~SERIES1) SERIES; urgency=low
+
+  * Avoid error message about empty didl data.
+
+ -- Jean-Francois Dockes <jf@dockes.org>  Thu, 26 Nov 2020 09:30:00 +0100
+ 
 libupnpp6 (0.20.0-1~ppaPPAVERS~SERIES1) SERIES; urgency=low
 
   * Allow alternate method of event generation by letting the device code
