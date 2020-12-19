@@ -17,7 +17,8 @@ libupnpp_la_CXXFLAGS = -fvisibility=hidden
 # and could not make it work. So, as automake only supports per-target
 # flags, have to use a separate utility static lib for compiling log.cpp
 # This generates a bogus warning about linking a .a into a .so
-noinst_LIBRARIES = libutility.a
+instdir=/usr/lib
+inst_LIBRARIES = libutility.a
 libutility_a_SOURCES = \
     libupnpp/log.cpp \
     libupnpp/log.h \

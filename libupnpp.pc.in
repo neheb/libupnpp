@@ -8,5 +8,5 @@ Description: C++ wrapper for libupnp
 Version: @PACKAGE_VERSION@
 Requires: libcurl
 Libs: -L${libdir} -lupnpp
-Libs.private: @LIBUPNPP_LIBS@
+Libs.private: @LIBUPNPP_LIBS@ -lutility
 Cflags: -I${includedir}
