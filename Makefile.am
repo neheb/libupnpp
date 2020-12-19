@@ -17,13 +17,13 @@ libupnpp_la_CXXFLAGS = -fvisibility=hidden
 # and could not make it work. So, as automake only supports per-target
 # flags, have to use a separate utility static lib for compiling log.cpp
 # This generates a bogus warning about linking a .a into a .so
-instdir=/usr/lib
-inst_LIBRARIES = libutility.a
-libutility_a_SOURCES = \
+instdir=${libdir}
+inst_LIBRARIES = libupnpputil.a
+libupnpputil_a_SOURCES = \
     libupnpp/log.cpp \
     libupnpp/log.h \
     libupnpp/log.hxx
-libutility_a_CXXFLAGS = -fPIC -DPIC
+libupnpputil_a_CXXFLAGS = -fPIC -DPIC
 endif
 
 libupnpp_la_SOURCES = \
@@ -147,7 +147,7 @@ if LINUX
 libupnpp_la_LDFLAGS = -Wl,-zdefs -no-undefined -version-info $(VERSION_INFO) 
 endif
 
-libupnpp_la_LIBADD = $(LIBUPNPP_LIBS) libutility.a
+libupnpp_la_LIBADD = $(LIBUPNPP_LIBS) libupnpputil.a
 
 if FREEBSD
 pkgconfigdir=${prefix}/libdata/pkgconfig
@@ -162,6 +162,6 @@ if LINUX
 	nm -g --defined-only --demangle .libs/libupnpp.so | grep ' T ' | \
            awk '{print $$3}' | diff - $(top_srcdir)/symbols-reference
 endif
-	test -z "`git status -s | egrep -v '?? libupnpp-.*/|?? libutility.a'`" 
+	test -z "`git status -s | egrep -v '?? libupnpp-.*/|?? libupnpputil.a'`" 
 	vers=`echo $(VERSION) | sed -e 's/~/_/g'`;\
 	git tag -a libupnpp-v$$vers -m "version $$vers"
