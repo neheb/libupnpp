@@ -176,9 +176,9 @@ void ContentDirectory::registerCallback()
     Service::registerCallback(bind(&ContentDirectory::evtCallback, this, _1));
 }
 
-int ContentDirectory::readDirSlice(const string& objectId, int offset,
-                                   int count, UPnPDirContent& dirbuf,
-                                   int *didread, int *total)
+int ContentDirectory::readDirSlice(
+    const string& objectId, int offset, int count,
+    UPnPDirContent& dirbuf, int *didread, int *total)
 {
     LOGDEB("CDService::readDirSlice: objId [" << objectId << "] offset " <<
            offset << " count " << count << endl);
@@ -213,7 +213,7 @@ int ContentDirectory::readDirSlice(const string& objectId, int offset,
     }
 
     LOGDEB0("ContentDirectory::readDirSlice: got count " << count <<
-            " offset " << offset << " total " << *total << "Data:\n" <<
+            " offset " << offset << " total " << *total << " Data:\n" <<
             tbuf << "\n");
 
     dirbuf.parse(tbuf);
@@ -221,17 +221,16 @@ int ContentDirectory::readDirSlice(const string& objectId, int offset,
     return UPNP_E_SUCCESS;
 }
 
-int ContentDirectory::readDir(const string& objectId,
-                              UPnPDirContent& dirbuf)
+int ContentDirectory::readDir(const string& objectId, UPnPDirContent& dirbuf)
 {
     LOGDEB("CDService::readDir: url [" << getActionURL() << "] type [" <<
            getServiceType() << "] udn [" << getDeviceId() << "] objId [" <<
            objectId << endl);
 
     int offset = 0;
-    int total = 1000;// Updated on first read.
+    int total = 0;// Updated on first read.
 
-    while (offset < total) {
+    while (total == 0 || (offset < total)) {
         int count;
         int error = readDirSlice(objectId, offset, m_rdreqcnt, dirbuf,
                                  &count, &total);
@@ -239,15 +238,16 @@ int ContentDirectory::readDir(const string& objectId,
             return error;
 
         offset += count;
+        if (count != m_rdreqcnt)
+            break;
     }
 
     return UPNP_E_SUCCESS;
 }
 
-int ContentDirectory::searchSlice(const string& objectId,
-                                  const string& ss,
-                                  int offset, int count, UPnPDirContent& dirbuf,
-                                  int *didread, int *total)
+int ContentDirectory::searchSlice(
+    const string& objectId, const string& ss, int offset, int count,
+    UPnPDirContent& dirbuf, int *didread, int *total)
 {
     LOGDEB("CDService::searchSlice: objId [" << objectId << "] offset " <<
            offset << " count " << count << endl);
@@ -287,24 +287,24 @@ int ContentDirectory::searchSlice(const string& objectId,
     return UPNP_E_SUCCESS;
 }
 
-int ContentDirectory::search(const string& objectId,
-                             const string& ss,
-                             UPnPDirContent& dirbuf)
+int ContentDirectory::search(
+    const string& objectId, const string& ss, UPnPDirContent& dirbuf)
 {
     LOGDEB("CDService::search: url [" << getActionURL() << "] type [" <<
            getServiceType() << "] udn [" << getDeviceId() << "] objid [" <<
            objectId <<  "] search [" << ss << "]" << endl);
 
     int offset = 0;
-    int total = 1000;// Updated on first read.
+    int total = 0;// Updated on first read.
 
-    while (offset < total) {
+    while (total == 0 || (offset < total)) {
         int count;
         int error = searchSlice(objectId, ss, offset, m_rdreqcnt, dirbuf,
                                 &count, &total);
         if (error != UPNP_E_SUCCESS)
             return error;
-
+        if (count != m_rdreqcnt)
+            break;
         offset += count;
     }
 
