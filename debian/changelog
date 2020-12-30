@@ -1,3 +1,9 @@
+libupnpp6 (0.20.2-1~ppaPPAVERS~SERIES1) SERIES; urgency=low
+
+  * Improve content directory client to work with TotalMatches=0 answers
+
+ -- Jean-Francois Dockes <jf@dockes.org>  Wed, 30 Dec 2020 15:07:00 +0100
+ 
 libupnpp6 (0.20.1-1~ppaPPAVERS~SERIES1) SERIES; urgency=low
 
   * Avoid error message about empty didl data.
