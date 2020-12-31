@@ -25,6 +25,7 @@
 #include <iostream>
 #include <utility>
 #include <unordered_map>
+#include <mutex>
 
 #include "libupnpp/log.hxx"
 #include "libupnpp/upnpp_p.hxx"
@@ -53,6 +54,7 @@ public:
     VirtualDir::FileOps ops;
 };
 static unordered_map<string,  DirEnt> m_dirs;
+static std::mutex dirsmutex;
 
 static void pathcatslash(string& path)
 {
@@ -61,7 +63,7 @@ static void pathcatslash(string& path)
     }
 }
 
-// Look up entry for pathname
+// Look up entry for pathname. Call with lock held
 static FileEnt *vdgetentry(const char *pathname, DirEnt **de)
 {
     //LOGDEB("vdgetentry: [" << pathname << "]" << endl);
@@ -103,6 +105,7 @@ bool VirtualDir::addFile(const string& _path, const string& name,
     
     //LOGDEB("VirtualDir::addFile: path " << path << " name " << name << endl);
 
+    std::lock_guard<std::mutex> lock(dirsmutex);
     if (m_dirs.find(path) == m_dirs.end()) {
         m_dirs[path] = DirEnt();
         UpnpAddVirtualDir(path.c_str(), 0, 0);
@@ -122,6 +125,7 @@ bool VirtualDir::addVDir(const std::string& _path, FileOps fops)
 {
     string path(_path);
     pathcatslash(path);
+    std::lock_guard<std::mutex> lock(dirsmutex);
     if (m_dirs.find(path) == m_dirs.end()) {
         m_dirs[path] = DirEnt(true);
         UpnpAddVirtualDir(path.c_str(), 0, 0);
@@ -159,6 +163,7 @@ static int vdgetinfo(
 {
     //LOGDEB("vdgetinfo: [" << fn << "] off_t " << sizeof(off_t) <<
     // " time_t " << sizeof(time_t) << endl);
+    std::lock_guard<std::mutex> lock(dirsmutex);
     DirEnt *dir;
     FileEnt *entry = vdgetentry(fn, &dir);
     if (dir && dir->isvd) {
@@ -191,6 +196,7 @@ static UpnpWebFileHandle vdopen(
     const char* fn, enum UpnpOpenFileMode, const void*, const void*)
 {
     //LOGDEB("vdopen: " << fn << endl);
+    std::lock_guard<std::mutex> lock(dirsmutex);
     DirEnt *dir;
     FileEnt *entry = vdgetentry(fn, &dir);
 
@@ -214,6 +220,7 @@ static int vdread(UpnpWebFileHandle fileHnd, char* buf, size_t buflen,
                   const void*, const void*)
 {
     // LOGDEB("vdread: " << endl);
+    std::lock_guard<std::mutex> lock(dirsmutex);
     if (buflen == 0) {
         return 0;
     }
@@ -236,6 +243,7 @@ static int vdseek(UpnpWebFileHandle fileHnd, int64_t offset, int origin,
                   const void*, const void*)
 {
     // LOGDEB("vdseek: " << endl);
+    std::lock_guard<std::mutex> lock(dirsmutex);
     Handle *h = (Handle *)fileHnd;
     if (h->vhandle) {
         return h->dir->ops.seek(h->vhandle, (off_t)offset, origin) ==
