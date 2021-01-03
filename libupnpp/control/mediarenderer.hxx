@@ -78,6 +78,8 @@ public:
                                const std::string& friendlyName = "");
     static bool isMRDevice(const std::string& devicetype);
 
+    bool reSubscribeAll();
+    
 protected:
     static const std::string DType;
 private:

@@ -87,12 +87,12 @@ bool MediaRenderer::getDeviceDescs(vector<UPnPDeviceDesc>& devices,
 {
     std::unordered_map<string, UPnPDeviceDesc> mydevs;
 
-    UPnPDeviceDirectory::Visitor visitor = bind(MDAccum, &mydevs, friendlyName,
-                                           _1, _2);
+    UPnPDeviceDirectory::Visitor visitor = bind(
+        MDAccum, &mydevs, friendlyName, _1, _2);
     UPnPDeviceDirectory::getTheDir()->traverse(visitor);
-    for (std::unordered_map<string, UPnPDeviceDesc>::iterator it =
-                mydevs.begin(); it != mydevs.end(); it++)
-        devices.push_back(it->second);
+    for (const auto& dev : mydevs) {
+        devices.push_back(dev.second);
+    }
     return !devices.empty();
 }
 
@@ -115,6 +115,36 @@ bool MediaRenderer::hasOpenHome()
     return ohpr() ? true : false;
 }
 
+
+#define RESUBS_ONE(S) \
+    do {                                            \
+        auto ptr = (S).lock();                      \
+        if (ptr) {                                  \
+            ok = ptr->reSubscribe();                \
+            if (!ok) {                              \
+                return false;                       \
+            }                                       \
+        }                                           \
+    } while (false);
+
+bool MediaRenderer::reSubscribeAll()
+{
+    std::cerr << "bool MediaRenderer::reSubscribeAll()\n";
+    bool ok;
+    RESUBS_ONE(m->rdc);
+    RESUBS_ONE(m->avt);
+    RESUBS_ONE(m->cnm);
+    RESUBS_ONE(m->ohpr);
+    RESUBS_ONE(m->ohpl);
+    RESUBS_ONE(m->ohtm);
+    RESUBS_ONE(m->ohvl);
+    RESUBS_ONE(m->ohrc);
+    RESUBS_ONE(m->ohrd);
+    RESUBS_ONE(m->ohif);
+    RESUBS_ONE(m->ohsn);
+    return true;
+}
+
 RDCH MediaRenderer::rdc()
 {
     if (desc() == 0)
@@ -123,10 +153,9 @@ RDCH MediaRenderer::rdc()
     RDCH rdcl = m->rdc.lock();
     if (rdcl)
         return rdcl;
-    for (vector<UPnPServiceDesc>::const_iterator it = desc()->services.begin();
-            it != desc()->services.end(); it++) {
-        if (RenderingControl::isRDCService(it->serviceType)) {
-            rdcl = RDCH(new RenderingControl(*desc(), *it));
+    for (const auto& service : desc()->services) {
+        if (RenderingControl::isRDCService(service.serviceType)) {
+            rdcl = RDCH(new RenderingControl(*desc(), service));
             break;
         }
     }
@@ -141,10 +170,9 @@ AVTH MediaRenderer::avt()
     AVTH avtl = m->avt.lock();
     if (avtl)
         return avtl;
-    for (vector<UPnPServiceDesc>::const_iterator it = desc()->services.begin();
-            it != desc()->services.end(); it++) {
-        if (AVTransport::isAVTService(it->serviceType)) {
-            avtl = AVTH(new AVTransport(*desc(), *it));
+    for (const auto& service : desc()->services) {
+        if (AVTransport::isAVTService(service.serviceType)) {
+            avtl = AVTH(new AVTransport(*desc(), service));
             break;
         }
     }
@@ -177,10 +205,9 @@ OHPRH MediaRenderer::ohpr()
     OHPRH ohprl = m->ohpr.lock();
     if (ohprl)
         return ohprl;
-    for (vector<UPnPServiceDesc>::const_iterator it = desc()->services.begin();
-            it != desc()->services.end(); it++) {
-        if (OHProduct::isOHPrService(it->serviceType)) {
-            ohprl = OHPRH(new OHProduct(*desc(), *it));
+    for (const auto& service : desc()->services) {
+        if (OHProduct::isOHPrService(service.serviceType)) {
+            ohprl = OHPRH(new OHProduct(*desc(), service));
             break;
         }
     }
@@ -195,10 +222,9 @@ OHPLH MediaRenderer::ohpl()
     OHPLH ohpll = m->ohpl.lock();
     if (ohpll)
         return ohpll;
-    for (vector<UPnPServiceDesc>::const_iterator it = desc()->services.begin();
-            it != desc()->services.end(); it++) {
-        if (OHPlaylist::isOHPlService(it->serviceType)) {
-            ohpll = OHPLH(new OHPlaylist(*desc(), *it));
+    for (const auto& service : desc()->services) {
+        if (OHPlaylist::isOHPlService(service.serviceType)) {
+            ohpll = OHPLH(new OHPlaylist(*desc(), service));
             break;
         }
     }
@@ -213,10 +239,9 @@ OHRCH MediaRenderer::ohrc()
     OHRCH ohrcl = m->ohrc.lock();
     if (ohrcl)
         return ohrcl;
-    for (vector<UPnPServiceDesc>::const_iterator it = desc()->services.begin();
-            it != desc()->services.end(); it++) {
-        if (OHReceiver::isOHRcService(it->serviceType)) {
-            ohrcl = OHRCH(new OHReceiver(*desc(), *it));
+    for (const auto& service : desc()->services) {
+        if (OHReceiver::isOHRcService(service.serviceType)) {
+            ohrcl = OHRCH(new OHReceiver(*desc(), service));
             break;
         }
     }
@@ -231,10 +256,9 @@ OHRDH MediaRenderer::ohrd()
     OHRDH handle = m->ohrd.lock();
     if (handle)
         return handle;
-    for (vector<UPnPServiceDesc>::const_iterator it = desc()->services.begin();
-            it != desc()->services.end(); it++) {
-        if (OHRadio::isOHRdService(it->serviceType)) {
-            handle = OHRDH(new OHRadio(*desc(), *it));
+    for (const auto& service : desc()->services) {
+        if (OHRadio::isOHRdService(service.serviceType)) {
+            handle = OHRDH(new OHRadio(*desc(), service));
             break;
         }
     }
@@ -249,10 +273,9 @@ OHIFH MediaRenderer::ohif()
     OHIFH handle = m->ohif.lock();
     if (handle)
         return handle;
-    for (vector<UPnPServiceDesc>::const_iterator it = desc()->services.begin();
-            it != desc()->services.end(); it++) {
-        if (OHInfo::isOHInfoService(it->serviceType)) {
-            handle = OHIFH(new OHInfo(*desc(), *it));
+    for (const auto& service : desc()->services) {
+        if (OHInfo::isOHInfoService(service.serviceType)) {
+            handle = OHIFH(new OHInfo(*desc(), service));
             break;
         }
     }
@@ -267,10 +290,9 @@ OHSNH MediaRenderer::ohsn()
     OHSNH handle = m->ohsn.lock();
     if (handle)
         return handle;
-    for (vector<UPnPServiceDesc>::const_iterator it = desc()->services.begin();
-            it != desc()->services.end(); it++) {
-        if (OHSender::isOHSenderService(it->serviceType)) {
-            handle = OHSNH(new OHSender(*desc(), *it));
+    for (const auto& service : desc()->services) {
+        if (OHSender::isOHSenderService(service.serviceType)) {
+            handle = OHSNH(new OHSender(*desc(), service));
             break;
         }
     }
@@ -285,10 +307,9 @@ OHTMH MediaRenderer::ohtm()
     OHTMH ohtml = m->ohtm.lock();
     if (ohtml)
         return ohtml;
-    for (vector<UPnPServiceDesc>::const_iterator it = desc()->services.begin();
-            it != desc()->services.end(); it++) {
-        if (OHTime::isOHTMService(it->serviceType)) {
-            ohtml = OHTMH(new OHTime(*desc(), *it));
+    for (const auto& service : desc()->services) {
+        if (OHTime::isOHTMService(service.serviceType)) {
+            ohtml = OHTMH(new OHTime(*desc(), service));
             break;
         }
     }
@@ -303,10 +324,9 @@ OHVLH MediaRenderer::ohvl()
     OHVLH ohvll = m->ohvl.lock();
     if (ohvll)
         return ohvll;
-    for (vector<UPnPServiceDesc>::const_iterator it = desc()->services.begin();
-            it != desc()->services.end(); it++) {
-        if (OHVolume::isOHVLService(it->serviceType)) {
-            ohvll = OHVLH(new OHVolume(*desc(), *it));
+    for (const auto& service : desc()->services) {
+        if (OHVolume::isOHVLService(service.serviceType)) {
+            ohvll = OHVLH(new OHVolume(*desc(), service));
             break;
         }
     }
