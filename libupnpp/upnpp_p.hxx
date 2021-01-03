@@ -75,6 +75,8 @@ extern std::string evTypeAsString(Upnp_EventType);
 class LibUPnP::Internal {
 public:
 
+    int getSubsTimeout();
+    
     /** Specify function to be called on given UPnP
      *  event. The call will happen in the libupnp thread context.
      */
@@ -92,7 +94,6 @@ public:
     };
 
     int setupWebServer(const std::string& description, UpnpDevice_Handle *dvh);
-
     UpnpClient_Handle getclh();
     
     bool ok;

@@ -62,7 +62,7 @@ struct UPnPOptions {
     std::string ifnames;
     std::string ipv4;
     int port;
-    
+    int substimeout{1800};
 };
 static UPnPOptions options;
 
@@ -91,6 +91,9 @@ bool LibUPnP::init(unsigned int flags, ...)
             break;
         case UPNPPINIT_OPTION_PORT:
             options.port = va_arg(ap, int);
+            break;
+        case UPNPPINIT_OPTION_SUBSCRIPTION_TIMEOUT:
+            options.substimeout = va_arg(ap, int);
             break;
         default:
             std::cerr << "LibUPnP::init: unknown option value " << option <<"\n";
@@ -184,6 +187,11 @@ std::string LibUPnP::hwaddr()
         LOGERR("LibUPnP: could not retrieve network hardware address\n");
     }
     return addr;
+}
+
+int LibUPnP::Internal::getSubsTimeout()
+{
+    return options.substimeout;
 }
 
 LibUPnP::LibUPnP()

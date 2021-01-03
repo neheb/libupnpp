@@ -92,8 +92,9 @@ public:
     
     /** Restart the subscription to get all the State variable values,
      * in case we get the events before we are ready (e.g. before the
-     * connections are set in a qt app) */
-    virtual void reSubscribe();
+     * connections are set in a qt app). Also: when reconnecting after
+     * a device restarts. */
+    virtual bool reSubscribe();
 
     /** Accessors for the values extracted from the device description during 
      *  initialization */
@@ -136,7 +137,10 @@ public:
      */
     virtual VarEventReporter *getReporter();
 
-    /** Install event data reporter object */
+    /** Install or uninstall event data reporter object. 
+     *  @param  reporter the callbacks to be installed, or nullptr 
+     *  to disable reporting (and cancel the upnp subscription). 
+     */
     virtual void installReporter(VarEventReporter* reporter);
 
     /** Perform a comparison to the service type string for this specific 
@@ -166,7 +170,7 @@ protected:
      * creates an entry in the static map, using m_SID, which was
      * obtained by subscribe() during construction
      */
-    void registerCallback(evtCBFunc c);
+    bool registerCallback(evtCBFunc c);
 
     /** To be overridden in classes which actually support events. Will be
      * called by installReporter(). The call sequence is as follows:

@@ -59,8 +59,8 @@ public:
 
     /** Retrieve the singleton LibUPnP object.
      *
-     * Using this call with arguments is deprecated. Call init() then
-     * getLibUPnP() without arguments instead.
+     * Using this call with arguments is deprecated. Call init()
+     * (creates the lib) then getLibUPnP() without arguments instead.
      *
      * This initializes libupnp, possibly setting an address and port, possibly
      * registering a client if serveronly is false.
@@ -103,6 +103,8 @@ public:
         /** IP Port to use. The lower lib default is 49152. 
          * int follows */
         UPNPPINIT_OPTION_PORT,
+        /** Control: subscription timeout in seconds. int follows */
+        UPNPPINIT_OPTION_SUBSCRIPTION_TIMEOUT,
     };
 
     /** Initialize the library.
