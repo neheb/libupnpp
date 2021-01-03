@@ -238,6 +238,13 @@ static int srvCB(Upnp_EventType et, CBCONST void* vevp, void*)
     auto it = o_calls.find(sid);
 
     switch (et) {
+    case UPNP_EVENT_AUTORENEWAL_FAILED:
+    {
+        if (it != o_calls.end()) {
+            it->second({});
+        }
+        break;
+    }
     case UPNP_EVENT_RECEIVED:
     {
         UpnpEvent *evp = (UpnpEvent *)vevp;

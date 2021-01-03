@@ -41,10 +41,16 @@ class Service;
  * Runs in an event thread. This could for example be
  * implemented by a Qt Object to generate events for the GUI.
  *
- * The Service class does a bit of parsing for common cases. 
+ * This is used by all "precooked" UPnP/AV service classes in the
+   library. The derived Service class does a bit of parsing for common
+   cases.
  * The different methods cover all current types of audio UPnP
  * state variable data I am aware of. Of course, other types of data can 
  * be reported as a character string, leaving the parsing to the client code.
+ *
+ * In the general case, you could also derive from Service, implement
+ * and install an evtCBFunc callback and not use VarEventReporter at
+ * all.
  */
 class UPNPP_API VarEventReporter {
 public:
@@ -58,12 +64,16 @@ public:
     virtual void changed(const char * /*nm*/, UPnPDirObject /*meta*/) {}
     /** Special for  ohplaylist. Not always needed */
     virtual void changed(const char * /*nm*/, std::vector<int> /*ids*/) {}
+    /** Subscription autorenew failed. You may want to schedule a
+       resubscribe() later. */
+    virtual void autorenew_failed() {}
 };
 
 /** Type of the event callbacks. 
  * If registered by a call to Service::registerCallBack(cbfunc), this will be
  * called with a map of state variable names and values when 
  * an event arrives. The call is performed in a separate thread. 
+ * A call with an empty map means that a subscription autorenew failed.
  */
 typedef
 std::function<void (const std::unordered_map<std::string, std::string>&)>
