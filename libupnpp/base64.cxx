@@ -219,7 +219,8 @@ void base64_encode(const string &in, string &out)
     unsigned char output[4];
 
     out.clear();
-
+    out.reserve(((in.size()) * 4)/3 + 4);
+    
     int srclength = in.length();
     int sidx = 0;
     while (2 < srclength) {
