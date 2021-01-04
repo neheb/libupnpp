@@ -65,7 +65,7 @@ public:
      */
     UpnpDevice(UpnpDevice *rootdev, const std::string& deviceId);
     
-    ~UpnpDevice();
+    virtual ~UpnpDevice();
 
     /** Retrieve the network endpoint the server is listening on */
     static bool ipv4(std::string *host, unsigned short *port);

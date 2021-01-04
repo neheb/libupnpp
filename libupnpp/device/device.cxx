@@ -208,18 +208,21 @@ UpnpDevice::UpnpDevice(UpnpDevice* rootdev, const string& deviceId)
 
 UpnpDevice::~UpnpDevice()
 {
-    shouldExit();
-    if (m->loopthread.joinable())
-        m->loopthread.join();
+    m->needExit = true;
+    m->evloopcond.notify_all();
 
-    if (nullptr != m->rootdev) {
+    if (nullptr == m->rootdev) {
         UpnpUnRegisterRootDevice(m->dvh);
     }
+
+    if (m->loopthread.joinable())
+        m->loopthread.join();
 
     std::unique_lock<std::mutex> lock(o->devices_lock);
     auto it = o->devices.find(m->deviceId);
     if (it != o->devices.end())
         o->devices.erase(it);
+    delete m;
 }
 
 const string& UpnpDevice::getDeviceId() const
@@ -757,6 +760,9 @@ void UpnpDevice::loopWakeup()
 
 void UpnpDevice::shouldExit()
 {
+    if (nullptr == m->rootdev) {
+        UpnpUnRegisterRootDevice(m->dvh);
+    }
     m->needExit = true;
     m->evloopcond.notify_all();
 }
