@@ -12,10 +12,10 @@ The Control Point side of libupnpp, which is documented here, allows a C++
 program to discover UPnP devices, and exchange commands and status with
 them.
 
-The library has a number of predefined modules for controlling specific
-AVTransport or OpenHome audio services, and it is relatively easy to add
-modules for other services externally (the internal modules have no more
-access to library internals than an external module would).
+The library has a number of predefined classes for controlling specific
+AVTransport or OpenHome audio services, and it is easy to add classes for
+other services externally (the internal classes have no more access to
+library internals than an external module would).
 
 Limitations:
 

@@ -11,9 +11,11 @@ Control Point side.
 There is no high level documentation for the device side at this point, but
 you can look at the <a
 href="https://github.com/medoc92/libupnpp-samples">"hello"</a>
-device/service pair in the libupnpp samples on githubg, or at the source
-for <a href="https://github.com/medoc92/upmpdcli">upmpdcli</a> which is an
-audio Renderer based on libupnpp.
+device/service pair in the <a
+href="https://framagit.org/medoc92/libupnpp-samples">libupnpp samples<a>
+source on framagit.org, or at the source for <a
+href="https://framagit.org/medoc92/upmpdcli">upmpdcli</a> which is an audio
+Renderer based on libupnpp.
 
 */
 
