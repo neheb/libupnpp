@@ -4,7 +4,7 @@
 # occur with revision (3rd number) changes.
 
 # !!!! When changing the version, also change the defines in upnpplib.hxx !!!
-AC_INIT([libupnpp], [0.20.2], [jfd@lesbonscomptes.com],
+AC_INIT([libupnpp], [0.21.0], [jfd@lesbonscomptes.com],
              [libupnpp], [http://www.lesbonscomptes.com/upmpdcli])
 
 # Lib version info. See:
@@ -20,11 +20,9 @@ AC_INIT([libupnpp], [0.20.2], [jfd@lesbonscomptes.com],
 # - If any interfaces have been added since the last public release, then
 #   increment age.
 # - If any interfaces have been removed or changed since the last public
-#   release, then set age to 0 AND CHANGE PACKAGE NAME. 
-# libupnpp packages are named libupnppX where X is the .so major number
-# (c-a). This allows packages for multiple incompatible ABIs to be
-# installed
-VERSION_INFO=10:0:1
+#   release, then set age to 0 and change package name if multiple versions
+#   need to be co-installed. 
+VERSION_INFO=11:0:0
 
 AC_PREREQ([2.53])
 AC_CONFIG_SRCDIR([libupnpp/upnpplib.hxx])
