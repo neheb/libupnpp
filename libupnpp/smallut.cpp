@@ -15,15 +15,6 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
  *   02110-1301 USA
  */
-#ifdef _WIN32
-// needed for localtime_r under mingw. Has to exist before the other
-// includes from smallut.h
-#define _POSIX_THREAD_SAFE_FUNCTIONS
-#ifdef _MSC_VER
-#define localtime_r(a,b) localtime_s(b,a)
-#endif /* _MSC_VER */
-#endif /* _WIN32 */
-
 #include "smallut.h"
 
 #include <algorithm>
@@ -34,6 +25,7 @@
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
+#include <ctime>
 #include <iostream>
 #include <list>
 #include <numeric>
@@ -41,7 +33,17 @@
 #include <string>
 #include <unordered_map>
 #include <unordered_set>
-#include <ctime>
+
+#ifdef _WIN32
+// needed for localtime_r under mingw?
+#define _POSIX_THREAD_SAFE_FUNCTIONS
+#define strncasecmp _strnicmp
+#define strcasecmp _stricmp
+#ifdef _MSC_VER
+#define localtime_r(a,b) localtime_s(b,a)
+#endif /* _MSC_VER */
+#endif /* _WIN32 */
+
 
 // Older compilers don't support stdc++ regex, but Windows does not
 // have the Linux one. Have a simple class to solve the simple cases.
