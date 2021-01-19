@@ -71,6 +71,10 @@ public:
     UPnPP::LibUPnP *lib{nullptr};
     string deviceId;
 
+    // For SERVER headers:
+    string product;
+    string version;
+    
     // In case startloop has been called: the event loop thread.
     std::thread loopthread;
 
@@ -225,6 +229,14 @@ UpnpDevice::~UpnpDevice()
     delete m;
 }
 
+void UpnpDevice::setProductVersion(const char *product, const char *version)
+{
+    if (product && version) {
+        m->product = product;
+        m->version = version;
+    }
+}
+
 const string& UpnpDevice::getDeviceId() const
 {
     return m->deviceId;
@@ -318,6 +330,9 @@ bool UpnpDevice::Internal::start()
         return false;
     }
 #endif
+    if (!product.empty()) {
+        UpnpDeviceSetProduct(dvh, product.c_str(), version.c_str());
+    }
     if ((ret = UpnpSendAdvertisement(dvh, expiretime)) != 0) {
         LOGERR("UpnpDevice::Internal::start(): sendAvertisement failed: " <<
                lib->errAsString("UpnpDevice: UpnpSendAdvertisement", ret) <<

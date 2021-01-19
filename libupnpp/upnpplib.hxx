@@ -93,8 +93,8 @@ public:
         UPNPPINIT_FLAG_SERVERONLY = 2,
     };
 
-    /** Options for the initialisation call. Each option argument may be followed by 
-     * specific parameters. */
+    /** Options for the initialisation call. Each option argument may be 
+     * followed by specific parameters. */
     enum InitOption {
         /** Terminate the VARARGs list. */
         UPNPPINIT_OPTION_END = 0,
@@ -103,13 +103,20 @@ public:
          * set, we will use the first interface. If set to '*', we will use
          * all possible interfaces. */
         UPNPPINIT_OPTION_IFNAMES,
-        /** Use single IPV4 address. A const std::string* address in dot notation follows. 
-         * This is incompatible with OPTION_IFNAMES. */
+        /** Use single IPV4 address. A const std::string* address in 
+         * dot notation follows. This is incompatible with OPTION_IFNAMES. */
         UPNPPINIT_OPTION_IPV4,
-        /** IP Port to use. An int parameter follows. The lower lib default is 49152. */
+        /** IP Port to use. An int parameter follows. The lower lib default 
+         * is 49152. */
         UPNPPINIT_OPTION_PORT,
-        /** Control: subscription timeout in seconds. an int parameter follows. */
+        /** Control: subscription timeout in seconds. An int param. follows. */
         UPNPPINIT_OPTION_SUBSCRIPTION_TIMEOUT,
+        /** Control: product name to set in user-agent strings.
+         * A const std::string* follows. */
+        UPNPPINIT_OPTION_CLIENT_PRODUCT,
+        /** Control: product version to set in user-agent strings.
+         * A const std::string* follows. */
+        UPNPPINIT_OPTION_CLIENT_VERSION,
     };
 
     /** Initialize the library.

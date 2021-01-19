@@ -67,6 +67,10 @@ public:
     
     virtual ~UpnpDevice();
 
+     /** Set the product name and version to be used in SERVER headers. 
+      * If not set, the library default will be used */
+    void setProductVersion(const char *product, const char *version);
+
     /** Retrieve the network endpoint the server is listening on */
     static bool ipv4(std::string *host, unsigned short *port);
 

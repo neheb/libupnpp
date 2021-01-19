@@ -63,6 +63,8 @@ struct UPnPOptions {
     std::string ipv4;
     int port;
     int substimeout{1800};
+    std::string clientproduct;
+    std::string clientversion;
 };
 static UPnPOptions options;
 
@@ -94,6 +96,12 @@ bool LibUPnP::init(unsigned int flags, ...)
             break;
         case UPNPPINIT_OPTION_SUBSCRIPTION_TIMEOUT:
             options.substimeout = va_arg(ap, int);
+            break;
+        case UPNPPINIT_OPTION_CLIENT_PRODUCT:
+            options.clientproduct = *((std::string*)(va_arg(ap, std::string*)));
+            break;
+        case UPNPPINIT_OPTION_CLIENT_VERSION:
+            options.clientversion = *((std::string*)(va_arg(ap, std::string*)));
             break;
         default:
             std::cerr << "LibUPnP::init: unknown option value " << option <<"\n";
@@ -244,6 +252,12 @@ LibUPnP::LibUPnP()
         m->init_error = UpnpRegisterClient(o_callback, (void *)this, &m->clh);
 
         if (m->init_error == UPNP_E_SUCCESS) {
+#if NPUPNP_VERSION >= 40100
+            if (!options.clientproduct.empty()&&!options.clientversion.empty()) {
+                UpnpClientSetProduct(m->clh, options.clientproduct.c_str(),
+                                     options.clientversion.c_str());
+            }
+#endif
             m->ok = true;
         } else {
             LOGERR(errAsString("UpnpRegisterClient", m->init_error) << endl);
