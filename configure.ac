@@ -20,8 +20,8 @@ AC_INIT([libupnpp], [0.21.0], [jfd@lesbonscomptes.com],
 # - If any interfaces have been added since the last public release, then
 #   increment age.
 # - If any interfaces have been removed or changed since the last public
-#   release, then set age to 0 and change package name if multiple versions
-#   need to be co-installed. 
+#   release, then set age to 0 and change the package name if multiple
+#   versions need to be co-installed.
 VERSION_INFO=11:0:0
 
 AC_PREREQ([2.53])
