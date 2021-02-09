@@ -41,6 +41,12 @@
 #include "libupnpp/upnpp_p.hxx"
 #include "vdir.hxx"
 
+#ifndef NPUPNP_AT_LEAST
+#define NPUPNP_AT_LEAST(MAJ,MIN,REV)                                  \
+    VERSION_AT_LEAST(NPUPNP_VERSION_MAJOR,NPUPNP_VERSION_MINOR,       \
+                     NPUPNP_VERSION_PATCH, (MAJ),(MIN),(REV))
+#endif
+
 using namespace std;
 using namespace UPnPP;
 
@@ -330,9 +336,11 @@ bool UpnpDevice::Internal::start()
         return false;
     }
 #endif
+#if NPUPNP_AT_LEAST(4,1,0)
     if (!product.empty()) {
         UpnpDeviceSetProduct(dvh, product.c_str(), version.c_str());
     }
+#endif
     if ((ret = UpnpSendAdvertisement(dvh, expiretime)) != 0) {
         LOGERR("UpnpDevice::Internal::start(): sendAvertisement failed: " <<
                lib->errAsString("UpnpDevice: UpnpSendAdvertisement", ret) <<
