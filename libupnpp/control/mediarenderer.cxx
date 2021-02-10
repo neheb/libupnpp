@@ -75,7 +75,7 @@ static bool MDAccum(std::unordered_map<string, UPnPDeviceDesc>* out,
         (RenderingControl::isRDCService(service.serviceType) ||
          OHProduct::isOHPrService(service.serviceType))
         &&
-        (friendlyName.empty() || !friendlyName.compare(device.friendlyName))) {
+        (friendlyName.empty() || friendlyName == device.friendlyName)) {
         //LOGDEB("MDAccum setting " << device.UDN << endl);
         (*out)[device.UDN] = device;
     }
@@ -129,7 +129,6 @@ bool MediaRenderer::hasOpenHome()
 
 bool MediaRenderer::reSubscribeAll()
 {
-    std::cerr << "bool MediaRenderer::reSubscribeAll()\n";
     bool ok;
     RESUBS_ONE(m->rdc);
     RESUBS_ONE(m->avt);
