@@ -241,8 +241,12 @@ LibUPnP::LibUPnP()
     setMaxContentLength(2000*1024);
 
     LOGINF("LibUPnP: Using IPV4 " << UpnpGetServerIpAddress() << " port " <<
-           UpnpGetServerPort() << " IPV6 " << UpnpGetServerIp6Address() <<
-           " port " << UpnpGetServerPort6() << endl);
+           UpnpGetServerPort()
+#ifdef UPNP_ENABLE_IPV6
+           << " IPV6 " << UpnpGetServerIp6Address() <<
+           " port " << UpnpGetServerPort6()
+#endif
+           << endl);
 
     // Client initialization is simple, just do it. Defer device
     // initialization because it's more complicated.
