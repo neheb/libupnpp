@@ -1,3 +1,12 @@
+libupnpp6 (0.21.0-1~ppaPPAVERS~SERIES1) SERIES; urgency=low
+
+  * Allow configuring the subscription timeout (init option)
+  * Add interface for the lib to report a subscription autorenewal failure,
+    and to renew all subscriptions.
+  * Add API to set the product/version values in User-Agent and Server headers.
+
+ -- Jean-Francois Dockes <jf@dockes.org>  Sat, 13 Mar 2021 10:50:00 +0100
+ 
 libupnpp6 (0.20.2-1~ppaPPAVERS~SERIES1) SERIES; urgency=low
 
   * Improve content directory client to work with TotalMatches=0 answers

@@ -65,6 +65,7 @@ UPnPClient::TypedService::~TypedService()
 UPnPClient::MediaRenderer::isMRDevice(std::__cxx11::basic_string<char,
 UPnPClient::MediaRenderer::hasOpenHome()
 UPnPClient::MediaRenderer::getDeviceDescs(std::vector<UPnPClient::UPnPDeviceDesc,
+UPnPClient::MediaRenderer::reSubscribeAll()
 UPnPClient::MediaRenderer::avt()
 UPnPClient::MediaRenderer::rdc()
 UPnPClient::MediaRenderer::ohif()
@@ -127,6 +128,9 @@ UPnPClient::Device::Device(UPnPClient::UPnPDeviceDesc
 UPnPClient::Device::Device()
 UPnPClient::OHInfo::isOHInfoService(std::__cxx11::basic_string<char,
 UPnPClient::OHInfo::serviceTypeMatch(std::__cxx11::basic_string<char,
+UPnPClient::OHInfo::track(std::__cxx11::basic_string<char,
+UPnPClient::OHInfo::details(int*,
+UPnPClient::OHInfo::counters(int*,
 UPnPClient::OHInfo::metatext(UPnPClient::UPnPDirObject*)
 UPnPClient::OHTime::isOHTMService(std::__cxx11::basic_string<char,
 UPnPClient::OHTime::serviceTypeMatch(std::__cxx11::basic_string<char,
@@ -208,6 +212,7 @@ UPnPProvider::UpnpDevice::notifyEvent(UPnPProvider::UpnpService
 UPnPProvider::UpnpDevice::forgetService(std::__cxx11::basic_string<char,
 UPnPProvider::UpnpDevice::InternalStatic::sCallBack(Upnp_EventType_e,
 UPnPProvider::UpnpDevice::addActionMapping(UPnPProvider::UpnpService
+UPnPProvider::UpnpDevice::setProductVersion(char
 UPnPProvider::UpnpDevice::ok()
 UPnPProvider::UpnpDevice::ipv4(std::__cxx11::basic_string<char,
 UPnPProvider::UpnpDevice::start()
@@ -218,6 +223,7 @@ UPnPProvider::UpnpDevice::UpnpDevice(UPnPProvider::UpnpDevice*,
 UPnPProvider::UpnpDevice::UpnpDevice(std::__cxx11::basic_string<char,
 UPnPProvider::UpnpDevice::UpnpDevice(UPnPProvider::UpnpDevice*,
 UPnPProvider::UpnpDevice::UpnpDevice(std::__cxx11::basic_string<char,
+UPnPProvider::UpnpDevice::~UpnpDevice()
 UPnPProvider::UpnpDevice::~UpnpDevice()
 UPnPProvider::UpnpDevice::~UpnpDevice()
 UPnPProvider::UpnpService::getEventData(bool,

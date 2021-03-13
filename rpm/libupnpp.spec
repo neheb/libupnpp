@@ -1,6 +1,6 @@
 Summary:        C++ wrapper for libupnp
 Name:           libupnpp
-Version:        0.19.2
+Version:        0.21.0
 Release:        1%{?dist}
 Group:          Applications/Multimedia
 License:        GPLv2+
@@ -13,8 +13,7 @@ BuildRequires:  libcurl-devel
 BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
 %description
-libupnpp is a C++ wrapper over libupnp. It exists mostly for supporting
-upmpdcli and upplay
+libupnpp is a C++ wrapper and higher level API over libnpupnp.
 
 %prep
 %setup -q
@@ -27,6 +26,7 @@ upmpdcli and upplay
 %{__rm} -rf %{buildroot}
 %{__make} install DESTDIR=%{buildroot} STRIP=/bin/true INSTALL='install -p'
 %{__rm} -f %{buildroot}%{_libdir}/libupnpp.a
+%{__rm} -f %{buildroot}%{_libdir}/libupnpputil.a
 %{__rm} -f %{buildroot}%{_libdir}/libupnpp.la
 
 %clean
