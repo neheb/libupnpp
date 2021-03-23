@@ -1,0 +1,14 @@
+diff --git a/libupnpp/control/service.cxx b/libupnpp/control/service.cxx
+index 3169066..df8093f 100644
+--- a/libupnpp/control/service.cxx
++++ b/libupnpp/control/service.cxx
+@@ -241,7 +241,8 @@ static int srvCB(Upnp_EventType et, CBCONST void* vevp, void*)
+     case UPNP_EVENT_AUTORENEWAL_FAILED:
+     {
+         if (it != o_calls.end()) {
+-            it->second({});
++            std::unordered_map<std::string, std::string> em;
++            it->second(em);
+         }
+         break;
+     }
