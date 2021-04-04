@@ -22,6 +22,7 @@
 #include <stdio.h>
 
 #include <upnp.h>
+#include <netif.h>
 
 #include <unordered_set>
 #include <map>
@@ -143,8 +144,7 @@ static int cluCallBack(Upnp_EventType et, CBCONST void* evp, void*)
 
         // Get rid of unused warnings (the func is only used conditionally)
         (void)cluDiscoveryToStr;
-        LOGDEB1("discovery:cllb:SearchRes/Alive: " <<
-                cluDiscoveryToStr(disco) << endl);
+        LOGDEB1("discovery:cllb:SearchRes/Alive: " << cluDiscoveryToStr(disco) << endl);
 
         // Device signals its existence and well-being. Perform the
         // UPnP "description" phase by downloading and decoding the
@@ -158,19 +158,26 @@ static int cluCallBack(Upnp_EventType et, CBCONST void* evp, void*)
             // simultaneous downloads of a slow one, to avoid
             // tying up threads.
             std::unique_lock<std::mutex> lock(o_downloading_mutex);
-            pair<std::unordered_set<string>::iterator,bool> res =
-                o_downloading.insert(tp->url);
+            pair<std::unordered_set<string>::iterator,bool> res = o_downloading.insert(tp->url);
             if (!res.second) {
-                LOGDEB1("discovery:cllb: already downloading " <<
-                        tp->url << endl);
+                LOGDEB1("discovery:cllb: already downloading " << tp->url << endl);
                 delete tp;
                 return UPNP_E_SUCCESS;
             }
         }
 
+#undef ONLY_IPV6
+#ifdef ONLY_IPV6
+        struct sockaddr *claddr =
+            reinterpret_cast<struct sockaddr*>(UpnpDiscovery_get_DestAddr(disco));
+        if (claddr->sa_family != AF_INET6) {
+            delete tp;
+            return UPNP_E_SUCCESS;
+        }
+#endif
+        
         LOGDEB1("discovery:cluCallback:: downloading " << tp->url << endl);
-        if (!downloadUrlWithCurl(
-                tp->url, tp->description,DISCO_HTTP_TIMEOUT, &disco->DestAddr)) {
+        if (!downloadUrlWithCurl(tp->url, tp->description,DISCO_HTTP_TIMEOUT, &disco->DestAddr)) {
             LOGERR("discovery:cllb: downloadUrlWithCurl error for: " <<
                    tp->url << endl);
             {   std::unique_lock<std::mutex> lock(o_downloading_mutex);
@@ -246,11 +253,8 @@ class DeviceDescriptor {
 public:
     DeviceDescriptor(const string& url, const string& description,
                      std::chrono::steady_clock::time_point last, int exp)
-        : device(url, description), last_seen(last),
-          expires(std::chrono::seconds(exp))
-    {}
-    DeviceDescriptor()
-    {}
+        : device(url, description), last_seen(last), expires(std::chrono::seconds(exp)) {}
+    DeviceDescriptor() {}
     UPnPDeviceDesc device;
     std::chrono::steady_clock::time_point last_seen;
     std::chrono::seconds expires; // seconds valid
@@ -290,8 +294,7 @@ static void *discoExplorer(void *)
             auto it = o_pool.m_devices.find(tsk->deviceId);
             if (it != o_pool.m_devices.end()) {
                 o_pool.m_devices.erase(it);
-                //LOGDEB("discoExplorer: delete " << tsk->deviceId.c_str() <<
-                // endl);
+               LOGDEB2("discoExplorer: delete " << tsk->deviceId.c_str() << endl);
             }
         } else {
             // Update or insert the device
@@ -377,10 +380,8 @@ UPnPDeviceDirectory::UPnPDeviceDirectory(time_t search_window)
         return;
     }
     lib->m->registerHandler(UPNP_DISCOVERY_SEARCH_RESULT, cluCallBack, this);
-    lib->m->registerHandler(UPNP_DISCOVERY_ADVERTISEMENT_ALIVE,
-                            cluCallBack, this);
-    lib->m->registerHandler(UPNP_DISCOVERY_ADVERTISEMENT_BYEBYE,
-                            cluCallBack, this);
+    lib->m->registerHandler(UPNP_DISCOVERY_ADVERTISEMENT_ALIVE, cluCallBack, this);
+    lib->m->registerHandler(UPNP_DISCOVERY_ADVERTISEMENT_BYEBYE, cluCallBack, this);
 
     o_ok = search();
 }
@@ -421,8 +422,7 @@ static bool search()
             std::this_thread::sleep_for(std::chrono::milliseconds(100));
         }
         LOGDEB1("UPnPDeviceDirectory::search: calling upnpsearchasync" << endl);
-        int code1 = UpnpSearchAsync(lib->m->getclh(),
-                                    (int)o_searchTimeout, cp, lib);
+        int code1 = UpnpSearchAsync(lib->m->getclh(), (int)o_searchTimeout, cp, lib);
         if (code1 != UPNP_E_SUCCESS) {
             o_reason = LibUPnP::errAsString("UpnpSearchAsync", code1);
             LOGERR("UPnPDeviceDirectory::search: UpnpSearchAsync failed: " <<
@@ -553,9 +553,8 @@ static bool deviceFound(const UPnPDeviceDesc&, const UPnPServiceDesc&)
 
 // Lookup a device in the pool. If not found and a search is active,
 // use a cond_wait to wait for device events (awaken by deviceFound).
-static bool getDevBySelector(
-    bool cmp(const UPnPDeviceDesc& ddesc, const string&),
-    const string& value, UPnPDeviceDesc& ddesc)
+static bool getDevBySelector(bool cmp(const UPnPDeviceDesc& ddesc, const string&),
+                             const string& value, UPnPDeviceDesc& ddesc)
 {
     // Has locking, do it before our own lock
     expireDevices();
@@ -593,8 +592,7 @@ static bool cmpFName(const UPnPDeviceDesc& ddesc, const string& fname)
     return ddesc.friendlyName.compare(fname) != 0;
 }
 
-bool UPnPDeviceDirectory::getDevByFName(const string& fname,
-                                        UPnPDeviceDesc& ddesc)
+bool UPnPDeviceDirectory::getDevByFName(const string& fname, UPnPDeviceDesc& ddesc)
 {
     return getDevBySelector(cmpFName, fname, ddesc);
 }
@@ -604,27 +602,23 @@ static bool cmpUDN(const UPnPDeviceDesc& ddesc, const string& value)
     return ddesc.UDN.compare(value) != 0;
 }
 
-bool UPnPDeviceDirectory::getDevByUDN(const string& value,
-                                      UPnPDeviceDesc& ddesc)
+bool UPnPDeviceDirectory::getDevByUDN(const string& value, UPnPDeviceDesc& ddesc)
 {
     return getDevBySelector(cmpUDN, value, ddesc);
 }
 
 bool UPnPDeviceDirectory::getDescriptionDocuments(
-    const string &uidOrFriendly, string& deviceXML,
-    unordered_map<string, string>& srvsXML)
+    const string &uidOrFriendly, string& deviceXML, unordered_map<string, string>& srvsXML)
 {
     UPnPDeviceDesc ddesc;
-    if (!getDevByUDN(uidOrFriendly, ddesc) &&
-        !getDevByFName(uidOrFriendly, ddesc)) {
+    if (!getDevByUDN(uidOrFriendly, ddesc) && !getDevByFName(uidOrFriendly, ddesc)) {
         return false;
     }
     deviceXML = ddesc.XMLText;
     for (const auto& entry : ddesc.services) {
         srvsXML[entry.serviceId] = "";
         UPnPServiceDesc::Parsed parsed;
-        entry.fetchAndParseDesc(ddesc.URLBase, parsed,
-                                &srvsXML[entry.serviceId]);
+        entry.fetchAndParseDesc(ddesc.URLBase, parsed, &srvsXML[entry.serviceId]);
     }
     return true;
 }
