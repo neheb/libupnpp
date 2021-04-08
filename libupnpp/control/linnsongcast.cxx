@@ -323,7 +323,7 @@ void listSenders(vector<SenderState>& vsenders)
     }
 }
 
-bool setReceiverPlaying(ReceiverState st)
+bool setReceiverPlaying(ReceiverState& st)
 {
     if (!st.rcv || !st.prod) {
         string uuid = st.UDN;
@@ -346,7 +346,7 @@ bool setReceiverPlaying(ReceiverState st)
     return true;
 }
 
-bool setReceiverPlaying(ReceiverState st,
+bool setReceiverPlaying(ReceiverState& st,
                         const string& uri, const string& meta)
 {
     if (!st.rcv || !st.prod) {
@@ -374,7 +374,7 @@ bool setReceiverPlaying(ReceiverState st,
     return true;
 }
 
-bool stopReceiver(ReceiverState st)
+bool stopReceiver(ReceiverState& st)
 {
     LOGDEB("stopReceiver: st.nm " << st.nm << " st.UDN " << st.UDN << endl);
     if (!st.rcv || !st.prod) {
