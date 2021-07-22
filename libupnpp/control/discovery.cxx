@@ -143,7 +143,7 @@ static int cluCallBack(Upnp_EventType et, CBCONST void* evp, void*)
         }
 
         // Get rid of unused warnings (the func is only used conditionally)
-        (void)cluDiscoveryToStr;
+        (void)&cluDiscoveryToStr;
         LOGDEB1("discovery:cllb:SearchRes/Alive: " << cluDiscoveryToStr(disco) << endl);
 
         // Device signals its existence and well-being. Perform the
