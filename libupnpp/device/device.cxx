@@ -781,6 +781,10 @@ void UpnpDevice::loopWakeup()
     m->evloopcond.notify_all();
 }
 
+// It does not seem right to unregister the device before the event loop returns. I think that this
+// sometimes causes INVALID_HANDLE errors from upnpNotify() calls if the timing is bad. So we should
+// probably first set needExit, then join the event loop, then close the device. Otoh, this does not
+// seem to cause significant issues, so leave it alone for now.
 void UpnpDevice::shouldExit()
 {
     if (nullptr == m->rootdev) {
