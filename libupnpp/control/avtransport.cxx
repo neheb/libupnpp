@@ -77,7 +77,7 @@ static AVTransport::TransportState stringToTpState(const string& s)
         return AVTransport::NoMediaPresent;
     } else {
         LOGINF("AVTransport event: bad value for TransportState: "
-               << s << endl);
+               << s << "\n");
         return AVTransport::Unknown;
     }
 }
@@ -90,7 +90,7 @@ static AVTransport::TransportStatus stringToTpStatus(const string& s)
         return  AVTransport::TPS_Error;
     } else {
         LOGERR("AVTransport event: bad value for TransportStatus: "
-               << s << endl);
+               << s << "\n");
         return  AVTransport::TPS_Unknown;
     }
 }
@@ -111,7 +111,7 @@ static AVTransport::PlayMode stringToPlayMode(const string& s)
         return AVTransport::PM_Direct1;
     } else {
         LOGERR("AVTransport event: bad value for PlayMode: "
-               << s << endl);
+               << s << "\n");
         return AVTransport::PM_Unknown;
     }
 }
@@ -119,27 +119,24 @@ static AVTransport::PlayMode stringToPlayMode(const string& s)
 void AVTransport::evtCallback(
     const std::unordered_map<std::string, std::string>& props)
 {
-    LOGDEB1("AVTransport::evtCallback:" << endl);
+    LOGDEB1("AVTransport::evtCallback:" << "\n");
     auto reporter = getReporter();
     if (nullptr == reporter) {
-        LOGDEB1("AVTransport::evtCallback: " << varchg.first << " -> "
-                << varchg.second << endl);
+        LOGDEB1("AVTransport::evtCallback: " << varchg.first << " -> " << varchg.second << "\n");
         return;
     }
 
     for (const auto& prop : props) {
         if (prop.first.compare("LastChange")) {
             LOGINF("AVTransport:event: var not lastchange: "
-                   << prop.first << " -> " << prop.second << endl);
+                   << prop.first << " -> " << prop.second << "\n");
             continue;
         }
-        LOGDEB1("AVTransport:event: "
-                << prop.first << " -> " << prop.second << endl);
+        LOGDEB1("AVTransport:event: " << prop.first << " -> " << prop.second << "\n");
 
         std::unordered_map<std::string, std::string> changes;
         if (!decodeAVLastChange(prop.second, changes)) {
-            LOGERR("AVTransport::evtCallback: bad LastChange value: "
-                   << prop.second << endl);
+            LOGERR("AVTransport::evtCallback: bad LastChange value: " << prop.second << "\n");
             return;
         }
         for (const auto& varchg : changes) {
@@ -184,11 +181,9 @@ void AVTransport::evtCallback(
                        !varnm.compare("CurrentTrackMetaData")) {
                 UPnPDirContent meta;
                 if (!varvalue.empty() && !meta.parse(varvalue)) {
-                    LOGERR("AVTransport event: bad metadata: [" <<
-                           varvalue << "]" << endl);
+                    LOGERR("AVTransport event: bad metadata: [" << varvalue << "]" << "\n");
                 } else {
-                    LOGDEB1("AVTransport event: good metadata: [" <<
-                            varvalue << "]" << endl);
+                    LOGDEB1("AVTransport event: good metadata: [" << varvalue << "]" << "\n");
                     if (meta.m_items.size() > 0) {
                         reporter->changed(varnm.c_str(), meta.m_items[0]);
                     }
@@ -204,7 +199,7 @@ void AVTransport::evtCallback(
 
             } else {
                 LOGDEB1("AVTransport event: unknown variable: name [" <<
-                        varnm << "] value [" << varvalue << endl);
+                        varnm << "] value [" << varvalue << "\n");
                 reporter->changed(varnm.c_str(), varvalue.c_str());
             }
         }
@@ -215,11 +210,10 @@ void AVTransport::evtCallback(
 int AVTransport::setURI(const string& uri, const string& metadata,
                         int instanceID, bool next)
 {
-    SoapOutgoing args(getServiceType(), next ? "SetNextAVTransportURI" :
-                      "SetAVTransportURI");
+    SoapOutgoing args(getServiceType(), next ? "SetNextAVTransportURI" : "SetAVTransportURI");
     args("InstanceID", SoapHelp::i2s(instanceID))
-    (next ? "NextURI" : "CurrentURI", uri)
-    (next ? "NextURIMetaData" : "CurrentURIMetaData", metadata);
+        (next ? "NextURI" : "CurrentURI", uri)
+        (next ? "NextURIMetaData" : "CurrentURIMetaData", metadata);
 
     SoapIncoming data;
     return runAction(args, data);
@@ -254,7 +248,7 @@ int AVTransport::setPlayMode(PlayMode pm, int instanceID)
     }
 
     args("InstanceID", SoapHelp::i2s(instanceID))
-    ("NewPlayMode", playmode);
+        ("NewPlayMode", playmode);
 
     SoapIncoming data;
     return runAction(args, data);
@@ -329,8 +323,7 @@ int AVTransport::getPositionInfo(PositionInfo& info, int instanceID)
         if (meta.m_items.size() > 0) {
             info.trackmeta = meta.m_items[0];
             LOGDEB1("AVTransport::getPositionInfo: size " <<
-                    meta.m_items.size() << " current title: "
-                    << meta.m_items[0].m_title << endl);
+                    meta.m_items.size() << " current title: " << meta.m_items[0].m_title << "\n");
         }
     }
     data.get("TrackURI", &info.trackuri);
@@ -385,8 +378,7 @@ int AVTransport::getCurrentTransportActions(int& iacts, int iID)
     }
     string actions;
     if (!data.get("Actions", &actions)) {
-        LOGERR("AVTransport:getCurrentTransportActions: no actions in answer"
-               << endl);
+        LOGERR("AVTransport:getCurrentTransportActions: no actions in answer" << "\n");
         return UPNP_E_BAD_RESPONSE;
     }
     return CTAStringToBits(actions, iacts);
@@ -396,8 +388,7 @@ int AVTransport::CTAStringToBits(const string& actions, int& iacts)
 {
     vector<string> sacts;
     if (!csvToStrings(actions, sacts)) {
-        LOGERR("AVTransport::CTAStringToBits: bad actions string:"
-               << actions << endl);
+        LOGERR("AVTransport::CTAStringToBits: bad actions string:" << actions << "\n");
         return UPNP_E_BAD_RESPONSE;
     }
     iacts = 0;
@@ -421,8 +412,8 @@ int AVTransport::CTAStringToBits(const string& actions, int& iacts)
         } else if (act.empty()) {
             continue;
         } else {
-            LOGERR("AVTransport::CTAStringToBits: unknown action in " <<
-                   actions << " : [" << act << "]" << endl);
+            LOGINF("AVTransport::CTAStringToBits: unknown action in " <<
+                   actions << " : [" << act << "]" << "\n");
         }
     }
     return 0;
@@ -448,7 +439,7 @@ int AVTransport::play(int speed, int instanceID)
 {
     SoapOutgoing args(getServiceType(), "Play");
     args("InstanceID", SoapHelp::i2s(instanceID))
-    ("Speed", SoapHelp::i2s(speed));
+        ("Speed", SoapHelp::i2s(speed));
     SoapIncoming data;
     return runAction(args, data);
 }
@@ -490,8 +481,8 @@ int AVTransport::seek(SeekMode mode, int target, int instanceID)
 
     SoapOutgoing args(getServiceType(), "Seek");
     args("InstanceID", SoapHelp::i2s(instanceID))
-    ("Unit", sm)
-    ("Target", value);
+        ("Unit", sm)
+        ("Target", value);
     SoapIncoming data;
     return runAction(args, data);
 }
