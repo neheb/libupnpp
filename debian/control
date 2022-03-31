@@ -11,12 +11,14 @@ Package: libupnpp6-dev
 Section: contrib/libdevel
 Architecture: any
 Depends: libupnpp6, ${misc:Depends}
+Multi-Arch: same
 Description: C++ layer over libupnp (development files)
  Development library and include files for libupnpp
 
 Package: libupnpp6
 Architecture: any
 Depends: ${shlibs:Depends}, ${misc:Depends}
+Multi-Arch: same
 Description: C++ layer over libupnp.
  libupnpp wraps libnpupnp calls and data inside easier to use C++ constructs.
  It can be used to build either devices or control points. 

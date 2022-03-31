@@ -1,4 +1,4 @@
-libupnpp6 (0.21.0-1~ppaPPAVERS~SERIES1) SERIES; urgency=low
+libupnpp6 (0.21.0-3~ppaPPAVERS~SERIES1) SERIES; urgency=low
 
   * Allow configuring the subscription timeout (init option)
   * Add interface for the lib to report a subscription autorenewal failure,

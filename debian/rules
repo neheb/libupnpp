@@ -17,4 +17,4 @@ override_dh_autoreconf:
 	dh_autoreconf ./autogen.sh
 
 %:
-	dh $@  --with autoreconf,autotools-dev
+	dh $@  --parallel --with autoreconf
