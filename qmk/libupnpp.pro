@@ -49,8 +49,6 @@ windows {
     DEFINES += CURL_STATICLIB
     DEFINES += PSAPI_VERSION=1
 
-    # Note that the following needs a pseudo install in the build dir:
-    # cd inc;mkdir upnp;cp *.h upnp;
     INCLUDEPATH += c:/users/bill/documents/upnp/npupnp/inc
 
     LIBS += -liphlpapi
@@ -76,7 +74,5 @@ windows {
 
 mac {
     QMAKE_APPLE_DEVICE_ARCHS = x86_64 arm64
-    # Note that the following needs a pseudo install in the build dir:
-    # cd inc;mkdir upnp;cp *.h upnp;
     INCLUDEPATH += ../../npupnp/inc/upnp
 }
