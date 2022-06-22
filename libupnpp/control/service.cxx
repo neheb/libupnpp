@@ -166,23 +166,19 @@ int Service::runAction(const SoapOutgoing& args, SoapIncoming& data)
     }
     UpnpClient_Handle hdl = lib->m->getclh();
 
-    LOGDEB1("Service::runAction: url [" << m->actionURL <<
-            " serviceType " << m->serviceType <<
-            " rqst: [" << "TBD SOME REQUEST" << "]" << endl);
-
     std::vector<std::pair<std::string, std::string>> response;
     int errcode;
     std::string errdesc;
     int ret =  UpnpSendAction(hdl, "", m->actionURL, m->serviceType,
-                              args.m->name, args.m->data, response, &errcode,
-                              errdesc);
+                              args.m->name, args.m->data, response, &errcode, errdesc);
     if (ret != UPNP_E_SUCCESS) {
-        LOGINF("Service::runAction: UpnpSendAction returned " << ret << endl);
+        LOGINF("Service::runAction: UpnpSendAction error " << ret << " for service: " <<
+               args.m->serviceType << " action: " << args.m->name << " args: " <<
+               SoapHelp::argsToStr(args.m->data.begin(), args.m->data.end()) << "\n");
         if (ret < 0) {
             LOGINF("    error message: " << UpnpGetErrorMessage(ret) << endl);
         } else {
-            LOGINF("    Response errorCode: " << errcode <<
-                   " errorDescription: " << errdesc << endl);
+            LOGINF("    Response errorCode: " << errcode << " errorDescription: " << errdesc<<"\n");
         }
         return ret;
     }
@@ -250,7 +246,7 @@ static int srvCB(Upnp_EventType et, CBCONST void* vevp, void*)
         UpnpEvent *evp = (UpnpEvent *)vevp;
         LOGDEB1("Service:srvCB: var change event: SID " << sid <<
                 " EventKey " << UpnpEvent_get_EventKey(evp) << " changed " <<
-                SoapHelp::argsToString(evp->ChangedVariables.begin(),
+                SoapHelp::argsToStr(evp->ChangedVariables.begin(),
                                        evp->ChangedVariables.end()) << "\n");
 
         if (it != o_calls.end()) {
