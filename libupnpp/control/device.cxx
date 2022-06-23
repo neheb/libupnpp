@@ -34,26 +34,20 @@ public:
 
 
 Device::Device()
+    : m(new Internal())
 {
-    if ((m = new Internal()) == 0) {
-        LOGERR("Device::Device: out of memory" << endl);
-        return;
-    }
 }
 
 Device::Device(const UPnPDeviceDesc& desc)
+    : m(new Internal())
 {
-    if ((m = new Internal()) == 0) {
-        LOGERR("Device::Device: out of memory" << endl);
-        return;
-    }
     m->desc = desc;
 }
 
 
 const UPnPDeviceDesc *Device::desc() const
 {
-    return m ? &m->desc : 0;
+    return m ? &m->desc : nullptr;
 }
 
 }

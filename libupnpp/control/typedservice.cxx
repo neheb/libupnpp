@@ -47,8 +47,8 @@ public:
 };
 
 TypedService::TypedService(const string& tp)
+    : m(new Internal())
 {
-    m = new Internal;
     string::size_type colon = tp.find_last_of(":");
     m->servicetype = tp.substr(0, colon);
     if (colon != string::npos && colon != tp.size() -1) {
@@ -56,8 +56,7 @@ TypedService::TypedService(const string& tp)
     } else {
         m->version = 0;
     }
-    LOGDEB2("TypedService::TypedService: tp " << m->servicetype <<
-            " version " << m->version << endl);
+    LOGDEB2("TypedService::TypedService: tp " << m->servicetype <<" version " << m->version << endl);
 };
 
 TypedService::~TypedService()
@@ -78,14 +77,12 @@ bool TypedService::serviceTypeMatch(const string& _tp)
 }
 
 
-bool TypedService::serviceInit(const UPnPDeviceDesc& device,
-                               const UPnPServiceDesc& service)
+bool TypedService::serviceInit(const UPnPDeviceDesc& device, const UPnPServiceDesc& service)
 {
     return service.fetchAndParseDesc(device.URLBase, m->proto);
 }
 
-int TypedService::runAction(const string& actnm, vector<string> args,
-                            map<string, string>& data)
+int TypedService::runAction(const string& actnm, vector<string> args, map<string, string>& data)
 {
     auto it = m->proto.actionList.find(actnm);
     if (it == m->proto.actionList.end()) {
@@ -129,8 +126,7 @@ void TypedService::evtCallback(
     LOGDEB1("TypedService::evtCallback: reporter: " << reporter << endl);
     for (const auto& ent : props) {
         if (!reporter) {
-            LOGDEB1("TypedService::evtCallback: " << ent.first << " -> "
-                    << ent.second << endl);
+            LOGDEB1("TypedService::evtCallback: " << ent.first << " -> " << ent.second << endl);
         } else {
             reporter->changed(ent.first.c_str(), ent.second.c_str());
         }
@@ -164,12 +160,11 @@ public:
     bool visit(const UPnPDeviceDesc& dev, const UPnPServiceDesc& serv) {
         LOGDEB2("findTypedService:visit: got " << dev.friendlyName << " " <<
                dev.UDN << " " << serv.serviceType << endl);
-        bool matched = !dev.UDN.compare(dvname) ||
-            !stringlowercmp(ldvname, dev.friendlyName);
+        bool matched = !dev.UDN.compare(dvname) || !stringlowercmp(ldvname, dev.friendlyName);
         if (matched) {
             if (fuzzy) {
                 string ltp = stringtolower(serv.serviceType);
-                matched = matched &&  (ltp.find(stype) != string::npos);
+                matched = matched && (ltp.find(stype) != string::npos);
             } else {
                 matched =  matched && !stype.compare(serv.serviceType);
             }
@@ -185,9 +180,8 @@ public:
     }
 };
 
-TypedService *findTypedService(const std::string& devname,
-                               const std::string& servicetype,
-                               bool fuzzy)
+TypedService *findTypedService(
+    const std::string& devname, const std::string& servicetype, bool fuzzy)
 {
     UPnPDeviceDirectory *superdir = UPnPDeviceDirectory::getTheDir();
     if (superdir == 0) {
@@ -231,8 +225,7 @@ TypedService *findTypedService(const std::string& devname,
         // string sdesc = cb.founddev.dump();
         return service;
     }
-    LOGDEB("Service not found: " << devname << "/" << servicetype <<
-           " fuzzy " << fuzzy << endl);
+    LOGDEB("Service not found: " << devname << "/" << servicetype << " fuzzy " << fuzzy << endl);
     return 0;
 }
 

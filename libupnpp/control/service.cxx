@@ -54,8 +54,7 @@ public:
     std::string modelName;
     Upnp_SID    SID{0}; /* Subscription Id */
 
-    void initFromDeviceAndService(const UPnPDeviceDesc& devdesc,
-                                  const UPnPServiceDesc& servdesc) {
+    void initFromDeviceAndService(const UPnPDeviceDesc& devdesc, const UPnPServiceDesc& servdesc) {
         actionURL = caturl(devdesc.URLBase, servdesc.controlURL);
         eventURL = caturl(devdesc.URLBase, servdesc.eventSubURL);
         serviceType = servdesc.serviceType;
@@ -81,17 +80,12 @@ static std::mutex cblock;
 
 
 Service::Service(const UPnPDeviceDesc& devdesc, const UPnPServiceDesc& servdesc)
+    : m(new Internal())
 {
-    if ((m = new Internal()) == 0) {
-        LOGERR("Device::Device: out of memory" << endl);
-        return;
-    }
-
     m->initFromDeviceAndService(devdesc, servdesc);
     // Only does anything the first time
     initEvents();
-    // serviceInit() will be called from the derived class constructor
-    // if needed
+    // serviceInit() will be called from the derived class constructor if needed
 }
 
 bool Service::initFromDescription(const UPnPDeviceDesc& devdesc)
@@ -112,11 +106,8 @@ bool Service::initFromDescription(const UPnPDeviceDesc& devdesc)
 }
 
 Service::Service()
+    : m(new Internal())
 {
-    if ((m = new Internal()) == 0) {
-        LOGERR("Device::Device: out of memory" << endl);
-        return;
-    }
 }
 
 Service::~Service()
@@ -124,7 +115,7 @@ Service::~Service()
     LOGDEB1("Service::~Service: " << m->eventURL << " SID " << m->SID << endl);
     unregisterCallback();
     delete m;
-    m = 0;
+    m = nullptr;
 }
 
 const string& Service::getFriendlyName() const
@@ -193,9 +184,8 @@ int Service::runTrivialAction(const std::string& actionName)
     return runAction(args, data);
 }
 
-template <class T> int Service::runSimpleGet(const std::string& actnm,
-                                             const std::string& valnm,
-                                             T *valuep)
+template <class T> int Service::runSimpleGet(
+    const std::string& actnm, const std::string& valnm, T *valuep)
 {
     SoapOutgoing args(m->serviceType, actnm);
     SoapIncoming data;
@@ -204,16 +194,14 @@ template <class T> int Service::runSimpleGet(const std::string& actnm,
         return ret;
     }
     if (!data.get(valnm.c_str(), valuep)) {
-        LOGERR("Service::runSimpleAction: " << actnm <<
-               " missing " << valnm << " in response" << std::endl);
+        LOGERR("Service::runSimpleAction: " << actnm << " missing " << valnm <<" in response"<<"\n");
         return UPNP_E_BAD_RESPONSE;
     }
     return 0;
 }
 
-template <class T> int Service::runSimpleAction(const std::string& actnm,
-                                                const std::string& valnm,
-                                                T value)
+template <class T> int Service::runSimpleAction(
+    const std::string& actnm, const std::string& valnm, T value)
 {
     SoapOutgoing args(m->serviceType, actnm);
     args(valnm, SoapHelp::val2s(value));
@@ -244,10 +232,10 @@ static int srvCB(Upnp_EventType et, CBCONST void* vevp, void*)
     case UPNP_EVENT_RECEIVED:
     {
         UpnpEvent *evp = (UpnpEvent *)vevp;
-        LOGDEB1("Service:srvCB: var change event: SID " << sid <<
-                " EventKey " << UpnpEvent_get_EventKey(evp) << " changed " <<
+        LOGDEB1("Service:srvCB: var change event: SID " << sid << " EventKey " <<
+                UpnpEvent_get_EventKey(evp) << " changed " <<
                 SoapHelp::argsToStr(evp->ChangedVariables.begin(),
-                                       evp->ChangedVariables.end()) << "\n");
+                                    evp->ChangedVariables.end()) << "\n");
 
         if (it != o_calls.end()) {
             (it->second)(evp->ChangedVariables);
@@ -258,9 +246,7 @@ static int srvCB(Upnp_EventType et, CBCONST void* vevp, void*)
     }
 
     default:
-        // Ignore other events for now
-        LOGDEB("Service:srvCB: unprocessed evt type: [" <<
-               evTypeAsString(et) << "]"  << "\n");
+        LOGDEB("Service:srvCB: unprocessed evt type: [" << evTypeAsString(et) << "]"  << "\n");
         break;
     }
 
@@ -299,10 +285,9 @@ bool Service::Internal::subscribe()
         return false;
     }
     int timeout = lib->m->getSubsTimeout();
-    int ret = UpnpSubscribe(lib->m->getclh(), eventURL.c_str(),
-                            &timeout, SID);
+    int ret = UpnpSubscribe(lib->m->getclh(), eventURL.c_str(), &timeout, SID);
     if (ret != UPNP_E_SUCCESS) {
-        LOGERR("Service:subscribe: failed: " << ret << " : " <<
+        LOGERR("Service:subscribe: " << eventURL << " failed: " << ret << " : " <<
                UpnpGetErrorMessage(ret) << endl);
         return false;
     }
@@ -321,8 +306,7 @@ bool Service::Internal::unSubscribe()
     if (SID[0]) {
         int ret = UpnpUnSubscribe(lib->m->getclh(), SID);
         if (ret != UPNP_E_SUCCESS) {
-            LOGERR("Service:unSubscribe: failed: " << ret << " : " <<
-                   UpnpGetErrorMessage(ret) << endl);
+            LOGERR("Service:unSubscribe: failed: "<<ret<<" : " << UpnpGetErrorMessage(ret) << endl);
             return false;
         }
         // Let the caller erase m->SID[] because there may be other
@@ -338,16 +322,14 @@ bool Service::registerCallback(evtCBFunc c)
         return false;
     }
     std::unique_lock<std::mutex> lock(cblock);
-    LOGDEB1("Service::registerCallback: " << m->eventURL << " SID " <<
-            m->SID << endl);
+    LOGDEB1("Service::registerCallback: " << m->eventURL << " SID " << m->SID << endl);
     o_calls[m->SID] = c;
     return true;
 }
 
 void Service::unregisterCallback()
 {
-    LOGDEB1("Service::unregisterCallback: " << m->eventURL << " SID " <<
-            m->SID << endl);
+    LOGDEB1("Service::unregisterCallback: " << m->eventURL << " SID " << m->SID << endl);
     if (m->SID[0]) {
         m->unSubscribe();
         std::unique_lock<std::mutex> lock(cblock);
@@ -385,8 +367,7 @@ bool Service::reSubscribe()
         std::unique_lock<std::mutex> lock(cblock);
         auto it = o_calls.find(m->SID);
         if (it == o_calls.end()) {
-            LOGINF("Service::reSubscribe: no callback found for m->SID " <<
-                   m->SID << endl);
+            LOGINF("Service::reSubscribe: no callback found for m->SID " << m->SID << endl);
             return false;
         }
         c = it->second;
@@ -397,8 +378,7 @@ bool Service::reSubscribe()
 }
 
 template int Service::runSimpleAction<int>(string const&, string const&, int);
-template int Service::runSimpleAction<string>(string const&, string const&,
-                                              string);
+template int Service::runSimpleAction<string>(string const&, string const&, string);
 template int Service::runSimpleGet<int>(string const&, string const&, int*);
 template int Service::runSimpleGet<bool>(string const&, string const&, bool*);
 template int Service::runSimpleAction<bool>(string const&, string const&, bool);
