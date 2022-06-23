@@ -298,12 +298,11 @@ static void *discoExplorer(void *)
             }
         } else {
             // Update or insert the device
-            DeviceDescriptor d(tsk->url, tsk->description,
-                               std::chrono::steady_clock::now(),
-                               tsk->expires);
+            DeviceDescriptor d(
+                tsk->url, tsk->description, std::chrono::steady_clock::now(), tsk->expires);
             if (!d.device.ok) {
-                LOGERR("discoExplorer: description parse failed for " <<
-                       tsk->deviceId << endl);
+                LOGERR("discoExplorer: description parse failed for " << tsk->deviceId << endl);
+                LOGINF("discoExplorer: description data: [" << tsk->description << "]\n");
                 delete tsk;
                 continue;
             }
