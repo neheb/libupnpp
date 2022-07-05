@@ -159,9 +159,13 @@ pkgconfig_DATA = libupnpp.pc
 
 dist-hook:
 if LINUX
-	nm -g --defined-only --demangle .libs/libupnpp.so | grep ' T ' | \
-           awk '{print $$3}' | diff - $(top_srcdir)/symbols-reference
+	if test -z "$(NOTAG)";then \
+ 	    nm -g --defined-only --demangle .libs/libupnpp.so | grep ' T ' | \
+                awk '{print $$3}' | diff $(top_srcdir)/symbols-reference - || exit 1;\
+        fi
 endif
-	test -z "`git status -s | egrep -v '?? libupnpp-.*/|?? libupnpputil.a'`" 
-	vers=`echo $(VERSION) | sed -e 's/~/_/g'`;\
-	git tag -a libupnpp-v$$vers -m "version $$vers"
+	if test -z "$(NOTAG)";then \
+	    test -z "`git status -s | egrep -v '?? libupnpp-.*/|?? libupnpputil.a'`" || exit 1;\
+            vers=`echo $(VERSION) | sed -e 's/~/_/g'`;\
+	    git tag -a libupnpp-v$$vers -m "version $$vers";\
+	fi
