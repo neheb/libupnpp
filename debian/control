@@ -11,6 +11,7 @@ Package: libupnpp7-dev
 Section: contrib/libdevel
 Architecture: any
 Depends: libupnpp7, ${misc:Depends}
+Conflicts: libupnpp6-dev
 Multi-Arch: same
 Description: C++ layer over libupnp (development files)
  Development library and include files for libupnpp
