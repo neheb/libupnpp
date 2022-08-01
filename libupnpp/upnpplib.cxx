@@ -433,17 +433,21 @@ string evTypeAsString(Upnp_EventType et)
 
 /////////////////////// Small global helpers
 
-string caturl(const string& s1, const string& s2)
+string caturl(const string& base, const string& rel)
 {
-    string out(s1);
+    // If the url to be concatenated is actually absolute, return it
+    if (rel.find("://") != string::npos)
+        return rel;
+    
+    string out(base);
     if (out[out.size()-1] == '/') {
-        if (s2[0] == '/')
+        if (rel[0] == '/')
             out.erase(out.size()-1);
     } else {
-        if (s2[0] != '/')
+        if (rel[0] != '/')
             out.push_back('/');
     }
-    out += s2;
+    out += rel;
     return out;
 }
 
