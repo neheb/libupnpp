@@ -1,3 +1,11 @@
+libupnpp7 (0.22.1-1~ppaPPAVERS~SERIES1) SERIES; urgency=low
+
+  * Allow absolute eventSubURLs in the description. UPnP 1.1 is ambiguous on this point. They are
+    used by some renderers (e.g. LMS UPnP renderer plugin), which made them incompatible with
+    libupnpp.
+  
+ -- Jean-Francois Dockes <jf@dockes.org>  Mon, 01 Aug 2022 16:18:00 +0200
+ 
 libupnpp7 (0.22.0-3~ppaPPAVERS~SERIES1) SERIES; urgency=low
 
   * Improved logging of action errors: show what we were doing. Ajust other log message levels.
