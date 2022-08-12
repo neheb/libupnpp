@@ -1,15 +1,19 @@
 Summary:        C++ wrapper for libupnp
 Name:           libupnpp
-Version:        0.21.0
+Version:        0.22.2
 Release:        1%{?dist}
 Group:          Applications/Multimedia
 License:        GPLv2+
 URL:            http://www.lesbonscomptes.com/updmpdcli
 Source0:        http://www.lesbonscomptes.com/upmpdcli/downloads/libupnpp-%{version}.tar.gz
-Requires(pre):  shadow-utils
 BuildRequires:  libnpupnp
-BuildRequires:  expat-devel
 BuildRequires:  libcurl-devel
+# OpenSUSE:
+#BuildRequires:  libexpat-devel
+# Fedora:
+Requires(pre):  shadow-utils
+BuildRequires:  expat-devel
+
 BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
 %description

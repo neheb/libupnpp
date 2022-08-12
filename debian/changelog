@@ -1,3 +1,9 @@
+libupnpp7 (0.22.2-1~ppaPPAVERS~SERIES1) SERIES; urgency=low
+
+  * Adapt to the npupnp Upnp_SID type change. 
+  
+ -- Jean-Francois Dockes <jf@dockes.org>  Fri, 12 Aug 2022 12:18:00 +0200
+ 
 libupnpp7 (0.22.1-1~ppaPPAVERS~SERIES1) SERIES; urgency=low
 
   * Allow absolute eventSubURLs in the description. UPnP 1.1 is ambiguous on this point. They are

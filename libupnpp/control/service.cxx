@@ -52,7 +52,7 @@ public:
     std::string friendlyName;
     std::string manufacturer;
     std::string modelName;
-    Upnp_SID    SID{0}; /* Subscription Id */
+    Upnp_SID    SID; /* Subscription Id */
 
     void initFromDeviceAndService(const UPnPDeviceDesc& devdesc, const UPnPServiceDesc& servdesc) {
         actionURL = caturl(devdesc.URLBase, servdesc.controlURL);
@@ -214,12 +214,15 @@ static int srvCB(Upnp_EventType et, CBCONST void* vevp, void*)
 {
     std::unique_lock<std::mutex> lock(cblock);
 
-    // All event types begin with a SID field
+    // All event types have a SID field
     const char *sid = UpnpEvent_get_SID_cstr((UpnpEvent*)vevp);
     
     LOGDEB0("Service:srvCB: " << evTypeAsString(et) << " SID " << sid << endl);
 
     auto it = o_calls.find(sid);
+    if (it == o_calls.end()) {
+        LOGINF("Service::srvCB: no callback found for SID " << sid << "\n");
+    }
 
     switch (et) {
     case UPNP_EVENT_AUTORENEWAL_FAILED:
@@ -239,8 +242,6 @@ static int srvCB(Upnp_EventType et, CBCONST void* vevp, void*)
 
         if (it != o_calls.end()) {
             (it->second)(evp->ChangedVariables);
-        } else {
-            LOGINF("Service::srvCB: no callback found for SID " << sid << "\n");
         }
         break;
     }
@@ -291,7 +292,7 @@ bool Service::Internal::subscribe()
                UpnpGetErrorMessage(ret) << endl);
         return false;
     }
-    LOGDEB1("Service::subs:   " << eventURL << " SID " << SID << endl);
+    LOGDEB("Service::subscribe:   " << eventURL << " SID " << SID << endl);
     return true;
 }
 
@@ -303,10 +304,11 @@ bool Service::Internal::unSubscribe()
         LOGINF("Service::unSubscribe: no lib" << endl);
         return false;
     }
-    if (SID[0]) {
+    if (!SID.empty()) {
         int ret = UpnpUnSubscribe(lib->m->getclh(), SID);
         if (ret != UPNP_E_SUCCESS) {
-            LOGERR("Service:unSubscribe: failed: "<<ret<<" : " << UpnpGetErrorMessage(ret) << endl);
+            LOGERR("Service:unSubscribe: failed: " << ret << " : " <<
+                   UpnpGetErrorMessage(ret) << " for SID [" << SID << "]\n");
             return false;
         }
         // Let the caller erase m->SID[] because there may be other
@@ -330,11 +332,11 @@ bool Service::registerCallback(evtCBFunc c)
 void Service::unregisterCallback()
 {
     LOGDEB1("Service::unregisterCallback: " << m->eventURL << " SID " << m->SID << endl);
-    if (m->SID[0]) {
+    if (!m->SID.empty()) {
         m->unSubscribe();
         std::unique_lock<std::mutex> lock(cblock);
         o_calls.erase(m->SID);
-        m->SID[0] = 0;
+        m->SID.clear();
     }
 }
 
@@ -358,7 +360,7 @@ void Service::installReporter(VarEventReporter* reporter)
 bool Service::reSubscribe()
 {
     LOGDEB("Service::reSubscribe()\n");
-    if (m->SID[0] == 0) {
+    if (m->SID.empty()) {
         LOGINF("Service::reSubscribe: no subscription (null SID)\n");
         return false;
     }
