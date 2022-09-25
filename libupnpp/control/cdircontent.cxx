@@ -151,7 +151,7 @@ protected:
                     // bitrate="24576" duration="00:03:35"
                     // sampleFrequency="44100" nrAudioChannels="2">
                     UPnPResource res;
-                    res.m_uri = m_path.back().data;
+                    res.m_uri = reSanitizeURL(m_path.back().data);
                     res.m_props = m_path.back().attributes;
                     m_tobj.m_resources.push_back(res);
                 } else {

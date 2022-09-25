@@ -564,6 +564,28 @@ template bool csvToStrings<vector<string> >(const string &, vector<string> &);
 template bool csvToStrings<set<string> >(const string &, set<string> &);
 
 
+
+
+// Sanitize URL which is supposedly already encoded but maybe not fully (some broken software leaves
+// single quotes around for example).
+std::string reSanitizeURL(const std::string& in)
+{
+    // Note: % not in there as the  URL may be partially encoded.
+    static const std::string unsafe_chars{R"raw(<>"#{}|\^~[]')raw"};
+    std::string out;
+    for (unsigned char c : in) {
+        const char *h = "0123456789ABCDEF";
+        if (c <= 0x20 || c >= 0x7f || unsafe_chars.find(c) != std::string::npos) {
+            out += '%';
+            out += h[(c >> 4) & 0xf];
+            out += h[c & 0xf];
+        } else {
+            out += char(c);
+        }
+    }
+    return out;
+}
+
 bool stringToBool(const string& s, bool *value)
 {
     if (s[0] == 'F' ||s[0] == 'f' ||s[0] == 'N' || s[0] == 'n' ||s[0] == '0') {
