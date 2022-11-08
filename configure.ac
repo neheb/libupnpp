@@ -4,8 +4,7 @@
 # occur with revision (3rd number) changes.
 
 # !!!! When changing the version, also change the defines in upnpplib.hxx !!!
-AC_INIT([libupnpp], [0.22.2], [jfd@lesbonscomptes.com],
-             [libupnpp], [http://www.lesbonscomptes.com/upmpdcli])
+AC_INIT([libupnpp],[0.22.3],[jfd@lesbonscomptes.com],[libupnpp],[http://www.lesbonscomptes.com/upmpdcli])
 
 # Lib version info. See:
 # https://www.sourceware.org/autobook/autobook/autobook_91.html#SEC91
@@ -24,7 +23,7 @@ AC_INIT([libupnpp], [0.22.2], [jfd@lesbonscomptes.com],
 #   versions need to be co-installed.
 VERSION_INFO=12:0:0
 
-AC_PREREQ([2.53])
+AC_PREREQ([2.71])
 AC_CONFIG_SRCDIR([libupnpp/upnpplib.hxx])
 AC_CONFIG_HEADERS([libupnpp/config.h])
 AH_BOTTOM([#include "libupnpp/conf_post.h"])
@@ -44,10 +43,9 @@ AM_CONDITIONAL([FREEBSD], [test "$build_freebsd" = "yes"])
 
 AM_INIT_AUTOMAKE([1.10 no-define subdir-objects foreign])
 AC_DISABLE_STATIC
-LT_INIT
 
 AC_PROG_CXX
-AC_PROG_LIBTOOL
+LT_INIT
 AC_CHECK_PROG([pkg_config], [pkg-config], [yes], [no])
 if test X$pkg_config != Xyes ; then
    AC_MSG_ERROR([pkg-config program needed and not found])

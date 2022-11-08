@@ -1,3 +1,9 @@
+libupnpp7 (0.22.3-1~ppaPPAVERS~SERIES1) SERIES; urgency=low
+
+  * Control Point: sanitize unsufficiently quoted URLs from content directory.
+  
+ -- Jean-Francois Dockes <jf@dockes.org>  Tue, 08 Nov 2022 15:31:00 +0100
+ 
 libupnpp7 (0.22.2-1~ppaPPAVERS~SERIES1) SERIES; urgency=low
 
   * Adapt to the npupnp Upnp_SID type change. 
