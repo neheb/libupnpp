@@ -1,3 +1,9 @@
+libupnpp7 (0.22.4-1~ppaPPAVERS~SERIES1) SERIES; urgency=low
+
+  * Oops in configure.ac
+  
+ -- Jean-Francois Dockes <jf@dockes.org>  Sun, 13 Nov 2022 14:58:00 +0100
+ 
 libupnpp7 (0.22.3-1~ppaPPAVERS~SERIES1) SERIES; urgency=low
 
   * Control Point: sanitize unsufficiently quoted URLs from content directory.
