@@ -24,7 +24,7 @@
 #include <string>
 #include <vector>
 
-#include "libupnpp/expatmm.hxx"
+#include "libupnpp/expatmm.h"
 #include "libupnpp/log.hxx"
 #include "libupnpp/soaphelp.hxx"
 #include "libupnpp/upnpp_p.hxx"

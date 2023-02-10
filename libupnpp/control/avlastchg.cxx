@@ -20,7 +20,7 @@
 #include <string.h>                     // for strcmp
 
 #include "libupnpp/control/avlastchg.hxx"
-#include "libupnpp/expatmm.hxx"         // for inputRefXMLParser
+#include "libupnpp/expatmm.h"         // for inputRefXMLParser
 
 using namespace std;
 

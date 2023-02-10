@@ -25,7 +25,7 @@
 #include <iostream>
 
 #include "libupnpp/control/cdircontent.hxx"
-#include "libupnpp/expatmm.hxx"
+#include "libupnpp/expatmm.h"
 #include "libupnpp/log.hxx"
 #include "libupnpp/upnpp_p.hxx"
 #include "libupnpp/soaphelp.hxx"

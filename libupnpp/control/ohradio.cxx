@@ -33,7 +33,7 @@
 #include "libupnpp/control/cdircontent.hxx"
 #include "libupnpp/control/service.hxx"
 #include "libupnpp/log.hxx"
-#include "libupnpp/expatmm.hxx"
+#include "libupnpp/expatmm.h"
 #include "libupnpp/soaphelp.hxx"
 #include "libupnpp/upnpp_p.hxx"
 

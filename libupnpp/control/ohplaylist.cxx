@@ -32,7 +32,7 @@
 #include "libupnpp/upnpavutils.hxx"
 #include "libupnpp/control/cdircontent.hxx"
 #include "libupnpp/control/service.hxx"
-#include "libupnpp/expatmm.hxx"
+#include "libupnpp/expatmm.h"
 #include "libupnpp/log.hxx"
 #include "libupnpp/soaphelp.hxx"
 #include "libupnpp/upnpp_p.hxx"

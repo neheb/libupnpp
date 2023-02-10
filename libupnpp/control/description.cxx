@@ -27,7 +27,7 @@
 #include <upnp.h>
 
 #include "libupnpp/upnpplib.hxx"
-#include "libupnpp/expatmm.hxx"
+#include "libupnpp/expatmm.h"
 #include "libupnpp/upnpp_p.hxx"
 #include "libupnpp/smallut.h"
 #include "libupnpp/log.hxx"

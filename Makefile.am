@@ -1,9 +1,10 @@
 
-AM_CPPFLAGS = -DDEBUG -g -Wall -DUPNPP_DLL \
+AM_CPPFLAGS = -DDEBUG -g -Wall -Wextra -Woverloaded-virtual \
+	            -Wsign-compare -Wdeprecated-declarations -DUPNPP_DLL \
 	            ${upnp_CFLAGS} ${curl_CFLAGS} ${expat_CFLAGS} \
 	            -DDATADIR=\"${pkgdatadir}\" -DCONFIGDIR=\"${sysconfdir}\"
 
-AM_CXXFLAGS = -std=c++11
+AM_CXXFLAGS = -std=c++11 -Wall -Wextra
 
 lib_LTLIBRARIES = libupnpp.la
 
@@ -82,7 +83,7 @@ libupnpp_la_SOURCES = \
     libupnpp/base64.hxx \
     libupnpp/base64.cxx \
     libupnpp/conf_post.h \
-    libupnpp/expatmm.hxx \
+    libupnpp/expatmm.h \
     libupnpp/md5.cpp \
     libupnpp/md5.h \
     libupnpp/smallut.cpp \
