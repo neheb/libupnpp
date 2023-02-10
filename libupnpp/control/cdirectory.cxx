@@ -62,25 +62,21 @@ bool ContentDirectory::serviceTypeMatch(const std::string& tp)
 void ContentDirectory::evtCallback(
     const std::unordered_map<string, string>& props)
 {
-    for (std::unordered_map<std::string, std::string>::const_iterator it =
-             props.begin(); it != props.end(); it++) {
+    for (const auto& prop : props) {
         if (!getReporter()) {
-            LOGDEB1("ContentDirectory::evtCallback: " << it->first << " -> "
-                    << it->second << endl);
+            LOGDEB1("ContentDirectory::evtCallback: " << prop.first << " -> " << prop.second<<"\n");
             continue;
         }
-        if (!it->first.compare("SystemUpdateID")) {
-            getReporter()->changed(it->first.c_str(), atoi(it->second.c_str()));
+        if (!prop.first.compare("SystemUpdateID")) {
+            getReporter()->changed(prop.first.c_str(), atoi(prop.second.c_str()));
 
-        } else if (!it->first.compare("ContainerUpdateIDs") ||
-                   !it->first.compare("TransferIDs")) {
-            getReporter()->changed(it->first.c_str(),
-                                   it->second.c_str());
+        } else if (!prop.first.compare("ContainerUpdateIDs")||!prop.first.compare("TransferIDs")) {
+            getReporter()->changed(prop.first.c_str(), prop.second.c_str());
 
         } else {
             LOGERR("ContentDirectory event: unknown variable: name [" <<
-                   it->first << "] value [" << it->second << endl);
-            getReporter()->changed(it->first.c_str(), it->second.c_str());
+                   prop.first << "] value [" << prop.second << "\n");
+            getReporter()->changed(prop.first.c_str(), prop.second.c_str());
         }
     }
 }
@@ -113,39 +109,37 @@ bool ContentDirectory::serviceInit(const UPnPDeviceDesc&,
 {
     if (bubble_rx(getModelName())) {
         m_serviceKind = CDSKIND_BUBBLE;
-        LOGDEB1("ContentDirectory::ContentDirectory: BUBBLE" << endl);
+        LOGDEB1("ContentDirectory::ContentDirectory: BUBBLE\n");
     } else if (mediatomb_rx(getModelName())) {
         // Readdir by 200 entries is good for most, but MediaTomb likes
         // them really big. Actually 1000 is better but I don't dare
         m_rdreqcnt = 500;
         m_serviceKind = CDSKIND_MEDIATOMB;
-        LOGDEB1("ContentDirectory::ContentDirectory: MEDIATOMB" << endl);
+        LOGDEB1("ContentDirectory::ContentDirectory: MEDIATOMB\n");
     } else if (minidlna_rx(getModelName())) {
         m_serviceKind = CDSKIND_MINIDLNA;
-        LOGDEB1("ContentDirectory::ContentDirectory: MINIDLNA" << endl);
+        LOGDEB1("ContentDirectory::ContentDirectory: MINIDLNA\n");
     } else if (minim_rx(getModelName())) {
         m_serviceKind = CDSKIND_MINIM;
-        LOGDEB1("ContentDirectory::ContentDirectory: MINIM" << endl);
+        LOGDEB1("ContentDirectory::ContentDirectory: MINIM\n");
     } else if (twonky_rx(getModelName())) {
         m_serviceKind = CDSKIND_TWONKY;
-        LOGDEB1("ContentDirectory::ContentDirectory: TWONKY" << endl);
+        LOGDEB1("ContentDirectory::ContentDirectory: TWONKY\n");
     }
     return true;
 }
 
-static bool DSAccum(vector<CDSH>* out,
-                    const UPnPDeviceDesc& device,
-                    const UPnPServiceDesc& service)
+static bool DSAccum(vector<CDSH>* out, const UPnPDeviceDesc& device, const UPnPServiceDesc& service)
 {
     if (ContentDirectory::isCDService(service.serviceType)) {
-        out->push_back(CDSH(new ContentDirectory(device, service)));
+        out->push_back(std::make_shared<ContentDirectory>(device, service));
     }
     return true;
 }
 
 bool ContentDirectory::getServices(vector<CDSH>& vds)
 {
-    //LOGDEB("UPnPDeviceDirectory::getDirServices" << endl);
+    LOGDEB1("UPnPDeviceDirectory::getDirServices\n");
     UPnPDeviceDirectory::Visitor visitor = bind(DSAccum, &vds, _1, _2);
     UPnPDeviceDirectory::getTheDir()->traverse(visitor);
     return !vds.empty();
@@ -160,10 +154,9 @@ bool ContentDirectory::getServerByName(const string& fname, CDSH& server)
         return false;
 
     found = false;
-    for (std::vector<UPnPServiceDesc>::const_iterator it =
-                ddesc.services.begin(); it != ddesc.services.end(); it++) {
-        if (isCDService(it->serviceType)) {
-            server = CDSH(new ContentDirectory(ddesc, *it));
+    for (const auto& service : ddesc.services) {
+        if (isCDService(service.serviceType)) {
+            server = std::make_shared<ContentDirectory>(ddesc, service);
             found = true;
             break;
         }
@@ -181,7 +174,7 @@ int ContentDirectory::readDirSlice(
     UPnPDirContent& dirbuf, int *didread, int *total)
 {
     LOGDEB("CDService::readDirSlice: objId [" << objectId << "] offset " <<
-           offset << " count " << count << endl);
+           offset << " count " << count << "\n");
 
     // Create request
     // Some devices require an empty SortCriteria, else bad params
@@ -203,18 +196,17 @@ int ContentDirectory::readDirSlice(
     if (!data.get("NumberReturned", didread) ||
             !data.get("TotalMatches", total) ||
             !data.get("Result", &tbuf)) {
-        LOGERR("CDService::readDir: missing elts in response" << endl);
+        LOGERR("CDService::readDir: missing elts in response\n");
         return UPNP_E_BAD_RESPONSE;
     }
 
     if (*didread <= 0) {
-        LOGINF("CDService::readDir: got -1 or 0 entries" << endl);
+        LOGINF("CDService::readDir: got -1 or 0 entries\n");
         return UPNP_E_BAD_RESPONSE;
     }
 
     LOGDEB0("ContentDirectory::readDirSlice: got count " << count <<
-            " offset " << offset << " total " << *total << " Data:\n" <<
-            tbuf << "\n");
+            " offset " << offset << " total " << *total << " Data:\n" << tbuf << "\n");
 
     dirbuf.parse(tbuf);
 
@@ -225,15 +217,14 @@ int ContentDirectory::readDir(const string& objectId, UPnPDirContent& dirbuf)
 {
     LOGDEB("CDService::readDir: url [" << getActionURL() << "] type [" <<
            getServiceType() << "] udn [" << getDeviceId() << "] objId [" <<
-           objectId << endl);
+           objectId << "\n");
 
     int offset = 0;
     int total = 0;// Updated on first read.
 
     while (total == 0 || (offset < total)) {
         int count;
-        int error = readDirSlice(objectId, offset, m_rdreqcnt, dirbuf,
-                                 &count, &total);
+        int error = readDirSlice(objectId, offset, m_rdreqcnt, dirbuf, &count, &total);
         if (error != UPNP_E_SUCCESS)
             return error;
 
@@ -250,7 +241,7 @@ int ContentDirectory::searchSlice(
     UPnPDirContent& dirbuf, int *didread, int *total)
 {
     LOGDEB("CDService::searchSlice: objId [" << objectId << "] offset " <<
-           offset << " count " << count << endl);
+           offset << " count " << count << "\n");
 
     // Create request
     SoapOutgoing args(getServiceType(), "Search");
@@ -265,8 +256,7 @@ int ContentDirectory::searchSlice(
     int ret = runAction(args, data);
 
     if (ret != UPNP_E_SUCCESS) {
-        LOGINF("CDService::search: UpnpSendAction failed: " <<
-               UpnpGetErrorMessage(ret) << endl);
+        LOGINF("CDService::search: UpnpSendAction failed: " << UpnpGetErrorMessage(ret) << "\n");
         return ret;
     }
 
@@ -274,11 +264,11 @@ int ContentDirectory::searchSlice(
     if (!data.get("NumberReturned", didread) ||
             !data.get("TotalMatches", total) ||
             !data.get("Result", &tbuf)) {
-        LOGERR("CDService::search: missing elts in response" << endl);
+        LOGERR("CDService::search: missing elts in response" << "\n");
         return UPNP_E_BAD_RESPONSE;
     }
     if (*didread <=  0) {
-        LOGINF("CDService::search: got -1 or 0 entries" << endl);
+        LOGINF("CDService::search: got -1 or 0 entries\n");
         return count < 0 ? UPNP_E_BAD_RESPONSE : UPNP_E_SUCCESS;
     }
 
@@ -292,7 +282,7 @@ int ContentDirectory::search(
 {
     LOGDEB("CDService::search: url [" << getActionURL() << "] type [" <<
            getServiceType() << "] udn [" << getDeviceId() << "] objid [" <<
-           objectId <<  "] search [" << ss << "]" << endl);
+           objectId <<  "] search [" << ss << "]\n");
 
     int offset = 0;
     int total = 0;// Updated on first read.
@@ -313,20 +303,20 @@ int ContentDirectory::search(
 
 int ContentDirectory::getSearchCapabilities(set<string>& result)
 {
-    LOGDEB("CDService::getSearchCapabilities:" << endl);
+    LOGDEB("CDService::getSearchCapabilities:\n");
 
     SoapOutgoing args(getServiceType(), "GetSearchCapabilities");
     SoapIncoming data;
     int ret = runAction(args, data);
     if (ret != UPNP_E_SUCCESS) {
         LOGINF("CDService::getSearchCapa: UpnpSendAction failed: " <<
-               UpnpGetErrorMessage(ret) << endl);
+               UpnpGetErrorMessage(ret) << "\n");
         return ret;
     }
     string tbuf;
     if (!data.get("SearchCaps", &tbuf)) {
-        LOGERR("CDService::getSearchCaps: missing Result in response" << endl);
-        cerr << tbuf << endl;
+        LOGERR("CDService::getSearchCaps: missing Result in response\n");
+        cerr << tbuf << "\n";
         return UPNP_E_BAD_RESPONSE;
     }
 
@@ -347,7 +337,7 @@ int ContentDirectory::getMetadata(const string& objectId,
 {
     LOGDEB("CDService::getMetadata: url [" << getActionURL() << "] type [" <<
            getServiceType() << "] udn [" << getDeviceId() << "] objId [" <<
-           objectId << "]" << endl);
+           objectId << "]\n");
 
     SoapOutgoing args(getServiceType(), "Browse");
     SoapIncoming data;
@@ -360,12 +350,12 @@ int ContentDirectory::getMetadata(const string& objectId,
     int ret = runAction(args, data);
     if (ret != UPNP_E_SUCCESS) {
         LOGINF("CDService::getmetadata: UpnpSendAction failed: " <<
-               UpnpGetErrorMessage(ret) << endl);
+               UpnpGetErrorMessage(ret) << "\n");
         return ret;
     }
     string tbuf;
     if (!data.get("Result", &tbuf)) {
-        LOGERR("CDService::getmetadata: missing Result in response" << endl);
+        LOGERR("CDService::getmetadata: missing Result in response\n");
         return UPNP_E_BAD_RESPONSE;
     }
 

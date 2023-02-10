@@ -154,7 +154,7 @@ RDCH MediaRenderer::rdc()
         return rdcl;
     for (const auto& service : desc()->services) {
         if (RenderingControl::isRDCService(service.serviceType)) {
-            rdcl = RDCH(new RenderingControl(*desc(), service));
+            rdcl = std::make_shared<RenderingControl>(*desc(), service);
             break;
         }
     }
@@ -171,7 +171,7 @@ AVTH MediaRenderer::avt()
         return avtl;
     for (const auto& service : desc()->services) {
         if (AVTransport::isAVTService(service.serviceType)) {
-            avtl = AVTH(new AVTransport(*desc(), service));
+            avtl = std::make_shared<AVTransport>(*desc(), service);
             break;
         }
     }
@@ -188,7 +188,7 @@ CNMH MediaRenderer::conman()
         return cnml;
     for (const auto& servdesc : desc()->services) {
         if (ConnectionManager::isConManService(servdesc.serviceType)) {
-            cnml = CNMH(new ConnectionManager(servdesc.serviceType));
+            cnml = std::make_shared<ConnectionManager>(servdesc.serviceType);
             cnml->initFromDescription(*desc());
             break;
         }
@@ -206,7 +206,7 @@ OHPRH MediaRenderer::ohpr()
         return ohprl;
     for (const auto& service : desc()->services) {
         if (OHProduct::isOHPrService(service.serviceType)) {
-            ohprl = OHPRH(new OHProduct(*desc(), service));
+            ohprl = std::make_shared<OHProduct>(*desc(), service);
             break;
         }
     }
@@ -223,7 +223,7 @@ OHPLH MediaRenderer::ohpl()
         return ohpll;
     for (const auto& service : desc()->services) {
         if (OHPlaylist::isOHPlService(service.serviceType)) {
-            ohpll = OHPLH(new OHPlaylist(*desc(), service));
+            ohpll = std::make_shared<OHPlaylist>(*desc(), service);
             break;
         }
     }
@@ -240,7 +240,7 @@ OHRCH MediaRenderer::ohrc()
         return ohrcl;
     for (const auto& service : desc()->services) {
         if (OHReceiver::isOHRcService(service.serviceType)) {
-            ohrcl = OHRCH(new OHReceiver(*desc(), service));
+            ohrcl = std::make_shared<OHReceiver>(*desc(), service);
             break;
         }
     }
@@ -257,7 +257,7 @@ OHRDH MediaRenderer::ohrd()
         return handle;
     for (const auto& service : desc()->services) {
         if (OHRadio::isOHRdService(service.serviceType)) {
-            handle = OHRDH(new OHRadio(*desc(), service));
+            handle = std::make_shared<OHRadio>(*desc(), service);
             break;
         }
     }
@@ -274,7 +274,7 @@ OHIFH MediaRenderer::ohif()
         return handle;
     for (const auto& service : desc()->services) {
         if (OHInfo::isOHInfoService(service.serviceType)) {
-            handle = OHIFH(new OHInfo(*desc(), service));
+            handle = std::make_shared<OHInfo>(*desc(), service);
             break;
         }
     }
@@ -291,7 +291,7 @@ OHSNH MediaRenderer::ohsn()
         return handle;
     for (const auto& service : desc()->services) {
         if (OHSender::isOHSenderService(service.serviceType)) {
-            handle = OHSNH(new OHSender(*desc(), service));
+            handle = std::make_shared<OHSender>(*desc(), service);
             break;
         }
     }
@@ -308,7 +308,7 @@ OHTMH MediaRenderer::ohtm()
         return ohtml;
     for (const auto& service : desc()->services) {
         if (OHTime::isOHTMService(service.serviceType)) {
-            ohtml = OHTMH(new OHTime(*desc(), service));
+            ohtml = std::make_shared<OHTime>(*desc(), service);
             break;
         }
     }
@@ -325,7 +325,7 @@ OHVLH MediaRenderer::ohvl()
         return ohvll;
     for (const auto& service : desc()->services) {
         if (OHVolume::isOHVLService(service.serviceType)) {
-            ohvll = OHVLH(new OHVolume(*desc(), service));
+            ohvll = std::make_shared<OHVolume>(*desc(), service);
             break;
         }
     }

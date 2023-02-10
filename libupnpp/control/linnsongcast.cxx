@@ -38,9 +38,9 @@ static MRDH getRenderer(const string& name)
 {
     UPnPDeviceDesc ddesc;
     if (UPnPDeviceDirectory::getTheDir()->getDevByUDN(name, ddesc)) {
-        return MRDH(new MediaRenderer(ddesc));
+        return std::make_shared<MediaRenderer>(ddesc);
     } else if (UPnPDeviceDirectory::getTheDir()->getDevByFName(name, ddesc)) {
-        return MRDH(new MediaRenderer(ddesc));
+        return std::make_shared<MediaRenderer>(ddesc);
     }
     LOGERR("getRenderer: getDevByFname failed for " << name << endl);
     return MRDH();
@@ -50,9 +50,9 @@ static DVCH getDevice(const string& name)
 {
     UPnPDeviceDesc ddesc;
     if (UPnPDeviceDirectory::getTheDir()->getDevByUDN(name, ddesc)) {
-        return DVCH(new MediaRenderer(ddesc));
+        return std::make_shared<MediaRenderer>(ddesc);
     } else if (UPnPDeviceDirectory::getTheDir()->getDevByFName(name, ddesc)) {
-        return DVCH(new MediaRenderer(ddesc));
+        return std::make_shared<MediaRenderer>(ddesc);
     }
     LOGERR("getDevice: getDevByFname failed for " << name << endl);
     return DVCH();
@@ -63,7 +63,7 @@ OHSNH senderService(DVCH dev)
     OHSNH handle;
     for (auto& service : dev->desc()->services) {
         if (OHSender::isOHSenderService(service.serviceType)) {
-            handle = OHSNH(new OHSender(*(dev->desc()), service));
+            handle = std::make_shared<OHSender>(*(dev->desc()), service);
             break;
         }
     }
