@@ -569,7 +569,10 @@ template bool csvToStrings<set<string> >(const string &, set<string> &);
 // Because they are most likely to cause confusion, we check/encode the characters which were in the
 // safe list in rfc 1738, but became reserved in rfc 3986. These are all part of the 3986 sub_delims
 // list. Especially an unencoded apostrophe has been known to cause problems (can't remember with
-// what package).
+// what package). As an aside, wikipedia explicitely states:
+//   https://en.wikipedia.org/wiki/URL_encoding: "Other characters in a URI must be percent-encoded."
+// that any character that is neither reserved (and used as such) or unreserved must be
+// percent-encoded, but I can't find this specified in the rfc, maybe it's somewhere...
 //
 // Hopefully, none of the gen_delims ones will be found unencoded because they were all reserved or
 // unsafe in 1738. Note that there is another intermediate RFC 2396 where $+, were "reserved".
