@@ -564,14 +564,22 @@ template bool csvToStrings<vector<string> >(const string &, vector<string> &);
 template bool csvToStrings<set<string> >(const string &, set<string> &);
 
 
-
-
-// Sanitize URL which is supposedly already encoded but maybe not fully (some broken software leaves
-// single quotes around for example).
+// Sanitize URL which is supposedly already encoded but maybe not fully.
+//
+// Because they are most likely to cause confusion, we check/encode the characters which were in the
+// safe list in rfc 1738, but became reserved in rfc 3986. These are all part of the 3986 sub_delims
+// list. Especially an unencoded apostrophe has been known to cause problems (can't remember with
+// what package).
+//
+// Hopefully, none of the gen_delims ones will be found unencoded because they were all reserved or
+// unsafe in 1738. Note that there is another intermediate RFC 2396 where $+, were "reserved".
+//
+// None of the characters that we change are likely to be used as actual syntactic delimiters in
+// UPnP URLs (hopefully).
 std::string reSanitizeURL(const std::string& in)
 {
-    // Note: % not in there as the  URL may be partially encoded.
-    static const std::string unsafe_chars{R"raw(<>"#{}|\^~[]')raw"};
+    static const std::string unsafe_chars{R"raw(!$'()*+,)raw"};
+
     std::string out;
     for (unsigned char c : in) {
         const char *h = "0123456789ABCDEF";
@@ -586,6 +594,7 @@ std::string reSanitizeURL(const std::string& in)
     return out;
 }
 
+// Note: this differs from smallut stringToBool. Check one day if this is necessary ?
 bool stringToBool(const string& s, bool *value)
 {
     if (s[0] == 'F' ||s[0] == 'f' ||s[0] == 'N' || s[0] == 'n' ||s[0] == '0') {

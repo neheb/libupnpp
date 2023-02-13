@@ -69,8 +69,7 @@ template <class T> bool csvToStrings(const std::string& s, T &tokens);
 // with [FfNnYyTt01]
 extern bool stringToBool(const std::string& s, bool *v);
 
-/** Sanitize URL which is supposedly already encoded but maybe not fully (some broken software
- * leaves single quotes around for example). */
+/** Sanitize URL which is supposedly already encoded but maybe not fully */
 std::string reSanitizeURL(const std::string& in);
 
 /** Translate libupnp event type to string */
