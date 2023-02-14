@@ -4,7 +4,7 @@ AM_CPPFLAGS = -DDEBUG -g -Wall -Wextra -Woverloaded-virtual \
 	            ${upnp_CFLAGS} ${curl_CFLAGS} ${expat_CFLAGS} \
 	            -DDATADIR=\"${pkgdatadir}\" -DCONFIGDIR=\"${sysconfdir}\"
 
-AM_CXXFLAGS = -std=c++11 -Wall -Wextra
+AM_CXXFLAGS = -std=c++14 -Wall -Wextra
 
 lib_LTLIBRARIES = libupnpp.la
 
