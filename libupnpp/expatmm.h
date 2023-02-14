@@ -45,7 +45,7 @@ public:
     }
 
     /* Create a new parser, using a user-supplied chunk size */
-    ExpatXMLParser(size_t chunk_size) {
+    explicit ExpatXMLParser(size_t chunk_size) {
         init(chunk_size);
     }
 
@@ -61,6 +61,9 @@ public:
             xml_buffer = nullptr;
         }
     }
+
+    ExpatXMLParser(const ExpatXMLParser&) = delete;
+    ExpatXMLParser& operator=(const ExpatXMLParser&) = delete;
 
     /*
       Generic Parser. Most derivations will simply call this, rather
@@ -124,11 +127,11 @@ public:
     virtual std::string getLastErrorMessage(void) const {
         return last_error_message;
     }
-    
+
 protected:
     class StackEl {
     public:
-        StackEl(const char* nm) : name(nm) {}
+        explicit StackEl(const char* nm) : name(nm) {}
         std::string name;
         XML_Size start_index;
         std::map<std::string,std::string> attributes;
@@ -219,13 +222,13 @@ private:
             last_error_column;
         last_error_message = oss.str();
     }
-    
+
     XML_Status status;
     XML_Error last_error;
     XML_Size last_error_line{0};
     XML_Size last_error_column{0};
     std::string last_error_message;
-    
+
     /* Expat callbacks.
      * The expatmm protocol is to pass (this) as the userData argument
      * in the XML_Parser structure. These static methods will convert
@@ -323,7 +326,7 @@ public:
     // Beware: we only use a ref to input to minimize copying. This means
     // that storage for the input parameter must persist until you are done
     // with the parser object !
-    inputRefXMLParser(const std::string& input)
+    explicit inputRefXMLParser(const std::string& input)
         : ExpatXMLParser(1), // Have to allocate a small buf even if not used.
           m_input(input) {
     }
@@ -340,7 +343,7 @@ protected:
     const char *getReadBuffer() override {
         return m_input.c_str();
     }
-    virtual size_t getBlockSize(void) override {
+    size_t getBlockSize(void) override {
         return m_input.size();
     }
 protected:

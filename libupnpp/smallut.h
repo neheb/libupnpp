@@ -24,6 +24,7 @@
 #include <vector>
 #include <map>
 #include <functional>
+#include <memory>
 
 struct tm;
 
@@ -62,7 +63,7 @@ extern int stringicmp(const std::string& s1, const std::string& s2);
 
 // For find_if etc.
 struct StringIcmpPred {
-    StringIcmpPred(const std::string& s1)
+    explicit StringIcmpPred(const std::string& s1)
         : m_s1(s1) {
     }
     bool operator()(const std::string& s2) {
@@ -80,7 +81,7 @@ extern void stringtolower(std::string& io);
 extern std::string stringtolower(const std::string& io);
 extern void stringtoupper(std::string& io);
 extern std::string stringtoupper(const std::string& io);
-extern bool beginswith(const std::string& bg, const std::string& sml);
+extern bool beginswith(const std::string& big, const std::string& small);
 
 // Parse date interval specifier into pair of y,m,d dates.  The format
 // for the time interval is based on a subset of iso 8601 with
@@ -105,7 +106,7 @@ extern bool parsedateinterval(const std::string& s, DateInterval *di);
 extern int monthdays(int mon, int year);
 
 
-/** Note for all templated functions: 
+/** Note for all templated functions:
  * By default, smallut.cpp has explicit instantiations for common
  * containers (list, vector, set, etc.). If this is not enough, or
  * conversely, if you want to minimize the module size, you can chose
@@ -202,14 +203,16 @@ bool pcSubst(const std::string& in, std::string& out, const std::map<char, std::
 bool pcSubst(const std::string& in, std::string& out,
              const std::map<std::string, std::string>& subs);
 /** Substitute printf-like percents and %(nm), using result of function call */
-bool pcSubst(const std::string& i, std::string& o, std::function<std::string(const std::string&)>);
+bool pcSubst(const std::string& i, std::string& o, const std::function<std::string(const std::string&)>&);
 
 /** Stupid little smart buffer handler avoiding value-initialization when not needed (e.g. for using
     as read buffer **/
 class DirtySmartBuf {
 public:
-    DirtySmartBuf(size_t sz) { m_buf = new char[sz]; }
+    explicit DirtySmartBuf(size_t sz) : m_buf(new char[sz]) {}
     ~DirtySmartBuf() { delete [] m_buf; }
+    DirtySmartBuf(const DirtySmartBuf&) = delete;
+    DirtySmartBuf& operator=(const DirtySmartBuf&) = delete;
     char *buf() { return m_buf; }
   private:
     char *m_buf;
@@ -252,7 +255,7 @@ public:
     /// Calls simpleMatch()
     bool operator() (const std::string& val) const;
 
-    /// Replace the first occurrence of regexp. 
+    /// Replace the first occurrence of regexp.
     std::string simpleSub(const std::string& input, const std::string& repl);
 
     /// Check after construction
@@ -260,7 +263,7 @@ public:
 
     class Internal;
 private:
-    Internal *m;
+    std::unique_ptr<Internal> m;
 };
 #endif // SMALLUT_NO_REGEX
 

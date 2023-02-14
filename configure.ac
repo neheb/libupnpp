@@ -63,7 +63,7 @@ AC_CHECK_LIB([pthread], [pthread_create], [], [])
 
 # Check that std::future is available.
 AC_LANG_PUSH([C++])
-CXXFLAGS="-std=c++11 $CXXFLAGS"
+CXXFLAGS="-std=c++14 $CXXFLAGS"
 AC_MSG_CHECKING([whether std::future is available])
 AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[#include <future>]],
 		[[std::future<int> f;]])],
