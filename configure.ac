@@ -4,7 +4,8 @@
 # occur with revision (3rd number) changes.
 
 # !!!! When changing the version, also change the defines in upnpplib.hxx !!!
-AC_INIT([libupnpp],[0.22.4],[jfd@lesbonscomptes.com],[libupnpp],[http://www.lesbonscomptes.com/upmpdcli])
+AC_INIT([libupnpp], [0.22.5], [jfd@lesbonscomptes.com], [libupnpp],
+        [http://www.lesbonscomptes.com/upmpdcli])
 
 # Lib version info. See:
 # https://www.sourceware.org/autobook/autobook/autobook_91.html#SEC91
