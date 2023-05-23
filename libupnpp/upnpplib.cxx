@@ -270,12 +270,23 @@ LibUPnP::LibUPnP()
     }
 }
 
+bool LibUPnP::setWebServerDocumentRoot(const std::string& rootpath)
+{
+    return UpnpSetWebServerRootDir(rootpath.c_str()) == UPNP_E_SUCCESS;
+}
+
 string LibUPnP::host()
 {
     const char *cp = UpnpGetServerIpAddress();
     if (cp)
         return cp;
     return string();
+}
+
+string LibUPnP::port()
+{
+    unsigned short prt = UpnpGetServerPort();
+    return ulltodecstr(prt);
 }
 
 int LibUPnP::Internal::setupWebServer(const string& description,

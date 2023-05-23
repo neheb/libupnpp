@@ -57,10 +57,52 @@ class UPNPP_API LibUPnP {
 public:
     ~LibUPnP();
 
+    /** Configuration flags for the initialisation call */
+    enum InitFlags {
+        UPNPPINIT_FLAG_NONE = 0,
+        /** Disable IPV6 support */
+        UPNPPINIT_FLAG_NOIPV6 = 1,
+        /** Do not initialize the client side (we are a device) */
+        UPNPPINIT_FLAG_SERVERONLY = 2,
+    };
+
+    /** Options for the initialisation call. Each option argument may be 
+     * followed by specific parameters. */
+    enum InitOption {
+        /** Terminate the VARARGs list. */
+        UPNPPINIT_OPTION_END = 0,
+        /** Names of the interfaces to use. A const std::string* follows. 
+         * This is a space-separated list. If not set, we will use the first interface. 
+         * If set to '*', we will use all possible interfaces. */
+        UPNPPINIT_OPTION_IFNAMES,
+        /** Use single IPV4 address. A const std::string* address in 
+         * dot notation follows. This is incompatible with OPTION_IFNAMES. */
+        UPNPPINIT_OPTION_IPV4,
+        /** IP Port to use. An int parameter follows. The lower lib default is 49152. */
+        UPNPPINIT_OPTION_PORT,
+        /** Control: subscription timeout in seconds. An int param. follows. */
+        UPNPPINIT_OPTION_SUBSCRIPTION_TIMEOUT,
+        /** Control: product name to set in user-agent strings.
+         * A const std::string* follows. */
+        UPNPPINIT_OPTION_CLIENT_PRODUCT,
+        /** Control: product version to set in user-agent strings.
+         * A const std::string* follows. */
+        UPNPPINIT_OPTION_CLIENT_VERSION,
+    };
+
+    /** Initialize the library, with more complete control than a direct getLibUPnP() call.
+     *
+     * On success you will then call getLibUPnP() to access the object instance.
+     * @param flags A bitfield of @ref InitFlags values.
+     * @param ... A list of @ref InitOption and values, ended by UPNPPINIT_OPTION_END.
+     * @return false for failure, true for success. 
+     */
+    static bool init(unsigned int flags, ...);
+
     /** Retrieve the singleton LibUPnP object.
      *
-     * Using this call with arguments is deprecated. Call init()
-     * (creates the lib) then getLibUPnP() without arguments instead.
+     * Using this call with arguments is deprecated. Call init() instead, (creates the lib) then 
+     * getLibUPnP() without arguments.
      *
      * This initializes libupnp, possibly setting an address and port, possibly
      * registering a client if serveronly is false.
@@ -84,84 +126,26 @@ public:
                                const std::string ip = std::string(),
                                unsigned short port = 0);
 
-    /** Configuration flags for the initialisation call */
-    enum InitFlags {
-        UPNPPINIT_FLAG_NONE = 0,
-        /** Disable IPV6 support */
-        UPNPPINIT_FLAG_NOIPV6 = 1,
-        /** Do not initialize the client side (we are a device) */
-        UPNPPINIT_FLAG_SERVERONLY = 2,
-    };
-
-    /** Options for the initialisation call. Each option argument may be 
-     * followed by specific parameters. */
-    enum InitOption {
-        /** Terminate the VARARGs list. */
-        UPNPPINIT_OPTION_END = 0,
-        /** Names of the interfaces to use. A const std::string* follows. 
-         * This is a space-separated list. If not
-         * set, we will use the first interface. If set to '*', we will use
-         * all possible interfaces. */
-        UPNPPINIT_OPTION_IFNAMES,
-        /** Use single IPV4 address. A const std::string* address in 
-         * dot notation follows. This is incompatible with OPTION_IFNAMES. */
-        UPNPPINIT_OPTION_IPV4,
-        /** IP Port to use. An int parameter follows. The lower lib default 
-         * is 49152. */
-        UPNPPINIT_OPTION_PORT,
-        /** Control: subscription timeout in seconds. An int param. follows. */
-        UPNPPINIT_OPTION_SUBSCRIPTION_TIMEOUT,
-        /** Control: product name to set in user-agent strings.
-         * A const std::string* follows. */
-        UPNPPINIT_OPTION_CLIENT_PRODUCT,
-        /** Control: product version to set in user-agent strings.
-         * A const std::string* follows. */
-        UPNPPINIT_OPTION_CLIENT_VERSION,
-    };
-
-    /** Initialize the library.
-     *
-     * On success you will then call getLibUPnP() to access the object instance.
-     * @param flags A bitfield of @ref InitFlags values.
-     * @param ... A list of @ref InitOption and values, ended by UPNPPINIT_OPTION_END.
-     * @return false for failure, true for success. 
-     */
-    static bool init(unsigned int flags, ...);
-
-    /// Return the IP v4 address as dotted notation
+    /** Return the IP v4 address as dotted notation */
     std::string host();
-    /// Return one ethernet address.
+    /** Return the listening port */
+    std::string port();
+    /** Return one ethernet address. */
     std::string hwaddr();
-    /** Returns something like "libupnpp 0.14.0 libupnp x.y.z" */
-    static std::string versionString();
 
-    /** libnpupnp (pupnp) logging: this is distinct from libupnpp logging */
-    /** libnpupnp log levels */
-    enum LogLevel {LogLevelNone, LogLevelError, LogLevelInfo, LogLevelDebug,
-                   LogLevelAll};
-
-    /** Set libnpupnp log file name and activate/deactivate logging.
-     *
-     * Do not use the same file as the one used for libupnpp logging.
-     *
-     * @param fn file name to use. Use an empty string log to stderr. 
-     *  LogLevelNone to turn off.
+    /** Set the root/base directory for the HTTP server.
+     * This is for serving files directly from the file system. If this is not called, no local files
+     * will be directly served, all data will have to go through the VDir interface.
+     * @param rootpath the absolute path to a file system directory. The paths for all requests 
+     * which do not match a virtual directory will be interpreted as subdirectories of rootpath.
      */
-    static bool setLogFileName(
-        const std::string& fn, LogLevel level = LogLevelError);
-
-    /** Set libnpupnp log level. 
-     *
-     * @return true if logging is enabled, else false.
-     */
-    static bool setLogLevel(LogLevel level);
-
+    bool setWebServerDocumentRoot(const std::string& rootpath);
+    
     /** Set max library buffer size for reading content from servers. 
      * 
-     * Just calls libupnp UpnpSetMaxContentLength(). This defines the maximum
-     * amount of data that Soap calls will accept from the remote. The
-     * libupnp default is very low (16KB), but libupnpp sets the value
-     * to 2MB during initialization. You can reset the value to your
+     * Just calls libupnp UpnpSetMaxContentLength(). This defines the maximum amount of data 
+     * that Soap calls will accept from the remote. The libupnp default is very low (16KB), 
+     * but libupnpp sets the value to 2MB during initialization. You can reset the value to your 
      * own choice by using this method.
      */
     void setMaxContentLength(int bytes);
@@ -169,17 +153,38 @@ public:
     /** Check state after initialization */
     bool ok() const;
 
+    /** Returns something like "libupnpp 0.14.0 libupnp x.y.z" */
+    static std::string versionString();
+
+    /** libnpupnp (pupnp) logging: this is distinct from libupnpp logging */
+    /** libnpupnp log levels */
+    enum LogLevel {LogLevelNone, LogLevelError, LogLevelInfo, LogLevelDebug, LogLevelAll};
+
+    /** Set libnpupnp log file name and activate/deactivate logging.
+     *
+     * Do not use the same file as the one used for libupnpp logging.
+     *
+     * @param fn file name to use. Use an empty string log to stderr. 
+     * @param level verbosity. Set to LogLevelNone to turn off.
+     */
+    static bool setLogFileName(const std::string& fn, LogLevel level = LogLevelError);
+
+    /** Set libnpupnp log level. 
+     *
+     * @return true if logging is enabled, else false.
+     */
+    static bool setLogLevel(LogLevel level);
+
     /** Retrieve init error if state not ok */
     static int getInitError();
 
     /** Build a unique stable UUID. 
-     * This uses a hash of the input name (e.g.: friendlyName), and the 
-     * Ethernet address.
+     *
+     * This uses a hash of the input name (e.g.: friendlyName), and the Ethernet address.
      * @param name device "friendly name"
      * @param hw device ethernet address (as 12 ascii hexadecimal bytes)
      */
-    static std::string makeDevUUID(const std::string& name,
-                                   const std::string& hw);
+    static std::string makeDevUUID(const std::string& name, const std::string& hw);
 
     /** Translate libupnp integer error code (UPNP_E_XXX) to string */
     static std::string errAsString(const std::string& who, int code);
