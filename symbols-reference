@@ -262,8 +262,10 @@ UPnPP::LibUPnP::getInitError()
 UPnPP::LibUPnP::versionString[abi:cxx11]()
 UPnPP::LibUPnP::setLogFileName(std::__cxx11::basic_string<char,
 UPnPP::LibUPnP::setMaxContentLength(int)
+UPnPP::LibUPnP::setWebServerDocumentRoot(std::__cxx11::basic_string<char,
 UPnPP::LibUPnP::host[abi:cxx11]()
 UPnPP::LibUPnP::init(unsigned
+UPnPP::LibUPnP::port[abi:cxx11]()
 UPnPP::LibUPnP::hwaddr[abi:cxx11]()
 UPnPP::LibUPnP::LibUPnP()
 UPnPP::LibUPnP::LibUPnP()
