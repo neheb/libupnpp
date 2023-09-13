@@ -27,10 +27,10 @@
 
 #include "libupnpp/control/description.hxx"
 #include "libupnpp/log.hxx"
+#include "libupnpp/smallut.h"
 #include "libupnpp/upnpp_p.hxx"
 #include "libupnpp/upnpplib.hxx"
 
-using namespace std;
 using namespace std::placeholders;
 using namespace UPnPP;
 
@@ -91,7 +91,7 @@ Service::Service(const UPnPDeviceDesc& devdesc, const UPnPServiceDesc& servdesc)
 bool Service::initFromDescription(const UPnPDeviceDesc& devdesc)
 {
     if (!m) {
-        LOGERR("Device::Device: Internal is null" << endl);
+        LOGERR("Device::Device: Internal is null" << "\n");
         return false;
     }
     for (auto& servdesc : devdesc.services) {
@@ -112,52 +112,55 @@ Service::Service()
 
 Service::~Service()
 {
-    LOGDEB1("Service::~Service: " << m->eventURL << " SID " << m->SID << endl);
+    LOGDEB1("Service::~Service: " << m->eventURL << " SID " << m->SID << "\n");
     unregisterCallback();
     delete m;
     m = nullptr;
 }
 
-const string& Service::getFriendlyName() const
+const std::string& Service::getFriendlyName() const
 {
     return m->friendlyName;
 }
 
-const string& Service::getDeviceId() const
+const std::string& Service::getDeviceId() const
 {
     return m->deviceId;
 }
 
-const string& Service::getServiceType() const
+const std::string& Service::getServiceType() const
 {
     return m->serviceType;
 }
 
-const string& Service::getActionURL() const
+const std::string& Service::getActionURL() const
 {
     return m->actionURL;
 }
 
-const string& Service::getModelName() const
+const std::string& Service::getModelName() const
 {
     return m->modelName;
 }
 
-const string& Service::getManufacturer() const
+const std::string& Service::getManufacturer() const
 {
     return m->manufacturer;
 }
 
-int Service::runAction(const SoapOutgoing& args, SoapIncoming& data)
+int Service::runAction(const SoapOutgoing& args, SoapIncoming& data, ActionOptions *opts)
 {
     LibUPnP* lib = LibUPnP::getLibUPnP();
     if (lib == 0) {
-        LOGINF("Service::runAction: no lib" << endl);
+        LOGINF("Service::runAction: no lib" << "\n");
         return UPNP_E_OUTOF_MEMORY;
     }
     UpnpClient_Handle hdl = lib->m->getclh();
 
     std::vector<std::pair<std::string, std::string>> response;
+    if (opts && (opts->active_options & AOM_TIMEOUTMS)) {
+        response.push_back({"timeoutms", lltodecstr(opts->timeoutms)});
+    }
     int errcode;
     std::string errdesc;
     int ret =  UpnpSendAction(hdl, "", m->actionURL, m->serviceType,
@@ -167,7 +170,7 @@ int Service::runAction(const SoapOutgoing& args, SoapIncoming& data)
                args.m->serviceType << " action: " << args.m->name << " args: " <<
                SoapHelp::argsToStr(args.m->data.begin(), args.m->data.end()) << "\n");
         if (ret < 0) {
-            LOGINF("    error message: " << UpnpGetErrorMessage(ret) << endl);
+            LOGINF("    error message: " << UpnpGetErrorMessage(ret) << "\n");
         } else {
             LOGINF("    Response errorCode: " << errcode << " errorDescription: " << errdesc<<"\n");
         }
@@ -177,19 +180,19 @@ int Service::runAction(const SoapOutgoing& args, SoapIncoming& data)
     return UPNP_E_SUCCESS;
 }
 
-int Service::runTrivialAction(const std::string& actionName)
+int Service::runTrivialAction(const std::string& actionName, ActionOptions *opts)
 {
     SoapOutgoing args(m->serviceType, actionName);
     SoapIncoming data;
-    return runAction(args, data);
+    return runAction(args, data, opts);
 }
 
 template <class T> int Service::runSimpleGet(
-    const std::string& actnm, const std::string& valnm, T *valuep)
+    const std::string& actnm, const std::string& valnm, T *valuep, ActionOptions *opts)
 {
     SoapOutgoing args(m->serviceType, actnm);
     SoapIncoming data;
-    int ret = runAction(args, data);
+    int ret = runAction(args, data, opts);
     if (ret != UPNP_E_SUCCESS) {
         return ret;
     }
@@ -201,12 +204,12 @@ template <class T> int Service::runSimpleGet(
 }
 
 template <class T> int Service::runSimpleAction(
-    const std::string& actnm, const std::string& valnm, T value)
+    const std::string& actnm, const std::string& valnm, T value, ActionOptions *opts)
 {
     SoapOutgoing args(m->serviceType, actnm);
     args(valnm, SoapHelp::val2s(value));
     SoapIncoming data;
-    return runAction(args, data);
+    return runAction(args, data, opts);
 }
 
 // The static event callback given to libupnp
@@ -217,7 +220,7 @@ static int srvCB(Upnp_EventType et, CBCONST void* vevp, void*)
     // All event types have a SID field
     const char *sid = UpnpEvent_get_SID_cstr((UpnpEvent*)vevp);
     
-    LOGDEB0("Service:srvCB: " << evTypeAsString(et) << " SID " << sid << endl);
+    LOGDEB0("Service:srvCB: " << evTypeAsString(et) << " SID " << sid << "\n");
 
     auto it = o_calls.find(sid);
     if (it == o_calls.end()) {
@@ -258,7 +261,7 @@ static int srvCB(Upnp_EventType et, CBCONST void* vevp, void*)
 // (static) library callback
 static bool initEvents()
 {
-    LOGDEB1("Service::initEvents" << endl);
+    LOGDEB1("Service::initEvents" << "\n");
 
     std::unique_lock<std::mutex> lock(cblock);
     
@@ -269,7 +272,7 @@ static bool initEvents()
 
     LibUPnP *lib = LibUPnP::getLibUPnP();
     if (lib == 0) {
-        LOGERR("Service::initEvents: Can't get lib" << endl);
+        LOGERR("Service::initEvents: Can't get lib" << "\n");
         return false;
     }
     lib->m->registerHandler(UPNP_EVENT_AUTORENEWAL_FAILED, srvCB, 0);
@@ -279,29 +282,29 @@ static bool initEvents()
 
 bool Service::Internal::subscribe()
 {
-    LOGDEB1("Service::subscribe: " << eventURL << endl);
+    LOGDEB1("Service::subscribe: " << eventURL << "\n");
     LibUPnP* lib = LibUPnP::getLibUPnP();
     if (lib == 0) {
-        LOGINF("Service::subscribe: no lib" << endl);
+        LOGINF("Service::subscribe: no lib" << "\n");
         return false;
     }
     int timeout = lib->m->getSubsTimeout();
     int ret = UpnpSubscribe(lib->m->getclh(), eventURL.c_str(), &timeout, SID);
     if (ret != UPNP_E_SUCCESS) {
         LOGERR("Service:subscribe: " << eventURL << " failed: " << ret << " : " <<
-               UpnpGetErrorMessage(ret) << endl);
+               UpnpGetErrorMessage(ret) << "\n");
         return false;
     }
-    LOGDEB("Service::subscribe:   " << eventURL << " SID " << SID << endl);
+    LOGDEB("Service::subscribe:   " << eventURL << " SID " << SID << "\n");
     return true;
 }
 
 bool Service::Internal::unSubscribe()
 {
-    LOGDEB1("Service::unSubs: " << m->eventURL << " SID " << m->SID << endl);
+    LOGDEB1("Service::unSubs: " << m->eventURL << " SID " << m->SID << "\n");
     LibUPnP* lib = LibUPnP::getLibUPnP();
     if (lib == 0) {
-        LOGINF("Service::unSubscribe: no lib" << endl);
+        LOGINF("Service::unSubscribe: no lib" << "\n");
         return false;
     }
     if (!SID.empty()) {
@@ -324,14 +327,14 @@ bool Service::registerCallback(evtCBFunc c)
         return false;
     }
     std::unique_lock<std::mutex> lock(cblock);
-    LOGDEB1("Service::registerCallback: " << m->eventURL << " SID " << m->SID << endl);
+    LOGDEB1("Service::registerCallback: " << m->eventURL << " SID " << m->SID << "\n");
     o_calls[m->SID] = c;
     return true;
 }
 
 void Service::unregisterCallback()
 {
-    LOGDEB1("Service::unregisterCallback: " << m->eventURL << " SID " << m->SID << endl);
+    LOGDEB1("Service::unregisterCallback: " << m->eventURL << " SID " << m->SID << "\n");
     if (!m->SID.empty()) {
         m->unSubscribe();
         std::unique_lock<std::mutex> lock(cblock);
@@ -369,7 +372,7 @@ bool Service::reSubscribe()
         std::unique_lock<std::mutex> lock(cblock);
         auto it = o_calls.find(m->SID);
         if (it == o_calls.end()) {
-            LOGINF("Service::reSubscribe: no callback found for m->SID " << m->SID << endl);
+            LOGINF("Service::reSubscribe: no callback found for m->SID " << m->SID << "\n");
             return false;
         }
         c = it->second;
@@ -379,11 +382,17 @@ bool Service::reSubscribe()
     return true;
 }
 
-template int Service::runSimpleAction<int>(string const&, string const&, int);
-template int Service::runSimpleAction<string>(string const&, string const&, string);
-template int Service::runSimpleGet<int>(string const&, string const&, int*);
-template int Service::runSimpleGet<bool>(string const&, string const&, bool*);
-template int Service::runSimpleAction<bool>(string const&, string const&, bool);
-template int Service::runSimpleGet<string>(string const&,string const&,string*);
+template int Service::runSimpleAction<int>(std::string const&, std::string const&, int, 
+                                           ActionOptions *opts=nullptr);
+template int Service::runSimpleAction<std::string>(std::string const&, std::string const&,
+                                                   std::string, ActionOptions *opts=nullptr);
+template int Service::runSimpleGet<int>(std::string const&, std::string const&, int*, 
+                                        ActionOptions *opts=nullptr);
+template int Service::runSimpleGet<bool>(std::string const&, std::string const&, bool*, 
+                                         ActionOptions *opts=nullptr);
+template int Service::runSimpleAction<bool>(std::string const&, std::string const&, bool, 
+                                            ActionOptions *opts=nullptr);
+template int Service::runSimpleGet<std::string>(std::string const&,std::string const&,std::string*,
+                                           ActionOptions *opts=nullptr);
 
 }

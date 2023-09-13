@@ -115,6 +115,12 @@ public:
     const std::string& getModelName() const;
     const std::string& getManufacturer() const;
 
+    enum ActionOptionsMask {AOM_TIMEOUTMS = 0x1};
+    struct ActionOptions {
+        ActionOptions() {}
+        uint32_t active_options{0};
+        int timeoutms{-1};
+    };
     /**
      * Call Soap action and return resulting data.
      * @param args Action name and input parameters
@@ -122,22 +128,22 @@ public:
      * @return 0 if the call succeeded, some non-zero UPNP_E_... value else
      */
     virtual int runAction(const UPnPP::SoapOutgoing& args,
-                          UPnPP::SoapIncoming& data);
+                          UPnPP::SoapIncoming& data, ActionOptions *opts=nullptr);
 
     /** Run trivial action where there are neither input parameters
         nor return data (beyond the status) */
-    int runTrivialAction(const std::string& actionName);
+    int runTrivialAction(const std::string& actionName, ActionOptions *opts=nullptr);
 
     /** Run action where there are no input parameters and a single
      * named value is to be retrieved from the result */
     template <class T> int runSimpleGet(const std::string& actnm,
                                         const std::string& valnm,
-                                        T *valuep);
+                                        T *valuep, ActionOptions *opts=nullptr);
 
     /** Run action with a single input parameter and no return data */
     template <class T> int runSimpleAction(const std::string& actnm,
                                            const std::string& valnm,
-                                           T value);
+                                           T value, ActionOptions *opts=nullptr);
 
     /** Get pointer to installed event reporter
      *

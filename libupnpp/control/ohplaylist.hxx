@@ -68,7 +68,7 @@ public:
                   TPS_Stopped
                  };
     int transportState(TPState *tps);
-    int id(int *value);
+    int id(int *value, int timeoutms = -1);
     int read(int id, std::string* uri, UPnPDirObject *dirent);
 
     struct TrackListEntry {

@@ -195,8 +195,14 @@ int OHPlaylist::transportState(TPState* tpp)
     return stringToTpState(value, tpp);
 }
 
-int OHPlaylist::id(int *value)
+int OHPlaylist::id(int *value, int timeoutms)
 {
+    if (timeoutms >= 0) {
+        ActionOptions opts;
+        opts.active_options |= AOM_TIMEOUTMS;
+        opts.timeoutms = timeoutms;
+        return runSimpleGet("Id", "Value", value, &opts);
+    }
     return runSimpleGet("Id", "Value", value);
 }
 
