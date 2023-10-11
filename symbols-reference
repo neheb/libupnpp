@@ -1,302 +1,303 @@
-UPnPClient::OHPlaylist::setShuffle(bool)
-UPnPClient::OHPlaylist::protocolInfo(std::__cxx11::basic_string<char,
-UPnPClient::OHPlaylist::isOHPlService(std::__cxx11::basic_string<char,
-UPnPClient::OHPlaylist::idArrayChanged(int,
-UPnPClient::OHPlaylist::transportState(UPnPClient::OHPlaylist::TPState*)
-UPnPClient::OHPlaylist::stringToTpState(std::__cxx11::basic_string<char,
-UPnPClient::OHPlaylist::serviceTypeMatch(std::__cxx11::basic_string<char,
-UPnPClient::OHPlaylist::seekSecondAbsolute(int)
-UPnPClient::OHPlaylist::seekSecondRelative(int)
-UPnPClient::OHPlaylist::id(int*)
-UPnPClient::OHPlaylist::next()
-UPnPClient::OHPlaylist::play()
-UPnPClient::OHPlaylist::read(int,
-UPnPClient::OHPlaylist::stop()
-UPnPClient::OHPlaylist::pause()
-UPnPClient::OHPlaylist::insert(int,
-UPnPClient::OHPlaylist::repeat(bool*)
-UPnPClient::OHPlaylist::seekId(int)
-UPnPClient::OHPlaylist::idArray(std::vector<int,
-UPnPClient::OHPlaylist::shuffle(bool*)
-UPnPClient::OHPlaylist::deleteId(int)
-UPnPClient::OHPlaylist::previous()
-UPnPClient::OHPlaylist::readList(std::vector<int,
-UPnPClient::OHPlaylist::deleteAll()
-UPnPClient::OHPlaylist::seekIndex(int)
-UPnPClient::OHPlaylist::setRepeat(bool)
-UPnPClient::OHPlaylist::tracksMax(int*)
-UPnPClient::OHReceiver::protocolInfo(std::__cxx11::basic_string<char,
-UPnPClient::OHReceiver::isOHRcService(std::__cxx11::basic_string<char,
-UPnPClient::OHReceiver::transportState(UPnPClient::OHPlaylist::TPState*)
-UPnPClient::OHReceiver::serviceTypeMatch(std::__cxx11::basic_string<char,
-UPnPClient::OHReceiver::play()
-UPnPClient::OHReceiver::stop()
-UPnPClient::OHReceiver::sender(std::__cxx11::basic_string<char,
-UPnPClient::OHReceiver::setSender(std::__cxx11::basic_string<char,
-UPnPClient::AVTransport::setPlayMode(UPnPClient::AVTransport::PlayMode,
-UPnPClient::AVTransport::getMediaInfo(UPnPClient::AVTransport::MediaInfo&,
-UPnPClient::AVTransport::isAVTService(std::__cxx11::basic_string<char,
-UPnPClient::AVTransport::CTAStringToBits(std::__cxx11::basic_string<char,
-UPnPClient::AVTransport::getPositionInfo(UPnPClient::AVTransport::PositionInfo&,
-UPnPClient::AVTransport::getTransportInfo(UPnPClient::AVTransport::TransportInfo&,
-UPnPClient::AVTransport::serviceTypeMatch(std::__cxx11::basic_string<char,
-UPnPClient::AVTransport::getTransportSettings(UPnPClient::AVTransport::TransportSettings&,
-UPnPClient::AVTransport::getDeviceCapabilities(UPnPClient::AVTransport::DeviceCapabilities&,
-UPnPClient::AVTransport::getCurrentTransportActions(int&,
-UPnPClient::AVTransport::next(int)
-UPnPClient::AVTransport::play(int,
-UPnPClient::AVTransport::seek(UPnPClient::AVTransport::SeekMode,
-UPnPClient::AVTransport::stop(int)
-UPnPClient::AVTransport::pause(int)
-UPnPClient::AVTransport::setURI(std::__cxx11::basic_string<char,
-UPnPClient::AVTransport::previous(int)
-UPnPClient::MediaServer::isMSDevice(std::__cxx11::basic_string<char,
-UPnPClient::MediaServer::getDeviceDescs(std::vector<UPnPClient::UPnPDeviceDesc,
-UPnPClient::MediaServer::MediaServer(UPnPClient::UPnPDeviceDesc
-UPnPClient::MediaServer::MediaServer(UPnPClient::UPnPDeviceDesc
-UPnPClient::TypedService::serviceInit(UPnPClient::UPnPDeviceDesc
-UPnPClient::TypedService::serviceTypeMatch(std::__cxx11::basic_string<char,
-UPnPClient::TypedService::runAction(std::__cxx11::basic_string<char,
-UPnPClient::TypedService::TypedService(std::__cxx11::basic_string<char,
-UPnPClient::TypedService::TypedService(std::__cxx11::basic_string<char,
-UPnPClient::TypedService::~TypedService()
-UPnPClient::TypedService::~TypedService()
-UPnPClient::TypedService::~TypedService()
-UPnPClient::MediaRenderer::isMRDevice(std::__cxx11::basic_string<char,
-UPnPClient::MediaRenderer::hasOpenHome()
-UPnPClient::MediaRenderer::getDeviceDescs(std::vector<UPnPClient::UPnPDeviceDesc,
-UPnPClient::MediaRenderer::reSubscribeAll()
-UPnPClient::MediaRenderer::avt()
-UPnPClient::MediaRenderer::rdc()
-UPnPClient::MediaRenderer::ohif()
-UPnPClient::MediaRenderer::ohpl()
-UPnPClient::MediaRenderer::ohpr()
-UPnPClient::MediaRenderer::ohrc()
-UPnPClient::MediaRenderer::ohrd()
-UPnPClient::MediaRenderer::ohsn()
-UPnPClient::MediaRenderer::ohtm()
-UPnPClient::MediaRenderer::ohvl()
-UPnPClient::MediaRenderer::conman()
-UPnPClient::MediaRenderer::MediaRenderer(UPnPClient::UPnPDeviceDesc
-UPnPClient::MediaRenderer::MediaRenderer(UPnPClient::UPnPDeviceDesc
-UPnPClient::MediaRenderer::~MediaRenderer()
-UPnPClient::MediaRenderer::~MediaRenderer()
-UPnPClient::UPnPDeviceDesc::UPnPDeviceDesc(std::__cxx11::basic_string<char,
-UPnPClient::UPnPDeviceDesc::UPnPDeviceDesc(std::__cxx11::basic_string<char,
-UPnPClient::UPnPDirContent::parse(std::__cxx11::basic_string<char,
-UPnPClient::ContentDirectory::getMetadata(std::__cxx11::basic_string<char,
-UPnPClient::ContentDirectory::getServices(std::vector<std::shared_ptr<UPnPClient::ContentDirectory>,
-UPnPClient::ContentDirectory::isCDService(std::__cxx11::basic_string<char,
-UPnPClient::ContentDirectory::searchSlice(std::__cxx11::basic_string<char,
-UPnPClient::ContentDirectory::serviceInit(UPnPClient::UPnPDeviceDesc
-UPnPClient::ContentDirectory::readDirSlice(std::__cxx11::basic_string<char,
-UPnPClient::ContentDirectory::getServerByName(std::__cxx11::basic_string<char,
-UPnPClient::ContentDirectory::serviceTypeMatch(std::__cxx11::basic_string<char,
-UPnPClient::ContentDirectory::getSearchCapabilities(std::set<std::__cxx11::basic_string<char,
-UPnPClient::ContentDirectory::search(std::__cxx11::basic_string<char,
-UPnPClient::ContentDirectory::readDir(std::__cxx11::basic_string<char,
-UPnPClient::ContentDirectory::ContentDirectory(UPnPClient::UPnPDeviceDesc
-UPnPClient::ContentDirectory::ContentDirectory(UPnPClient::UPnPDeviceDesc
-UPnPClient::findTypedService(std::__cxx11::basic_string<char,
-UPnPClient::RenderingControl::serviceInit(UPnPClient::UPnPDeviceDesc
-UPnPClient::RenderingControl::isRDCService(std::__cxx11::basic_string<char,
-UPnPClient::RenderingControl::serviceTypeMatch(std::__cxx11::basic_string<char,
-UPnPClient::RenderingControl::getMute(std::__cxx11::basic_string<char,
-UPnPClient::RenderingControl::setMute(bool,
-UPnPClient::RenderingControl::getVolume(std::__cxx11::basic_string<char,
-UPnPClient::RenderingControl::setVolume(int,
-UPnPClient::RenderingControl::RenderingControl(UPnPClient::UPnPDeviceDesc
-UPnPClient::RenderingControl::RenderingControl(UPnPClient::UPnPDeviceDesc
-UPnPClient::ConnectionManager::getProtocolInfo(std::vector<UPnPP::ProtocolinfoEntry,
-UPnPClient::ConnectionManager::isConManService(std::__cxx11::basic_string<char,
-UPnPClient::ConnectionManager::serviceTypeMatch(std::__cxx11::basic_string<char,
-UPnPClient::UPnPDeviceDirectory::addCallback(std::function<bool
-UPnPClient::UPnPDeviceDirectory::delCallback(unsigned
-UPnPClient::UPnPDeviceDirectory::getDevByUDN(std::__cxx11::basic_string<char,
-UPnPClient::UPnPDeviceDirectory::getDevByFName(std::__cxx11::basic_string<char,
-UPnPClient::UPnPDeviceDirectory::getRemainingDelay()
-UPnPClient::UPnPDeviceDirectory::getRemainingDelayMs()
-UPnPClient::UPnPDeviceDirectory::getDescriptionDocuments(std::__cxx11::basic_string<char,
-UPnPClient::UPnPDeviceDirectory::ok()
-UPnPClient::UPnPDeviceDirectory::traverse(std::function<bool
-UPnPClient::UPnPDeviceDirectory::getReason[abi:cxx11]()
-UPnPClient::UPnPDeviceDirectory::getTheDir(long)
-UPnPClient::UPnPDeviceDirectory::terminate()
-UPnPClient::Device::Device(UPnPClient::UPnPDeviceDesc
-UPnPClient::Device::Device()
-UPnPClient::Device::Device(UPnPClient::UPnPDeviceDesc
-UPnPClient::Device::Device()
-UPnPClient::OHInfo::isOHInfoService(std::__cxx11::basic_string<char,
-UPnPClient::OHInfo::serviceTypeMatch(std::__cxx11::basic_string<char,
-UPnPClient::OHInfo::track(std::__cxx11::basic_string<char,
-UPnPClient::OHInfo::details(int*,
-UPnPClient::OHInfo::counters(int*,
-UPnPClient::OHInfo::metatext(UPnPClient::UPnPDirObject*)
-UPnPClient::OHTime::isOHTMService(std::__cxx11::basic_string<char,
-UPnPClient::OHTime::serviceTypeMatch(std::__cxx11::basic_string<char,
-UPnPClient::OHTime::time(UPnPClient::OHTime::Time&)
-UPnPClient::OHRadio::setChannel(std::__cxx11::basic_string<char,
-UPnPClient::OHRadio::channelsMax(int*)
-UPnPClient::OHRadio::protocolInfo(std::__cxx11::basic_string<char,
-UPnPClient::OHRadio::isOHRdService(std::__cxx11::basic_string<char,
-UPnPClient::OHRadio::decodeMetadata(std::__cxx11::basic_string<char,
-UPnPClient::OHRadio::idArrayChanged(int,
-UPnPClient::OHRadio::transportState(UPnPClient::OHPlaylist::TPState*)
-UPnPClient::OHRadio::serviceTypeMatch(std::__cxx11::basic_string<char,
-UPnPClient::OHRadio::id(int*)
-UPnPClient::OHRadio::play()
-UPnPClient::OHRadio::read(int,
-UPnPClient::OHRadio::stop()
-UPnPClient::OHRadio::pause()
-UPnPClient::OHRadio::setId(int,
-UPnPClient::OHRadio::channel(std::__cxx11::basic_string<char,
-UPnPClient::OHRadio::idArray(std::vector<int,
-UPnPClient::OHRadio::readList(std::vector<int,
-UPnPClient::Service::getReporter()
-UPnPClient::Service::reSubscribe()
-UPnPClient::Service::installReporter(UPnPClient::VarEventReporter*)
-UPnPClient::Service::registerCallback(std::function<void
-UPnPClient::Service::runTrivialAction(std::__cxx11::basic_string<char,
-UPnPClient::Service::unregisterCallback()
-UPnPClient::Service::initFromDescription(UPnPClient::UPnPDeviceDesc
-UPnPClient::Service::runAction(UPnPP::SoapOutgoing
-UPnPClient::Service::Service(UPnPClient::UPnPDeviceDesc
-UPnPClient::Service::Service()
-UPnPClient::Service::Service(UPnPClient::UPnPDeviceDesc
-UPnPClient::Service::Service()
-UPnPClient::Service::~Service()
-UPnPClient::Service::~Service()
-UPnPClient::Service::~Service()
-UPnPClient::OHSender::serviceTypeMatch(std::__cxx11::basic_string<char,
-UPnPClient::OHSender::isOHSenderService(std::__cxx11::basic_string<char,
-UPnPClient::OHSender::metadata(std::__cxx11::basic_string<char,
-UPnPClient::OHVolume::volumeLimit(int*)
-UPnPClient::OHVolume::isOHVLService(std::__cxx11::basic_string<char,
-UPnPClient::OHVolume::characteristics(UPnPClient::OHVCharacteristics*)
-UPnPClient::OHVolume::serviceTypeMatch(std::__cxx11::basic_string<char,
-UPnPClient::OHVolume::mute(bool*)
-UPnPClient::OHVolume::volume(int*)
-UPnPClient::OHVolume::setMute(bool)
-UPnPClient::OHVolume::setVolume(int)
-UPnPClient::Songcast::listSenders(std::vector<UPnPClient::Songcast::SenderState,
-UPnPClient::Songcast::stopReceiver(UPnPClient::Songcast::ReceiverState&)
-UPnPClient::Songcast::listReceivers(std::vector<UPnPClient::Songcast::ReceiverState,
-UPnPClient::Songcast::senderService(std::shared_ptr<UPnPClient::Device>)
-UPnPClient::Songcast::stopReceivers(std::vector<std::__cxx11::basic_string<char,
-UPnPClient::Songcast::getSenderState(std::__cxx11::basic_string<char,
-UPnPClient::Songcast::setSourceIndex(std::__cxx11::basic_string<char,
-UPnPClient::Songcast::getReceiverState(std::__cxx11::basic_string<char,
-UPnPClient::Songcast::setReceiverPlaying(UPnPClient::Songcast::ReceiverState&)
-UPnPClient::Songcast::setReceiverPlaying(UPnPClient::Songcast::ReceiverState&,
-UPnPClient::Songcast::setReceiversPlaying(std::vector<std::__cxx11::basic_string<char,
-UPnPClient::Songcast::setSourceIndexByName(std::__cxx11::basic_string<char,
-UPnPClient::Songcast::setReceiversFromSender(std::__cxx11::basic_string<char,
-UPnPClient::Songcast::stopReceiversWithStatus(std::vector<std::__cxx11::basic_string<char,
-UPnPClient::Songcast::setReceiversFromReceiver(std::__cxx11::basic_string<char,
-UPnPClient::Songcast::setReceiversPlayingWithStatus(std::vector<std::__cxx11::basic_string<char,
-UPnPClient::Songcast::setReceiversFromSenderWithStatus(std::__cxx11::basic_string<char,
-UPnPClient::Songcast::setReceiversFromReceiverWithStatus(std::__cxx11::basic_string<char,
-UPnPClient::Songcast::getSender(std::__cxx11::basic_string<char,
-UPnPClient::OHProduct::getSources(std::vector<UPnPClient::OHProduct::Source,
-UPnPClient::OHProduct::sourceIndex(int*)
-UPnPClient::OHProduct::isOHPrService(std::__cxx11::basic_string<char,
-UPnPClient::OHProduct::setSourceIndex(int)
-UPnPClient::OHProduct::serviceTypeMatch(std::__cxx11::basic_string<char,
-UPnPClient::OHProduct::setSourceIndexByName(std::__cxx11::basic_string<char,
-UPnPClient::OHProduct::standby(bool*)
-UPnPClient::OHProduct::setStanby(bool)
-UPnPProvider::UpnpDevice::addService(UPnPProvider::UpnpService*)
-UPnPProvider::UpnpDevice::loopWakeup()
-UPnPProvider::UpnpDevice::shouldExit()
-UPnPProvider::UpnpDevice::notifyEvent(UPnPProvider::UpnpService
-UPnPProvider::UpnpDevice::forgetService(std::__cxx11::basic_string<char,
-UPnPProvider::UpnpDevice::InternalStatic::sCallBack(Upnp_EventType_e,
-UPnPProvider::UpnpDevice::addActionMapping(UPnPProvider::UpnpService
-UPnPProvider::UpnpDevice::setProductVersion(char
-UPnPProvider::UpnpDevice::ok()
-UPnPProvider::UpnpDevice::ipv4(std::__cxx11::basic_string<char,
-UPnPProvider::UpnpDevice::start()
-UPnPProvider::UpnpDevice::addVFile(std::__cxx11::basic_string<char,
-UPnPProvider::UpnpDevice::eventloop()
-UPnPProvider::UpnpDevice::startloop()
-UPnPProvider::UpnpDevice::UpnpDevice(UPnPProvider::UpnpDevice*,
-UPnPProvider::UpnpDevice::UpnpDevice(std::__cxx11::basic_string<char,
-UPnPProvider::UpnpDevice::UpnpDevice(UPnPProvider::UpnpDevice*,
-UPnPProvider::UpnpDevice::UpnpDevice(std::__cxx11::basic_string<char,
-UPnPProvider::UpnpDevice::~UpnpDevice()
-UPnPProvider::UpnpDevice::~UpnpDevice()
-UPnPProvider::UpnpDevice::~UpnpDevice()
-UPnPProvider::UpnpService::getEventData(bool,
-UPnPProvider::UpnpService::getDevice()
-UPnPProvider::UpnpService::UpnpService(std::__cxx11::basic_string<char,
-UPnPProvider::UpnpService::UpnpService(std::__cxx11::basic_string<char,
-UPnPProvider::UpnpService::~UpnpService()
-UPnPProvider::UpnpService::~UpnpService()
-UPnPProvider::UpnpService::~UpnpService()
-UPnPP::SoapIncoming::getMap(std::unordered_map<std::__cxx11::basic_string<char,
-UPnPP::SoapIncoming::SoapIncoming()
-UPnPP::SoapIncoming::SoapIncoming()
-UPnPP::SoapIncoming::~SoapIncoming()
-UPnPP::SoapIncoming::~SoapIncoming()
-UPnPP::SoapOutgoing::addarg(std::__cxx11::basic_string<char,
-UPnPP::SoapOutgoing::SoapOutgoing(std::__cxx11::basic_string<char,
-UPnPP::SoapOutgoing::SoapOutgoing()
-UPnPP::SoapOutgoing::SoapOutgoing(std::__cxx11::basic_string<char,
-UPnPP::SoapOutgoing::SoapOutgoing()
-UPnPP::SoapOutgoing::operator()(std::__cxx11::basic_string<char,
-UPnPP::SoapOutgoing::~SoapOutgoing()
-UPnPP::SoapOutgoing::~SoapOutgoing()
-UPnPP::upnpduration[abi:cxx11](int)
-UPnPP::base64_decode(std::__cxx11::basic_string<char,
-UPnPP::base64_encode(std::__cxx11::basic_string<char,
-UPnPP::getAdapterNames(std::vector<std::__cxx11::basic_string<char,
-UPnPP::upnpdurationtos(std::__cxx11::basic_string<char,
-UPnPP::ohplIdArrayToVec(std::__cxx11::basic_string<char,
-UPnPP::parseProtocolInfo(std::__cxx11::basic_string<char,
-UPnPP::parseProtoInfEntry(std::__cxx11::basic_string<char,
-UPnPP::LibUPnP::getLibUPnP(bool,
-UPnPP::LibUPnP::errAsString(std::__cxx11::basic_string<char,
-UPnPP::LibUPnP::makeDevUUID(std::__cxx11::basic_string<char,
-UPnPP::LibUPnP::setLogLevel(UPnPP::LibUPnP::LogLevel)
-UPnPP::LibUPnP::getInitError()
-UPnPP::LibUPnP::versionString[abi:cxx11]()
-UPnPP::LibUPnP::setLogFileName(std::__cxx11::basic_string<char,
-UPnPP::LibUPnP::setMaxContentLength(int)
-UPnPP::LibUPnP::setWebServerDocumentRoot(std::__cxx11::basic_string<char,
-UPnPP::LibUPnP::host[abi:cxx11]()
-UPnPP::LibUPnP::init(unsigned
-UPnPP::LibUPnP::port[abi:cxx11]()
-UPnPP::LibUPnP::hwaddr[abi:cxx11]()
-UPnPP::LibUPnP::LibUPnP()
-UPnPP::LibUPnP::LibUPnP()
-UPnPP::LibUPnP::~LibUPnP()
-UPnPP::LibUPnP::~LibUPnP()
-UPnPP::SoapHelp::xmlUnquote(std::__cxx11::basic_string<char,
-UPnPP::SoapHelp::i2s[abi:cxx11](int)
-UPnPP::SoapHelp::xmlQuote(std::__cxx11::basic_string<char,
-Logger::datestring()
-Logger::reopen(std::__cxx11::basic_string<char,
-Logger::getTheLog(std::__cxx11::basic_string<char,
-Logger::Logger(std::__cxx11::basic_string<char,
-Logger::Logger(std::__cxx11::basic_string<char,
-UPnPClient::UPnPDirObject::getdidl[abi:cxx11]()
-UPnPClient::UPnPServiceDesc::fetchAndParseDesc(std::__cxx11::basic_string<char,
-UPnPClient::Device::desc()
-UPnPClient::Service::getDeviceId[abi:cxx11]()
-UPnPClient::Service::getActionURL[abi:cxx11]()
-UPnPClient::Service::getModelName[abi:cxx11]()
-UPnPClient::Service::getServiceType[abi:cxx11]()
-UPnPClient::Service::getFriendlyName[abi:cxx11]()
-UPnPClient::Service::getManufacturer[abi:cxx11]()
-UPnPProvider::UpnpDevice::getDeviceId[abi:cxx11]()
-UPnPProvider::UpnpService::getServiceId[abi:cxx11]()
-UPnPProvider::UpnpService::getServiceType[abi:cxx11]()
-UPnPProvider::UpnpService::getXMLFn[abi:cxx11]()
-UPnPProvider::UpnpService::noevents()
-UPnPProvider::UpnpService::errString[abi:cxx11](int)
-UPnPP::SoapIncoming::get(char
-UPnPP::SoapIncoming::get(char
-UPnPP::SoapIncoming::get(char
-UPnPP::SoapIncoming::getName[abi:cxx11]()
-UPnPP::SoapOutgoing::getName[abi:cxx11]()
-UPnPP::LibUPnP::ok()
+  UPnPClient::OHPlaylist::setShuffle(bool)
+  UPnPClient::OHPlaylist::protocolInfo(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >*)
+  UPnPClient::OHPlaylist::isOHPlService(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&)
+  UPnPClient::OHPlaylist::idArrayChanged(int, bool*)
+  UPnPClient::OHPlaylist::transportState(UPnPClient::OHPlaylist::TPState*)
+  UPnPClient::OHPlaylist::stringToTpState(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&, UPnPClient::OHPlaylist::TPState*)
+  UPnPClient::OHPlaylist::serviceTypeMatch(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&)
+  UPnPClient::OHPlaylist::seekSecondAbsolute(int)
+  UPnPClient::OHPlaylist::seekSecondRelative(int)
+  UPnPClient::OHPlaylist::id(int*, int)
+  UPnPClient::OHPlaylist::next()
+  UPnPClient::OHPlaylist::play()
+  UPnPClient::OHPlaylist::read(int, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >*, UPnPClient::UPnPDirObject*)
+  UPnPClient::OHPlaylist::stop()
+  UPnPClient::OHPlaylist::pause()
+  UPnPClient::OHPlaylist::insert(int, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&, int*)
+  UPnPClient::OHPlaylist::repeat(bool*)
+  UPnPClient::OHPlaylist::seekId(int)
+  UPnPClient::OHPlaylist::idArray(std::vector<int, std::allocator<int> >*, int*)
+  UPnPClient::OHPlaylist::shuffle(bool*)
+  UPnPClient::OHPlaylist::deleteId(int)
+  UPnPClient::OHPlaylist::previous()
+  UPnPClient::OHPlaylist::readList(std::vector<int, std::allocator<int> > const&, std::vector<UPnPClient::OHPlaylist::TrackListEntry, std::allocator<UPnPClient::OHPlaylist::TrackListEntry> >*)
+  UPnPClient::OHPlaylist::deleteAll()
+  UPnPClient::OHPlaylist::seekIndex(int)
+  UPnPClient::OHPlaylist::setRepeat(bool)
+  UPnPClient::OHPlaylist::tracksMax(int*)
+  UPnPClient::OHReceiver::protocolInfo(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >*)
+  UPnPClient::OHReceiver::isOHRcService(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&)
+  UPnPClient::OHReceiver::transportState(UPnPClient::OHPlaylist::TPState*)
+  UPnPClient::OHReceiver::serviceTypeMatch(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&)
+  UPnPClient::OHReceiver::play()
+  UPnPClient::OHReceiver::stop()
+  UPnPClient::OHReceiver::sender(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >&, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >&)
+  UPnPClient::OHReceiver::setSender(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&)
+  UPnPClient::AVTransport::setPlayMode(UPnPClient::AVTransport::PlayMode, int)
+  UPnPClient::AVTransport::getMediaInfo(UPnPClient::AVTransport::MediaInfo&, int)
+  UPnPClient::AVTransport::isAVTService(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&)
+  UPnPClient::AVTransport::CTAStringToBits(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&, int&)
+  UPnPClient::AVTransport::getPositionInfo(UPnPClient::AVTransport::PositionInfo&, int, int)
+  UPnPClient::AVTransport::getTransportInfo(UPnPClient::AVTransport::TransportInfo&, int)
+  UPnPClient::AVTransport::serviceTypeMatch(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&)
+  UPnPClient::AVTransport::getTransportSettings(UPnPClient::AVTransport::TransportSettings&, int)
+  UPnPClient::AVTransport::getDeviceCapabilities(UPnPClient::AVTransport::DeviceCapabilities&, int)
+  UPnPClient::AVTransport::getCurrentTransportActions(int&, int)
+  UPnPClient::AVTransport::next(int)
+  UPnPClient::AVTransport::play(int, int)
+  UPnPClient::AVTransport::seek(UPnPClient::AVTransport::SeekMode, int, int)
+  UPnPClient::AVTransport::stop(int)
+  UPnPClient::AVTransport::pause(int)
+  UPnPClient::AVTransport::setURI(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&, int, bool)
+  UPnPClient::AVTransport::previous(int)
+  UPnPClient::MediaServer::isMSDevice(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&)
+  UPnPClient::MediaServer::getDeviceDescs(std::vector<UPnPClient::UPnPDeviceDesc, std::allocator<UPnPClient::UPnPDeviceDesc> >&, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&)
+  UPnPClient::MediaServer::MediaServer(UPnPClient::UPnPDeviceDesc const&)
+  UPnPClient::MediaServer::MediaServer(UPnPClient::UPnPDeviceDesc const&)
+  UPnPClient::TypedService::serviceInit(UPnPClient::UPnPDeviceDesc const&, UPnPClient::UPnPServiceDesc const&)
+  UPnPClient::TypedService::serviceTypeMatch(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&)
+  UPnPClient::TypedService::runAction(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&, std::vector<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >, std::allocator<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > > >, std::map<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >, std::less<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > >, std::allocator<std::pair<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > > > >&)
+  UPnPClient::TypedService::TypedService(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&)
+  UPnPClient::TypedService::TypedService(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&)
+  UPnPClient::TypedService::~TypedService()
+  UPnPClient::TypedService::~TypedService()
+  UPnPClient::TypedService::~TypedService()
+  UPnPClient::MediaRenderer::isMRDevice(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&)
+  UPnPClient::MediaRenderer::hasOpenHome()
+  UPnPClient::MediaRenderer::getDeviceDescs(std::vector<UPnPClient::UPnPDeviceDesc, std::allocator<UPnPClient::UPnPDeviceDesc> >&, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&)
+  UPnPClient::MediaRenderer::reSubscribeAll()
+  UPnPClient::MediaRenderer::avt()
+  UPnPClient::MediaRenderer::rdc()
+  UPnPClient::MediaRenderer::ohif()
+  UPnPClient::MediaRenderer::ohpl()
+  UPnPClient::MediaRenderer::ohpr()
+  UPnPClient::MediaRenderer::ohrc()
+  UPnPClient::MediaRenderer::ohrd()
+  UPnPClient::MediaRenderer::ohsn()
+  UPnPClient::MediaRenderer::ohtm()
+  UPnPClient::MediaRenderer::ohvl()
+  UPnPClient::MediaRenderer::conman()
+  UPnPClient::MediaRenderer::MediaRenderer(UPnPClient::UPnPDeviceDesc const&)
+  UPnPClient::MediaRenderer::MediaRenderer(UPnPClient::UPnPDeviceDesc const&)
+  UPnPClient::MediaRenderer::~MediaRenderer()
+  UPnPClient::MediaRenderer::~MediaRenderer()
+  UPnPClient::UPnPDeviceDesc::UPnPDeviceDesc(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&)
+  UPnPClient::UPnPDeviceDesc::UPnPDeviceDesc(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&)
+  UPnPClient::UPnPDirContent::parse(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&, bool)
+  UPnPClient::ContentDirectory::getMetadata(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&, UPnPClient::UPnPDirContent&)
+  UPnPClient::ContentDirectory::getServices(std::vector<std::shared_ptr<UPnPClient::ContentDirectory>, std::allocator<std::shared_ptr<UPnPClient::ContentDirectory> > >&)
+  UPnPClient::ContentDirectory::isCDService(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&)
+  UPnPClient::ContentDirectory::searchSlice(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&, int, int, UPnPClient::UPnPDirContent&, int*, int*)
+  UPnPClient::ContentDirectory::serviceInit(UPnPClient::UPnPDeviceDesc const&, UPnPClient::UPnPServiceDesc const&)
+  UPnPClient::ContentDirectory::readDirSlice(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&, int, int, UPnPClient::UPnPDirContent&, int*, int*)
+  UPnPClient::ContentDirectory::getServerByName(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&, std::shared_ptr<UPnPClient::ContentDirectory>&)
+  UPnPClient::ContentDirectory::serviceTypeMatch(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&)
+  UPnPClient::ContentDirectory::getSearchCapabilities(std::set<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >, std::less<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > >, std::allocator<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > > >&)
+  UPnPClient::ContentDirectory::search(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&, UPnPClient::UPnPDirContent&)
+  UPnPClient::ContentDirectory::readDir(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&, UPnPClient::UPnPDirContent&)
+  UPnPClient::ContentDirectory::ContentDirectory(UPnPClient::UPnPDeviceDesc const&, UPnPClient::UPnPServiceDesc const&)
+  UPnPClient::ContentDirectory::ContentDirectory(UPnPClient::UPnPDeviceDesc const&, UPnPClient::UPnPServiceDesc const&)
+  UPnPClient::findTypedService(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&, bool)
+  UPnPClient::RenderingControl::serviceInit(UPnPClient::UPnPDeviceDesc const&, UPnPClient::UPnPServiceDesc const&)
+  UPnPClient::RenderingControl::isRDCService(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&)
+  UPnPClient::RenderingControl::serviceTypeMatch(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&)
+  UPnPClient::RenderingControl::getMute(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&)
+  UPnPClient::RenderingControl::setMute(bool, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&)
+  UPnPClient::RenderingControl::getVolume(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&)
+  UPnPClient::RenderingControl::setVolume(int, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&)
+  UPnPClient::RenderingControl::RenderingControl(UPnPClient::UPnPDeviceDesc const&, UPnPClient::UPnPServiceDesc const&)
+  UPnPClient::RenderingControl::RenderingControl(UPnPClient::UPnPDeviceDesc const&, UPnPClient::UPnPServiceDesc const&)
+  UPnPClient::ConnectionManager::getProtocolInfo(std::vector<UPnPP::ProtocolinfoEntry, std::allocator<UPnPP::ProtocolinfoEntry> >&, std::vector<UPnPP::ProtocolinfoEntry, std::allocator<UPnPP::ProtocolinfoEntry> >&)
+  UPnPClient::ConnectionManager::isConManService(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&)
+  UPnPClient::ConnectionManager::serviceTypeMatch(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&)
+  UPnPClient::UPnPDeviceDirectory::addCallback(std::function<bool (UPnPClient::UPnPDeviceDesc const&, UPnPClient::UPnPServiceDesc const&)>)
+  UPnPClient::UPnPDeviceDirectory::delCallback(unsigned int)
+  UPnPClient::UPnPDeviceDirectory::getDevByUDN(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&, UPnPClient::UPnPDeviceDesc&)
+  UPnPClient::UPnPDeviceDirectory::getDevByFName(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&, UPnPClient::UPnPDeviceDesc&)
+  UPnPClient::UPnPDeviceDirectory::getRemainingDelay()
+  UPnPClient::UPnPDeviceDirectory::getRemainingDelayMs()
+  UPnPClient::UPnPDeviceDirectory::getDescriptionDocuments(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >&, std::unordered_map<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >, std::hash<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > >, std::equal_to<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > >, std::allocator<std::pair<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > > > >&)
+  UPnPClient::UPnPDeviceDirectory::ok()
+  UPnPClient::UPnPDeviceDirectory::traverse(std::function<bool (UPnPClient::UPnPDeviceDesc const&, UPnPClient::UPnPServiceDesc const&)>)
+  UPnPClient::UPnPDeviceDirectory::getReason[abi:cxx11]()
+  UPnPClient::UPnPDeviceDirectory::getTheDir(long)
+  UPnPClient::UPnPDeviceDirectory::terminate()
+  UPnPClient::Device::Device(UPnPClient::UPnPDeviceDesc const&)
+  UPnPClient::Device::Device()
+  UPnPClient::Device::Device(UPnPClient::UPnPDeviceDesc const&)
+  UPnPClient::Device::Device()
+  UPnPClient::OHInfo::isOHInfoService(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&)
+  UPnPClient::OHInfo::serviceTypeMatch(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&)
+  UPnPClient::OHInfo::track(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >*, UPnPClient::UPnPDirObject*)
+  UPnPClient::OHInfo::details(int*, int*, int*, int*, bool*, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >*)
+  UPnPClient::OHInfo::counters(int*, int*, int*)
+  UPnPClient::OHInfo::metatext(UPnPClient::UPnPDirObject*)
+  UPnPClient::OHTime::isOHTMService(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&)
+  UPnPClient::OHTime::serviceTypeMatch(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&)
+  UPnPClient::OHTime::time(UPnPClient::OHTime::Time&)
+  UPnPClient::OHRadio::setChannel(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&)
+  UPnPClient::OHRadio::channelsMax(int*)
+  UPnPClient::OHRadio::protocolInfo(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >*)
+  UPnPClient::OHRadio::isOHRdService(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&)
+  UPnPClient::OHRadio::decodeMetadata(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&, UPnPClient::UPnPDirObject*)
+  UPnPClient::OHRadio::idArrayChanged(int, bool*)
+  UPnPClient::OHRadio::transportState(UPnPClient::OHPlaylist::TPState*)
+  UPnPClient::OHRadio::serviceTypeMatch(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&)
+  UPnPClient::OHRadio::id(int*, int)
+  UPnPClient::OHRadio::play()
+  UPnPClient::OHRadio::read(int, UPnPClient::UPnPDirObject*)
+  UPnPClient::OHRadio::stop()
+  UPnPClient::OHRadio::pause()
+  UPnPClient::OHRadio::setId(int, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&)
+  UPnPClient::OHRadio::channel(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >*, UPnPClient::UPnPDirObject*)
+  UPnPClient::OHRadio::idArray(std::vector<int, std::allocator<int> >*, int*)
+  UPnPClient::OHRadio::readList(std::vector<int, std::allocator<int> > const&, std::vector<UPnPClient::OHPlaylist::TrackListEntry, std::allocator<UPnPClient::OHPlaylist::TrackListEntry> >*)
+  UPnPClient::Service::getReporter()
+  UPnPClient::Service::reSubscribe()
+  UPnPClient::Service::installReporter(UPnPClient::VarEventReporter*)
+  UPnPClient::Service::registerCallback(std::function<void (std::unordered_map<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >, std::hash<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > >, std::equal_to<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > >, std::allocator<std::pair<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > > > > const&)>)
+  UPnPClient::Service::runTrivialAction(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&, UPnPClient::Service::ActionOptions*)
+  UPnPClient::Service::unregisterCallback()
+  UPnPClient::Service::initFromDescription(UPnPClient::UPnPDeviceDesc const&)
+  UPnPClient::Service::runAction(UPnPP::SoapOutgoing const&, UPnPP::SoapIncoming&, UPnPClient::Service::ActionOptions*)
+  UPnPClient::Service::Service(UPnPClient::UPnPDeviceDesc const&, UPnPClient::UPnPServiceDesc const&)
+  UPnPClient::Service::Service()
+  UPnPClient::Service::Service(UPnPClient::UPnPDeviceDesc const&, UPnPClient::UPnPServiceDesc const&)
+  UPnPClient::Service::Service()
+  UPnPClient::Service::~Service()
+  UPnPClient::Service::~Service()
+  UPnPClient::Service::~Service()
+  UPnPClient::OHSender::serviceTypeMatch(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&)
+  UPnPClient::OHSender::isOHSenderService(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&)
+  UPnPClient::OHSender::metadata(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >&, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >&)
+  UPnPClient::OHVolume::volumeLimit(int*)
+  UPnPClient::OHVolume::isOHVLService(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&)
+  UPnPClient::OHVolume::characteristics(UPnPClient::OHVCharacteristics*)
+  UPnPClient::OHVolume::serviceTypeMatch(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&)
+  UPnPClient::OHVolume::mute(bool*)
+  UPnPClient::OHVolume::volume(int*)
+  UPnPClient::OHVolume::setMute(bool)
+  UPnPClient::OHVolume::setVolume(int)
+  UPnPClient::Songcast::listSenders(std::vector<UPnPClient::Songcast::SenderState, std::allocator<UPnPClient::Songcast::SenderState> >&)
+  UPnPClient::Songcast::stopReceiver(UPnPClient::Songcast::ReceiverState&)
+  UPnPClient::Songcast::listReceivers(std::vector<UPnPClient::Songcast::ReceiverState, std::allocator<UPnPClient::Songcast::ReceiverState> >&)
+  UPnPClient::Songcast::senderService(std::shared_ptr<UPnPClient::Device>)
+  UPnPClient::Songcast::stopReceivers(std::vector<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >, std::allocator<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > > > const&)
+  UPnPClient::Songcast::getSenderState(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&, UPnPClient::Songcast::SenderState&, bool)
+  UPnPClient::Songcast::setSourceIndex(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&, int)
+  UPnPClient::Songcast::getReceiverState(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&, UPnPClient::Songcast::ReceiverState&, bool)
+  UPnPClient::Songcast::setReceiverPlaying(UPnPClient::Songcast::ReceiverState&)
+  UPnPClient::Songcast::setReceiverPlaying(UPnPClient::Songcast::ReceiverState&, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&)
+  UPnPClient::Songcast::setReceiversPlaying(std::vector<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >, std::allocator<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > > > const&)
+  UPnPClient::Songcast::setSourceIndexByName(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&)
+  UPnPClient::Songcast::setReceiversFromSender(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&, std::vector<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >, std::allocator<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > > > const&)
+  UPnPClient::Songcast::stopReceiversWithStatus(std::vector<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >, std::allocator<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > > > const&, std::vector<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >, std::allocator<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > > >&)
+  UPnPClient::Songcast::setReceiversFromReceiver(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&, std::vector<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >, std::allocator<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > > > const&)
+  UPnPClient::Songcast::setReceiversPlayingWithStatus(std::vector<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >, std::allocator<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > > > const&, std::vector<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >, std::allocator<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > > >&)
+  UPnPClient::Songcast::setReceiversFromSenderWithStatus(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&, std::vector<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >, std::allocator<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > > > const&, std::vector<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >, std::allocator<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > > >&)
+  UPnPClient::Songcast::setReceiversFromReceiverWithStatus(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&, std::vector<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >, std::allocator<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > > > const&, std::vector<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >, std::allocator<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > > >&)
+  UPnPClient::Songcast::getSender(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >&)
+  UPnPClient::OHProduct::getSources(std::vector<UPnPClient::OHProduct::Source, std::allocator<UPnPClient::OHProduct::Source> >&)
+  UPnPClient::OHProduct::sourceIndex(int*)
+  UPnPClient::OHProduct::isOHPrService(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&)
+  UPnPClient::OHProduct::parseSourceXML(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >&, std::vector<UPnPClient::OHProduct::Source, std::allocator<UPnPClient::OHProduct::Source> >&)
+  UPnPClient::OHProduct::setSourceIndex(int)
+  UPnPClient::OHProduct::serviceTypeMatch(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&)
+  UPnPClient::OHProduct::setSourceIndexByName(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&)
+  UPnPClient::OHProduct::standby(bool*)
+  UPnPClient::OHProduct::setStanby(bool)
+  UPnPProvider::UpnpDevice::addService(UPnPProvider::UpnpService*)
+  UPnPProvider::UpnpDevice::loopWakeup()
+  UPnPProvider::UpnpDevice::shouldExit()
+  UPnPProvider::UpnpDevice::notifyEvent(UPnPProvider::UpnpService const*, std::vector<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >, std::allocator<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > > > const&, std::vector<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >, std::allocator<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > > > const&)
+  UPnPProvider::UpnpDevice::forgetService(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&)
+  UPnPProvider::UpnpDevice::InternalStatic::sCallBack(Upnp_EventType_e, void const*, void*)
+  UPnPProvider::UpnpDevice::addActionMapping(UPnPProvider::UpnpService const*, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&, std::function<int (UPnPP::SoapIncoming const&, UPnPP::SoapOutgoing&)>)
+  UPnPProvider::UpnpDevice::setProductVersion(char const*, char const*)
+  UPnPProvider::UpnpDevice::ok()
+  UPnPProvider::UpnpDevice::ipv4(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >*, unsigned short*)
+  UPnPProvider::UpnpDevice::start()
+  UPnPProvider::UpnpDevice::addVFile(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >&)
+  UPnPProvider::UpnpDevice::eventloop()
+  UPnPProvider::UpnpDevice::startloop()
+  UPnPProvider::UpnpDevice::UpnpDevice(UPnPProvider::UpnpDevice*, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&)
+  UPnPProvider::UpnpDevice::UpnpDevice(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&)
+  UPnPProvider::UpnpDevice::UpnpDevice(UPnPProvider::UpnpDevice*, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&)
+  UPnPProvider::UpnpDevice::UpnpDevice(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&)
+  UPnPProvider::UpnpDevice::~UpnpDevice()
+  UPnPProvider::UpnpDevice::~UpnpDevice()
+  UPnPProvider::UpnpDevice::~UpnpDevice()
+  UPnPProvider::UpnpService::getEventData(bool, std::vector<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >, std::allocator<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > > >&, std::vector<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >, std::allocator<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > > >&)
+  UPnPProvider::UpnpService::getDevice()
+  UPnPProvider::UpnpService::UpnpService(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&, UPnPProvider::UpnpDevice*, bool)
+  UPnPProvider::UpnpService::UpnpService(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&, UPnPProvider::UpnpDevice*, bool)
+  UPnPProvider::UpnpService::~UpnpService()
+  UPnPProvider::UpnpService::~UpnpService()
+  UPnPProvider::UpnpService::~UpnpService()
+  UPnPP::SoapIncoming::getMap(std::unordered_map<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >, std::hash<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > >, std::equal_to<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > >, std::allocator<std::pair<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > > > >&)
+  UPnPP::SoapIncoming::SoapIncoming()
+  UPnPP::SoapIncoming::SoapIncoming()
+  UPnPP::SoapIncoming::~SoapIncoming()
+  UPnPP::SoapIncoming::~SoapIncoming()
+  UPnPP::SoapOutgoing::addarg(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&)
+  UPnPP::SoapOutgoing::SoapOutgoing(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&)
+  UPnPP::SoapOutgoing::SoapOutgoing()
+  UPnPP::SoapOutgoing::SoapOutgoing(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&)
+  UPnPP::SoapOutgoing::SoapOutgoing()
+  UPnPP::SoapOutgoing::operator()(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&)
+  UPnPP::SoapOutgoing::~SoapOutgoing()
+  UPnPP::SoapOutgoing::~SoapOutgoing()
+  UPnPP::upnpduration[abi:cxx11](int)
+  UPnPP::base64_decode(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >&)
+  UPnPP::base64_encode(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >&)
+  UPnPP::getAdapterNames(std::vector<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >, std::allocator<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > > >&)
+  UPnPP::upnpdurationtos(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&)
+  UPnPP::ohplIdArrayToVec(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&, std::vector<int, std::allocator<int> >*)
+  UPnPP::parseProtocolInfo(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&, std::vector<UPnPP::ProtocolinfoEntry, std::allocator<UPnPP::ProtocolinfoEntry> >&)
+  UPnPP::parseProtoInfEntry(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&, UPnPP::ProtocolinfoEntry&)
+  UPnPP::LibUPnP::getLibUPnP(bool, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >*, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >, unsigned short)
+  UPnPP::LibUPnP::errAsString(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&, int)
+  UPnPP::LibUPnP::makeDevUUID(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&)
+  UPnPP::LibUPnP::setLogLevel(UPnPP::LibUPnP::LogLevel)
+  UPnPP::LibUPnP::getInitError()
+  UPnPP::LibUPnP::versionString[abi:cxx11]()
+  UPnPP::LibUPnP::setLogFileName(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&, UPnPP::LibUPnP::LogLevel)
+  UPnPP::LibUPnP::setMaxContentLength(int)
+  UPnPP::LibUPnP::setWebServerDocumentRoot(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&)
+  UPnPP::LibUPnP::host[abi:cxx11]()
+  UPnPP::LibUPnP::init(unsigned int, ...)
+  UPnPP::LibUPnP::port[abi:cxx11]()
+  UPnPP::LibUPnP::hwaddr[abi:cxx11]()
+  UPnPP::LibUPnP::LibUPnP()
+  UPnPP::LibUPnP::LibUPnP()
+  UPnPP::LibUPnP::~LibUPnP()
+  UPnPP::LibUPnP::~LibUPnP()
+  UPnPP::SoapHelp::xmlUnquote(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&)
+  UPnPP::SoapHelp::i2s[abi:cxx11](int)
+  UPnPP::SoapHelp::xmlQuote(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&)
+  Logger::datestring()
+  Logger::reopen(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&)
+  Logger::getTheLog(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&)
+  Logger::Logger(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&)
+  Logger::Logger(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&)
+  UPnPClient::UPnPDirObject::getdidl[abi:cxx11]() const
+  UPnPClient::UPnPServiceDesc::fetchAndParseDesc(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&, UPnPClient::UPnPServiceDesc::Parsed&, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >*) const
+  UPnPClient::Device::desc() const
+  UPnPClient::Service::getDeviceId[abi:cxx11]() const
+  UPnPClient::Service::getActionURL[abi:cxx11]() const
+  UPnPClient::Service::getModelName[abi:cxx11]() const
+  UPnPClient::Service::getServiceType[abi:cxx11]() const
+  UPnPClient::Service::getFriendlyName[abi:cxx11]() const
+  UPnPClient::Service::getManufacturer[abi:cxx11]() const
+  UPnPProvider::UpnpDevice::getDeviceId[abi:cxx11]() const
+  UPnPProvider::UpnpService::getServiceId[abi:cxx11]() const
+  UPnPProvider::UpnpService::getServiceType[abi:cxx11]() const
+  UPnPProvider::UpnpService::getXMLFn[abi:cxx11]() const
+  UPnPProvider::UpnpService::noevents() const
+  UPnPProvider::UpnpService::errString[abi:cxx11](int) const
+  UPnPP::SoapIncoming::get(char const*, bool*) const
+  UPnPP::SoapIncoming::get(char const*, int*) const
+  UPnPP::SoapIncoming::get(char const*, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >*) const
+  UPnPP::SoapIncoming::getName[abi:cxx11]() const
+  UPnPP::SoapOutgoing::getName[abi:cxx11]() const
+  UPnPP::LibUPnP::ok() const

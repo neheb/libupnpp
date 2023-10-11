@@ -162,7 +162,7 @@ dist-hook:
 if LINUX
 	if test -z "$(NOTAG)";then \
  	    nm -g --defined-only --demangle .libs/libupnpp.so | grep ' T ' | \
-                awk '{print $$3}' | diff $(top_srcdir)/symbols-reference - || exit 1;\
+                awk '{$$1=$$2=""; print $$0}' | diff $(top_srcdir)/symbols-reference - || exit 1;\
         fi
 endif
 	if test -z "$(NOTAG)";then \
