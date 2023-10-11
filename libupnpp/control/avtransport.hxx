@@ -98,7 +98,7 @@ public:
         int relcount;
         int abscount;
     };
-    int getPositionInfo(PositionInfo& info, int instanceID=0);
+    int getPositionInfo(PositionInfo& info, int instanceID=0, int timeoutms=-1);
 
     struct DeviceCapabilities {
         std::string playmedia;

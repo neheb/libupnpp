@@ -197,13 +197,12 @@ int OHPlaylist::transportState(TPState* tpp)
 
 int OHPlaylist::id(int *value, int timeoutms)
 {
+    ActionOptions opts;
     if (timeoutms >= 0) {
-        ActionOptions opts;
         opts.active_options |= AOM_TIMEOUTMS;
         opts.timeoutms = timeoutms;
-        return runSimpleGet("Id", "Value", value, &opts);
     }
-    return runSimpleGet("Id", "Value", value);
+    return runSimpleGet("Id", "Value", value, &opts);
 }
 
 int OHPlaylist::read(int id, std::string* urip, UPnPDirObject *dirent)

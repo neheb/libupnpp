@@ -148,9 +148,14 @@ int OHRadio::channelsMax(int *value)
     return runSimpleGet("ChannelsMax", "Value", value);
 }
 
-int OHRadio::id(int *value)
+int OHRadio::id(int *value, int timeoutms)
 {
-    return runSimpleGet("Id", "Value", value);
+    ActionOptions opts;
+    if (timeoutms >= 0) {
+        opts.active_options |= AOM_TIMEOUTMS;
+        opts.timeoutms = timeoutms;
+    }
+    return runSimpleGet("Id", "Value", value, &opts);
 }
 
 int OHRadio::idArray(vector<int> *ids, int *tokp)

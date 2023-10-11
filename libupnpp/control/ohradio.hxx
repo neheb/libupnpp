@@ -54,15 +54,14 @@ public:
 
     int channel(std::string* uri, UPnPDirObject *dirent);
     int channelsMax(int *);
-    int id(int *value);
+    int id(int *value, int timeoutms = -1);
     int idArray(std::vector<int> *ids, int *tokp);
     int idArrayChanged(int token, bool *changed);
     int pause();
     int play();
     int protocolInfo(std::string *proto);
     int read(int id, UPnPDirObject *dirent);
-    int readList(const std::vector<int>& ids,
-                 std::vector<OHPlaylist::TrackListEntry>* entsp);
+    int readList(const std::vector<int>& ids, std::vector<OHPlaylist::TrackListEntry>* entsp);
     int setChannel(const std::string& uri, const std::string& didl);
     int setId(int id, const std::string& uri);
     int stop();

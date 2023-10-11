@@ -303,12 +303,17 @@ int AVTransport::getTransportInfo(TransportInfo& info, int instanceID)
     return 0;
 }
 
-int AVTransport::getPositionInfo(PositionInfo& info, int instanceID)
+int AVTransport::getPositionInfo(PositionInfo& info, int instanceID, int timeoutms)
 {
     SoapOutgoing args(getServiceType(), "GetPositionInfo");
     args("InstanceID", SoapHelp::i2s(instanceID));
     SoapIncoming data;
-    int ret = runAction(args, data);
+    ActionOptions opts;
+    if (timeoutms >= 0) {
+        opts.active_options |= AOM_TIMEOUTMS;
+        opts.timeoutms = timeoutms;
+    }
+    int ret = runAction(args, data, &opts);
     if (ret != UPNP_E_SUCCESS) {
         return ret;
     }
