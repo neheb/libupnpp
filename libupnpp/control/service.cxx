@@ -382,17 +382,17 @@ bool Service::reSubscribe()
     return true;
 }
 
-template int Service::runSimpleAction<int>(std::string const&, std::string const&, int, 
-                                           ActionOptions *opts=nullptr);
+template int Service::runSimpleAction<int>(std::string const&, std::string const&, int,
+                                           ActionOptions *);
 template int Service::runSimpleAction<std::string>(std::string const&, std::string const&,
-                                                   std::string, ActionOptions *opts=nullptr);
+                                                   std::string, ActionOptions *);
 template int Service::runSimpleGet<int>(std::string const&, std::string const&, int*, 
-                                        ActionOptions *opts=nullptr);
+                                        ActionOptions *);
 template int Service::runSimpleGet<bool>(std::string const&, std::string const&, bool*, 
-                                         ActionOptions *opts=nullptr);
+                                         ActionOptions *);
 template int Service::runSimpleAction<bool>(std::string const&, std::string const&, bool, 
-                                            ActionOptions *opts=nullptr);
-template int Service::runSimpleGet<std::string>(std::string const&,std::string const&,std::string*,
-                                           ActionOptions *opts=nullptr);
+                                            ActionOptions *);
+template int Service::runSimpleGet<std::string>(std::string const&, std::string const&,
+                                                std::string*, ActionOptions *);
 
 }
