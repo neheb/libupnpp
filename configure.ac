@@ -3,8 +3,9 @@
 # except that we sort or promise that no api and abi incompatibilities
 # occur with revision (3rd number) changes.
 
-# !!!! When changing the version, also change the defines in upnpplib.hxx !!!
-AC_INIT([libupnpp], [0.23.0], [jfd@lesbonscomptes.com], [libupnpp],
+# !!!! When changing the version, also change the defines in upnpplib.hxx and
+# windows/config_windows.h !!!
+AC_INIT([libupnpp], [0.24.0], [jfd@lesbonscomptes.com], [libupnpp],
         [http://www.lesbonscomptes.com/upmpdcli])
 
 # Lib version info. See:
@@ -22,7 +23,7 @@ AC_INIT([libupnpp], [0.23.0], [jfd@lesbonscomptes.com], [libupnpp],
 # - If any interfaces have been removed or changed since the last public
 #   release, then set age to 0 and change the package name if multiple
 #   versions need to be co-installed.
-VERSION_INFO=13:0:1
+VERSION_INFO=14:0:0
 
 AC_PREREQ([2.53])
 AC_CONFIG_SRCDIR([libupnpp/upnpplib.hxx])
