@@ -41,8 +41,7 @@ class UPNPP_API OHProduct : public Service {
 public:
 
     OHProduct(const UPnPDeviceDesc& device, const UPnPServiceDesc& service)
-        : Service(device, service) {
-    }
+        : Service(device, service) {}
     OHProduct() {}
     ~OHProduct() {}
 
@@ -53,14 +52,10 @@ public:
     struct Source {
         std::string name;
         std::string type;
-        bool visible;
-        Source() : visible(false) {}
-        void clear() {
-            name.clear();
-            type.clear();
-            visible = false;
-        }
+        bool visible{false};
     };
+
+    static bool parseSourceXML(std::string& sxml, std::vector<Source>& sources);
 
     /** @return 0 for success, upnp error else */
     int getSources(std::vector<Source>& sources);
@@ -74,8 +69,7 @@ protected:
     /* My service type string */
     static const std::string SType;
 private:
-    void UPNPP_LOCAL evtCallback(
-        const std::unordered_map<std::string, std::string>&);
+    void UPNPP_LOCAL evtCallback(const std::unordered_map<std::string, std::string>&);
     void UPNPP_LOCAL registerCallback();
 };
 

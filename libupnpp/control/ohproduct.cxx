@@ -1,4 +1,4 @@
-/* Copyright (C) 2006-2016 J.F.Dockes
+/* Copyright (C) 2006-2023 J.F.Dockes
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -30,7 +30,6 @@
 #include "libupnpp/upnpp_p.hxx"
 #include "libupnpp/smallut.h"
 
-using namespace std;
 using namespace std::placeholders;
 using namespace UPnPP;
 
@@ -55,50 +54,49 @@ namespace UPnPClient {
 // - Hdmi - Specifies a HDMI external input
 class OHSourceParser : public inputRefXMLParser {
 public:
-    OHSourceParser(const string& input, vector<OHProduct::Source>& sources)
-        : inputRefXMLParser(input), m_sources(sources)
-    {}
+    OHSourceParser(const std::string& input, std::vector<OHProduct::Source>& sources)
+        : inputRefXMLParser(input), m_sources(sources) {}
 
 protected:
     virtual void EndElement(const XML_Char *name) {
         if (!strcmp(name, "Source")) {
             m_sources.push_back(m_tsrc);
-            m_tsrc.clear();
+            m_tsrc = OHProduct::Source();
         }
     }
     virtual void CharacterData(const XML_Char *s, int len) {
         if (s == 0 || *s == 0)
             return;
-        string str(s, len);
+        std::string str(s, len);
         trimstring(str);
         switch (m_path.back().name[0]) {
         case 'N':
-            if (!m_path.back().name.compare("Name"))
+            if (m_path.back().name == "Name")
                 m_tsrc.name = str;
             break;
         case 'T':
-            if (!m_path.back().name.compare("Type"))
+            if (m_path.back().name == "Type")
                 m_tsrc.type = str;
             break;
         case 'V':
-            if (!m_path.back().name.compare("Visible"))
+            if (m_path.back().name == "Visible")
                 stringToBool(str, &m_tsrc.visible);
             break;
         }
     }
 
 private:
-    vector<OHProduct::Source>& m_sources;
+    std::vector<OHProduct::Source>& m_sources;
     OHProduct::Source m_tsrc;
 };
 
-const string OHProduct::SType("urn:av-openhome-org:service:Product:1");
+const std::string OHProduct::SType("urn:av-openhome-org:service:Product:1");
 
 // Check serviceType string (while walking the descriptions. We don't
 // include a version in comparisons, as we are satisfied with version1
-bool OHProduct::isOHPrService(const string& st)
+bool OHProduct::isOHPrService(const std::string& st)
 {
-    const string::size_type sz(SType.size()-2);
+    const std::string::size_type sz(SType.size()-2);
     return !SType.compare(0, sz, st, 0, sz);
 }
 bool OHProduct::serviceTypeMatch(const std::string& tp)
@@ -107,27 +105,24 @@ bool OHProduct::serviceTypeMatch(const std::string& tp)
 }
 
 
-void OHProduct::evtCallback(
-    const std::unordered_map<std::string, std::string>& props)
+void OHProduct::evtCallback(const std::unordered_map<std::string, std::string>& props)
 {
-    LOGDEB1("OHProduct::evtCallback: getReporter(): " << getReporter() << endl);
-    for (std::unordered_map<std::string, std::string>::const_iterator it =
-                props.begin(); it != props.end(); it++) {
+    LOGDEB1("OHProduct::evtCallback: getReporter(): " << getReporter() << "\n");
+    for (const auto& prop : props) {
         if (!getReporter()) {
-            LOGDEB1("OHProduct::evtCallback: " << it->first << " -> "
-                    << it->second << endl);
+            LOGDEB1("OHProduct::evtCallback: " << prop.first << " -> " << prop.second << "\n");
             continue;
         }
-        if (!it->first.compare("SourceIndex")) {
-            getReporter()->changed(it->first.c_str(), atoi(it->second.c_str()));
-        } else if (!it->first.compare("Standby")) {
+        if (prop.first == "SourceIndex") {
+            getReporter()->changed(prop.first.c_str(), atoi(prop.second.c_str()));
+        } else if (prop.first == "Standby") {
             bool val = false;
-            stringToBool(it->second, &val);
-            getReporter()->changed(it->first.c_str(), val ? 1 : 0);
+            stringToBool(prop.second, &val);
+            getReporter()->changed(prop.first.c_str(), val ? 1 : 0);
         } else {
             LOGDEB1("OHProduct event: unknown variable: name [" <<
-                    it->first << "] value [" << it->second << endl);
-            getReporter()->changed(it->first.c_str(), it->second.c_str());
+                    prop.first << "] value [" << prop.second << "\n");
+            getReporter()->changed(prop.first.c_str(), prop.second.c_str());
         }
     }
 }
@@ -137,7 +132,7 @@ void OHProduct::registerCallback()
     Service::registerCallback(bind(&OHProduct::evtCallback, this, _1));
 }
 
-int OHProduct::getSources(vector<Source>& sources)
+int OHProduct::getSources(std::vector<Source>& sources)
 {
     SoapOutgoing args(getServiceType(), "SourceXml");
     SoapIncoming data;
@@ -145,21 +140,25 @@ int OHProduct::getSources(vector<Source>& sources)
     if (ret != UPNP_E_SUCCESS) {
         return ret;
     }
-    string sxml;
+    std::string sxml;
     if (!data.get("Value", &sxml)) {
-        LOGERR("OHProduct:getSources: missing Value in response" << endl);
+        LOGERR("OHProduct:getSources: missing Value in response" << "\n");
         return UPNP_E_BAD_RESPONSE;
     }
+    return parseSourceXML(sxml, sources) ? UPNP_E_SUCCESS : UPNP_E_BAD_RESPONSE;
+}
+
+bool OHProduct::parseSourceXML(std::string& sxml, std::vector<Source>& sources)
+{
     OHSourceParser mparser(sxml, sources);
     if (!mparser.Parse())
-        return UPNP_E_BAD_RESPONSE;
-
-    return UPNP_E_SUCCESS;
+        return false;
+    return true;
 }
 
 int OHProduct::sourceIndex(int *index)
 {
-    string value;
+    std::string value;
     int ret;
 
     if ((ret = runSimpleGet("SourceIndex", "Value", &value)))
@@ -174,7 +173,7 @@ int OHProduct::setSourceIndex(int index)
     return runSimpleAction("SetSourceIndex", "Value", index);
 }
 
-int OHProduct::setSourceIndexByName(const string& name)
+int OHProduct::setSourceIndexByName(const std::string& name)
 {
     return runSimpleAction("SetSourceIndexByName", "Value", name);
 }
