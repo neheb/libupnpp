@@ -159,6 +159,7 @@
   UPnPClient::Service::runTrivialAction(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&, UPnPClient::Service::ActionOptions*)
   UPnPClient::Service::unregisterCallback()
   UPnPClient::Service::initFromDescription(UPnPClient::UPnPDeviceDesc const&)
+  UPnPClient::Service::ok()
   UPnPClient::Service::runAction(UPnPP::SoapOutgoing const&, UPnPP::SoapIncoming&, UPnPClient::Service::ActionOptions*)
   UPnPClient::Service::Service(UPnPClient::UPnPDeviceDesc const&, UPnPClient::UPnPServiceDesc const&)
   UPnPClient::Service::Service()
