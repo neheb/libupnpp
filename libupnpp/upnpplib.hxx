@@ -80,7 +80,7 @@ public:
         UPNPPINIT_OPTION_IPV4,
         /** IP Port to use. An int parameter follows. The lower lib default is 49152. */
         UPNPPINIT_OPTION_PORT,
-        /** Control: subscription timeout in seconds. An int param. follows. */
+        /** Control: subscription timeout in seconds. An int parameter follows. */
         UPNPPINIT_OPTION_SUBSCRIPTION_TIMEOUT,
         /** Control: product name to set in user-agent strings.
          * A const std::string* follows. */
@@ -88,6 +88,9 @@ public:
         /** Control: product version to set in user-agent strings.
          * A const std::string* follows. */
         UPNPPINIT_OPTION_CLIENT_VERSION,
+        /** Control: HTTP timeout for subscription/unsubscriptions connections to the device. 
+            The libupnp default of 30000 ms is very high. An int parameter follows. */
+        UPNPPINIT_OPTION_SUBSOPS_TIMEOUTMS,
     };
 
     /** Initialize the library, with more complete control than a direct getLibUPnP() call.

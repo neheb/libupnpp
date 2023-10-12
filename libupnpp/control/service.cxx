@@ -118,6 +118,11 @@ Service::~Service()
     m = nullptr;
 }
 
+bool Service::ok()
+{
+    return m && !m->SID.empty();
+}
+
 const std::string& Service::getFriendlyName() const
 {
     return m->friendlyName;

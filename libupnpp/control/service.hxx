@@ -99,6 +99,12 @@ public:
      * derived class to find the right service.
      */
     bool initFromDescription(const UPnPDeviceDesc& description);
+
+    /** Check that initialization went well. 
+     * At the moment this is based on the subscription success, so that it's only meaningful after
+     * calling installReporter() (which causes the subscription request). 
+     */
+    bool ok();
     
     /** Restart the subscription to get all the State variable values,
      * in case we get the events before we are ready (e.g. before the
@@ -165,8 +171,7 @@ public:
      *  derived class. It is used, e.g., by initFromDescription() to look up 
      *  an appropriate entry from the device description service list. 
      *  Can also be used by external code wishing to do the same.
-     *  @param tp Service type string to be compared with the one for the 
-     *       derived class.
+     *  @param tp Service type string to be compared with the one for the derived class.
      */
     virtual bool serviceTypeMatch(const std::string& tp) = 0;
     
@@ -177,23 +182,25 @@ protected:
      * Most services don't need specific initialization, so we provide a 
      * default implementation.
      */
-    virtual bool serviceInit(const UPnPDeviceDesc&,
-                             const UPnPServiceDesc&) {
+    virtual bool serviceInit(const UPnPDeviceDesc&, const UPnPServiceDesc&) {
         return true;
     }
 
-    /** Used by a derived class to register its callback method. This
-     * creates an entry in the static map, using m_SID, which was
-     * obtained by subscribe() during construction
+    /** Used by a derived class to register its callback method. This subscribes to the service
+     *  events, obtaining a service subscription ID (SID), which is then linked to the callback
+     *  function through a static map.
      */
     bool registerCallback(evtCBFunc c);
 
-    /** To be overridden in classes which actually support events. Will be
-     * called by installReporter(). The call sequence is as follows:
+    /** This method will be called by installReporter() and should be overridden in classes 
+     * which actually support events.
+     * The call sequence is as follows:
      * some_client_code()
      *   Service::installReporter()
-     *     derived::registerCallback()
+     *     derivedActualService::registerCallback()
      *       Service::registerCallback(derivedcbfunc)
+     * The derived/actual service callback function is then in charge of calling the reporter 
+     * methods upon event reception.
      */
     virtual void registerCallback() {}
 

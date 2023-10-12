@@ -63,6 +63,7 @@ struct UPnPOptions {
     std::string ipv4;
     int port;
     int substimeout{1800};
+    int subsopstimeoutms{-1};
     std::string clientproduct;
     std::string clientversion;
 };
@@ -96,6 +97,9 @@ bool LibUPnP::init(unsigned int flags, ...)
             break;
         case UPNPPINIT_OPTION_SUBSCRIPTION_TIMEOUT:
             options.substimeout = va_arg(ap, int);
+            break;
+        case UPNPPINIT_OPTION_SUBSOPS_TIMEOUTMS:
+            options.subsopstimeoutms = va_arg(ap, int);
             break;
         case UPNPPINIT_OPTION_CLIENT_PRODUCT:
             options.clientproduct = *((std::string*)(va_arg(ap, std::string*)));
@@ -261,6 +265,11 @@ LibUPnP::LibUPnP()
             if (!options.clientproduct.empty()&&!options.clientversion.empty()) {
                 UpnpClientSetProduct(m->clh, options.clientproduct.c_str(),
                                      options.clientversion.c_str());
+            }
+#endif
+#if NPUPNP_VERSION >= 50003
+            if (options.subsopstimeoutms > 0) {
+                UpnpSubsOpsTimeoutMs(m->clh, options.subsopstimeoutms);
             }
 #endif
             m->ok = true;

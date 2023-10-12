@@ -3,7 +3,7 @@ Section: contrib/sound
 Priority: optional
 Maintainer: Jean-Francois Dockes <jf@dockes.org>
 Build-Depends: debhelper (>= 8.0.0), dh-autoreconf, autotools-dev, pkg-config,
-               libnpupnp2-dev (>= 5.0.0), libexpat1-dev, libcurl-dev
+               libnpupnp2-dev (>= 5.1.0), libexpat1-dev, libcurl-dev
 Standards-Version: 3.9.8
 Homepage: http://www.lesbonscomptes.com/upmpdcli
 
