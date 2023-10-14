@@ -2,7 +2,8 @@ libupnpp7 (0.24.0-1~ppaPPAVERS~SERIES1) SERIES; urgency=low
 
   * Control: ohproduct: export a parseSourceXML static method.
   * Control: add timeout optional parameters to OHRadio::id(), OHPlaylist::id(),
-    and AVTransport::getPositionInfo().
+    and AVTransport::getPositionInfo(). Add options structure parameter to the base
+    Service class methods.
   
  -- Jean-Francois Dockes <jf@dockes.org>  Wed, 11 Oct 2023 10:30:00 +0200
  
