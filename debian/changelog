@@ -1,5 +1,6 @@
-libupnpp7 (0.24.0-1~ppaPPAVERS~SERIES1) SERIES; urgency=low
+libupnpp7 (0.24.0-2~ppaPPAVERS~SERIES1) SERIES; urgency=low
 
+  * Rebuilt for rpi 1 (armv6) compatibility
   * Control: ohproduct: export a parseSourceXML static method.
   * Control: add timeout optional parameters to OHRadio::id(), OHPlaylist::id(),
     and AVTransport::getPositionInfo(). Add options structure parameter to the base
