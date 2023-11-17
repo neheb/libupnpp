@@ -1,3 +1,9 @@
+libupnpp7 (0.24.1-1~ppaPPAVERS~SERIES1) SERIES; urgency=low
+
+  * Don't extend URLs escaping by default (was causing issues with Yamaha renderers).
+  
+ -- Jean-Francois Dockes <jf@dockes.org>  Fri, 17 Oct 2023 15:09:00 +0100
+ 
 libupnpp7 (0.24.0-2~ppaPPAVERS~SERIES1) SERIES; urgency=low
 
   * Rebuilt for rpi 1 (armv6) compatibility

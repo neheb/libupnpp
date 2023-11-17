@@ -53,7 +53,7 @@
 #define PACKAGE_NAME "libupnpp"
 
 /* Define to the full name and version of this package. */
-#define PACKAGE_STRING "libupnpp 0.24.0"
+#define PACKAGE_STRING "libupnpp 0.24.1"
 
 /* Define to the one symbol short name of this package. */
 #define PACKAGE_TARNAME "libupnpp"
@@ -62,7 +62,7 @@
 #define PACKAGE_URL "http://www.lesbonscomptes.com/upmpdcli"
 
 /* Define to the version of this package. */
-#define PACKAGE_VERSION "0.24.0"
+#define PACKAGE_VERSION "0.24.1"
 
 /* The pupnp vdir callbacks take 1 cookie */
 /* #undef PUPNP_VDIR_1COOKIE */
