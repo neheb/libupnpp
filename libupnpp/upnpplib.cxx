@@ -206,6 +206,11 @@ int LibUPnP::Internal::getSubsTimeout()
     return options.substimeout;
 }
 
+bool LibUPnP::Internal::reSanitizeURLs()
+{
+    return options.flags & UPNPPINIT_FLAG_RESANITIZE_URLS;
+}
+
 LibUPnP::LibUPnP()
 {
     bool serveronly = 0 != (options.flags&UPNPPINIT_FLAG_SERVERONLY);

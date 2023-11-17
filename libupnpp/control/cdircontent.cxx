@@ -151,9 +151,24 @@ protected:
                     // bitrate="24576" duration="00:03:35"
                     // sampleFrequency="44100" nrAudioChannels="2">
                     UPnPResource res;
-                    res.m_uri = reSanitizeURL(m_path.back().data);
+                    if (LibUPnP::getLibUPnP()->m->reSanitizeURLs()) {
+                        res.m_uri = reSanitizeURL(m_path.back().data);
+                    } else {
+                        res.m_uri = m_path.back().data;
+                    }
                     res.m_props = m_path.back().attributes;
                     m_tobj.m_resources.push_back(res);
+                } else {
+                    addprop(name, m_path.back().data);
+                }
+                break;
+            case 'u':
+                if (!strcmp(name, "upnp:albumArtURI")) {
+                    if (LibUPnP::getLibUPnP()->m->reSanitizeURLs()) {
+                        addprop(name, reSanitizeURL(m_path.back().data));
+                    } else {
+                        addprop(name, m_path.back().data);
+                    }
                 } else {
                     addprop(name, m_path.back().data);
                 }

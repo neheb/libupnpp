@@ -61,9 +61,17 @@ public:
     enum InitFlags {
         UPNPPINIT_FLAG_NONE = 0,
         /** Disable IPV6 support */
-        UPNPPINIT_FLAG_NOIPV6 = 1,
+        UPNPPINIT_FLAG_NOIPV6 = 0x1,
         /** Do not initialize the client side (we are a device) */
-        UPNPPINIT_FLAG_SERVERONLY = 2,
+        UPNPPINIT_FLAG_SERVERONLY = 0x2,
+        /** Perform extra escaping on URLs read from a content directory. This will encode some
+            characters which have a tendancy to cause problems even if they do not *have* to be
+            escaped according to the standard. Unfortunately, this also causes issues with some
+            UPnP/AV renderers (Yamaha) which emit change event containing the (maybe partially)
+            *decoded* URLs, which breaks string comparisons in the CP. This could be worked around
+            in Upplay, but this also triggers issues inside other CPs, e.g. when Bubble server is
+            proxying an UPnP/AV renderer. */
+        UPNPPINIT_FLAG_RESANITIZE_URLS = 0x4,
     };
 
     /** Options for the initialisation call. Each option argument may be 

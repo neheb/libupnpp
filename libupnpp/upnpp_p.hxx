@@ -79,6 +79,7 @@ class LibUPnP::Internal {
 public:
 
     int getSubsTimeout();
+    bool reSanitizeURLs();
     
     /** Specify function to be called on given UPnP
      *  event. The call will happen in the libupnp thread context.
