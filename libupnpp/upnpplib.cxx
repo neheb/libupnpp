@@ -589,21 +589,40 @@ template bool csvToStrings<vector<string> >(const string &, vector<string> &);
 template bool csvToStrings<set<string> >(const string &, set<string> &);
 
 
-// Sanitize URL which is supposedly already encoded but maybe not fully.
+// Perform additional escaping on supposedly encoded URL.
 //
-// Because they are most likely to cause confusion, we check/encode the characters which were in the
-// safe list in rfc 1738, but became reserved in rfc 3986. These are all part of the 3986 sub_delims
-// list. Especially an unencoded apostrophe has been known to cause problems (can't remember with
-// what package). As an aside, wikipedia explicitely states:
+// The UPnP standards specify that URLs should encoded according to RFC 2396
+//
+// Unfortunately, the set of characters that should or should not be encoded inside a path is very
+// unclear and changed between the three URL RFCS: 1738, 2396, and the latest 3986.
+//
+// For example the "mark" characters are "unreserved" and "should not" be encoded according to
+// rfc2396:  mark = "-" | "_" | "." | "!" | "~" | "*" | "'" | "(" | ")"
+//
+// So, among others, the single quote is "unreserved" in 1738 and 2396 (no quoting), but "reserved"
+// in 3986 (should be quoted when found in data). All Python urrlib quote() versions escape it.
+//
+// In practise, unescaped single quotes do cause trouble with some renderers.
+//
+// Because they are most likely to cause confusion, this function checks/encodes the characters
+// which were in the safe list in rfc 1738, but became reserved in rfc 3986. These are all part of
+// the 3986 sub_delims list. 
+// As an aside, wikipedia explicitely states:
 //   https://en.wikipedia.org/wiki/URL_encoding: "Other characters in a URI must be percent-encoded."
 // that any character that is neither reserved (and used as such) or unreserved must be
 // percent-encoded, but I can't find this specified in the rfc, maybe it's somewhere...
 //
 // Hopefully, none of the gen_delims ones will be found unencoded because they were all reserved or
-// unsafe in 1738. Note that there is another intermediate RFC 2396 where $+, were "reserved".
+// unsafe in 1738. 
 //
 // None of the characters that we change are likely to be used as actual syntactic delimiters in
 // UPnP URLs (hopefully).
+//
+// This function is used optionaly and not by default because encoding the * is causing trouble with
+// some renderers (Yamaha), which then emit the URI change events with a decoded *, defeating string
+// comparisons...
+// 
+// This code should probably be moved to into Control Points to be used on a per-renderer basis.
 std::string reSanitizeURL(const std::string& in)
 {
     static const std::string unsafe_chars{R"raw(!$'()*+,)raw"};
