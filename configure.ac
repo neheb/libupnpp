@@ -23,7 +23,7 @@ AC_INIT([libupnpp], [0.24.1], [jfd@lesbonscomptes.com], [libupnpp],
 # - If any interfaces have been removed or changed since the last public
 #   release, then set age to 0 and change the package name if multiple
 #   versions need to be co-installed.
-VERSION_INFO=14:0:0
+VERSION_INFO=15:0:1
 
 AC_PREREQ([2.53])
 AC_CONFIG_SRCDIR([libupnpp/upnpplib.hxx])
