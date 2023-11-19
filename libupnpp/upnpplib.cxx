@@ -66,6 +66,7 @@ struct UPnPOptions {
     int subsopstimeoutms{-1};
     std::string clientproduct;
     std::string clientversion;
+    std::string resanitizedchars{R"raw(!$'()+,)raw"};
 };
 static UPnPOptions options;
 
@@ -107,6 +108,14 @@ bool LibUPnP::init(unsigned int flags, ...)
         case UPNPPINIT_OPTION_CLIENT_VERSION:
             options.clientversion = *((std::string*)(va_arg(ap, std::string*)));
             break;
+        case UPNPPINIT_OPTION_RESANITIZED_CHARS:
+        {
+            auto val = *((std::string*)(va_arg(ap, std::string*)));
+            if (!val.empty()) {
+                options.resanitizedchars = val;
+            }
+            break;
+        }
         default:
             std::cerr << "LibUPnP::init: unknown option value " << option <<"\n";
         }
@@ -608,7 +617,7 @@ template bool csvToStrings<set<string> >(const string &, set<string> &);
 // which were in the safe list in rfc 1738, but became reserved in rfc 3986. These are all part of
 // the 3986 sub_delims list. 
 // As an aside, wikipedia explicitely states:
-//   https://en.wikipedia.org/wiki/URL_encoding: "Other characters in a URI must be percent-encoded."
+//  https://en.wikipedia.org/wiki/URL_encoding: "Other characters in a URI must be percent-encoded."
 // that any character that is neither reserved (and used as such) or unreserved must be
 // percent-encoded, but I can't find this specified in the rfc, maybe it's somewhere...
 //
@@ -625,12 +634,10 @@ template bool csvToStrings<set<string> >(const string &, set<string> &);
 // This code should probably be moved to into Control Points to be used on a per-renderer basis.
 std::string reSanitizeURL(const std::string& in)
 {
-    static const std::string unsafe_chars{R"raw(!$'()*+,)raw"};
-
     std::string out;
     for (unsigned char c : in) {
         const char *h = "0123456789ABCDEF";
-        if (c <= 0x20 || c >= 0x7f || unsafe_chars.find(c) != std::string::npos) {
+        if (c <= 0x20 || c >= 0x7f || options.resanitizedchars.find(c) != std::string::npos) {
             out += '%';
             out += h[(c >> 4) & 0xf];
             out += h[c & 0xf];

@@ -99,6 +99,10 @@ public:
         /** Control: HTTP timeout for subscription/unsubscriptions connections to the device. 
             The libupnp default of 30000 ms is very high. An int parameter follows. */
         UPNPPINIT_OPTION_SUBSOPS_TIMEOUTMS,
+        /** Control: characters that we should further url-escape when found in URLs out of a
+            content directory. The default is <!$'()+,> (delimited by excluded <>) 
+            A const std::string* follows. */
+        UPNPPINIT_OPTION_RESANITIZED_CHARS,
     };
 
     /** Initialize the library, with more complete control than a direct getLibUPnP() call.
