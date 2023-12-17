@@ -395,6 +395,25 @@ const string UPnPDeviceDirectory::getReason()
     return o_reason;
 }
 
+bool UPnPDeviceDirectory::uniSearch(const std::string& url)
+{
+    LibUPnP *lib = LibUPnP::getLibUPnP();
+    if (lib == 0) {
+        o_reason = "Can't get lib";
+        return false;
+    }
+
+    const char *target = "upnp:rootdevice";
+
+    int code = UpnpSearchAsyncUnicast(lib->m->getclh(), url, target, lib);
+    if (code != UPNP_E_SUCCESS) {
+        o_reason = LibUPnP::errAsString("UpnpSearchAsyncUnicast", code);
+        LOGERR("UPnPDeviceDirectory::search: UpnpSearchAsyncUnicast failed: " << o_reason << "\n");
+        return false;
+    }
+    return true;
+}
+
 static bool search()
 {
     LOGDEB1("UPnPDeviceDirectory::search" << endl);
@@ -412,7 +431,7 @@ static bool search()
     }
 
     //const char *cp = "ssdp:all";
-    const char *cp = "upnp:rootdevice";
+    const char *target = "upnp:rootdevice";
     // We send the search message twice, like upnp-inspector does. This
     // definitely improves the reliability of the results (not to 100%
     // though).
@@ -421,7 +440,7 @@ static bool search()
             std::this_thread::sleep_for(std::chrono::milliseconds(100));
         }
         LOGDEB1("UPnPDeviceDirectory::search: calling upnpsearchasync" << endl);
-        int code1 = UpnpSearchAsync(lib->m->getclh(), (int)o_searchTimeout, cp, lib);
+        int code1 = UpnpSearchAsync(lib->m->getclh(), (int)o_searchTimeout, target, lib);
         if (code1 != UPNP_E_SUCCESS) {
             o_reason = LibUPnP::errAsString("UpnpSearchAsync", code1);
             LOGERR("UPnPDeviceDirectory::search: UpnpSearchAsync failed: " <<
@@ -467,8 +486,7 @@ time_t UPnPDeviceDirectory::getRemainingDelayMs()
     if (remain.count() < 0)
         return 0;
 
-    return std::chrono::duration_cast<std::chrono::milliseconds>
-        (remain).count();
+    return std::chrono::duration_cast<std::chrono::milliseconds>(remain).count();
 }
 
 time_t UPnPDeviceDirectory::getRemainingDelay()
