@@ -67,6 +67,7 @@ struct UPnPOptions {
     std::string clientproduct;
     std::string clientversion;
     std::string resanitizedchars{R"raw(!$'()+,)raw"};
+    int bootid{-1};
 };
 static UPnPOptions options;
 
@@ -98,6 +99,9 @@ bool LibUPnP::init(unsigned int flags, ...)
             break;
         case UPNPPINIT_OPTION_SUBSCRIPTION_TIMEOUT:
             options.substimeout = va_arg(ap, int);
+            break;
+        case UPNPPINIT_OPTION_BOOTID:
+            options.bootid = va_arg(ap, int);
             break;
         case UPNPPINIT_OPTION_SUBSOPS_TIMEOUTMS:
             options.subsopstimeoutms = va_arg(ap, int);
@@ -250,6 +254,7 @@ LibUPnP::LibUPnP()
         m->init_error = UpnpInitWithOptions(
             options.ifnames.c_str(), options.port, flags,
             UPNP_OPTION_NETWORK_WAIT, serveronly ? 60 : 1,
+            UPNP_OPTION_BOOTID, options.bootid,
             UPNP_OPTION_END);
     }
     if (m->init_error != UPNP_E_SUCCESS) {

@@ -81,28 +81,34 @@ public:
         UPNPPINIT_OPTION_END = 0,
         /** Names of the interfaces to use. A const std::string* follows. 
          * This is a space-separated list. If not set, we will use the first interface. 
-         * If set to '*', we will use all possible interfaces. */
+         * If set to '*', we will use all possible interfaces. Use an empty string to keep the
+         * default setting. */
         UPNPPINIT_OPTION_IFNAMES,
-        /** Use single IPV4 address. A const std::string* address in 
-         * dot notation follows. This is incompatible with OPTION_IFNAMES. */
+        /** Use single IPV4 address. A const std::string* address in dot notation follows. 
+         * This is incompatible with OPTION_IFNAMES. 
+         * Use an empty string to keep the default value. */
         UPNPPINIT_OPTION_IPV4,
         /** IP Port to use. An int parameter follows. The lower lib default is 49152. */
         UPNPPINIT_OPTION_PORT,
-        /** Control: subscription timeout in seconds. An int parameter follows. */
+        /** Control: subscription timeout in seconds. An int parameter follows. Default: 1800. */
         UPNPPINIT_OPTION_SUBSCRIPTION_TIMEOUT,
         /** Control: product name to set in user-agent strings.
-         * A const std::string* follows. */
+         * A const std::string* follows. Use an empty string to keep the default. */
         UPNPPINIT_OPTION_CLIENT_PRODUCT,
         /** Control: product version to set in user-agent strings.
-         * A const std::string* follows. */
+         * A const std::string* follows. Use an empty string to keep the default. */
         UPNPPINIT_OPTION_CLIENT_VERSION,
         /** Control: HTTP timeout for subscription/unsubscriptions connections to the device. 
-            The libupnp default of 30000 ms is very high. An int parameter follows. */
+         * The libupnp default of 30000 ms is very high. An int parameter follows. 
+         * Use -1 to keep the default. */
         UPNPPINIT_OPTION_SUBSOPS_TIMEOUTMS,
         /** Control: characters that we should further url-escape when found in URLs out of a
             content directory. The default is <!$'()+,> (delimited by excluded <>) 
-            A const std::string* follows. */
+            A const std::string* follows. Use an empty string to keep the default. */
         UPNPPINIT_OPTION_RESANITIZED_CHARS,
+        /** Device: UPnP 1.1 BOOTINIT.UPNP.ORG value. int value.
+         * Use -1 to keep the constant default of 1 */
+        UPNPPINIT_OPTION_BOOTID,
     };
 
     /** Initialize the library, with more complete control than a direct getLibUPnP() call.
