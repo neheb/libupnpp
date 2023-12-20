@@ -3,11 +3,11 @@ Section: contrib/sound
 Priority: optional
 Maintainer: Jean-Francois Dockes <jf@dockes.org>
 Build-Depends: debhelper-compat (= 13), pkg-config, 
-               libnpupnp-dev (>= 5.1.2), libexpat1-dev, libcurl4-gnutls-dev | libcurl-dev
+               libnpupnp-dev (>= 6.0.0), libexpat1-dev, libcurl4-gnutls-dev | libcurl-dev
 Standards-Version: 3.9.8
 Homepage: http://www.lesbonscomptes.com/upmpdcli
 
-Package: libupnpp14
+Package: libupnpp16
 Architecture: any
 Depends: ${shlibs:Depends}, ${misc:Depends}
 Multi-Arch: same
@@ -22,7 +22,7 @@ Description: C++ layer over libupnp.
 Package: libupnpp-dev
 Section: contrib/libdevel
 Architecture: any
-Depends: ${misc:Depends}, libupnpp14 (= ${binary:Version})
+Depends: ${misc:Depends}, libupnpp16 (= ${binary:Version})
 Conflicts: libupnpp7-dev
 Multi-Arch: same
 Description: C++ layer over libupnp (development files)
