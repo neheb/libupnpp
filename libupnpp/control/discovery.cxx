@@ -58,7 +58,12 @@ static bool o_ok{false};
 // If not, why?
 static string o_reason;
 // Search window (seconds)
-static time_t o_searchTimeout{2};
+#ifndef UPNP_MIN_SEARCH_TIME
+// Old versions of the lib did not export this.
+#define UPNP_MIN_SEARCH_TIME 2
+#define UPNP_MAX_SEARCH_TIME 80
+#endif
+static time_t o_searchTimeout{UPNP_MIN_SEARCH_TIME};
 // Last time we broadcasted a search request
 static std::chrono::steady_clock::time_point o_lastSearch;
 // Directory initialized at least once ?
@@ -348,24 +353,25 @@ static void expireDevices()
             ++it;
         }
     }
-    // start a search if something changed or 5 S
-    // elapsed. upnp-inspector uses a 2 S permanent loop (in
-    // msearch.py, __init__()). This ought not to be necessary of
-    // course...
-    if (didsomething || std::chrono::steady_clock::now() - o_lastSearch >
-        std::chrono::seconds(5)) {
+    // start a search if something changed or 5 S elapsed. upnp-inspector uses a 2 S permanent loop
+    // (in msearch.py, __init__()). This ought not to be necessary of course...
+    if (didsomething || std::chrono::steady_clock::now() - o_lastSearch > std::chrono::seconds(5)) {
         search();
     }
 }
 
-// m_searchTimeout is the UPnP device search timeout, which should
-// actually be called delay because it's the base of a random delay
-// that the devices apply to avoid responding all at the same time.
-// This means that you have to wait for the specified period before
-// the results are complete. 
+// m_searchTimeout is the UPnP device search timeout, which should actually be called delay because
+// it's the base of a random delay that the devices apply to avoid responding all at the same time.
+// This means that you have to wait for the specified period before the results are complete.
 UPnPDeviceDirectory::UPnPDeviceDirectory(time_t search_window)
 {
+    if (search_window < UPNP_MIN_SEARCH_TIME)
+        search_window = UPNP_MIN_SEARCH_TIME;
+    else if (search_window > UPNP_MAX_SEARCH_TIME)
+        search_window = UPNP_MAX_SEARCH_TIME;
+
     o_searchTimeout = search_window;
+
     addCallback(std::bind(&deviceFound, _1, _2));
 
     if (!discoveredQueue.start(1, discoExplorer, 0)) {
@@ -418,8 +424,7 @@ static bool search()
 {
     LOGDEB1("UPnPDeviceDirectory::search" << endl);
 
-    if (std::chrono::steady_clock::now() - o_lastSearch <
-        std::chrono::seconds(o_searchTimeout)) {
+    if (std::chrono::steady_clock::now() - o_lastSearch < std::chrono::seconds(o_searchTimeout)) {
         LOGDEB1("UPnPDeviceDirectory: last search too close\n");
         return true;
     }
@@ -432,20 +437,13 @@ static bool search()
 
     //const char *cp = "ssdp:all";
     const char *target = "upnp:rootdevice";
-    // We send the search message twice, like upnp-inspector does. This
-    // definitely improves the reliability of the results (not to 100%
-    // though).
-    for (int i = 0; i < 2; i++) {
-        if (i != 0) {
-            std::this_thread::sleep_for(std::chrono::milliseconds(100));
-        }
-        LOGDEB1("UPnPDeviceDirectory::search: calling upnpsearchasync" << endl);
-        int code1 = UpnpSearchAsync(lib->m->getclh(), (int)o_searchTimeout, target, lib);
-        if (code1 != UPNP_E_SUCCESS) {
-            o_reason = LibUPnP::errAsString("UpnpSearchAsync", code1);
-            LOGERR("UPnPDeviceDirectory::search: UpnpSearchAsync failed: " <<
-                   o_reason << endl);
-        }
+
+    LOGDEB1("UPnPDeviceDirectory::search: calling upnpsearchasync" << "\n");
+    int code1 = UpnpSearchAsync(lib->m->getclh(), (int)o_searchTimeout, target, lib);
+    if (code1 != UPNP_E_SUCCESS) {
+        o_reason = LibUPnP::errAsString("UpnpSearchAsync", code1);
+        LOGERR("UPnPDeviceDirectory::search: UpnpSearchAsync failed: " << o_reason << "\n");
+        return false;
     }
     o_lastSearch = std::chrono::steady_clock::now();
     return true;
@@ -501,8 +499,7 @@ static std::mutex devWaitLock;
 static std::condition_variable devWaitCond;
 
 // Call user function on one device (for all services)
-static bool simpleVisit(UPnPDeviceDesc& dev,
-                        UPnPDeviceDirectory::Visitor visit)
+static bool simpleVisit(UPnPDeviceDesc& dev, UPnPDeviceDirectory::Visitor visit)
 {
     for (auto& it1 : dev.services) {
         if (!visit(dev, it1)) {
@@ -538,14 +535,12 @@ bool UPnPDeviceDirectory::traverse(UPnPDeviceDirectory::Visitor visit)
     if (!o_ok)
         return false;
 
-    // Wait until the discovery delay is over. We need to loop because
-    // of spurious wakeups each time a new device is discovered. We
-    // could use a separate cv or another way of sleeping instead. We
-    // only do this once, after which we're sure that the initial
-    // discovery is done and that the directory is supposedly up to
-    // date. There is no reason to wait during further searches. We
-    // may wait for nothing once but it's simpler than detecting the
-    // end of the actual initial discovery.
+    // Wait until the discovery delay is over. We need to loop because of spurious wakeups each time
+    // a new device is discovered. We could use a separate cv or another way of sleeping instead. We
+    // only do this once, after which we're sure that the initial discovery is done and that the
+    // directory is supposedly up to date. There is no reason to wait during further searches. We
+    // may wait for nothing once but it's simpler than detecting the end of the actual initial
+    // discovery.
     for (;!o_initialSearchDone;) {
         std::unique_lock<std::mutex> lock(devWaitLock);
         time_t ms;
