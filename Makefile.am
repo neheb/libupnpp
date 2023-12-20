@@ -160,10 +160,8 @@ pkgconfig_DATA = libupnpp.pc
 
 dist-hook:
 if LINUX
-	if test -z "$(NOTAG)";then \
- 	    nm -g --defined-only --demangle .libs/libupnpp.so | grep ' T ' | \
-                awk '{$$1=$$2=""; print $$0}' | diff $(top_srcdir)/symbols-reference - || exit 1;\
-        fi
+	nm -g --defined-only --demangle .libs/libupnpp.so | grep ' T ' | \
+            awk '{$$1=$$2=""; print $$0}' | diff $(top_srcdir)/symbols-reference - || exit 1;
 endif
 	if test -z "$(NOTAG)";then \
 	    test -z "`git status -s | egrep -v '?? libupnpp-.*/|?? libupnpputil.a'`" || exit 1;\

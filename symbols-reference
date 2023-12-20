@@ -122,6 +122,7 @@
   UPnPClient::UPnPDeviceDirectory::getReason[abi:cxx11]()
   UPnPClient::UPnPDeviceDirectory::getTheDir(long)
   UPnPClient::UPnPDeviceDirectory::terminate()
+  UPnPClient::UPnPDeviceDirectory::uniSearch(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&)
   UPnPClient::Device::Device(UPnPClient::UPnPDeviceDesc const&)
   UPnPClient::Device::Device()
   UPnPClient::Device::Device(UPnPClient::UPnPDeviceDesc const&)
