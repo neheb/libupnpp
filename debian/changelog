@@ -1,3 +1,15 @@
+libupnpp (0.25.0-1~ppaPPAVERS~SERIES1) SERIES; urgency=low
+
+  * Control: description: store the download url in the parsed
+    description structure.
+  * Control: make sure that the requested search window is not smaller
+    than the npupnp minimum as this would result in insufficient waiting
+    for the initial search.
+  * Control: discovery: add interface to perform unicast search.
+  * Add init option to pass a bootid value to libnpupnp.
+
+ -- Jean-Francois Dockes <jf@dockes.org>  Wed, 20 Dec 2023 12:09:00 +0100
+ 
 libupnpp (0.24.1-1~ppaPPAVERS~SERIES1) SERIES; urgency=low
 
   * Don't extend URLs escaping by default (was causing issues with Yamaha
