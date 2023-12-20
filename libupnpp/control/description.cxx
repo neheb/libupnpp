@@ -116,6 +116,7 @@ UPnPDeviceDesc::UPnPDeviceDesc(const string& url, const string& description)
     UPnPDeviceParser mparser(description, *this);
     if (!mparser.Parse())
         return;
+    descURL = url;
     if (URLBase.empty()) {
         // The standard says that if the URLBase value is empty, we
         // should use the url the description was retrieved

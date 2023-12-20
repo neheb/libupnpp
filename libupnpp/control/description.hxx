@@ -161,7 +161,13 @@ public:
     /// Unique Device Number. This is the same as the deviceID in the
     /// discovery message. e.g. uuid:a7bdcd12-e6c1-4c7e-b588-3bbc959eda8d
     std::string UDN;
-    /// Base for all relative URLs. e.g. http://192.168.4.4:49152/
+    /// URL the device description XML was downloaded from.
+    std::string descURL;
+    /// scheme:authority/ part of the descURL above, e.g. http://192.168.4.4:49152/
+    /// Note: we make internally the possibly buggy assumption that all relative URLs (service
+    /// descriptions etc.) will be absolute paths. There is actually nothing in the standard which
+    /// prevents them from being relative paths to be resolved against the download absolute path
+    /// instead (in which case the above descURL would have to be used instead of this field).
     std::string URLBase;
     /// Manufacturer: e.g. D-Link, PacketVideo
     std::string manufacturer;
