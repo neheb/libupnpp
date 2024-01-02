@@ -1,4 +1,4 @@
-/* Copyright (C) 2006-2016 J.F.Dockes
+/* Copyright (C) 2006-2023 J.F.Dockes
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -34,6 +34,7 @@
 #include "libupnpp/log.hxx"
 #include "libupnpp/soaphelp.hxx"
 #include "libupnpp/upnpp_p.hxx"
+#include "libupnpp/smallut.h"
 
 using namespace std;
 using namespace std::placeholders;
@@ -41,8 +42,7 @@ using namespace UPnPP;
 
 namespace UPnPClient {
 
-const string
-RenderingControl::SType("urn:schemas-upnp-org:service:RenderingControl:1");
+const string RenderingControl::SType("urn:schemas-upnp-org:service:RenderingControl:1");
 
 // Check serviceType string (while walking the descriptions. We don't
 // include a version in comparisons, as we are satisfied with version1
@@ -57,23 +57,19 @@ bool RenderingControl::serviceTypeMatch(const std::string& tp)
     return isRDCService(tp);
 }
 
-
-RenderingControl::RenderingControl(const UPnPDeviceDesc& device,
-                                   const UPnPServiceDesc& service)
+RenderingControl::RenderingControl(const UPnPDeviceDesc& device, const UPnPServiceDesc& service)
     : Service(device, service)
 {
     serviceInit(device, service);
 }
 
-bool RenderingControl::serviceInit(const UPnPDeviceDesc& device,
-                                   const UPnPServiceDesc& service)
+bool RenderingControl::serviceInit(const UPnPDeviceDesc& device, const UPnPServiceDesc& service)
 {
     UPnPServiceDesc::Parsed sdesc;
     if (service.fetchAndParseDesc(device.URLBase, sdesc)) {
         const auto it = sdesc.stateTable.find("Volume");
         if (it != sdesc.stateTable.end() && it->second.hasValueRange) {
-            setVolParams(it->second.minimum, it->second.maximum,
-                         it->second.step);
+            setVolParams(it->second.minimum, it->second.maximum, it->second.step);
         }
     }
     return true;
@@ -98,38 +94,36 @@ int RenderingControl::devVolTo0100(int dev_vol)
     return volume;
 }
 
-void RenderingControl::evtCallback(
-    const std::unordered_map<std::string, std::string>& props)
+const static std::string volumevarname{"Volume"};
+const static std::string mutevarname{"Mute"};
+
+void RenderingControl::evtCallback(const std::unordered_map<std::string, std::string>& vars)
 {
-    LOGDEB1("RenderingControl::evtCallback: getReporter() " << getReporter()
-            << endl);
-    for (std::unordered_map<std::string, std::string>::const_iterator it =
-                props.begin(); it != props.end(); it++) {
-        if (!it->first.compare("LastChange")) {
-            std::unordered_map<std::string, std::string> props1;
-            if (!decodeAVLastChange(it->second, props1)) {
-                LOGERR("RenderingControl::evtCallback: bad LastChange value: "
-                       << it->second << endl);
-                return;
+    auto reporter = getReporter();
+    LOGINF("RenderingControl::evtCallback: getReporter() " << reporter << "\n");
+    if (nullptr == reporter)
+        return;
+
+    for (const auto& var : vars) {
+        if (var.first.compare("LastChange")) {
+            LOGINF("RenderingControl:event: not LastChange? "<< var.first<<","<<var.second<<"\n");
+            continue;
+        }
+        std::unordered_map<std::string, std::string> props;
+        if (!decodeAVLastChange(var.second, props)) {
+            LOGERR("RenderingControl::evtCallback: bad LastChange value: " << var.second << "\n");
+            return;
+        }
+        for (const auto& prop: props) {
+            LOGINF("    " << prop.first << " -> " << prop.second << "\n");
+            if (beginswith(prop.first, volumevarname)) {
+                int vol = devVolTo0100(atoi(prop.second.c_str()));
+                reporter->changed(prop.first.c_str(), vol);
+            } else if (beginswith(prop.first, mutevarname)) {
+                bool mute;
+                if (stringToBool(prop.second, &mute))
+                    reporter->changed(prop.first.c_str(), mute);
             }
-            for (std::unordered_map<std::string, std::string>::iterator it1 =
-                        props1.begin(); it1 != props1.end(); it1++) {
-                LOGDEB1("    " << it1->first << " -> " <<
-                        it1->second << endl);
-                if (!it1->first.compare("Volume")) {
-                    int vol = devVolTo0100(atoi(it1->second.c_str()));
-                    if (getReporter()) {
-                        getReporter()->changed(it1->first.c_str(), vol);
-                    }
-                } else if (!it1->first.compare("Mute")) {
-                    bool mute;
-                    if (getReporter() && stringToBool(it1->second, &mute))
-                        getReporter()->changed(it1->first.c_str(), mute);
-                }
-            }
-        } else {
-            LOGINF("RenderingControl:event: var not lastchange: "
-                   << it->first << " -> " << it->second << endl);
         }
     }
 }
@@ -142,7 +136,7 @@ void RenderingControl::registerCallback()
 void RenderingControl::setVolParams(int min, int max, int step)
 {
     LOGDEB0("RenderingControl::setVolParams: min " << min << " max " << max <<
-            " step " << step << endl);
+            " step " << step << "\n");
     m_volmin = min >= 0 ? min : 0;
     m_volmax = max > 0 ? max : 100;
     m_volstep = step > 0 ? step : 1;
@@ -166,11 +160,9 @@ int RenderingControl::setVolume(int ivol, const string& channel)
     bool goingUp = desiredVolume > currentVolume;
     if (m_volmin != 0 || m_volmax != 100) {
         double fact = double(m_volmax - m_volmin) / 100.0;
-        // Round up when going up, down when going down. Else the user
-        // will be surprised by the GUI control going back if he does
-        // not go a full step
-        desiredVolume = m_volmin + (goingUp ? int(ceil(ivol * fact)) :
-                                    int(floor(ivol * fact)));
+        // Round up when going up, down when going down. Else the user will be surprised by the GUI
+        // control going back if he does not go a full step
+        desiredVolume = m_volmin + (goingUp ? int(ceil(ivol * fact)) : int(floor(ivol * fact)));
     }
     // Insure integer number of steps (are there devices where step != 1?)
     int remainder = (desiredVolume - m_volmin) % m_volstep;
@@ -183,12 +175,10 @@ int RenderingControl::setVolume(int ivol, const string& channel)
 
     LOGDEB0("RenderingControl::setVolume: ivol " << ivol <<
             " m_volmin " << m_volmin << " m_volmax " << m_volmax <<
-            " m_volstep " << m_volstep << " computed desiredVolume " <<
-            desiredVolume << endl);
+            " m_volstep " << m_volstep << " computed desiredVolume " <<  desiredVolume << "\n");
 
     SoapOutgoing args(getServiceType(), "SetVolume");
-    args("InstanceID", "0")("Channel", channel)
-    ("DesiredVolume", SoapHelp::i2s(desiredVolume));
+    args("InstanceID", "0")("Channel", channel) ("DesiredVolume", SoapHelp::i2s(desiredVolume));
     SoapIncoming data;
     return runAction(args, data);
 }
@@ -204,11 +194,10 @@ int RenderingControl::getVolume(const string& channel)
     }
     int dev_volume;
     if (!data.get("CurrentVolume", &dev_volume)) {
-        LOGERR("RenderingControl:getVolume: missing CurrentVolume in response"
-               << endl);
+        LOGERR("RenderingControl:getVolume: missing CurrentVolume in response" << "\n");
         return UPNP_E_BAD_RESPONSE;
     }
-    LOGDEB0("RenderingControl::getVolume: got " << dev_volume << endl);
+    LOGDEB0("RenderingControl::getVolume: got " << dev_volume << "\n");
     // Output is always 0-100. Translate from device range
     return devVolTo0100(dev_volume);
 }
@@ -216,8 +205,7 @@ int RenderingControl::getVolume(const string& channel)
 int RenderingControl::setMute(bool mute, const string& channel)
 {
     SoapOutgoing args(getServiceType(), "SetMute");
-    args("InstanceID", "0")("Channel", channel)
-    ("DesiredMute", SoapHelp::i2s(mute?1:0));
+    args("InstanceID", "0")("Channel", channel) ("DesiredMute", SoapHelp::i2s(mute?1:0));
     SoapIncoming data;
     return runAction(args, data);
 }
@@ -233,8 +221,7 @@ bool RenderingControl::getMute(const string& channel)
     }
     bool mute;
     if (!data.get("CurrentMute", &mute)) {
-        LOGERR("RenderingControl:getMute: missing CurrentMute in response"
-               << endl);
+        LOGERR("RenderingControl:getMute: missing CurrentMute in response" << "\n");
         return false;
     }
     return mute;

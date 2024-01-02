@@ -1,4 +1,4 @@
-/* Copyright (C) 2006-2016 J.F.Dockes
+/* Copyright (C) 2006-2023 J.F.Dockes
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -17,10 +17,11 @@
  */
 #include "libupnpp/config.h"
 
-#include <string.h>                     // for strcmp
+#include <string.h>
 
 #include "libupnpp/control/avlastchg.hxx"
-#include "libupnpp/expatmm.h"         // for inputRefXMLParser
+#include "libupnpp/expatmm.h"
+#include "libupnpp/log.h"
 
 using namespace std;
 
@@ -29,18 +30,27 @@ namespace UPnPClient {
 
 class LastchangeParser : public inputRefXMLParser {
 public:
-    LastchangeParser(const string& input,
-                     std::unordered_map<string,string>& props)
+    LastchangeParser(const string& input, std::unordered_map<string,string>& props)
         : inputRefXMLParser(input), m_props(props) {}
 
 protected:
     virtual void StartElement(const XML_Char *name, const XML_Char **attrs) {
-        //LOGDEB("LastchangeParser: begin " << name << endl);
+        if (!strcmp(name, "Event"))
+            return;
+        LOGDEB1("LastchangeParser: " << name << "\n");
+        std::string value, channel;
         for (int i = 0; attrs[i] != 0; i += 2) {
-            //LOGDEB("    " << attrs[i] << " -> " << attrs[i+1] << endl);
+            LOGDEB1("    " << attrs[i] << " -> " << attrs[i+1] << "\n");
             if (!strcmp("val", attrs[i])) {
-                m_props[name] = attrs[i+1];
+                value = attrs[i+1];
+            } else if (!strcmp("channel", attrs[i])) {
+                channel = attrs[i+1];
             }
+        }
+        if (channel.empty() || "Master" == channel) {
+            m_props[name] = value;
+        } else {
+            m_props[std::string(name) + "-" + channel] = value;
         }
     }
 private:
@@ -48,8 +58,7 @@ private:
 };
 
 
-bool decodeAVLastChange(const string& xml,
-                        std::unordered_map<string, string>& props)
+bool decodeAVLastChange(const string& xml, std::unordered_map<string, string>& props)
 {
     LastchangeParser mparser(xml, props);
     if (!mparser.Parse())

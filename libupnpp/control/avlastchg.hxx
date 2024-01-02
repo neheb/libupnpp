@@ -1,4 +1,4 @@
-/* Copyright (C) 2006-2016 J.F.Dockes
+/* Copyright (C) 2006-2023 J.F.Dockes
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -29,13 +29,12 @@ namespace UPnPClient {
  *    <Event xmlns="urn:schemas-upnp-org:metadata-1-0/AVT_RCS">
  *      <InstanceID val="0">
  *        <Mute val="0"/>
- *        <Volume val="24"/>
+ *        <Volume val="24" channel="Master" />
  *      </InstanceID>
  *    </Event>
  */
-extern bool decodeAVLastChange(const std::string& xml,
-                               std::unordered_map<std::string,
-                               std::string>& props);
+extern bool decodeAVLastChange(
+    const std::string& xml, std::unordered_map<std::string,std::string>& props);
 
 
 } // namespace UPnPClient
