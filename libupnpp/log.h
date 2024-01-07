@@ -17,6 +17,7 @@
 #ifndef _LOG_H_X_INCLUDED_
 #define _LOG_H_X_INCLUDED_
 
+#include <string.h>  // for strerror
 #include <fstream> 
 #include <iostream>
 #include <string>
