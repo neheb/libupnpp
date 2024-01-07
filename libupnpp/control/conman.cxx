@@ -19,6 +19,7 @@
 
 #include <upnp.h>
 
+#include "libupnpp/log.hxx"
 #include "libupnpp/control/conman.hxx"
 #include "libupnpp/upnpavutils.hxx"
 

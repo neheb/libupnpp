@@ -219,9 +219,8 @@ public:
             m_clients_waiting--;
         }
 
-        LOGDEB(""  << m_name << ": tasks "  << m_tottasks << " nowakes "  <<
-                m_nowake << " wsleeps "  << m_workersleeps << " csleeps "  <<
-                m_clientsleeps << "\n");
+        LOGDEB(m_name << ": tasks " << m_tottasks << " nowakes " << m_nowake << " wsleeps " <<
+               m_workersleeps << " csleeps " << m_clientsleeps << "\n");
         // Perform the thread joins and compute overall status
         // Workers return (void*)1 if ok
         void *statusall = (void*)1;
@@ -240,7 +239,7 @@ public:
 
         // Reset to start state.
         m_workers_exited = m_clients_waiting = m_workers_waiting =
-                m_tottasks = m_nowake = m_workersleeps = m_clientsleeps = 0;
+            m_tottasks = m_nowake = m_workersleeps = m_clientsleeps = 0;
         m_ok = true;
 
         LOGDEB("setTerminateAndWait:"  << m_name << " done\n");
@@ -265,10 +264,9 @@ public:
             if (m_queue.empty()) {
                 m_ccond.notify_all();
             }
-            if (waitdur < 0ms)
+            if (waitdur < 0ms) {
                 m_wcond.wait(lock);
-            else if (m_wcond.wait_for(lock, waitdur) == std::cv_status::timeout)
-            {
+            } else if (m_wcond.wait_for(lock, waitdur) == std::cv_status::timeout) {
                 *tp = nullptr;
                 return true;
             }
@@ -395,4 +393,3 @@ private:
 };
 
 #endif /* _WORKQUEUE_H_INCLUDED_ */
-

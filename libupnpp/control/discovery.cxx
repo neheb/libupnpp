@@ -105,7 +105,7 @@ public:
         : alive(_alive), url(UpnpDiscovery_get_Location_cstr(disco)),
           deviceId(UpnpDiscovery_get_DeviceID_cstr(disco)),
           expires(UpnpDiscovery_get_Expires(disco))
-    {}
+        {}
 
     bool alive;
     string url;
@@ -259,7 +259,6 @@ unsigned int UPnPDeviceDirectory::addLostCallback(Visitor v)
 {
     std::unique_lock<std::mutex> lock(o_callbacks_mutex);
     o_lostCallbacks.push_back(v);
-    simpleTraverse(v);
     return (unsigned int)(o_lostCallbacks.size() - 1);
 }
 
@@ -310,8 +309,7 @@ static void *discoExplorer(void *)
             return (void*)1;
         }
 
-        if (!tsk)
-        {
+        if (!tsk) {
             LOGDEB1("discoExplorer: empty queue timeout");
             expireDevices();
             continue;
@@ -345,8 +343,8 @@ static void *discoExplorer(void *)
             }
             LOGDEB1("discoExplorer: found id [" << tsk->deviceId  << "]"
                     << " name " << d.device.friendlyName
-                   << " devtype " << d.device.deviceType << " expires " <<
-                   tsk->expires << endl);
+                    << " devtype " << d.device.deviceType << " expires " <<
+                    tsk->expires << endl);
             {
                 std::unique_lock<std::mutex> lock(o_pool.m_mutex);
                 LOGDEB1("discoExplorer: inserting device id "<< tsk->deviceId
@@ -365,8 +363,9 @@ static void *discoExplorer(void *)
     }
 }
 
-// Look at the devices and get rid of those which have not been seen
-// for too long. We do this when listing the top directory
+// Look at the devices and get rid of those which have not been seen for too long.
+// We do this when listing the top directory or on a one minute timeout from the lower lib discovery
+// worker.
 static void expireDevices()
 {
     LOGDEB1("discovery: expireDevices:" << endl);
