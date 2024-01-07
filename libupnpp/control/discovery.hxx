@@ -91,6 +91,9 @@ public:
     static unsigned int addCallback(Visitor v);
     static void delCallback(unsigned int idx);
 
+    static unsigned int addLostCallback(Visitor v);
+    static void delLostCallback(unsigned int idx);
+
     /** Find device by 'friendly name'.
      *
      * This will wait for the remaining duration of the initial search window if the 

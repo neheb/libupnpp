@@ -75,6 +75,7 @@ static bool search();
 // when a new device appears. It wakes up any thread waiting for a
 // device.
 static bool deviceFound(const UPnPDeviceDesc&, const UPnPServiceDesc&);
+static void expireDevices();
 
 static string cluDiscoveryToStr(const UpnpDiscovery *disco)
 {
@@ -229,6 +230,7 @@ static int cluCallBack(Upnp_EventType et, CBCONST void* evp, void*)
 // This is used during startup, when the pool is not yet complete, to enable
 // finding and listing devices as soon as they appear.
 static vector<UPnPDeviceDirectory::Visitor> o_callbacks;
+static vector<UPnPDeviceDirectory::Visitor> o_lostCallbacks;
 static std::mutex o_callbacks_mutex;
 static bool simpleTraverse(UPnPDeviceDirectory::Visitor visit);
 static bool simpleVisit(UPnPDeviceDesc&, UPnPDeviceDirectory::Visitor);
@@ -252,6 +254,23 @@ void UPnPDeviceDirectory::delCallback(unsigned int idx)
         return;
     o_callbacks.erase(o_callbacks.begin() + idx);
 }
+
+unsigned int UPnPDeviceDirectory::addLostCallback(Visitor v)
+{
+    std::unique_lock<std::mutex> lock(o_callbacks_mutex);
+    o_lostCallbacks.push_back(v);
+    simpleTraverse(v);
+    return (unsigned int)(o_lostCallbacks.size() - 1);
+}
+
+void UPnPDeviceDirectory::delLostCallback(unsigned int idx)
+{
+    std::unique_lock<std::mutex> lock(o_callbacks_mutex);
+    if (idx >= o_lostCallbacks.size())
+        return;
+    o_lostCallbacks.erase(o_lostCallbacks.begin() + idx);
+}
+
 
 // Descriptor kept in the device pool for each device found on the network.
 class DeviceDescriptor {
@@ -286,10 +305,18 @@ static void *discoExplorer(void *)
     for (;;) {
         DiscoveredTask *tsk = 0;
         size_t qsz;
-        if (!discoveredQueue.take(&tsk, &qsz)) {
+        if (!discoveredQueue.take(&tsk, &qsz, {1min})) {
             discoveredQueue.workerExit();
             return (void*)1;
         }
+
+        if (!tsk)
+        {
+            LOGDEB1("discoExplorer: empty queue timeout");
+            expireDevices();
+            continue;
+        }
+
         LOGDEB1("discoExplorer: got task: alive " << tsk->alive << " deviceId ["
                 << tsk->deviceId << " URL [" << tsk->url << "]" << endl);
 
@@ -298,8 +325,13 @@ static void *discoExplorer(void *)
             std::unique_lock<std::mutex> lock(o_pool.m_mutex);
             auto it = o_pool.m_devices.find(tsk->deviceId);
             if (it != o_pool.m_devices.end()) {
+                std::unique_lock<std::mutex> lock(o_callbacks_mutex);
+                for (auto& cbp : o_lostCallbacks) {
+                    simpleVisit(it->second.device, cbp);
+                }
+
                 o_pool.m_devices.erase(it);
-               LOGDEB2("discoExplorer: delete " << tsk->deviceId.c_str() << endl);
+                LOGDEB2("discoExplorer: delete " << tsk->deviceId.c_str() << endl);
             }
         } else {
             // Update or insert the device
@@ -321,6 +353,7 @@ static void *discoExplorer(void *)
                         << " description: " << endl << d.device.dump() << endl);
                 o_pool.m_devices[tsk->deviceId] = d;
             }
+
             {
                 std::unique_lock<std::mutex> lock(o_callbacks_mutex);
                 for (auto& cbp : o_callbacks) {
@@ -347,6 +380,15 @@ static void expireDevices()
         if (now - it->second.last_seen > it->second.expires) {
             LOGDEB1("expireDevices: deleting " <<  it->first.c_str() << " " <<
                     it->second.device.friendlyName.c_str() << endl);
+
+            {
+                std::unique_lock<std::mutex> lock(o_callbacks_mutex);
+
+                for (auto& cbp : o_lostCallbacks) {
+                    simpleVisit(it->second.device, cbp);
+                }
+            }
+
             it = o_pool.m_devices.erase(it);
             didsomething = true;
         } else {
