@@ -233,7 +233,7 @@ static vector<UPnPDeviceDirectory::Visitor> o_callbacks;
 static vector<UPnPDeviceDirectory::Visitor> o_lostCallbacks;
 static std::mutex o_callbacks_mutex;
 static bool simpleTraverse(UPnPDeviceDirectory::Visitor visit);
-static bool simpleVisit(UPnPDeviceDesc&, UPnPDeviceDirectory::Visitor);
+static bool simpleVisit(const UPnPDeviceDesc&, UPnPDeviceDirectory::Visitor);
 
 unsigned int UPnPDeviceDirectory::addCallback(UPnPDeviceDirectory::Visitor v)
 {
@@ -540,16 +540,16 @@ static std::mutex devWaitLock;
 static std::condition_variable devWaitCond;
 
 // Call user function on one device (for all services)
-static bool simpleVisit(UPnPDeviceDesc& dev, UPnPDeviceDirectory::Visitor visit)
+static bool simpleVisit(const UPnPDeviceDesc& dev, UPnPDeviceDirectory::Visitor visit)
 {
-    for (auto& it1 : dev.services) {
-        if (!visit(dev, it1)) {
+    for (const auto& service : dev.services) {
+        if (!visit(dev, service)) {
             return false;
         }
     }
-    for (auto& it1 : dev.embedded) {
-        for (auto& it2 : it1.services) {
-            if (!visit(it1, it2)) {
+    for (const auto& subdev : dev.embedded) {
+        for (const auto& service : subdev.services) {
+            if (!visit(subdev, service)) {
                 return false;
             }
         }
