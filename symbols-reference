@@ -114,6 +114,8 @@
   UPnPClient::UPnPDeviceDirectory::delCallback(unsigned int)
   UPnPClient::UPnPDeviceDirectory::getDevByUDN(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&, UPnPClient::UPnPDeviceDesc&)
   UPnPClient::UPnPDeviceDirectory::getDevByFName(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&, UPnPClient::UPnPDeviceDesc&)
+  UPnPClient::UPnPDeviceDirectory::addLostCallback(std::function<bool (UPnPClient::UPnPDeviceDesc const&, UPnPClient::UPnPServiceDesc const&)>)
+  UPnPClient::UPnPDeviceDirectory::delLostCallback(unsigned int)
   UPnPClient::UPnPDeviceDirectory::getRemainingDelay()
   UPnPClient::UPnPDeviceDirectory::getRemainingDelayMs()
   UPnPClient::UPnPDeviceDirectory::getDescriptionDocuments(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >&, std::unordered_map<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >, std::hash<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > >, std::equal_to<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > >, std::allocator<std::pair<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > > > >&)
@@ -279,9 +281,12 @@
   UPnPP::SoapHelp::xmlQuote(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&)
   Logger::datestring()
   Logger::reopen(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&)
+  Logger::cleanup()
   Logger::getTheLog(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&)
   Logger::Logger(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&)
   Logger::Logger(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&)
+  Logger::~Logger()
+  Logger::~Logger()
   UPnPClient::UPnPDirObject::getdidl[abi:cxx11]() const
   UPnPClient::UPnPServiceDesc::fetchAndParseDesc(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&, UPnPClient::UPnPServiceDesc::Parsed&, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >*) const
   UPnPClient::Device::desc() const

@@ -1,3 +1,11 @@
+libupnpp (0.26.0-1~ppaPPAVERS~SERIES1) SERIES; urgency=low
+
+  * Control: add interface to receive events for disappearing devices
+    (UPnPDeviceDiscovery::addLostCallback()).
+  * More thorough cleanup on exit.
+
+ -- Jean-Francois Dockes <jf@dockes.org>  Mon, 08 Jan 2024 10:45:00 +0100
+ 
 libupnpp (0.25.0-1~ppaPPAVERS~SERIES1) SERIES; urgency=low
 
   * Control: description: store the download url in the parsed

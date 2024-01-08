@@ -1,6 +1,6 @@
 Summary:        C++ wrapper for libupnp
 Name:           libupnpp
-Version:        0.25.0
+Version:        0.26.0
 Release:        1%{?dist}
 Group:          Applications/Multimedia
 License:        GPLv2+
