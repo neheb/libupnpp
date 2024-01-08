@@ -127,6 +127,7 @@ UPnPDeviceDesc::UPnPDeviceDesc(const string& url, const string& description)
     }
     for (auto& dev: embedded) {
         dev.URLBase = URLBase;
+        dev.ok = true;
     }
     
     ok = true;
