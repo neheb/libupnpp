@@ -140,7 +140,7 @@ nobase_include_HEADERS = \
     libupnpp/upnpplib.hxx \
     libupnpp/upnpputils.hxx
 
-EXTRA_DIST = autogen.sh LICENSE README.asc
+EXTRA_DIST = autogen.sh LICENSE README.asc VERSION_LIBUPNPP
 
 if LINUX
 # Curiously, -no-undefined seems to do nothing?? -Wl,-zdefs works though.

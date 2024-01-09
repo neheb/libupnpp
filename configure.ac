@@ -5,7 +5,7 @@
 
 # !!!! When changing the version, also change the defines in upnpplib.hxx and
 # windows/config_windows.h !!!
-AC_INIT([libupnpp], [0.26.0], [jfd@lesbonscomptes.com], [libupnpp],
+AC_INIT([libupnpp], m4_esyscmd_s([cat VERSION_LIBUPNPP]), [jfd@lesbonscomptes.com], [libupnpp],
         [http://www.lesbonscomptes.com/upmpdcli])
 
 # Lib version info. See:
