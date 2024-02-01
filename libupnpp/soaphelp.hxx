@@ -1,4 +1,4 @@
-/* Copyright (C) 2006-2016 J.F.Dockes
+/* Copyright (C) 2006-2024 J.F.Dockes
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -18,11 +18,12 @@
 #ifndef _SOAPHELP_H_X_INCLUDED_
 #define _SOAPHELP_H_X_INCLUDED_
 
-// This module used to be necessary to decode/encode XML DOM trees
-// from/to the libupnp interface. The npupnp interface uses C++
-// objects instead, so there is not much left in here, but it has
-// successfully isolated the client code from the change.
-
+/** Deal with data for the SOAP action protocol.
+ *
+ * This module used to decode/encode XML DOM trees from/to the libupnp interface. 
+ * The npupnp interface uses C++ objects instead, so there is not much left in here, 
+ * but it has successfully isolated the client code from the change.
+ */
 #include <unordered_map>
 #include <memory>
 #include <string>
@@ -31,7 +32,7 @@
 
 namespace UPnPP {
 
-/** Decode incoming Soap call data */
+/** Store incoming Soap data: device action input parameters, or response to CP. */
 class UPNPP_API SoapIncoming {
 public:
     SoapIncoming();
@@ -54,7 +55,11 @@ public:
 };
 
 namespace SoapHelp {
+/** The namespace SoapHelp holds a number of utility routines for dealing with SOAP data */
+
+/** Apply XML quoting to special characters */
 std::string UPNPP_API xmlQuote(const std::string& in);
+/** Decode encoded XML data */
 std::string UPNPP_API xmlUnquote(const std::string& in);
 std::string UPNPP_API i2s(int val);
 inline std::string val2s(const std::string& val)
@@ -80,7 +85,7 @@ std::string UPNPP_API argsToStr(InputIterator first, InputIterator last)
 }
 }
 
-/** Store the values to be encoded in a SOAP response.
+/** Store the values to be encoded in outgoing SOAP data: device response or CP args.
  *
  * The elements in the response must be in a defined order, so we
  * can't use a map as container, we use a vector of pairs instead.
@@ -95,7 +100,9 @@ public:
 
     SoapOutgoing& addarg(const std::string& k, const std::string& v);
 
-    SoapOutgoing& operator()(const std::string& k, const std::string& v);
+    SoapOutgoing& operator()(const std::string& k, const std::string& v) {
+        return addarg(k, v);
+    }
 
     const std::string& getName() const;
 

@@ -45,12 +45,10 @@ struct ProtocolinfoEntry {
 };
     
 /** Decode one protocolinfo entry */
-bool UPNPP_API parseProtoInfEntry(const std::string& protoinfo,
-                                  ProtocolinfoEntry& e);
+bool UPNPP_API parseProtoInfEntry(const std::string& protoinfo, ProtocolinfoEntry& e);
 
-/** Decode comma-separated bunch of entries */
-bool UPNPP_API parseProtocolInfo(const std::string& pinfo,
-                                 std::vector<ProtocolinfoEntry>& entries);
+/** Decode comma-separated bunch of procolinfo entries */
+bool UPNPP_API parseProtocolInfo(const std::string& pinfo, std::vector<ProtocolinfoEntry>& entries);
     
 }
 

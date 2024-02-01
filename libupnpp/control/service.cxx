@@ -181,6 +181,7 @@ int Service::runAction(const SoapOutgoing& args, SoapIncoming& data, ActionOptio
         }
         return ret;
     }
+    data.m->name = args.m->name;
     data.m->args.insert(response.begin(), response.end());
     return UPNP_E_SUCCESS;
 }

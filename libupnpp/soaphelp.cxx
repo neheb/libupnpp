@@ -34,17 +34,13 @@ using namespace std;
 namespace UPnPP {
 
 SoapIncoming::SoapIncoming()
+    : m(new Internal())
 {
-    if ((m = new Internal()) == 0) {
-        LOGERR("SoapIncoming::SoapIncoming: out of memory" << endl);
-        return;
-    }
 }
 
 SoapIncoming::~SoapIncoming()
 {
-    delete m;
-    m = 0;
+    deleteZ(m);
 }
 
 void SoapIncoming::getMap(unordered_map<string, string>& out)
@@ -91,8 +87,8 @@ bool SoapIncoming::get(const char *nm, string *value) const
 string SoapHelp::xmlQuote(const string& in)
 {
     string out;
-    for (unsigned int i = 0; i < in.size(); i++) {
-        switch (in[i]) {
+    for (auto c : in) {
+        switch (c) {
         case '"':
             out += "&quot;";
             break;
@@ -109,7 +105,7 @@ string SoapHelp::xmlQuote(const string& in)
             out += "&apos;";
             break;
         default:
-            out += in[i];
+            out += c;
         }
     }
     return out;
@@ -160,27 +156,18 @@ string SoapHelp::i2s(int val)
 
 
 SoapOutgoing::SoapOutgoing()
+    : m(new Internal())
 {
-    if ((m = new Internal()) == 0) {
-        LOGERR("SoapOutgoing::SoapOutgoing: out of memory" << endl);
-        return;
-    }
 }
 
 SoapOutgoing::SoapOutgoing(const string& st, const string& nm)
+    : m(new Internal(st, nm))
 {
-    if ((m = new Internal()) == 0) {
-        LOGERR("SoapOutgoing::SoapOutgoing: out of memory" << endl);
-        return;
-    }
-    m->serviceType = st;
-    m->name = nm;
 }
 
 SoapOutgoing::~SoapOutgoing()
 {
-    delete m;
-    m = 0;
+    deleteZ(m);
 }
 
 const string& SoapOutgoing::getName() const
@@ -189,12 +176,6 @@ const string& SoapOutgoing::getName() const
 }
 
 SoapOutgoing& SoapOutgoing::addarg(const string& k, const string& v)
-{
-    m->data.push_back(pair<string, string>(k, v));
-    return *this;
-}
-
-SoapOutgoing& SoapOutgoing::operator()(const string& k, const string& v)
 {
     m->data.push_back(pair<string, string>(k, v));
     return *this;

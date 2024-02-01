@@ -52,6 +52,9 @@ public:
 
 class SoapOutgoing::Internal {
 public:
+    Internal() = default;
+    Internal(const std::string& st, const std::string& nm)
+        : serviceType(st), name(nm) {}
     std::string serviceType;
     std::string name;
     std::vector<std::pair<std::string, std::string> > data;
