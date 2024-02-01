@@ -4,13 +4,14 @@ AM_CPPFLAGS = -DDEBUG -g -Wall -Wextra -Woverloaded-virtual \
 	            ${upnp_CFLAGS} ${curl_CFLAGS} ${expat_CFLAGS} \
 	            -DDATADIR=\"${pkgdatadir}\" -DCONFIGDIR=\"${sysconfdir}\"
 
-AM_CXXFLAGS = -std=c++14 -Wall -Wextra
+CPP_STD=@CPP_STD@
+AM_CXXFLAGS = $(CPP_STD)
 
 lib_LTLIBRARIES = libupnpp.la
 
 
 if LINUX
-libupnpp_la_CXXFLAGS = -fvisibility=hidden
+libupnpp_la_CXXFLAGS = $(AM_CXXFLAGS) -fvisibility=hidden
 # log.cpp needs a different visibility setting because we don't want to
 # include upnppexports.h in this generic file, but we do want to export the
 # log functions. Tried with a make target-specific variable:
@@ -24,7 +25,7 @@ libupnpputil_a_SOURCES = \
     libupnpp/log.cpp \
     libupnpp/log.h \
     libupnpp/log.hxx
-libupnpputil_a_CXXFLAGS = -fPIC -DPIC
+libupnpputil_a_CXXFLAGS =  $(AM_CXXFLAGS) -fPIC -DPIC
 endif
 
 libupnpp_la_SOURCES = \

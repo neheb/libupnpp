@@ -47,6 +47,9 @@ AM_INIT_AUTOMAKE([1.10 no-define subdir-objects foreign])
 AC_DISABLE_STATIC
 
 AC_PROG_CXX
+CPP_STD=-std=c++17
+AC_SUBST(CPP_STD)
+
 LT_INIT
 AC_CHECK_PROG([pkg_config], [pkg-config], [yes], [no])
 if test X$pkg_config != Xyes ; then
@@ -65,7 +68,6 @@ AC_CHECK_LIB([pthread], [pthread_create], [], [])
 
 # Check that std::future is available.
 AC_LANG_PUSH([C++])
-CXXFLAGS="-std=c++14 $CXXFLAGS"
 AC_MSG_CHECKING([whether std::future is available])
 AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[#include <future>]],
 		[[std::future<int> f;]])],
