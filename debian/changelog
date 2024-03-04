@@ -1,3 +1,9 @@
+libupnpp (0.26.3-1~ppaPPAVERS~SERIES1) SERIES; urgency=low
+
+  * Minuscule internal cleanups
+
+ -- Jean-Francois Dockes <jf@dockes.org>  Mon, 04 Mar 2024 11:04:00 +0100
+ 
 libupnpp (0.26.2-1~ppaPPAVERS~SERIES1) SERIES; urgency=low
 
   * Control: fix worker count issue in workqueue

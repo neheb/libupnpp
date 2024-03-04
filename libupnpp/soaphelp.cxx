@@ -181,4 +181,10 @@ SoapOutgoing& SoapOutgoing::addarg(const string& k, const string& v)
     return *this;
 }
 
+SoapOutgoing& SoapOutgoing::operator()(const string& k, const string& v)
+{
+    m->data.push_back(pair<string, string>(k, v));
+    return *this;
+}
+
 } // namespace

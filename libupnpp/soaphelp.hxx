@@ -100,9 +100,7 @@ public:
 
     SoapOutgoing& addarg(const std::string& k, const std::string& v);
 
-    SoapOutgoing& operator()(const std::string& k, const std::string& v) {
-        return addarg(k, v);
-    }
+    SoapOutgoing& operator()(const std::string& k, const std::string& v);
 
     const std::string& getName() const;
 
