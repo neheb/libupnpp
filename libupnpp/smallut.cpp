@@ -74,7 +74,7 @@ std::string stringtolower(const std::string& i)
 
 void stringtoupper(std::string& io)
 {
-    std::transform(io.begin(), io.end(), io.begin(), [](unsigned char c) { return std::toupper(c); });
+    std::transform(io.begin(), io.end(), io.begin(), [](unsigned char c) {return std::toupper(c);});
 }
 
 std::string stringtoupper(const std::string& i)
@@ -149,6 +149,13 @@ int stringuppercmp(const std::string& s1, const std::string& s2)
 bool beginswith(const std::string& big, const std::string& small)
 {
     return big.compare(0, small.size(), small) == 0;
+}
+bool endswith(const std::string& big, const std::string& small)
+{
+    if (big.size() >= small.size()) {
+        return (!big.compare (big.length() - small.length(), small.length(), small));
+    }
+    return false;
 }
 
 template <class T> bool stringToStrings(const std::string& s, T& tokens, const std::string& addseps)
@@ -823,7 +830,7 @@ static void unsetenv(const char* name)
 time_t portable_timegm(struct tm *tm)
 {
     time_t ret;
-    char *tz;
+    const char *tz;
 
     tz = getenv("TZ");
     setenv("TZ", "", 1);
@@ -1063,12 +1070,11 @@ std::string valToString(const std::vector<CharFlags>& flags, unsigned int val)
 static inline int h2d(int c) {
     if ('0' <= c && c <= '9')
         return c - '0';
-    else if ('A' <= c && c <= 'F')
+    if ('A' <= c && c <= 'F')
         return 10 + c - 'A';
-    else if ('a' <= c && c <= 'f')
+    if ('a' <= c && c <= 'f')
         return 10 + c - 'a';
-    else 
-        return -1;
+    return -1;
 }
 
 std::string pc_decode(const std::string &in)
