@@ -1,6 +1,6 @@
 #!/bin/sh
 
-VERSION=`cat VERSION_LIBUPNPP`
+VERSION=`grep "version:" meson.build | head -1 | awk '{print $2}' | tr -d "',"`
 
 sed -i -E -e '/^#define[ \t]+PACKAGE_VERSION/c\'\
 "#define PACKAGE_VERSION \"$VERSION\"" \

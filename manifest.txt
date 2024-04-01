@@ -3,7 +3,6 @@ AUTHORS
 COPYING
 LICENSE
 README.asc
-VERSION_LIBUPNPP
 libupnpp/
 libupnpp/base64.cxx
 libupnpp/base64.hxx

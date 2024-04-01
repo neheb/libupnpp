@@ -1,3 +1,9 @@
+libupnpp (0.26.4-1~ppaPPAVERS~SERIES1) SERIES; urgency=low
+
+  * Changed the build system from autotools to meson. 
+
+ -- Jean-Francois Dockes <jf@dockes.org>  Mon, 01 Apr 2024 15:23:00 +0200
+
 libupnpp (0.26.3-1~ppaPPAVERS~SERIES1) SERIES; urgency=low
 
   * Minuscule internal cleanups

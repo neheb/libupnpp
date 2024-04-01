@@ -54,7 +54,7 @@ if test $snap = yes ; then
   version=`date +%F_%H-%M-%S`
   TAG=""
 else
-    version=`cat VERSION_LIBUPNPP`
+    version=`grep "version:" meson.build | head -1 | awk '{print $2}' | tr -d "',"`
     # trim whitespace
     version=`echo $version | xargs`
     TAG="${myname}-v$version"

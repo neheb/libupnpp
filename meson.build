@@ -2,9 +2,9 @@ project(
   'libupnpp',
   'cpp',
   license: 'LGPL 2.1+',
-  version: files('VERSION_LIBUPNPP'),
+  version: '0.26.4',
   default_options: 'cpp_std=c++17',
-  meson_version: '>=0.57',
+  meson_version: '>=0.49',
 )
 
 # Change this only when the library interface would become incompatible with a binary linked with a
