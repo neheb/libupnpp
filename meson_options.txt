@@ -1,0 +1,3 @@
+option('expat', type : 'feature',
+  description : 'Use expat',
+)
