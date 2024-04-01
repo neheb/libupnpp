@@ -18,7 +18,7 @@
 #ifndef _AVLASTCHG_H_X_INCLUDED_
 #define _AVLASTCHG_H_X_INCLUDED_
 
-#include "libupnpp/config.h"
+#include "config.h"
 
 #include <unordered_map>
 #include <string>

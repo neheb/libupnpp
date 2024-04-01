@@ -17,7 +17,7 @@
  */
 // An XML parser which constructs an UPnP device object from the
 // device descriptor
-#include "libupnpp/config.h"
+#include "config.h"
 
 #include "description.hxx"
 

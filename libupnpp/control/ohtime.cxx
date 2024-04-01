@@ -16,7 +16,7 @@
  *   02110-1301 USA
  */
 
-#include "libupnpp/config.h"
+#include "config.h"
 
 #include "libupnpp/control/ohtime.hxx"
 

@@ -16,7 +16,7 @@
  *   02110-1301 USA
  */
 #define  LIBUPNPP_NEED_PACKAGE_VERSION
-#include "libupnpp/config.h"
+#include "config.h"
 
 #include <ctype.h>
 #include <stdio.h>
@@ -352,7 +352,6 @@ void LibUPnP::setMaxContentLength(int bytes)
 
 bool LibUPnP::setLogFileName(const std::string& fn, LogLevel level)
 {
-#if defined(HAVE_UPNPSETLOGLEVEL)
     setLogLevel(level);
     UpnpSetLogFileNames(fn.c_str(), "");
     int code = UpnpInitLog();
@@ -361,19 +360,12 @@ bool LibUPnP::setLogFileName(const std::string& fn, LogLevel level)
         return false;
     }
     return true;
-#else
-    return false;
-#endif
 }
 
 bool LibUPnP::setLogLevel(LogLevel level)
 {
-#if defined(HAVE_UPNPSETLOGLEVEL)
     UpnpSetLogLevel(Upnp_LogLevel(level));
     return true;
-#else
-    return false;
-#endif
 }
 
 void LibUPnP::Internal::registerHandler(Upnp_EventType et, Upnp_FunPtr handler,

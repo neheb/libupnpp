@@ -32,7 +32,7 @@
 #include <vector>
 #include <utility>
 
-#include "libupnpp/config.h"
+#include "config.h"
 #include "libupnpp/upnpplib.hxx"
 #include "libupnpp/soaphelp.hxx"
 
