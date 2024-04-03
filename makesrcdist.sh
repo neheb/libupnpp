@@ -2,7 +2,11 @@
 
 myname=libupnpp
 MYNAME=`echo $myname | tr a-z A-Z`
-# A shell-script to make a libupnpp source distribution.
+wherefile=libupnpp/soaphelp.cxx
+islib=yes
+builtlib=build/libupnpp.so
+
+# A shell-script to make a source distribution.
 
 fatal() {
     echo $*
@@ -27,7 +31,7 @@ test_tag() {
 
 TAR=${TAR-/bin/tar}
 
-if test ! -f libupnpp/soaphelp.hxx;then
+if test ! -f $tfile;then
     echo "Should be executed in the top source directory"
     exit 1
 fi
@@ -96,13 +100,15 @@ fi
 # Check for symbol changes. The symbols-reference file should have
 # been adjusted (and the soversion possibly changed) before running
 # this.
-if test "$dotag" = "yes" ; then
-    meson setup build || exit 1
-    meson configure build --buildtype release || exit 1
-    (cd build;meson compile) || exit 1
-    nm -g --defined-only --demangle build/libupnpp.so | grep ' T ' | \
-        awk '{$1=$2="";print $0}' | diff symbols-reference - || exit 1
-    rm -rf build
+if test "$islib" = "yes" ; then 
+    if test "$dotag" = "yes" ; then
+        meson setup build || exit 1
+        meson configure build --buildtype release || exit 1
+        (cd build;meson compile) || exit 1
+        nm -g --defined-only --demangle $builtlib | grep ' T ' | \
+            awk '{$1=$2="";print $0}' | diff symbols-reference - || exit 1
+        rm -rf build
+    fi
 fi
 
 $TAR chfX - excludefile .  | (cd $topdir;$TAR xf -)
