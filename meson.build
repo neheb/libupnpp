@@ -3,7 +3,7 @@ project(
   'cpp',
   license: 'LGPL 2.1+',
   version: '0.26.4',
-  default_options: 'cpp_std=c++17',
+  default_options: ['cpp_std=c++17','buildtype=debugoptimized'],
   meson_version: '>=0.49',
 )
 
@@ -56,8 +56,7 @@ libupnpputil = static_library(
     gnu_symbol_visibility: 'default',
     name_prefix: '',
     install: false,
-    cpp_args : '-fPIC',
-    cpp_args : '-DPIC',
+    pic: true,
 )
 
 libupnpp_incdir = include_directories('libupnpp')
