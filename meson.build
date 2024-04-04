@@ -51,10 +51,8 @@ libupnpputil_sources = files(
 )
 
 libupnpputil = static_library(
-    'libupnpputil',
+    'upnpputil',
     libupnpputil_sources,
-    gnu_symbol_visibility: 'default',
-    name_prefix: '',
     install: false,
     pic: true,
 )
