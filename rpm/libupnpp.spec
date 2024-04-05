@@ -1,11 +1,12 @@
 Summary:        C++ wrapper for libupnp
 Name:           libupnpp
-Version:        0.26.3
+Version:        0.26.4
 Release:        1%{?dist}
 Group:          Applications/Multimedia
 License:        GPLv2+
 URL:            http://www.lesbonscomptes.com/updmpdcli
 Source0:        http://www.lesbonscomptes.com/upmpdcli/downloads/libupnpp-%{version}.tar.gz
+BuildRequires:  meson
 BuildRequires:  libnpupnp
 BuildRequires:  libcurl-devel
 # OpenSUSE:
@@ -20,18 +21,15 @@ BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 libupnpp is a C++ wrapper and higher level API over libnpupnp.
 
 %prep
-%setup -q
+%autosetup
 
 %build
-%configure
-%{__make} %{?_smp_mflags}
+%meson
+%meson_build
 
 %install
 %{__rm} -rf %{buildroot}
-%{__make} install DESTDIR=%{buildroot} STRIP=/bin/true INSTALL='install -p'
-%{__rm} -f %{buildroot}%{_libdir}/libupnpp.a
-%{__rm} -f %{buildroot}%{_libdir}/libupnpputil.a
-%{__rm} -f %{buildroot}%{_libdir}/libupnpp.la
+%meson_install
 
 %clean
 %{__rm} -rf %{buildroot}
