@@ -26,9 +26,7 @@
 #endif
 #endif
 
-// Get rid of macro names which could conflict with other package's
-#if defined(LIBUPNPP_NEED_PACKAGE_VERSION) && \
-    !defined(LIBUPNPP_PACKAGE_VERSION_DEFINED)
+#if defined(LIBUPNPP_NEED_PACKAGE_VERSION) && !defined(LIBUPNPP_PACKAGE_VERSION_DEFINED)
 #define LIBUPNPP_PACKAGE_VERSION_DEFINED
-static const char *LIBUPNPP_PACKAGE_VERSION = PACKAGE_VERSION;
+static const char *LIBUPNPP_PACKAGE_VERSION = LIBUPNPP_VERSION;
 #endif

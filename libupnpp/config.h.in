@@ -1,4 +1,4 @@
 
-#define PACKAGE_VERSION @PACKAGE_VERSION@
+#define LIBUPNPP_VERSION @LIBUPNPP_VERSION@
 
 #include "libupnpp/conf_post.h"
