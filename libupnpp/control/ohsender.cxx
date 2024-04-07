@@ -112,7 +112,7 @@ int OHSender::metadata(string& uri, string& didl)
         LOGERR("OHSender::Metadata: " << dir.m_items.size() << " in response!" << '\n');
         return UPNP_E_BAD_RESPONSE;
     }
-    UPnPDirObject *dirent = &dir.m_items[0];
+    UPnPDirObject *dirent = dir.m_items.data();
     if (dirent->m_resources.size() < 1) {
         LOGERR("OHSender::Metadata: no resources in metadata!" << '\n');
         return UPNP_E_BAD_RESPONSE;
