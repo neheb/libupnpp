@@ -259,7 +259,8 @@ public:
     }
 
 protected:
-    virtual void EndElement(const XML_Char *name) {
+    void EndElement(const XML_Char* name) override
+    {
         if (!strcmp(name, "Entry")) {
             UPnPDirContent dir;
             if (!dir.parse(m_tdidl)) {
@@ -278,7 +279,8 @@ protected:
             m_tdidl.clear();
         }
     }
-    virtual void CharacterData(const XML_Char *s, int len) {
+    void CharacterData(const XML_Char* s, int len) override
+    {
         if (s == 0 || *s == 0)
             return;
         string str(s, len);

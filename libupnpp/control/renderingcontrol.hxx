@@ -44,7 +44,7 @@ public:
 
     /** Test service type from discovery message */
     static bool isRDCService(const std::string& st);
-    virtual bool serviceTypeMatch(const std::string& tp);
+    bool serviceTypeMatch(const std::string& tp) override;
 
     /** Set volume to input value (0-100).
      * @return 0 for success, upnp error else 
@@ -56,8 +56,8 @@ public:
     bool getMute(const std::string& channel = "Master");
 
 protected:
-    virtual bool serviceInit(const UPnPDeviceDesc& device,
-                             const UPnPServiceDesc& service);
+    bool serviceInit(const UPnPDeviceDesc& device,
+                     const UPnPServiceDesc& service) override;
 
     /* My service type string */
     static const std::string SType;
@@ -70,7 +70,7 @@ protected:
 private:
     void UPNPP_LOCAL evtCallback(
         const std::unordered_map<std::string, std::string>&);
-    void UPNPP_LOCAL registerCallback();
+    void UPNPP_LOCAL registerCallback() override;
     /** Set volume parameters from service state variable table values */
     void UPNPP_LOCAL setVolParams(int min, int max, int step);
     int UPNPP_LOCAL devVolTo0100(int);

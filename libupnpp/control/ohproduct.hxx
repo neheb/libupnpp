@@ -43,7 +43,7 @@ public:
 
     /** Test service type from discovery message */
     static bool isOHPrService(const std::string& st);
-    virtual bool serviceTypeMatch(const std::string& tp);
+    bool serviceTypeMatch(const std::string& tp) override;
 
     struct Source {
         std::string name;
@@ -66,7 +66,7 @@ protected:
     static const std::string SType;
 private:
     void UPNPP_LOCAL evtCallback(const std::unordered_map<std::string, std::string>&);
-    void UPNPP_LOCAL registerCallback();
+    void UPNPP_LOCAL registerCallback() override;
 };
 
 } // namespace UPnPClient

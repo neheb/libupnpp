@@ -43,7 +43,8 @@ public:
         : inputRefXMLParser(input), m_device(device) {}
 
 protected:
-    virtual void EndElement(const XML_Char *name) {
+    void EndElement(const XML_Char* name) override
+    {
         trimstring(m_chardata, " \t\n\r");
 
         // If deviceList is in the current tag path, this is an embedded device.
@@ -92,7 +93,8 @@ protected:
         m_chardata.clear();
     }
 
-    virtual void CharacterData(const XML_Char *s, int len) {
+    void CharacterData(const XML_Char* s, int len) override
+    {
         if (s == 0 || *s == 0)
             return;
 
@@ -144,7 +146,8 @@ public:
     }
 
 protected:
-    virtual void StartElement(const XML_Char *name, const XML_Char **) {
+    void StartElement(const XML_Char* name, const XML_Char**) override
+    {
         //LOGDEB("startElement: name [" << name << "]" << " bpos " <<
         //             XML_GetCurrentByteIndex(expat_parser) << endl);
         StackEl& lastelt = m_path.back();
@@ -171,7 +174,7 @@ protected:
         }
     }
 
-    virtual void EndElement(const XML_Char *name)
+    void EndElement(const XML_Char* name) override
     {
         string parentname;
         if (m_path.size() == 1) {
@@ -244,7 +247,7 @@ protected:
         }
     }
 
-    virtual void CharacterData(const XML_Char *s, int len)
+    void CharacterData(const XML_Char* s, int len) override
     {
         if (s == 0 || *s == 0)
             return;

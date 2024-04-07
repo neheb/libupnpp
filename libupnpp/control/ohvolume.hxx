@@ -64,7 +64,7 @@ public:
 
     /** Test service type from discovery message */
     static bool isOHVLService(const std::string& st);
-    virtual bool serviceTypeMatch(const std::string& tp);
+    bool serviceTypeMatch(const std::string& tp) override;
 
     int characteristics(OHVCharacteristics* c);
     /** Retrieve volume level.
@@ -88,7 +88,7 @@ protected:
 private:
     void UPNPP_LOCAL evtCallback(
         const std::unordered_map<std::string, std::string>&);
-    void UPNPP_LOCAL registerCallback();
+    void UPNPP_LOCAL registerCallback() override;
     int UPNPP_LOCAL devVolTo0100(int);
     int UPNPP_LOCAL vol0100ToDev(int vol);
     int UPNPP_LOCAL maybeInitVolmax();
