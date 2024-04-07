@@ -65,9 +65,9 @@ void OHTime::evtCallback(
             continue;
         }
 
-        if (!ent.first.compare("TrackCount") ||
-                !ent.first.compare("Duration") ||
-                !ent.first.compare("Seconds")) {
+        if (ent.first == "TrackCount" ||
+                ent.first == "Duration" ||
+                ent.first == "Seconds") {
 
             reporter->changed(ent.first.c_str(), atoi(ent.second.c_str()));
 

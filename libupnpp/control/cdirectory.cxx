@@ -67,10 +67,10 @@ void ContentDirectory::evtCallback(
             LOGDEB1("ContentDirectory::evtCallback: " << prop.first << " -> " << prop.second<<"\n");
             continue;
         }
-        if (!prop.first.compare("SystemUpdateID")) {
+        if (prop.first == "SystemUpdateID") {
             getReporter()->changed(prop.first.c_str(), atoi(prop.second.c_str()));
 
-        } else if (!prop.first.compare("ContainerUpdateIDs")||!prop.first.compare("TransferIDs")) {
+        } else if (prop.first == "ContainerUpdateIDs" || prop.first == "TransferIDs") {
             getReporter()->changed(prop.first.c_str(), prop.second.c_str());
 
         } else {
@@ -321,7 +321,7 @@ int ContentDirectory::getSearchCapabilities(set<string>& result)
     }
 
     result.clear();
-    if (!tbuf.compare("*")) {
+    if (tbuf == "*") {
         result.insert(result.end(), "*");
     } else if (!tbuf.empty()) {
         if (!csvToStrings(tbuf, result)) {

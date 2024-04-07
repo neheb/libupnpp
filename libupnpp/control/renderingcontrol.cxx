@@ -105,7 +105,7 @@ void RenderingControl::evtCallback(const std::unordered_map<std::string, std::st
         return;
 
     for (const auto& var : vars) {
-        if (var.first.compare("LastChange")) {
+        if (var.first != "LastChange") {
             LOGINF("RenderingControl:event: not LastChange? "<< var.first<<","<<var.second<<"\n");
             continue;
         }

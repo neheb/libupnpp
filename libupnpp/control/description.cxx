@@ -197,7 +197,7 @@ protected:
             break;
         case 'd':
             if (!strcmp(name, "direction")) {
-                m_targ.todevice = lastelt.data.compare("in") == 0;
+                m_targ.todevice = lastelt.data == "in";
             } else if (!strcmp(name, "dataType")) {
                 m_tvar.dataType = lastelt.data;
                 trimstring(m_tvar.dataType);
@@ -214,13 +214,13 @@ protected:
             break;
         case 'n':
             if (!strcmp(name, "name")) {
-                if (!parentname.compare("argument")) {
+                if (parentname == "argument") {
                     m_targ.name = lastelt.data;
                     trimstring(m_targ.name);
-                } else if (!parentname.compare("action")) {
+                } else if (parentname == "action") {
                     m_tact.name = lastelt.data;
                     trimstring(m_tact.name);
-                } else if (!parentname.compare("stateVariable")) {
+                } else if (parentname == "stateVariable") {
                     m_tvar.name = lastelt.data;
                     trimstring(m_tvar.name);
                 }

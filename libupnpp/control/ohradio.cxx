@@ -86,16 +86,16 @@ void OHRadio::evtCallback(
             continue;
         }
 
-        if (!prop.first.compare("Id") || !prop.first.compare("ChannelsMax")) {
+        if (prop.first == "Id" || prop.first == "ChannelsMax") {
             getReporter()->changed(prop.first.c_str(), atoi(prop.second.c_str()));
-        } else if (!prop.first.compare("IdArray")) {
+        } else if (prop.first == "IdArray") {
             // Decode IdArray. See how we call the client
             vector<int> v;
             ohplIdArrayToVec(prop.second, &v);
             getReporter()->changed(prop.first.c_str(), v);
-        } else if (!prop.first.compare("ProtocolInfo") || !prop.first.compare("Uri")) {
+        } else if (prop.first == "ProtocolInfo" || prop.first == "Uri") {
             getReporter()->changed(prop.first.c_str(), prop.second.c_str());
-        } else if (!prop.first.compare("Metadata")) {
+        } else if (prop.first == "Metadata") {
             /* Metadata is a didl-lite string */
             UPnPDirObject dirent;
             if (decodeMetadata("evt", prop.second, &dirent) == 0) {
@@ -103,7 +103,7 @@ void OHRadio::evtCallback(
             } else {
                 LOGDEB("OHRadio:evtCallback: bad metadata in event\n");
             }
-        } else if (!prop.first.compare("TransportState")) {
+        } else if (prop.first == "TransportState") {
             OHPlaylist::TPState tp;
             OHPlaylist::stringToTpState(prop.second, &tp);
             getReporter()->changed(prop.first.c_str(), int(tp));
@@ -278,11 +278,11 @@ protected:
         if (s == 0 || *s == 0)
             return;
         string str(s, len);
-        if (!m_path.back().name.compare("Id"))
+        if (m_path.back().name == "Id")
             m_tt.id = atoi(str.c_str());
-        else if (!m_path.back().name.compare("Uri"))
+        else if (m_path.back().name == "Uri")
             m_tt.url = str;
-        else if (!m_path.back().name.compare("Metadata"))
+        else if (m_path.back().name == "Metadata")
             m_tdidl += str;
     }
 

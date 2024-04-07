@@ -508,8 +508,8 @@ int UpnpDevice::Internal::callBack(Upnp_EventType et, const void* evp)
         int ret = UpnpAcceptSubscription(
             dvh, UpnpSubscriptionRequest_get_UDN_cstr(act),
             UpnpSubscriptionRequest_get_ServiceId_cstr(act),
-            cnames.size()?cnames.data():nullptr,
-            cnames.size()?cvalues.data():nullptr, int(cnames.size()),
+            cnames.size() ? cnames.data() : nullptr,
+            cnames.size() ? cvalues.data() : nullptr, int(cnames.size()),
             UpnpSubscriptionRequest_get_SID_cstr(act));
         if (ret != UPNP_E_SUCCESS) {
             LOGERR(lib->errAsString("UpnpDevice::callBack: "

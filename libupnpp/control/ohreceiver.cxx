@@ -68,17 +68,17 @@ void OHReceiver::evtCallback(
             continue;
         }
 
-        if (!prop.first.compare("TransportState")) {
+        if (prop.first == "TransportState") {
             OHPlaylist::TPState tp;
             OHPlaylist::stringToTpState(prop.second, &tp);
             getReporter()->changed(prop.first.c_str(), int(tp));
-        } else if (!prop.first.compare("Metadata")) {
+        } else if (prop.first == "Metadata") {
             getReporter()->changed(prop.first.c_str(),
                                    prop.second.c_str());
-        } else if (!prop.first.compare("Uri")) {
+        } else if (prop.first == "Uri") {
             getReporter()->changed(prop.first.c_str(),
                                    prop.second.c_str());
-        } else if (!prop.first.compare("ProtocolInfo")) {
+        } else if (prop.first == "ProtocolInfo") {
             getReporter()->changed(prop.first.c_str(),
                                    prop.second.c_str());
         } else {

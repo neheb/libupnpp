@@ -640,7 +640,7 @@ static bool getDevBySelector(bool cmp(const UPnPDeviceDesc& ddesc, const string&
 
 static bool cmpFName(const UPnPDeviceDesc& ddesc, const string& fname)
 {
-    return ddesc.friendlyName.compare(fname) != 0;
+    return ddesc.friendlyName != fname;
 }
 
 bool UPnPDeviceDirectory::getDevByFName(const string& fname, UPnPDeviceDesc& ddesc)
@@ -650,7 +650,7 @@ bool UPnPDeviceDirectory::getDevByFName(const string& fname, UPnPDeviceDesc& dde
 
 static bool cmpUDN(const UPnPDeviceDesc& ddesc, const string& value)
 {
-    return ddesc.UDN.compare(value) != 0;
+    return ddesc.UDN != value;
 }
 
 bool UPnPDeviceDirectory::getDevByUDN(const string& value, UPnPDeviceDesc& ddesc)

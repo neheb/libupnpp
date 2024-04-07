@@ -58,7 +58,7 @@ void OHInfo::evtCallback(
             continue;
         }
 
-        if (!prop.first.compare("Metatext")) {
+        if (prop.first == "Metatext") {
             /* Metadata is a didl-lite string */
             UPnPDirObject dirent;
             if (OHRadio::decodeMetadata("OHInfo:evt",

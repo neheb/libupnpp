@@ -147,7 +147,7 @@ void getReceiverState(const string& nm, ReceiverState& st, bool live)
     }
     unsigned int rcvi = 0;
     for (; rcvi < sources.size(); rcvi++) {
-        if (!sources[rcvi].type.compare("Receiver"))
+        if (sources[rcvi].type == "Receiver")
             break;
     }
     if (rcvi == sources.size()) {

@@ -73,7 +73,7 @@ bool TypedService::serviceTypeMatch(const string& _tp)
     if (colon != string::npos && colon != _tp.size() -1) {
         version = atoi(_tp.substr(colon+1).c_str());
     }
-    return !m->servicetype.compare(tp) && m->version >= version;
+    return m->servicetype == tp && m->version >= version;
 }
 
 
@@ -159,13 +159,13 @@ public:
     bool visit(const UPnPDeviceDesc& dev, const UPnPServiceDesc& serv) {
         LOGDEB2("findTypedService:visit: got " << dev.friendlyName << " " <<
                dev.UDN << " " << serv.serviceType << endl);
-        bool matched = !dev.UDN.compare(dvname) || !stringlowercmp(ldvname, dev.friendlyName);
+        bool matched = dev.UDN == dvname || !stringlowercmp(ldvname, dev.friendlyName);
         if (matched) {
             if (fuzzy) {
                 string ltp = stringtolower(serv.serviceType);
                 matched = matched && (ltp.find(stype) != string::npos);
             } else {
-                matched =  matched && !stype.compare(serv.serviceType);
+                matched =  matched && stype == serv.serviceType;
             }
         }
         if (matched) {

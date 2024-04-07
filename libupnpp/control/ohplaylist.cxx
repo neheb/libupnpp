@@ -59,16 +59,16 @@ bool OHPlaylist::serviceTypeMatch(const std::string& tp)
 
 int OHPlaylist::stringToTpState(const string& value, OHPlaylist::TPState *tpp)
 {
-    if (!value.compare("Buffering") || !value.compare("Waiting")) {
+    if (value == "Buffering" || value == "Waiting") {
         *tpp = OHPlaylist::TPS_Buffering;
         return 0;
-    } else if (!value.compare("Paused")) {
+    } else if (value == "Paused") {
         *tpp = OHPlaylist::TPS_Paused;
         return 0;
-    } else if (!value.compare("Playing")) {
+    } else if (value == "Playing") {
         *tpp = OHPlaylist::TPS_Playing;
         return 0;
-    } else if (!value.compare("Stopped")) {
+    } else if (value == "Stopped") {
         *tpp = OHPlaylist::TPS_Stopped;
         return 0;
     }
@@ -282,11 +282,11 @@ protected:
         if (s == 0 || *s == 0)
             return;
         string str(s, len);
-        if (!m_path.back().name.compare("Id"))
+        if (m_path.back().name == "Id")
             m_tt.id = atoi(str.c_str());
-        else if (!m_path.back().name.compare("Uri"))
+        else if (m_path.back().name == "Uri")
             m_tt.url = str;
-        else if (!m_path.back().name.compare("Metadata"))
+        else if (m_path.back().name == "Metadata")
             m_tdidl += str;
     }
 

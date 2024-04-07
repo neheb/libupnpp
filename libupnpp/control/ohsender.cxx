@@ -68,14 +68,14 @@ void OHSender::evtCallback(
             continue;
         }
 
-        if (!it->first.compare("Audio")) {
+        if (it->first == "Audio") {
             bool val = false;
             stringToBool(it->second, &val);
             getReporter()->changed(it->first.c_str(), val ? 1 : 0);
-        } else if (!it->first.compare("Metadata") ||
-                   !it->first.compare("Attributes") ||
-                   !it->first.compare("PresentationUrl") ||
-                   !it->first.compare("Status")) {
+        } else if (it->first == "Metadata" ||
+                   it->first == "Attributes" ||
+                   it->first == "PresentationUrl" ||
+                   it->first == "Status") {
             getReporter()->changed(it->first.c_str(), it->second.c_str());
         } else {
             LOGERR("OHSender event: unknown variable: name [" << it->first << "] value [" << it->second << '\n');
@@ -112,7 +112,7 @@ int OHSender::metadata(string& uri, string& didl)
         LOGERR("OHSender::Metadata: " << dir.m_items.size() << " in response!" << '\n');
         return UPNP_E_BAD_RESPONSE;
     }
-    UPnPDirObject *dirent = dir.m_items.data();
+    UPnPDirObject* dirent = dir.m_items.data();
     if (dirent->m_resources.size() < 1) {
         LOGERR("OHSender::Metadata: no resources in metadata!" << '\n');
         return UPNP_E_BAD_RESPONSE;

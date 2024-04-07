@@ -134,8 +134,8 @@ protected:
                 }
                 m_dir.m_items.push_back(m_tobj);
             }
-        } else if (!parentname.compare("item") ||
-                   !parentname.compare("container")) {
+        } else if (parentname == "item" ||
+                   parentname == "container") {
             switch (name[0]) {
             case 'd':
                 if (!strcmp(name, "dc:title")) {
@@ -204,7 +204,7 @@ private:
         auto roleit = mapattrs.find("role");
         string rolevalue;
         if (roleit != mapattrs.end()) {
-            if (roleit->second.compare("AlbumArtist")) {
+            if (roleit->second != "AlbumArtist") {
                 // AlbumArtist is not useful for the user
                 rolevalue = string(" (") + roleit->second + string(")");
             }
@@ -217,7 +217,7 @@ private:
             // to do this properly we'd need to only build the string
             // at the end when we have all the entries
             string &current(it->second);
-            if (current.compare(data)) {
+            if (current != data) {
                 current += string(", ") + data + rolevalue;
             }
         }
