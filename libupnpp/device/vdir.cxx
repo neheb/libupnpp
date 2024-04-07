@@ -130,7 +130,7 @@ bool VirtualDir::addVDir(const std::string& _path, FileOps fops)
         m_dirs[path] = DirEnt(true);
         UpnpAddVirtualDir(path.c_str(), 0, 0);
     }
-    m_dirs[path].ops = fops;
+    m_dirs[path].ops = std::move(fops);
     return true;
 }
 

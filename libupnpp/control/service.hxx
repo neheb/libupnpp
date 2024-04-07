@@ -61,9 +61,9 @@ public:
     virtual void changed(const char *nm, const char *val) = 0;
     /** Report change to track metadata (parsed as as Content
      * Directory entry). Not always needed */
-    virtual void changed(const char * /*nm*/, UPnPDirObject /*meta*/) {}
+    virtual void changed(const char* /*nm*/, const UPnPDirObject& /*meta*/) {}
     /** Special for  ohplaylist. Not always needed */
-    virtual void changed(const char * /*nm*/, std::vector<int> /*ids*/) {}
+    virtual void changed(const char* /*nm*/, const std::vector<int>& /*ids*/) {}
     /** Subscription autorenew failed. You may want to schedule a
        resubscribe() later. */
     virtual void autorenew_failed() {}

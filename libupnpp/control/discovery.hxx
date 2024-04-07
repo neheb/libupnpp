@@ -78,7 +78,7 @@ public:
 
     /** Possibly wait for the end of the initial delay, then traverse the directory and call 
      * Visitor for each device/service pair. */
-    bool traverse(Visitor);
+    bool traverse(const Visitor&);
 
     /** Remaining milliseconds until the initial search window complete. Further searchs do not
      * reinitialise the window and the function will always return 0. */
@@ -91,13 +91,13 @@ public:
      * The function will be called once per device, with an empty service,
      * Note that calls to v may be performed from a separate thread and some may occur before
      * addCallback() returns. */
-    static unsigned int addCallback(Visitor v);
+    static unsigned int addCallback(const Visitor& v);
     /** Unregister device existence callback. The arg. is the value returned by addCallback() */
     static void delCallback(unsigned int idx);
 
     /** Set a callback to be called when a device signals that it is stopping service, or when it is
      * lost because it did not signal before its discovery timeout */
-    static unsigned int addLostCallback(Visitor v);
+    static unsigned int addLostCallback(const Visitor& v);
     /** Unset "Lost" callback. The argument is the value returned by addLostCallback() */
     static void delLostCallback(unsigned int idx);
 

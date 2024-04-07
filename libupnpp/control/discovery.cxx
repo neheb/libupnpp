@@ -232,10 +232,10 @@ static int cluCallBack(Upnp_EventType et, CBCONST void* evp, void*)
 static vector<UPnPDeviceDirectory::Visitor> o_callbacks;
 static vector<UPnPDeviceDirectory::Visitor> o_lostCallbacks;
 static std::mutex o_callbacks_mutex;
-static bool simpleTraverse(UPnPDeviceDirectory::Visitor visit);
-static bool simpleVisit(const UPnPDeviceDesc&, UPnPDeviceDirectory::Visitor);
+static bool simpleTraverse(const UPnPDeviceDirectory::Visitor& visit);
+static bool simpleVisit(const UPnPDeviceDesc&, const UPnPDeviceDirectory::Visitor&);
 
-unsigned int UPnPDeviceDirectory::addCallback(UPnPDeviceDirectory::Visitor v)
+unsigned int UPnPDeviceDirectory::addCallback(const UPnPDeviceDirectory::Visitor& v)
 {
     std::unique_lock<std::mutex> lock(o_callbacks_mutex);
     o_callbacks.push_back(v);
@@ -255,7 +255,7 @@ void UPnPDeviceDirectory::delCallback(unsigned int idx)
     o_callbacks.erase(o_callbacks.begin() + idx);
 }
 
-unsigned int UPnPDeviceDirectory::addLostCallback(Visitor v)
+unsigned int UPnPDeviceDirectory::addLostCallback(const Visitor& v)
 {
     std::unique_lock<std::mutex> lock(o_callbacks_mutex);
     o_lostCallbacks.push_back(v);
@@ -540,7 +540,7 @@ static std::mutex devWaitLock;
 static std::condition_variable devWaitCond;
 
 // Call user function on one device (for all services)
-static bool simpleVisit(const UPnPDeviceDesc& dev, UPnPDeviceDirectory::Visitor visit)
+static bool simpleVisit(const UPnPDeviceDesc& dev, const UPnPDeviceDirectory::Visitor& visit)
 {
     for (const auto& service : dev.services) {
         if (!visit(dev, service)) {
@@ -558,7 +558,7 @@ static bool simpleVisit(const UPnPDeviceDesc& dev, UPnPDeviceDirectory::Visitor 
 }
 
 // Walk the device list and call simpleVisit() on each.
-static bool simpleTraverse(UPnPDeviceDirectory::Visitor visit)
+static bool simpleTraverse(const UPnPDeviceDirectory::Visitor& visit)
 {
     std::unique_lock<std::mutex> lock(o_pool.m_mutex);
 
@@ -570,7 +570,7 @@ static bool simpleTraverse(UPnPDeviceDirectory::Visitor visit)
     return true;
 }
 
-bool UPnPDeviceDirectory::traverse(UPnPDeviceDirectory::Visitor visit)
+bool UPnPDeviceDirectory::traverse(const UPnPDeviceDirectory::Visitor& visit)
 {
     //LOGDEB("UPnPDeviceDirectory::traverse" << endl);
     if (!o_ok)

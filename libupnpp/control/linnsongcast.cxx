@@ -58,7 +58,7 @@ static DVCH getDevice(const string& name)
     return DVCH();
 }
 
-OHSNH senderService(DVCH dev)
+OHSNH senderService(const DVCH& dev)
 {
     OHSNH handle;
     for (auto& service : dev->desc()->services) {

@@ -618,7 +618,7 @@ void UpnpDevice::addActionMapping(const UpnpService* serv,
 {
     std::unique_lock<std::mutex> lock(m->devlock);
     // LOGDEB("UpnpDevice::addActionMapping:" << actName << endl);
-    m->calls[actName + serv->getServiceId()] = fun;
+    m->calls[actName + serv->getServiceId()] = std::move(fun);
 }
 
 void UpnpDevice::Internal::notifyEvent(const string& serviceId,

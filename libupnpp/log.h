@@ -104,7 +104,8 @@ public:
     
     /** @brief Set the date format, as an strftime() format string. 
      * Default: "%Y%m%d-%H%M%S" . */
-    void setdateformat(const std::string fmt) {
+    void setdateformat(const std::string& fmt)
+    {
         m_datefmt = fmt;
     }
 
