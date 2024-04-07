@@ -112,7 +112,7 @@ MediaRenderer::~MediaRenderer()
 
 bool MediaRenderer::hasOpenHome()
 {
-    return ohpr() ? true : false;
+    return static_cast<bool>(ohpr());
 }
 
 

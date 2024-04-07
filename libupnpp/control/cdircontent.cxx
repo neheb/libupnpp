@@ -242,7 +242,7 @@ bool UPnPDirContent::parse(const std::string& input, bool detailed)
 
     UPnPDirParser parser(*this, *ipp, detailed);
     bool ret = parser.Parse();
-    if (ret == false) {
+    if (!ret) {
         LOGERR("UPnPDirContent::parse: parser failed: " << parser.getLastErrorMessage() << " for:\n"
                                                         << *ipp << '\n');
     }

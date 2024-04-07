@@ -62,7 +62,7 @@ protected:
             dev->services.push_back(m_tservice);
             m_tservice.clear();
         } else if (!strcmp(name, "device")) {
-            if (ismain == false) {
+            if (!ismain) {
                 m_device.embedded.push_back(m_tdevice);
             }
             m_tdevice.clear();
@@ -197,11 +197,7 @@ protected:
             break;
         case 'd':
             if (!strcmp(name, "direction")) {
-                if (!lastelt.data.compare("in")) {
-                    m_targ.todevice = true;
-                } else {
-                    m_targ.todevice = false;
-                }
+                m_targ.todevice = lastelt.data.compare("in") == 0;
             } else if (!strcmp(name, "dataType")) {
                 m_tvar.dataType = lastelt.data;
                 trimstring(m_tvar.dataType);
