@@ -277,7 +277,7 @@ public:
     DeviceDescriptor(const string& url, const string& description,
                      std::chrono::steady_clock::time_point last, int exp)
         : device(url, description), last_seen(last), expires(std::chrono::seconds(exp)) {}
-    DeviceDescriptor() {}
+    DeviceDescriptor() = default;
     UPnPDeviceDesc device;
     std::chrono::steady_clock::time_point last_seen;
     std::chrono::seconds expires; // seconds valid

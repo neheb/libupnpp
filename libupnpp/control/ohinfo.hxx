@@ -38,14 +38,7 @@ typedef std::shared_ptr<OHInfo> OHIFH;
  */
 class UPNPP_API OHInfo : public Service {
 public:
-
-    OHInfo(const UPnPDeviceDesc& device, const UPnPServiceDesc& service)
-        : Service(device, service) {
-    }
-
-    OHInfo() {}
-
-    ~OHInfo() {}
+    using Service::Service;
 
     /** Test service type from discovery message */
     static bool isOHInfoService(const std::string& st);

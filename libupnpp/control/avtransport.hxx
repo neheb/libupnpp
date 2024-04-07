@@ -37,13 +37,7 @@ typedef std::shared_ptr<AVTransport> AVTH;
  */
 class UPNPP_API AVTransport : public Service {
 public:
-
-    /** Construct by copying data from device and service objects. */
-    AVTransport(const UPnPDeviceDesc& dev, const UPnPServiceDesc& srv)
-        : Service(dev, srv) {
-    }
-    AVTransport() {}
-    virtual ~AVTransport() {}
+    using Service::Service;
 
     int setAVTransportURI(const std::string& uri, const std::string& metadata,
                           int instanceID=0)

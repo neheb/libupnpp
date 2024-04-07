@@ -40,12 +40,7 @@ typedef std::shared_ptr<OHPlaylist> OHPLH;
  */
 class UPNPP_API OHPlaylist : public Service {
 public:
-
-    OHPlaylist(const UPnPDeviceDesc& device, const UPnPServiceDesc& service)
-        : Service(device, service) {
-    }
-    OHPlaylist() {}
-    virtual ~OHPlaylist() {}
+    using Service::Service;
 
     /** Test service type from discovery message */
     static bool isOHPlService(const std::string& st);

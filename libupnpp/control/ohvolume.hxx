@@ -60,13 +60,7 @@ struct OHVCharacteristics {
  */
 class UPNPP_API OHVolume : public Service {
 public:
-
-    OHVolume(const UPnPDeviceDesc& device, const UPnPServiceDesc& service)
-        : Service(device, service) {
-    }
-    virtual ~OHVolume() {}
-
-    OHVolume() {}
+    using Service::Service;
 
     /** Test service type from discovery message */
     static bool isOHVLService(const std::string& st);

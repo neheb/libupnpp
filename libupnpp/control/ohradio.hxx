@@ -39,14 +39,7 @@ typedef std::shared_ptr<OHRadio> OHRDH;
  */
 class UPNPP_API OHRadio : public Service {
 public:
-
-    OHRadio(const UPnPDeviceDesc& device, const UPnPServiceDesc& service)
-        : Service(device, service) {
-    }
-
-    virtual ~OHRadio() {}
-
-    OHRadio() {}
+    using Service::Service;
 
     /** Test service type from discovery message */
     static bool isOHRdService(const std::string& st);

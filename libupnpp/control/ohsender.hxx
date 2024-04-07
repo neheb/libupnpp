@@ -36,13 +36,8 @@ typedef std::shared_ptr<OHSender> OHSNH;
  */
 class UPNPP_API OHSender : public Service {
 public:
+    using Service::Service;
 
-    OHSender(const UPnPDeviceDesc& device, const UPnPServiceDesc& service)
-        : Service(device, service) {
-    }
-    OHSender() {}
-    virtual ~OHSender() {}
-    
     /** Test service type from discovery message */
     static bool isOHSenderService(const std::string& st);
     virtual bool serviceTypeMatch(const std::string& tp);

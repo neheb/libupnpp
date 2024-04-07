@@ -39,12 +39,7 @@ typedef std::shared_ptr<OHTime> OHTMH;
  */
 class UPNPP_API OHTime : public Service {
 public:
-
-    OHTime(const UPnPDeviceDesc& device, const UPnPServiceDesc& service)
-        : Service(device, service) {
-    }
-    OHTime() {}
-    virtual ~OHTime() {}
+    using Service::Service;
 
     /** Test service type from discovery message */
     static bool isOHTMService(const std::string& st);

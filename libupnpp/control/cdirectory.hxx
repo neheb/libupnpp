@@ -55,10 +55,6 @@ public:
 
     /** Construct by copying data from device and service objects. */
     ContentDirectory(const UPnPDeviceDesc& dev, const UPnPServiceDesc& srv);
-    virtual ~ContentDirectory() {}
-
-    /** An empty one */
-    ContentDirectory() {}
 
     enum ServiceKind {CDSKIND_UNKNOWN, CDSKIND_BUBBLE, CDSKIND_MEDIATOMB,
                       CDSKIND_MINIDLNA, CDSKIND_MINIM, CDSKIND_TWONKY

@@ -42,9 +42,6 @@ public:
     RenderingControl(const UPnPDeviceDesc& device,
                      const UPnPServiceDesc& service);
 
-    RenderingControl() {}
-    virtual ~RenderingControl() {}
-
     /** Test service type from discovery message */
     static bool isRDCService(const std::string& st);
     virtual bool serviceTypeMatch(const std::string& tp);

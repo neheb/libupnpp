@@ -54,7 +54,7 @@ class Service;
  */
 class UPNPP_API VarEventReporter {
 public:
-    virtual ~VarEventReporter() {}
+    virtual ~VarEventReporter() = default;
     /** Report change to named integer state variable */
     virtual void changed(const char *nm, int val)  = 0;
     /** Report change to named character string state variable */
@@ -123,7 +123,6 @@ public:
 
     enum ActionOptionsMask {AOM_TIMEOUTMS = 0x1};
     struct ActionOptions {
-        ActionOptions() {}
         uint32_t active_options{0};
         int timeoutms{-1};
     };

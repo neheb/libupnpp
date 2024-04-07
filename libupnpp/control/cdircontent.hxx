@@ -86,7 +86,6 @@ public:
     /// no attributes, so the attributes storage is dynamically
     /// allocated to save space. Beware that attrs can be the nullptr.
     struct PropertyValue {
-        PropertyValue() {}
         PropertyValue(const std::string& v,
                       const std::map<std::string, std::string>& a)
             : value(v) {

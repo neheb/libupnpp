@@ -39,12 +39,7 @@ typedef std::shared_ptr<OHReceiver> OHRCH;
  */
 class UPNPP_API OHReceiver : public Service {
 public:
-
-    OHReceiver(const UPnPDeviceDesc& device, const UPnPServiceDesc& service)
-        : Service(device, service) {
-    }
-    OHReceiver() {}
-    virtual ~OHReceiver() {}
+    using Service::Service;
 
     /** Test service type from discovery message */
     static bool isOHRcService(const std::string& st);

@@ -39,11 +39,7 @@ typedef std::shared_ptr<OHProduct> OHPRH;
  */
 class UPNPP_API OHProduct : public Service {
 public:
-
-    OHProduct(const UPnPDeviceDesc& device, const UPnPServiceDesc& service)
-        : Service(device, service) {}
-    OHProduct() {}
-    ~OHProduct() {}
+    using Service::Service;
 
     /** Test service type from discovery message */
     static bool isOHPrService(const std::string& st);
