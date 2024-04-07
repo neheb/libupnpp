@@ -95,8 +95,7 @@ protected:
                 // Only log this if the record comes from an MS as e.g. naims
                 // send records with empty classes (and empty id/pid)
                 if (!m_tobj.m_id.empty()) {
-                    LOGINF("checkobjok: found object of unknown class: [" <<
-                           m_tobj.m_props["upnp:class"] << "]" << endl);
+                    LOGINF("checkobjok: found object of unknown class: [" << m_tobj.m_props["upnp:class"] << "]" << '\n');
                 }
                 m_tobj.m_iclass = UPnPDirObject::ITC_unknown;
             } else {
@@ -105,9 +104,8 @@ protected:
         }
 
         if (!ok) {
-            LOGINF("checkobjok:skip: id ["<< m_tobj.m_id<<"] pid ["<<
-                   m_tobj.m_pid << "] clss [" << m_tobj.m_props["upnp:class"]
-                   << "] tt [" << m_tobj.m_title << "]" << endl);
+            LOGINF("checkobjok:skip: id [" << m_tobj.m_id << "] pid [" << m_tobj.m_pid << "] clss [" << m_tobj.m_props["upnp:class"]
+                                           << "] tt [" << m_tobj.m_title << "]" << '\n');
         }
         return ok;
     }
@@ -237,8 +235,7 @@ bool UPnPDirContent::parse(const std::string& input, bool detailed)
     // Double-quoting happens. Just deal with it...
     string unquoted;
     if (input[0] == '&') {
-        LOGDEB0("UPnPDirContent::parse: unquoting over-quoted input: " <<
-                input << endl);
+        LOGDEB0("UPnPDirContent::parse: unquoting over-quoted input: " << input << '\n');
         unquoted = SoapHelp::xmlUnquote(input);
         ipp = &unquoted;
     }
@@ -246,8 +243,8 @@ bool UPnPDirContent::parse(const std::string& input, bool detailed)
     UPnPDirParser parser(*this, *ipp, detailed);
     bool ret = parser.Parse();
     if (ret == false) {
-        LOGERR("UPnPDirContent::parse: parser failed: " <<
-               parser.getLastErrorMessage() << " for:\n" << *ipp << endl);
+        LOGERR("UPnPDirContent::parse: parser failed: " << parser.getLastErrorMessage() << " for:\n"
+                                                        << *ipp << '\n');
     }
     return ret;
 }

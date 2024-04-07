@@ -78,8 +78,7 @@ void OHSender::evtCallback(
                    !it->first.compare("Status")) {
             getReporter()->changed(it->first.c_str(), it->second.c_str());
         } else {
-            LOGERR("OHSender event: unknown variable: name [" <<
-                   it->first << "] value [" << it->second << endl);
+            LOGERR("OHSender event: unknown variable: name [" << it->first << "] value [" << it->second << '\n');
             getReporter()->changed(it->first.c_str(), it->second.c_str());
         }
     }
@@ -99,24 +98,23 @@ int OHSender::metadata(string& uri, string& didl)
         return ret;
     }
     if (!data.get("Value", &didl)) {
-        LOGERR("OHSender::Sender: missing Value in response" << endl);
+        LOGERR("OHSender::Sender: missing Value in response" << '\n');
         return UPNP_E_BAD_RESPONSE;
     }
 
     // Try to parse the metadata and extract the Uri.
     UPnPDirContent dir;
     if (!dir.parse(didl)) {
-        LOGERR("OHSender::Metadata: didl parse failed: " << didl << endl);
+        LOGERR("OHSender::Metadata: didl parse failed: " << didl << '\n');
         return UPNP_E_BAD_RESPONSE;
     }
     if (dir.m_items.size() != 1) {
-        LOGERR("OHSender::Metadata: " << dir.m_items.size() <<
-               " in response!" << endl);
+        LOGERR("OHSender::Metadata: " << dir.m_items.size() << " in response!" << '\n');
         return UPNP_E_BAD_RESPONSE;
     }
     UPnPDirObject *dirent = &dir.m_items[0];
     if (dirent->m_resources.size() < 1) {
-        LOGERR("OHSender::Metadata: no resources in metadata!" << endl);
+        LOGERR("OHSender::Metadata: no resources in metadata!" << '\n');
         return UPNP_E_BAD_RESPONSE;
     }
     uri = dirent->m_resources[0].m_uri;

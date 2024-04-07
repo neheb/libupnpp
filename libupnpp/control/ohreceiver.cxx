@@ -82,7 +82,7 @@ void OHReceiver::evtCallback(
             getReporter()->changed(prop.first.c_str(),
                                    prop.second.c_str());
         } else {
-            LOGERR("OHReceiver event: unknown variable: name [" << prop.first << "] value [" << prop.second << endl);
+            LOGERR("OHReceiver event: unknown variable: name [" << prop.first << "] value [" << prop.second << '\n');
             getReporter()->changed(prop.first.c_str(), prop.second.c_str());
         }
     }
@@ -120,11 +120,11 @@ int OHReceiver::sender(string& uri, string& meta)
         return ret;
     }
     if (!data.get("Uri", &uri)) {
-        LOGERR("OHReceiver::Sender: missing Uri in response" << endl);
+        LOGERR("OHReceiver::Sender: missing Uri in response" << '\n');
         return UPNP_E_BAD_RESPONSE;
     }
     if (!data.get("Metadata", &meta)) {
-        LOGERR("OHReceiver::Sender: missing Metadata in response" << endl);
+        LOGERR("OHReceiver::Sender: missing Metadata in response" << '\n');
         return UPNP_E_BAD_RESPONSE;
     }
     return 0;
@@ -151,7 +151,7 @@ int OHReceiver::protocolInfo(std::string *proto)
         return ret;
     }
     if (!data.get("Value", proto)) {
-        LOGERR("OHReceiver::protocolInfo: missing Value in response" << endl);
+        LOGERR("OHReceiver::protocolInfo: missing Value in response" << '\n');
         return UPNP_E_BAD_RESPONSE;
     }
     return 0;

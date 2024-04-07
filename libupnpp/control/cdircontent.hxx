@@ -247,24 +247,22 @@ public:
 
     std::string dump() const {
         std::ostringstream os;
-        os << "UPnPDirObject: " << (m_type == item ? "item" : "container") <<
-           " id [" << m_id << "] pid [" << m_pid <<
-           "] title [" << m_title << "]" << std::endl;
-        os << "Properties: " << std::endl;
+        os << "UPnPDirObject: " << (m_type == item ? "item" : "container") << " id [" << m_id << "] pid [" << m_pid << "] title [" << m_title << "]" << '\n';
+        os << "Properties: " << '\n';
         for (const auto& m_prop : m_props) {
             os << "[" << m_prop.first << "]->[" << m_prop.second << "] "
-               << std::endl;
+               << '\n';
         }
-        os << "Resources:" << std::endl;
+        os << "Resources:" << '\n';
         for (const auto& m_resource : m_resources) {
-            os << "  Uri [" << m_resource.m_uri << "]" << std::endl;
-            os << "  Resource attributes:" << std::endl;
+            os << "  Uri [" << m_resource.m_uri << "]" << '\n';
+            os << "  Resource attributes:" << '\n';
             for (const auto& m_prop : m_resource.m_props) {
                 os << "    [" << m_prop.first << "]->[" << m_prop.second << "] "
-                   << std::endl;
+                   << '\n';
             }
         }
-        os << std::endl;
+        os << '\n';
         return os.str();
     }
 

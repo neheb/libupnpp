@@ -269,8 +269,7 @@ bool UPnPServiceDesc::fetchAndParseDesc(const string& urlbase,
     string url = caturl(urlbase, SCPDURL);
     int code = UpnpDownloadUrlItem(url.c_str(), &buf, contentType);
     if (code != UPNP_E_SUCCESS) {
-        LOGERR("UPnPServiceDesc::fetchAndParseDesc: error fetching " <<
-               url << " : " << LibUPnP::errAsString("", code) << endl);
+        LOGERR("UPnPServiceDesc::fetchAndParseDesc: error fetching " << url << " : " << LibUPnP::errAsString("", code) << '\n');
         return false;
     }
     if (xmltxt) {

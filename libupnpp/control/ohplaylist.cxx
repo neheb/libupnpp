@@ -119,8 +119,7 @@ void OHPlaylist::evtCallback(
             getReporter()->changed(prop.first.c_str(), v);
 
         } else {
-            LOGERR("OHPlaylist event: unknown variable: name [" <<
-                   prop.first << "] value [" << prop.second << endl);
+            LOGERR("OHPlaylist event: unknown variable: name [" << prop.first << "] value [" << prop.second << '\n');
             getReporter()->changed(prop.first.c_str(), prop.second.c_str());
         }
     }
@@ -215,24 +214,23 @@ int OHPlaylist::read(int id, std::string* urip, UPnPDirObject *dirent)
         return ret;
     }
     if (!data.get("Uri", urip)) {
-        LOGERR("OHPlaylist::Read: missing Uri in response" << endl);
+        LOGERR("OHPlaylist::Read: missing Uri in response" << '\n');
         return UPNP_E_BAD_RESPONSE;
     }
     string didl;
     if (!data.get("Metadata", &didl)) {
-        LOGERR("OHPlaylist::Read: missing Uri in response" << endl);
+        LOGERR("OHPlaylist::Read: missing Uri in response" << '\n');
         return UPNP_E_BAD_RESPONSE;
     }
     didl = SoapHelp::xmlUnquote(didl);
 
     UPnPDirContent dir;
     if (!dir.parse(didl)) {
-        LOGERR("OHPlaylist::Read: didl parse failed: " << didl << endl);
+        LOGERR("OHPlaylist::Read: didl parse failed: " << didl << '\n');
         return UPNP_E_BAD_RESPONSE;
     }
     if (dir.m_items.size() != 1) {
-        LOGERR("OHPlaylist::Read: " << dir.m_items.size() << " in response!" <<
-               endl);
+        LOGERR("OHPlaylist::Read: " << dir.m_items.size() << " in response!" << '\n');
         return UPNP_E_BAD_RESPONSE;
     }
     *dirent = dir.m_items[0];
@@ -265,12 +263,12 @@ protected:
             UPnPDirContent dir;
             if (!dir.parse(m_tdidl)) {
                 LOGERR("OHPlaylist::ReadList: didl parse failed: "
-                       << m_tdidl << endl);
+                       << m_tdidl << '\n');
                 return;
             }
             if (dir.m_items.size() != 1) {
                 LOGERR("OHPlaylist::ReadList: " << dir.m_items.size()
-                       << " in response!" << endl);
+                                                << " in response!" << '\n');
                 return;
             }
             m_tt.dirent = dir.m_items[0];
@@ -316,7 +314,7 @@ int OHPlaylist::readList(const std::vector<int>& ids,
     }
     string xml;
     if (!data.get("TrackList", &xml)) {
-        LOGERR("OHPlaylist::readlist: missing TrackList in response" << endl);
+        LOGERR("OHPlaylist::readlist: missing TrackList in response" << '\n');
         return UPNP_E_BAD_RESPONSE;
     }
     OHTrackListParser mparser(xml, entsp);
@@ -339,7 +337,7 @@ int OHPlaylist::insert(int afterid, const string& uri, const string& didl,
     }
     int lnid;
     if (!data.get("NewId", &lnid)) {
-        LOGERR("OHPlaylist::insert: missing Newid in response" << endl);
+        LOGERR("OHPlaylist::insert: missing Newid in response" << '\n');
         return UPNP_E_BAD_RESPONSE;
     }
     if (nid) {
@@ -372,7 +370,7 @@ int OHPlaylist::idArray(vector<int> *ids, int *tokp)
     }
     int ltok;
     if (!data.get("Token", &ltok)) {
-        LOGERR("OHPlaylist::idArray: missing Token in response" << endl);
+        LOGERR("OHPlaylist::idArray: missing Token in response" << '\n');
         return UPNP_E_BAD_RESPONSE;
     }
     if (tokp) {
@@ -380,7 +378,7 @@ int OHPlaylist::idArray(vector<int> *ids, int *tokp)
     }
     string arraydata;
     if (!data.get("Array", &arraydata)) {
-        LOGINF("OHPlaylist::idArray: missing Array in response" << endl);
+        LOGINF("OHPlaylist::idArray: missing Array in response" << '\n');
         // We get this for an empty array ? This would need to be investigated
     }
     ohplIdArrayToVec(arraydata, ids);
@@ -397,7 +395,7 @@ int OHPlaylist::idArrayChanged(int token, bool *changed)
         return ret;
     }
     if (!data.get("Value", changed)) {
-        LOGERR("OHPlaylist::idArrayChanged: missing Value in response" << endl);
+        LOGERR("OHPlaylist::idArrayChanged: missing Value in response" << '\n');
         return UPNP_E_BAD_RESPONSE;
     }
     return 0;
@@ -412,7 +410,7 @@ int OHPlaylist::protocolInfo(std::string *proto)
         return ret;
     }
     if (!data.get("Value", proto)) {
-        LOGERR("OHPlaylist::protocolInfo: missing Value in response" << endl);
+        LOGERR("OHPlaylist::protocolInfo: missing Value in response" << '\n');
         return UPNP_E_BAD_RESPONSE;
     }
     return 0;

@@ -49,7 +49,7 @@ public:
 TypedService::TypedService(const string& tp)
     : m(new Internal())
 {
-    string::size_type colon = tp.find_last_of(":");
+    string::size_type colon = tp.find_last_of(':');
     m->servicetype = tp.substr(0, colon);
     if (colon != string::npos && colon != tp.size() -1) {
         m->version = atoi(tp.substr(colon+1).c_str());
@@ -67,7 +67,7 @@ TypedService::~TypedService()
 bool TypedService::serviceTypeMatch(const string& _tp)
 {
     LOGDEB2("TypedService::serviceTypeMatch: [" << _tp << "]\n");
-    string::size_type colon = _tp.find_last_of(":");
+    string::size_type colon = _tp.find_last_of(':');
     string tp = _tp.substr(0, colon);
     int version = 0;
     if (colon != string::npos && colon != _tp.size() -1) {
@@ -100,8 +100,7 @@ int TypedService::runAction(const string& actnm, vector<string> args, map<string
         }
     }
     if (outargcnt != args.size()) {
-        LOGERR("TypedService::runAction: expected " << outargcnt <<
-               " outgoing arguments, got " << args.size() << endl);
+        LOGERR("TypedService::runAction: expected " << outargcnt << " outgoing arguments, got " << args.size() << '\n');
         return UPNP_SOAP_E_INVALID_ARGS;
     }
     SoapOutgoing soapargs(getServiceType(), actnm);
@@ -225,7 +224,7 @@ TypedService *findTypedService(
         // string sdesc = cb.founddev.dump();
         return service;
     }
-    LOGDEB("Service not found: " << devname << "/" << servicetype << " fuzzy " << fuzzy << endl);
+    LOGDEB("Service not found: " << devname << "/" << servicetype << " fuzzy " << fuzzy << '\n');
     return 0;
 }
 

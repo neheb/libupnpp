@@ -63,12 +63,12 @@ int OHRadio::decodeMetadata(const string& who,
     UPnPDirContent dir;
     if (!dir.parse(didl)) {
         LOGERR("OHRadio::decodeMetadata: " << who << ": didl parse failed: "
-               << didl << endl);
+                                           << didl << '\n');
         return UPNP_E_BAD_RESPONSE;
     }
     if (dir.m_items.size() != 1) {
         LOGERR("OHRadio::decodeMetadata: " << who << ": " << dir.m_items.size()
-               << " items in response: [" << didl << "]" << endl);
+                                           << " items in response: [" << didl << "]" << '\n');
         return UPNP_E_BAD_RESPONSE;
     }
     *dirent = dir.m_items[0];
@@ -108,7 +108,7 @@ void OHRadio::evtCallback(
             OHPlaylist::stringToTpState(prop.second, &tp);
             getReporter()->changed(prop.first.c_str(), int(tp));
         } else {
-            LOGERR("OHRadio event: unknown variable: name [" << prop.first << "] value [" << prop.second << endl);
+            LOGERR("OHRadio event: unknown variable: name [" << prop.first << "] value [" << prop.second << '\n');
             getReporter()->changed(prop.first.c_str(), prop.second.c_str());
         }
     }
@@ -128,12 +128,12 @@ int OHRadio::channel(std::string* urip, UPnPDirObject *dirent)
         return ret;
     }
     if (!data.get("Uri", urip)) {
-        LOGERR("OHRadio::Read: missing Uri in response" << endl);
+        LOGERR("OHRadio::Read: missing Uri in response" << '\n');
         return UPNP_E_BAD_RESPONSE;
     }
     string didl;
     if (!data.get("Metadata", &didl)) {
-        LOGERR("OHRadio::Read: missing Uri in response" << endl);
+        LOGERR("OHRadio::Read: missing Uri in response" << '\n');
         return UPNP_E_BAD_RESPONSE;
     }
     return decodeMetadata("channel", didl, dirent);
@@ -163,12 +163,12 @@ int OHRadio::idArray(vector<int> *ids, int *tokp)
         return ret;
     }
     if (!data.get("Token", tokp)) {
-        LOGERR("OHRadio::idArray: missing Token in response" << endl);
+        LOGERR("OHRadio::idArray: missing Token in response" << '\n');
         return UPNP_E_BAD_RESPONSE;
     }
     string arraydata;
     if (!data.get("Array", &arraydata)) {
-        LOGINF("OHRadio::idArray: missing Array in response" << endl);
+        LOGINF("OHRadio::idArray: missing Array in response" << '\n');
         // We get this for an empty array ? This would need to be investigated
     }
     ohplIdArrayToVec(arraydata, ids);
@@ -185,7 +185,7 @@ int OHRadio::idArrayChanged(int token, bool *changed)
         return ret;
     }
     if (!data.get("Value", changed)) {
-        LOGERR("OHRadio::idArrayChanged: missing Value in response" << endl);
+        LOGERR("OHRadio::idArrayChanged: missing Value in response" << '\n');
         return UPNP_E_BAD_RESPONSE;
     }
     return 0;
@@ -210,7 +210,7 @@ int OHRadio::protocolInfo(std::string *proto)
         return ret;
     }
     if (!data.get("Value", proto)) {
-        LOGERR("OHRadio::protocolInfo: missing Value in response" << endl);
+        LOGERR("OHRadio::protocolInfo: missing Value in response" << '\n');
         return UPNP_E_BAD_RESPONSE;
     }
     return 0;
@@ -227,7 +227,7 @@ int OHRadio::read(int id, UPnPDirObject *dirent)
     }
     string didl;
     if (!data.get("Metadata", &didl)) {
-        LOGERR("OHRadio::Read: missing Metadata in response" << endl);
+        LOGERR("OHRadio::Read: missing Metadata in response" << '\n');
         return UPNP_E_BAD_RESPONSE;
     }
     return decodeMetadata("read", didl, dirent);
@@ -259,12 +259,12 @@ protected:
             UPnPDirContent dir;
             if (!dir.parse(m_tdidl)) {
                 LOGERR("OHRadio::ReadList: didl parse failed: "
-                       << m_tdidl << endl);
+                       << m_tdidl << '\n');
                 return;
             }
             if (dir.m_items.size() != 1) {
                 LOGERR("OHRadio::ReadList: " << dir.m_items.size()
-                       << " in response!" << endl);
+                                             << " in response!" << '\n');
                 return;
             }
             m_tt.dirent = dir.m_items[0];
@@ -310,7 +310,7 @@ int OHRadio::readList(const std::vector<int>& ids,
     }
     string xml;
     if (!data.get("ChannelList", &xml)) {
-        LOGERR("OHRadio::readlist: missing TrackList in response" << endl);
+        LOGERR("OHRadio::readlist: missing TrackList in response" << '\n');
         return UPNP_E_BAD_RESPONSE;
     }
     OHTrackListParser mparser(xml, entsp);

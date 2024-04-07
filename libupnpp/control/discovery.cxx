@@ -80,16 +80,16 @@ static void expireDevices();
 static string cluDiscoveryToStr(const UpnpDiscovery *disco)
 {
     stringstream ss;
-    ss << "ErrCode: " << UpnpDiscovery_get_ErrCode(disco) << endl;
-    ss << "Expires: " << UpnpDiscovery_get_Expires(disco) << endl;
-    ss << "DeviceId: " << UpnpDiscovery_get_DeviceID_cstr(disco) << endl;
-    ss << "DeviceType: " << UpnpDiscovery_get_DeviceType_cstr(disco) << endl;
-    ss << "ServiceType: " << UpnpDiscovery_get_ServiceType_cstr(disco) << endl;
-    ss << "ServiceVer: " << UpnpDiscovery_get_ServiceVer_cstr(disco)    << endl;
-    ss << "Location: " << UpnpDiscovery_get_Location_cstr(disco) << endl;
-    ss << "Os: " << UpnpDiscovery_get_Os_cstr(disco) << endl;
-    ss << "Date: " << UpnpDiscovery_get_Date_cstr(disco) << endl;
-    ss << "Ext: " << UpnpDiscovery_get_Ext_cstr(disco) << endl;
+    ss << "ErrCode: " << UpnpDiscovery_get_ErrCode(disco) << '\n';
+    ss << "Expires: " << UpnpDiscovery_get_Expires(disco) << '\n';
+    ss << "DeviceId: " << UpnpDiscovery_get_DeviceID_cstr(disco) << '\n';
+    ss << "DeviceType: " << UpnpDiscovery_get_DeviceType_cstr(disco) << '\n';
+    ss << "ServiceType: " << UpnpDiscovery_get_ServiceType_cstr(disco) << '\n';
+    ss << "ServiceVer: " << UpnpDiscovery_get_ServiceVer_cstr(disco) << '\n';
+    ss << "Location: " << UpnpDiscovery_get_Location_cstr(disco) << '\n';
+    ss << "Os: " << UpnpDiscovery_get_Os_cstr(disco) << '\n';
+    ss << "Date: " << UpnpDiscovery_get_Date_cstr(disco) << '\n';
+    ss << "Ext: " << UpnpDiscovery_get_Ext_cstr(disco) << '\n';
 
     /** The host address of the device responding to the search. */
     // struct sockaddr_storage DestAddr;
@@ -184,8 +184,7 @@ static int cluCallBack(Upnp_EventType et, CBCONST void* evp, void*)
         
         LOGDEB1("discovery:cluCallback:: downloading " << tp->url << endl);
         if (!downloadUrlWithCurl(tp->url, tp->description,DISCO_HTTP_TIMEOUT, &disco->DestAddr)) {
-            LOGERR("discovery:cllb: downloadUrlWithCurl error for: " <<
-                   tp->url << endl);
+            LOGERR("discovery:cllb: downloadUrlWithCurl error for: " << tp->url << '\n');
             {   std::unique_lock<std::mutex> lock(o_downloading_mutex);
                 o_downloading.erase(tp->url);
             }
@@ -218,8 +217,7 @@ static int cluCallBack(Upnp_EventType et, CBCONST void* evp, void*)
     }
     default:
         // Ignore other events for now
-        LOGDEB("discovery:cluCallBack: unprocessed evt type: [" <<
-               evTypeAsString(et) << "]"  << endl);
+        LOGDEB("discovery:cluCallBack: unprocessed evt type: [" << evTypeAsString(et) << "]" << '\n');
         break;
     }
 
@@ -336,7 +334,7 @@ static void *discoExplorer(void *)
             DeviceDescriptor d(
                 tsk->url, tsk->description, std::chrono::steady_clock::now(), tsk->expires);
             if (!d.device.ok) {
-                LOGERR("discoExplorer: description parse failed for " << tsk->deviceId << endl);
+                LOGERR("discoExplorer: description parse failed for " << tsk->deviceId << '\n');
                 LOGINF("discoExplorer: description data: [" << tsk->description << "]\n");
                 delete tsk;
                 continue;
