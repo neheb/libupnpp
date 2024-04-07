@@ -20,8 +20,8 @@
 
 #include "libupnpp/control/ohreceiver.hxx"
 
-#include <stdlib.h>
-#include <string.h>
+#include <cstdlib>
+#include <cstring>
 #include <upnp.h>
 
 #include <functional>

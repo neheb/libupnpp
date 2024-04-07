@@ -20,8 +20,8 @@
 #include "libupnpp/control/ohsender.hxx"
 #include "libupnpp/control/cdircontent.hxx"
 
-#include <stdlib.h>
-#include <string.h>
+#include <cstdlib>
+#include <cstring>
 #include <upnp.h>
 
 #include <functional>

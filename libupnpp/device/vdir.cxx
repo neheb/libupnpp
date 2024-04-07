@@ -19,7 +19,7 @@
 
 #include "vdir.hxx"
 
-#include <string.h>
+#include <cstring>
 #include <upnp.h>
 
 #include <iostream>

@@ -20,9 +20,9 @@
 
 #include "libupnpp/control/ohvolume.hxx"
 
-#include <stdlib.h>
-#include <string.h>
-#include <math.h>
+#include <cstdlib>
+#include <cstring>
+#include <cmath>
 #include <upnp.h>
 
 #include <functional>

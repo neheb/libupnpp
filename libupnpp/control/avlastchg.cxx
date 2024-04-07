@@ -17,7 +17,7 @@
  */
 #include "config.h"
 
-#include <string.h>
+#include <cstring>
 
 #include "libupnpp/control/avlastchg.hxx"
 #include "libupnpp/expatmm.h"

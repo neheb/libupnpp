@@ -18,7 +18,7 @@
 #include "config.h"
 #include "libupnpp/control/ohproduct.hxx"
 
-#include <string.h>
+#include <cstring>
 #include <upnp.h>
 #include <ostream>
 #include <string>

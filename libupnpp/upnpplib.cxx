@@ -18,10 +18,10 @@
 #define  LIBUPNPP_NEED_PACKAGE_VERSION
 #include "config.h"
 
-#include <ctype.h>
-#include <stdio.h>
-#include <string.h>
-#include <time.h>
+#include <cctype>
+#include <cstdio>
+#include <cstring>
+#include <ctime>
 #include <cstdarg>
 
 #ifdef __MACH__

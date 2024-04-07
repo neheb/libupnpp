@@ -23,7 +23,7 @@
 
 #include <algorithm>
 
-#include <string.h>
+#include <cstring>
 #include <upnp.h>
 
 #include "libupnpp/upnpplib.hxx"

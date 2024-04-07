@@ -20,8 +20,8 @@
 #include "libupnpp/upnpp_p.hxx"
 #include "libupnpp/soaphelp.hxx"
 
-#include <stdio.h>
-#include <stdlib.h>
+#include <cstdio>
+#include <cstdlib>
 
 #include <iostream>
 #include <vector>

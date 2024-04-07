@@ -19,7 +19,7 @@
 
 #include "libupnpp/control/avtransport.hxx"
 
-#include <stdlib.h>
+#include <cstdlib>
 #include <upnp.h>
 
 #include <ostream>

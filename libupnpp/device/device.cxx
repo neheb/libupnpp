@@ -19,9 +19,9 @@
 
 #include "device.hxx"
 
-#include <errno.h>
-#include <time.h>
-#include <string.h>
+#include <cerrno>
+#include <ctime>
+#include <cstring>
 
 #include <iostream>
 #include <sstream>

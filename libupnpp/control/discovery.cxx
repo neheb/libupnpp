@@ -17,9 +17,9 @@
  */
 #include "config.h"
 
-#include <stdlib.h>
-#include <time.h>
-#include <stdio.h>
+#include <cstdlib>
+#include <ctime>
+#include <cstdio>
 
 #include <upnp.h>
 #include <netif.h>

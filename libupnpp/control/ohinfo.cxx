@@ -18,7 +18,7 @@
 #include "config.h"
 #include "libupnpp/control/ohinfo.hxx"
 
-#include <string.h>                     // for strcmp
+#include <cstring>                     // for strcmp
 #include <upnp.h>                  // for UPNP_E_BAD_RESPONSE, etc
 #include <ostream>                      // for endl
 #include <string>                       // for string

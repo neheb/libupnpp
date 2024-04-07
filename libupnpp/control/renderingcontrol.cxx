@@ -19,9 +19,9 @@
 
 #include "libupnpp/control/renderingcontrol.hxx"
 
-#include <stdlib.h>
+#include <cstdlib>
 #include <upnp.h>
-#include <math.h>
+#include <cmath>
 
 #include <functional>
 #include <ostream>

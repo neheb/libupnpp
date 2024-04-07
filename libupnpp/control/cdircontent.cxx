@@ -17,7 +17,7 @@
  */
 #include "config.h"
 
-#include <string.h>
+#include <cstring>
 
 #include <unordered_map>
 #include <string>
