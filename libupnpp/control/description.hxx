@@ -194,9 +194,8 @@ public:
             "] friendlyName [" << friendlyName <<
             "] UDN [" << UDN <<
             "] URLBase [" << URLBase << "] Services:" << std::endl;
-        for (std::vector<UPnPServiceDesc>::const_iterator it = services.begin();
-             it != services.end(); it++) {
-            os << "    " << it->dump();
+        for (const auto& service : services) {
+            os << "    " << service.dump();
         }
         for (const auto& it: embedded) {
             os << it.dump();

@@ -58,29 +58,28 @@ void OHVolume::evtCallback(
     const std::unordered_map<std::string, std::string>& props)
 {
     LOGDEB1("OHVolume::evtCallback: getReporter(): " << getReporter() << endl);
-    for (std::unordered_map<std::string, std::string>::const_iterator it =
-                props.begin(); it != props.end(); it++) {
+    for (const auto& prop : props) {
         if (!getReporter()) {
             LOGDEB1("OHVolume::evtCallback: " << it->first << " -> "
                     << it->second << endl);
             continue;
         }
 
-        if (!it->first.compare("Volume")) {
-            int vol = devVolTo0100(atoi(it->second.c_str()));
-            getReporter()->changed(it->first.c_str(), vol);
-        } else if (!it->first.compare("VolumeLimit")) {
-            m_volmax = atoi(it->second.c_str());
+        if (!prop.first.compare("Volume")) {
+            int vol = devVolTo0100(atoi(prop.second.c_str()));
+            getReporter()->changed(prop.first.c_str(), vol);
+        } else if (!prop.first.compare("VolumeLimit")) {
+            m_volmax = atoi(prop.second.c_str());
             LOGDEB1("OHVolume: event: VolumeLimit: " << m_volmax << endl);
-        } else if (!it->first.compare("Mute")) {
+        } else if (!prop.first.compare("Mute")) {
             bool val = false;
-            stringToBool(it->second, &val);
+            stringToBool(prop.second, &val);
             LOGDEB1("OHVolume: event: Mute: " << val << endl);
-            getReporter()->changed(it->first.c_str(), val ? 1 : 0);
+            getReporter()->changed(prop.first.c_str(), val ? 1 : 0);
         } else {
             LOGDEB1("OHVolume event: untracked variable: name [" <<
                    it->first << "] value [" << it->second << endl);
-            getReporter()->changed(it->first.c_str(), it->second.c_str());
+            getReporter()->changed(prop.first.c_str(), prop.second.c_str());
         }
     }
 }

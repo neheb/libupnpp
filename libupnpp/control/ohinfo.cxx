@@ -51,27 +51,27 @@ void OHInfo::evtCallback(
     const std::unordered_map<std::string, std::string>& props)
 {
     LOGDEB1("OHInfo::evtCallback: getReporter(): " << getReporter() << endl);
-    for (std::unordered_map<std::string, std::string>::const_iterator it =
-                props.begin(); it != props.end(); it++) {
+    for (const auto& prop : props) {
         if (!getReporter()) {
             LOGDEB1("OHInfo::evtCallback: " << it->first << " -> "
                     << it->second << endl);
             continue;
         }
 
-        if (!it->first.compare("Metatext")) {
+        if (!prop.first.compare("Metatext")) {
             /* Metadata is a didl-lite string */
             UPnPDirObject dirent;
             if (OHRadio::decodeMetadata("OHInfo:evt",
-                                        it->second, &dirent) == 0) {
-                getReporter()->changed(it->first.c_str(), dirent);
+                                        prop.second, &dirent)
+                == 0) {
+                getReporter()->changed(prop.first.c_str(), dirent);
             } else {
                 LOGDEB("OHInfo:evtCallback: bad metadata in event\n");
             }
         } else {
             LOGDEB1("OHInfo event: unknown variable: name [" <<
                     it->first << "] value [" << it->second << endl);
-            getReporter()->changed(it->first.c_str(), it->second.c_str());
+            getReporter()->changed(prop.first.c_str(), prop.second.c_str());
         }
     }
 }

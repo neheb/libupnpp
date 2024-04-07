@@ -302,8 +302,8 @@ int OHPlaylist::readList(const std::vector<int>& ids,
                          vector<TrackListEntry>* entsp)
 {
     string idsparam;
-    for (vector<int>::const_iterator it = ids.begin(); it != ids.end(); it++) {
-        idsparam += SoapHelp::i2s(*it) + " ";
+    for (int id : ids) {
+        idsparam += SoapHelp::i2s(id) + " ";
     }
     entsp->clear();
 

@@ -313,9 +313,8 @@ void listSenders(vector<SenderState>& vsenders)
     sndudns.erase(unique(sndudns.begin(), sndudns.end()), sndudns.end());
 
     // Get the details
-    for (unsigned int i = 0; i < sndudns.size(); i++) {
+    for (auto udn : sndudns) {
         SenderState st;
-        string udn = sndudns[i];
         getSenderState(udn, st, false);
         if (st.has_sender) {
             vsenders.push_back(st);

@@ -410,11 +410,8 @@ string LibUPnP::makeDevUUID(const std::string& name, const std::string& hw)
     // Make very sure that there are no colons in the hw because this
     // trips some CPs (kazoo as usual...)
     std::string nhw;
-    for (unsigned int i = 0;i < hw.size();i++) {
-        if (hw[i] != ':')
-            nhw += hw[i];
-    }
-    
+    std::remove_copy(hw.begin(), hw.end(), std::back_inserter(nhw), ':');
+
     char uuid[100];
     sprintf(uuid, "%02x%02x%02x%02x-%02x%02x-%02x%02x-%02x%02x-%s",
             digest[0]&0xff, digest[1]&0xff, digest[2]&0xff, digest[3]&0xff,
@@ -543,8 +540,8 @@ template <class T> bool csvToStrings(const string &s, T &tokens)
     tokens.clear();
     enum states {TOKEN, ESCAPE};
     states state = TOKEN;
-    for (unsigned int i = 0; i < s.length(); i++) {
-        switch (s[i]) {
+    for (char i : s) {
+        switch (i) {
         case ',':
             switch(state) {
             case TOKEN:
@@ -577,7 +574,7 @@ template <class T> bool csvToStrings(const string &s, T &tokens)
             case TOKEN:
                 break;
             }
-            current += s[i];
+            current.push_back(i);
         }
     }
     switch(state) {
