@@ -199,8 +199,7 @@ private:
         auto& mapattrs = m_path.back().attributes;
 
         if (m_tobj.m_allprops) {
-            (*m_tobj.m_allprops)[nm].push_back(
-                UPnPDirObject::PropertyValue(data, mapattrs));
+            (*m_tobj.m_allprops)[nm].emplace_back(data, mapattrs);
             return;
         }
         // "old" format with concatenated string output

@@ -164,7 +164,7 @@ int Service::runAction(const SoapOutgoing& args, SoapIncoming& data, ActionOptio
 
     std::vector<std::pair<std::string, std::string>> response;
     if (opts && (opts->active_options & AOM_TIMEOUTMS)) {
-        response.push_back({"timeoutms", lltodecstr(opts->timeoutms)});
+        response.emplace_back("timeoutms", lltodecstr(opts->timeoutms));
     }
     int errcode;
     std::string errdesc;
