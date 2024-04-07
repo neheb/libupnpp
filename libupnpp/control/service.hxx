@@ -91,6 +91,11 @@ public:
 
     virtual ~Service();
 
+    // Can't copy these because this does not make sense for the
+    // member function callback.
+    Service(const Service&) = delete;
+    Service& operator=(const Service&) = delete;
+
     /** Initialize empty object from device description. 
      * This allows separating the object construction and initialization.
      * The method can fail if the appropriate service is not found. 
@@ -207,11 +212,6 @@ protected:
     void unregisterCallback();
 
 private:
-    // Can't copy these because this does not make sense for the
-    // member function callback.
-    Service(Service const&);
-    Service& operator=(Service const&);
-
     class UPNPP_LOCAL Internal;
     Internal *m{nullptr};
 };

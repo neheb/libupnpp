@@ -77,8 +77,7 @@ private:
     // (it's called by our own runAction()).
     using Service::runAction;
     class UPNPP_LOCAL Internal;
-    Internal *m{0};
-    TypedService();
+    Internal* m{0};
     void UPNPP_LOCAL evtCallback(
         const std::unordered_map<std::string, std::string>&);
     void UPNPP_LOCAL registerCallback() override;

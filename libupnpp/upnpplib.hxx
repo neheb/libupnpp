@@ -57,6 +57,9 @@ class UPNPP_API LibUPnP {
 public:
     ~LibUPnP();
 
+    LibUPnP(const LibUPnP&) = delete;
+    LibUPnP& operator=(const LibUPnP&) = delete;
+
     /** Configuration flags for the initialisation call */
     enum InitFlags {
         UPNPPINIT_FLAG_NONE = 0,
@@ -215,8 +218,6 @@ public:
 
 private:
     LibUPnP();
-    LibUPnP(const LibUPnP &);
-    LibUPnP& operator=(const LibUPnP &);
 };
 
 } // namespace UPnPP

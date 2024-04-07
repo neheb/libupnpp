@@ -50,6 +50,8 @@ namespace UPnPProvider {
 
 class VirtualDir {
 public:
+    VirtualDir(const VirtualDir&) = delete;
+    VirtualDir& operator=(const VirtualDir&) = delete;
 
     /// Get hold of the global object.
     static VirtualDir* getVirtualDir();
@@ -85,9 +87,7 @@ public:
     bool addVDir(const std::string& path, FileOps fops);
 
 private:
-    VirtualDir() {}
-    VirtualDir(VirtualDir const&) = delete;
-    VirtualDir& operator=(VirtualDir const&) = delete;
+    VirtualDir() = default;
 };
 
 }
