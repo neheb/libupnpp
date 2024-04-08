@@ -169,7 +169,7 @@ install_headers(
   subdir: 'libupnpp/control',
 )
 
-libuppnpp_dep = declare_dependency(
+libupnpp_dep = declare_dependency(
   include_directories: libupnpp_incdir,
   link_with: libupnpp,
 )
