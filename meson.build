@@ -97,7 +97,7 @@ ver = meson.project_version().split('.')
 auto.set('LIBUPNPP_VERSION_MAJOR', ver[0])
 auto.set('LIBUPNPP_VERSION_MINOR', ver[1])
 auto.set('LIBUPNPP_VERSION_REVISION', ver[2])
-auto.set_quoted('PACKAGE_VERSION', meson.project_version())
+auto.set_quoted('LIBUPNPP_VERSION', meson.project_version())
 cfile = configure_file(
   input: 'libupnpp/config.h.in',
   output: 'config.h',
