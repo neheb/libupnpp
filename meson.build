@@ -55,7 +55,7 @@ libupnpputil = static_library(
   pic: true,
 )
 
-libupnpp_incdir = include_directories('libupnpp')
+libupnpp_incdir = include_directories('.', 'libupnpp')
 
 libupnpp_sources = files(
   'libupnpp/base64.cxx',
