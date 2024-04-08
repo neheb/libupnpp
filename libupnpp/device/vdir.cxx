@@ -58,8 +58,8 @@ static std::mutex dirsmutex;
 
 static void pathcatslash(string& path)
 {
-    if (path.empty() || path[path.size() - 1] != '/') {
-        path += '/';
+    if (path.empty() || path.back() != '/') {
+        path.push_back('/');
     }
 }
 
