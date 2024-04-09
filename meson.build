@@ -55,7 +55,7 @@ libupnpputil = static_library(
   pic: true,
 )
 
-libupnpp_incdir = include_directories('libupnpp')
+libupnpp_incdir = include_directories('.', 'libupnpp')
 
 libupnpp_sources = files(
   'libupnpp/base64.cxx',
@@ -97,7 +97,7 @@ ver = meson.project_version().split('.')
 auto.set('LIBUPNPP_VERSION_MAJOR', ver[0])
 auto.set('LIBUPNPP_VERSION_MINOR', ver[1])
 auto.set('LIBUPNPP_VERSION_REVISION', ver[2])
-auto.set_quoted('PACKAGE_VERSION', meson.project_version())
+auto.set_quoted('LIBUPNPP_VERSION', meson.project_version())
 cfile = configure_file(
   input: 'libupnpp/config.h.in',
   output: 'config.h',
@@ -169,7 +169,7 @@ install_headers(
   subdir: 'libupnpp/control',
 )
 
-libuppnpp_dep = declare_dependency(
+libupnpp_dep = declare_dependency(
   include_directories: libupnpp_incdir,
   link_with: libupnpp,
 )
