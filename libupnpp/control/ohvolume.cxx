@@ -54,32 +54,30 @@ bool OHVolume::serviceTypeMatch(const std::string& tp)
     return isOHVLService(tp);
 }
 
-void OHVolume::evtCallback(
-    const std::unordered_map<std::string, std::string>& props)
+void OHVolume::evtCallback(const std::unordered_map<std::string, std::string>& props)
 {
     LOGDEB1("OHVolume::evtCallback: getReporter(): " << getReporter() << endl);
-    for (const auto& prop : props) {
+    for (const auto& [propname, propvalue] : props) {
         if (!getReporter()) {
-            LOGDEB1("OHVolume::evtCallback: " << it->first << " -> "
-                    << it->second << endl);
+            LOGDEB1("OHVolume::evtCallback: " << propname << " -> " << propvalue << endl);
             continue;
         }
 
-        if (!prop.first.compare("Volume")) {
-            int vol = devVolTo0100(atoi(prop.second.c_str()));
-            getReporter()->changed(prop.first.c_str(), vol);
-        } else if (!prop.first.compare("VolumeLimit")) {
-            m_volmax = atoi(prop.second.c_str());
+        if (propname == "Volume") {
+            int vol = devVolTo0100(atoi(propvalue.c_str()));
+            getReporter()->changed(propname.c_str(), vol);
+        } else if (propname == "VolumeLimit") {
+            m_volmax = atoi(propvalue.c_str());
             LOGDEB1("OHVolume: event: VolumeLimit: " << m_volmax << endl);
-        } else if (!prop.first.compare("Mute")) {
+        } else if (propname == "Mute") {
             bool val = false;
-            stringToBool(prop.second, &val);
+            stringToBool(propvalue, &val);
             LOGDEB1("OHVolume: event: Mute: " << val << endl);
-            getReporter()->changed(prop.first.c_str(), val ? 1 : 0);
+            getReporter()->changed(propname.c_str(), val ? 1 : 0);
         } else {
             LOGDEB1("OHVolume event: untracked variable: name [" <<
                    it->first << "] value [" << it->second << endl);
-            getReporter()->changed(prop.first.c_str(), prop.second.c_str());
+            getReporter()->changed(propname.c_str(), propvalue.c_str());
         }
     }
 }

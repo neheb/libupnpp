@@ -59,24 +59,21 @@ bool ContentDirectory::serviceTypeMatch(const std::string& tp)
     return isCDService(tp);
 }
 
-void ContentDirectory::evtCallback(
-    const std::unordered_map<string, string>& props)
+void ContentDirectory::evtCallback(const std::unordered_map<string, string>& props)
 {
-    for (const auto& prop : props) {
+    for (const auto& [propname, propvalue] : props) {
         if (!getReporter()) {
-            LOGDEB1("ContentDirectory::evtCallback: " << prop.first << " -> " << prop.second<<"\n");
+            LOGDEB1("ContentDirectory::evtCallback: " << propname << " -> " << propvalue<<"\n");
             continue;
         }
-        if (!prop.first.compare("SystemUpdateID")) {
-            getReporter()->changed(prop.first.c_str(), atoi(prop.second.c_str()));
-
-        } else if (!prop.first.compare("ContainerUpdateIDs")||!prop.first.compare("TransferIDs")) {
-            getReporter()->changed(prop.first.c_str(), prop.second.c_str());
-
+        if (propname == "SystemUpdateID") {
+            getReporter()->changed(propname.c_str(), atoi(propvalue.c_str()));
+        } else if (propname == "ContainerUpdateIDs" || propname == "TransferIDs") {
+            getReporter()->changed(propname.c_str(), propvalue.c_str());
         } else {
             LOGERR("ContentDirectory event: unknown variable: name [" <<
-                   prop.first << "] value [" << prop.second << "\n");
-            getReporter()->changed(prop.first.c_str(), prop.second.c_str());
+                   propname << "] value [" << propvalue << "\n");
+            getReporter()->changed(propname.c_str(), propvalue.c_str());
         }
     }
 }

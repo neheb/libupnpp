@@ -76,8 +76,7 @@ int OHPlaylist::stringToTpState(const string& value, OHPlaylist::TPState *tpp)
     return UPNP_E_BAD_RESPONSE;
 }
 
-void OHPlaylist::evtCallback(
-    const std::unordered_map<std::string, std::string>& props)
+void OHPlaylist::evtCallback(const std::unordered_map<std::string, std::string>& props)
 {
     LOGDEB1("OHPlaylist::evtCallback: getReporter(): " << getReporter() << endl);
     auto reporter = getReporter();
@@ -86,42 +85,34 @@ void OHPlaylist::evtCallback(
         reporter->autorenew_failed();
         return;
     }
-    for (const auto& prop : props) {
+    for (const auto& [varnm, varvalue] : props) {
         if (!reporter) {
             // For logging with no reporter set
-            LOGDEB1("OHPlaylist::evtCallback: " << prop.first << " -> "
-                    << prop.second << endl);
+            LOGDEB1("OHPlaylist::evtCallback: " << varnm << " -> " << varvalue << endl);
             continue;
         }
 
-        if (prop.first == "TransportState") {
+        if (varnm == "TransportState") {
             TPState tp;
-            stringToTpState(prop.second, &tp);
-            getReporter()->changed(prop.first.c_str(), int(tp));
-
-        } else if (prop.first == "ProtocolInfo") {
-            getReporter()->changed(prop.first.c_str(),
-                                   prop.second.c_str());
-
-        } else if (prop.first == "Repeat" || prop.first == "Shuffle") {
+            stringToTpState(varvalue, &tp);
+            getReporter()->changed(varnm.c_str(), int(tp));
+        } else if (varnm == "ProtocolInfo") {
+            getReporter()->changed(varnm.c_str(), varvalue.c_str());
+        } else if (varnm == "Repeat" || varnm == "Shuffle") {
             bool val = false;
-            stringToBool(prop.second, &val);
-            getReporter()->changed(prop.first.c_str(), val ? 1 : 0);
-
-        } else if (prop.first == "Id" || prop.first == "TracksMax") {
-            getReporter()->changed(prop.first.c_str(),
-                                   atoi(prop.second.c_str()));
-
-        } else if (prop.first == "IdArray") {
+            stringToBool(varvalue, &val);
+            getReporter()->changed(varnm.c_str(), val ? 1 : 0);
+        } else if (varnm == "Id" || varnm == "TracksMax") {
+            getReporter()->changed(varnm.c_str(), atoi(varvalue.c_str()));
+        } else if (varnm == "IdArray") {
             // Decode IdArray. See how we call the client
             vector<int> v;
-            ohplIdArrayToVec(prop.second, &v);
-            getReporter()->changed(prop.first.c_str(), v);
-
+            ohplIdArrayToVec(varvalue, &v);
+            getReporter()->changed(varnm.c_str(), v);
         } else {
             LOGERR("OHPlaylist event: unknown variable: name [" <<
-                   prop.first << "] value [" << prop.second << endl);
-            getReporter()->changed(prop.first.c_str(), prop.second.c_str());
+                   varnm << "] value [" << varvalue << endl);
+            getReporter()->changed(varnm.c_str(), varvalue.c_str());
         }
     }
 }

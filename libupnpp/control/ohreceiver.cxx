@@ -57,33 +57,29 @@ bool OHReceiver::serviceTypeMatch(const std::string& tp)
     return isOHRcService(tp);
 }
 
-void OHReceiver::evtCallback(
-    const std::unordered_map<std::string, std::string>& props)
+void OHReceiver::evtCallback(const std::unordered_map<std::string, std::string>& props)
 {
     LOGDEB1("OHReceiver::evtCallback:getReporter(): " << getReporter() << endl);
-    for (const auto& prop : props) {
+    for (const auto& [propname, propvalue] : props) {
         if (!getReporter()) {
-            LOGDEB1("OHReceiver::evtCallback: " << prop.first << " -> "
-                                                << prop.second << endl);
+            LOGDEB1("OHReceiver::evtCallback: " << propname << " -> " << propvalue << endl);
             continue;
         }
 
-        if (!prop.first.compare("TransportState")) {
+        if (propname == "TransportState") {
             OHPlaylist::TPState tp;
-            OHPlaylist::stringToTpState(prop.second, &tp);
-            getReporter()->changed(prop.first.c_str(), int(tp));
-        } else if (!prop.first.compare("Metadata")) {
-            getReporter()->changed(prop.first.c_str(),
-                                   prop.second.c_str());
-        } else if (!prop.first.compare("Uri")) {
-            getReporter()->changed(prop.first.c_str(),
-                                   prop.second.c_str());
-        } else if (!prop.first.compare("ProtocolInfo")) {
-            getReporter()->changed(prop.first.c_str(),
-                                   prop.second.c_str());
+            OHPlaylist::stringToTpState(propvalue, &tp);
+            getReporter()->changed(propname.c_str(), int(tp));
+        } else if (propname == "Metadata") {
+            getReporter()->changed(propname.c_str(), propvalue.c_str());
+        } else if (propname == "Uri") {
+            getReporter()->changed(propname.c_str(), propvalue.c_str());
+        } else if (propname == "ProtocolInfo") {
+            getReporter()->changed(propname.c_str(), propvalue.c_str());
         } else {
-            LOGERR("OHReceiver event: unknown variable: name [" << prop.first << "] value [" << prop.second << endl);
-            getReporter()->changed(prop.first.c_str(), prop.second.c_str());
+            LOGERR("OHReceiver event: unknown variable: name [" << propname << "] value [" <<
+                   propvalue << endl);
+            getReporter()->changed(propname.c_str(), propvalue.c_str());
         }
     }
 }

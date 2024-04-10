@@ -75,41 +75,40 @@ int OHRadio::decodeMetadata(const string& who,
     return 0;
 }
 
-void OHRadio::evtCallback(
-    const std::unordered_map<std::string, std::string>& props)
+void OHRadio::evtCallback(const std::unordered_map<std::string, std::string>& props)
 {
     LOGDEB1("OHRadio::evtCallback: getReporter(): " << getReporter() << endl);
-    for (const auto& prop : props) {
+    for (const auto& [propname, propvalue] : props) {
         if (!getReporter()) {
-            LOGDEB1("OHRadio::evtCallback: " << prop.first << " -> "
-                                             << prop.second << endl);
+            LOGDEB1("OHRadio::evtCallback: " << propname << " -> " << propvalue << endl);
             continue;
         }
 
-        if (!prop.first.compare("Id") || !prop.first.compare("ChannelsMax")) {
-            getReporter()->changed(prop.first.c_str(), atoi(prop.second.c_str()));
-        } else if (!prop.first.compare("IdArray")) {
+        if (propname == "Id" || propname == "ChannelsMax") {
+            getReporter()->changed(propname.c_str(), atoi(propvalue.c_str()));
+        } else if (propname == "IdArray") {
             // Decode IdArray. See how we call the client
             vector<int> v;
-            ohplIdArrayToVec(prop.second, &v);
-            getReporter()->changed(prop.first.c_str(), v);
-        } else if (!prop.first.compare("ProtocolInfo") || !prop.first.compare("Uri")) {
-            getReporter()->changed(prop.first.c_str(), prop.second.c_str());
-        } else if (!prop.first.compare("Metadata")) {
+            ohplIdArrayToVec(propvalue, &v);
+            getReporter()->changed(propname.c_str(), v);
+        } else if (propname == "ProtocolInfo" || propname == "Uri") {
+            getReporter()->changed(propname.c_str(), propvalue.c_str());
+        } else if (propname == "Metadata") {
             /* Metadata is a didl-lite string */
             UPnPDirObject dirent;
-            if (decodeMetadata("evt", prop.second, &dirent) == 0) {
-                getReporter()->changed(prop.first.c_str(), dirent);
+            if (decodeMetadata("evt", propvalue, &dirent) == 0) {
+                getReporter()->changed(propname.c_str(), dirent);
             } else {
                 LOGDEB("OHRadio:evtCallback: bad metadata in event\n");
             }
-        } else if (!prop.first.compare("TransportState")) {
+        } else if (propname == "TransportState") {
             OHPlaylist::TPState tp;
-            OHPlaylist::stringToTpState(prop.second, &tp);
-            getReporter()->changed(prop.first.c_str(), int(tp));
+            OHPlaylist::stringToTpState(propvalue, &tp);
+            getReporter()->changed(propname.c_str(), int(tp));
         } else {
-            LOGERR("OHRadio event: unknown variable: name [" << prop.first << "] value [" << prop.second << endl);
-            getReporter()->changed(prop.first.c_str(), prop.second.c_str());
+            LOGERR("OHRadio event: unknown variable: name [" << propname << "] value [" <<
+                   propvalue << endl);
+            getReporter()->changed(propname.c_str(), propvalue.c_str());
         }
     }
 }

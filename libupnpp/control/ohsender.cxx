@@ -56,31 +56,26 @@ bool OHSender::serviceTypeMatch(const std::string& tp)
     return isOHSenderService(tp);
 }
 
-void OHSender::evtCallback(
-    const std::unordered_map<std::string, std::string>& props)
+void OHSender::evtCallback(const std::unordered_map<std::string, std::string>& props)
 {
     LOGDEB1("OHSender::evtCallback:getReporter(): " << getReporter() << endl);
-    for (std::unordered_map<std::string, std::string>::const_iterator it =
-                props.begin(); it != props.end(); it++) {
+    for (const auto& [propname, propvalue] : props) {
         if (!getReporter()) {
-            LOGDEB1("OHSender::evtCallback: " << it->first << " -> "
-                    << it->second << endl);
+            LOGDEB1("OHSender::evtCallback: " << propname << " -> " << propvalue << endl);
             continue;
         }
 
-        if (!it->first.compare("Audio")) {
+        if (propname == "Audio") {
             bool val = false;
-            stringToBool(it->second, &val);
-            getReporter()->changed(it->first.c_str(), val ? 1 : 0);
-        } else if (!it->first.compare("Metadata") ||
-                   !it->first.compare("Attributes") ||
-                   !it->first.compare("PresentationUrl") ||
-                   !it->first.compare("Status")) {
-            getReporter()->changed(it->first.c_str(), it->second.c_str());
+            stringToBool(propvalue, &val);
+            getReporter()->changed(propname.c_str(), val ? 1 : 0);
+        } else if (propname == "Metadata" || propname == "Attributes" ||
+                   propname == "PresentationUrl" || propname == "Status") {
+            getReporter()->changed(propname.c_str(), propvalue.c_str());
         } else {
             LOGERR("OHSender event: unknown variable: name [" <<
-                   it->first << "] value [" << it->second << endl);
-            getReporter()->changed(it->first.c_str(), it->second.c_str());
+                   propname << "] value [" << propvalue << endl);
+            getReporter()->changed(propname.c_str(), propvalue.c_str());
         }
     }
 }

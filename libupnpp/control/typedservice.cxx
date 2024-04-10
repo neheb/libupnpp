@@ -119,8 +119,7 @@ int TypedService::runAction(const string& actnm, vector<string> args, map<string
     return UPNP_E_SUCCESS;
 }
 
-void TypedService::evtCallback(
-    const std::unordered_map<std::string, std::string>& props)
+void TypedService::evtCallback(const std::unordered_map<std::string, std::string>& props)
 {
     VarEventReporter *reporter = getReporter();
     LOGDEB1("TypedService::evtCallback: reporter: " << reporter << endl);

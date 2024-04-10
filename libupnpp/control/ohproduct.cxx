@@ -110,21 +110,21 @@ bool OHProduct::serviceTypeMatch(const std::string& tp)
 void OHProduct::evtCallback(const std::unordered_map<std::string, std::string>& props)
 {
     LOGDEB1("OHProduct::evtCallback: getReporter(): " << getReporter() << "\n");
-    for (const auto& prop : props) {
+    for (const auto& [propname, propvalue] : props) {
         if (!getReporter()) {
-            LOGDEB1("OHProduct::evtCallback: " << prop.first << " -> " << prop.second << "\n");
+            LOGDEB1("OHProduct::evtCallback: " << propname << " -> " << propvalue << "\n");
             continue;
         }
-        if (prop.first == "SourceIndex") {
-            getReporter()->changed(prop.first.c_str(), atoi(prop.second.c_str()));
-        } else if (prop.first == "Standby") {
+        if (propname == "SourceIndex") {
+            getReporter()->changed(propname.c_str(), atoi(propvalue.c_str()));
+        } else if (propname == "Standby") {
             bool val = false;
-            stringToBool(prop.second, &val);
-            getReporter()->changed(prop.first.c_str(), val ? 1 : 0);
+            stringToBool(propvalue, &val);
+            getReporter()->changed(propname.c_str(), val ? 1 : 0);
         } else {
             LOGDEB1("OHProduct event: unknown variable: name [" <<
-                    prop.first << "] value [" << prop.second << "\n");
-            getReporter()->changed(prop.first.c_str(), prop.second.c_str());
+                    propname << "] value [" << propvalue << "\n");
+            getReporter()->changed(propname.c_str(), propvalue.c_str());
         }
     }
 }

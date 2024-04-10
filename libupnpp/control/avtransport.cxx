@@ -116,8 +116,7 @@ static AVTransport::PlayMode stringToPlayMode(const string& s)
     }
 }
 
-void AVTransport::evtCallback(
-    const std::unordered_map<std::string, std::string>& props)
+void AVTransport::evtCallback(const std::unordered_map<std::string, std::string>& props)
 {
     LOGDEB1("AVTransport::evtCallback:" << "\n");
     auto reporter = getReporter();
@@ -126,42 +125,35 @@ void AVTransport::evtCallback(
         return;
     }
 
-    for (const auto& prop : props) {
-        if (prop.first.compare("LastChange")) {
+    for (const auto& [propname, propvalue] : props) {
+        if (propname != "LastChange") {
             LOGINF("AVTransport:event: var not lastchange: "
-                   << prop.first << " -> " << prop.second << "\n");
+                   << propname << " -> " << propvalue << "\n");
             continue;
         }
-        LOGDEB1("AVTransport:event: " << prop.first << " -> " << prop.second << "\n");
+        LOGDEB1("AVTransport:event: " << propname << " -> " << propvalue << "\n");
 
         std::unordered_map<std::string, std::string> changes;
-        if (!decodeAVLastChange(prop.second, changes)) {
-            LOGERR("AVTransport::evtCallback: bad LastChange value: " << prop.second << "\n");
+        if (!decodeAVLastChange(propvalue, changes)) {
+            LOGERR("AVTransport::evtCallback: bad LastChange value: " << propvalue << "\n");
             return;
         }
-        for (const auto& varchg : changes) {
-            const std::string& varnm{varchg.first};
-            const std::string& varvalue{varchg.second};
 
+        for (const auto& [varnm, varvalue] : changes) {
             if (!varnm.compare("TransportState")) {
                 reporter->changed(varnm.c_str(), stringToTpState(varvalue));
-
             } else if (!varnm.compare("TransportStatus")) {
                 reporter->changed(varnm.c_str(), stringToTpStatus(varvalue));
-
             } else if (!varnm.compare("CurrentPlayMode")) {
                 reporter->changed(varnm.c_str(), stringToPlayMode(varvalue));
-
             } else if (!varnm.compare("CurrentTransportActions")) {
                 int iacts;
                 if (!CTAStringToBits(varvalue, iacts))
                     reporter->changed(varnm.c_str(), iacts);
-
             } else if (!varnm.compare("CurrentTrackURI") ||
                        !varnm.compare("AVTransportURI") ||
                        !varnm.compare("NextAVTransportURI")) {
                 reporter->changed(varnm.c_str(), varvalue.c_str());
-
             } else if (!varnm.compare("TransportPlaySpeed") ||
                        !varnm.compare("CurrentTrack") ||
                        !varnm.compare("NumberOfTracks") ||
@@ -169,13 +161,11 @@ void AVTransport::evtCallback(
                        !varnm.compare("AbsoluteCounterPosition") ||
                        !varnm.compare("InstanceID")) {
                 reporter->changed(varnm.c_str(), atoi(varvalue.c_str()));
-
             } else if (!varnm.compare("CurrentMediaDuration") ||
                        !varnm.compare("CurrentTrackDuration") ||
                        !varnm.compare("RelativeTimePosition") ||
                        !varnm.compare("AbsoluteTimePosition")) {
                 reporter->changed(varnm.c_str(), upnpdurationtos(varvalue));
-
             } else if (!varnm.compare("AVTransportURIMetaData") ||
                        !varnm.compare("NextAVTransportURIMetaData") ||
                        !varnm.compare("CurrentTrackMetaData")) {
@@ -196,7 +186,6 @@ void AVTransport::evtCallback(
                        !varnm.compare("CurrentRecordQualityMode") ||
                        !varnm.compare("PossibleRecordQualityModes")) {
                 reporter->changed(varnm.c_str(), varvalue.c_str());
-
             } else {
                 LOGDEB1("AVTransport event: unknown variable: name [" <<
                         varnm << "] value [" << varvalue << "\n");

@@ -104,25 +104,25 @@ void RenderingControl::evtCallback(const std::unordered_map<std::string, std::st
     if (nullptr == reporter)
         return;
 
-    for (const auto& var : vars) {
-        if (var.first.compare("LastChange")) {
-            LOGINF("RenderingControl:event: not LastChange? "<< var.first<<","<<var.second<<"\n");
+    for (const auto& [varnm, varvalue] : vars) {
+        if (varnm.compare("LastChange")) {
+            LOGINF("RenderingControl:event: not LastChange? "<< varnm << "," << varvalue << "\n");
             continue;
         }
         std::unordered_map<std::string, std::string> props;
-        if (!decodeAVLastChange(var.second, props)) {
-            LOGERR("RenderingControl::evtCallback: bad LastChange value: " << var.second << "\n");
+        if (!decodeAVLastChange(varvalue, props)) {
+            LOGERR("RenderingControl::evtCallback: bad LastChange value: " << varvalue << "\n");
             return;
         }
-        for (const auto& prop: props) {
-            LOGINF("    " << prop.first << " -> " << prop.second << "\n");
-            if (beginswith(prop.first, volumevarname)) {
-                int vol = devVolTo0100(atoi(prop.second.c_str()));
-                reporter->changed(prop.first.c_str(), vol);
-            } else if (beginswith(prop.first, mutevarname)) {
+        for (const auto& [propname, propvalue] : props) {
+            LOGINF("    " << propname << " -> " << propvalue << "\n");
+            if (beginswith(propname, volumevarname)) {
+                int vol = devVolTo0100(atoi(propvalue.c_str()));
+                reporter->changed(propname.c_str(), vol);
+            } else if (beginswith(propname, mutevarname)) {
                 bool mute;
-                if (stringToBool(prop.second, &mute))
-                    reporter->changed(prop.first.c_str(), mute);
+                if (stringToBool(propvalue, &mute))
+                    reporter->changed(propname.c_str(), mute);
             }
         }
     }

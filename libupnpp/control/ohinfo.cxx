@@ -47,31 +47,27 @@ bool OHInfo::serviceTypeMatch(const std::string& tp)
     return isOHInfoService(tp);
 }
 
-void OHInfo::evtCallback(
-    const std::unordered_map<std::string, std::string>& props)
+void OHInfo::evtCallback(const std::unordered_map<std::string, std::string>& props)
 {
     LOGDEB1("OHInfo::evtCallback: getReporter(): " << getReporter() << endl);
-    for (const auto& prop : props) {
+    for (const auto& [propname, propvalue] : props) {
         if (!getReporter()) {
-            LOGDEB1("OHInfo::evtCallback: " << it->first << " -> "
-                    << it->second << endl);
+            LOGDEB1("OHInfo::evtCallback: " << propname << " -> " << propvalue << endl);
             continue;
         }
 
-        if (!prop.first.compare("Metatext")) {
+        if (propname == "Metatext") {
             /* Metadata is a didl-lite string */
             UPnPDirObject dirent;
-            if (OHRadio::decodeMetadata("OHInfo:evt",
-                                        prop.second, &dirent)
-                == 0) {
-                getReporter()->changed(prop.first.c_str(), dirent);
+            if (OHRadio::decodeMetadata("OHInfo:evt", propvalue, &dirent) == 0) {
+                getReporter()->changed(propname.c_str(), dirent);
             } else {
                 LOGDEB("OHInfo:evtCallback: bad metadata in event\n");
             }
         } else {
             LOGDEB1("OHInfo event: unknown variable: name [" <<
-                    it->first << "] value [" << it->second << endl);
-            getReporter()->changed(prop.first.c_str(), prop.second.c_str());
+                    propname << "] value [" << propvalue << endl);
+            getReporter()->changed(propname.c_str(), propvalue.c_str());
         }
     }
 }
