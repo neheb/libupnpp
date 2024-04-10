@@ -38,18 +38,11 @@ typedef std::shared_ptr<OHInfo> OHIFH;
  */
 class UPNPP_API OHInfo : public Service {
 public:
-
-    OHInfo(const UPnPDeviceDesc& device, const UPnPServiceDesc& service)
-        : Service(device, service) {
-    }
-
-    OHInfo() {}
-
-    ~OHInfo() {}
+    using Service::Service;
 
     /** Test service type from discovery message */
     static bool isOHInfoService(const std::string& st);
-    virtual bool serviceTypeMatch(const std::string& tp);
+    bool serviceTypeMatch(const std::string& tp) override;
 
     int counters(int *trackcount, int *detailscount, int *metatextcount);
     int track(std::string *uri, UPnPDirObject *dirent);
@@ -64,7 +57,7 @@ protected:
 private:
     void UPNPP_LOCAL evtCallback(
         const std::unordered_map<std::string, std::string>&);
-    void UPNPP_LOCAL registerCallback();
+    void UPNPP_LOCAL registerCallback() override;
 };
 
 } // namespace UPnPClient

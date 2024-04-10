@@ -50,6 +50,8 @@ namespace UPnPProvider {
 
 class VirtualDir {
 public:
+    VirtualDir(const VirtualDir&) = delete;
+    VirtualDir& operator=(const VirtualDir&) = delete;
 
     /// Get hold of the global object.
     static VirtualDir* getVirtualDir();
@@ -64,16 +66,11 @@ public:
 
     class FileInfo {
     public:
-    FileInfo()
-        : file_length(0), last_modified(0), is_directory(false),
-          is_readable(true) {
-    }
-    
-    off_t file_length;
-    time_t last_modified;
-    bool is_directory;
-    bool is_readable;
-    std::string mime;
+        off_t file_length{0};
+        time_t last_modified{0};
+        bool is_directory{false};
+        bool is_readable{true};
+        std::string mime;
     };
 
     class FileOps {
@@ -90,9 +87,7 @@ public:
     bool addVDir(const std::string& path, FileOps fops);
 
 private:
-    VirtualDir() {}
-    VirtualDir(VirtualDir const&) = delete;
-    VirtualDir& operator=(VirtualDir const&) = delete;
+    VirtualDir() = default;
 };
 
 }

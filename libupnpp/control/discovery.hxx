@@ -61,6 +61,9 @@ namespace UPnPClient {
  */
 class UPNPP_API UPnPDeviceDirectory {
 public:
+    UPnPDeviceDirectory(const UPnPDeviceDirectory&) = delete;
+    UPnPDeviceDirectory& operator=(const UPnPDeviceDirectory&) = delete;
+
     /** Retrieve the singleton object for the discovery service, and possibly start it up if this 
      * is the first call. This does not wait significantly: a subsequent traverse() will wait until
      * the initial delay is consumed. 2 S is libupnp MIN_SEARCH_WAIT, I don't see much reason to use
@@ -147,8 +150,6 @@ public:
     const std::string getReason();
 
 private:
-    UPnPDeviceDirectory(const UPnPDeviceDirectory &) = delete;
-    UPnPDeviceDirectory& operator=(const UPnPDeviceDirectory &) = delete;
     UPNPP_LOCAL UPnPDeviceDirectory(time_t search_window);
 };
 

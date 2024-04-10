@@ -79,41 +79,37 @@ void OHRadio::evtCallback(
     const std::unordered_map<std::string, std::string>& props)
 {
     LOGDEB1("OHRadio::evtCallback: getReporter(): " << getReporter() << endl);
-    for (std::unordered_map<std::string, std::string>::const_iterator it =
-                props.begin(); it != props.end(); it++) {
+    for (const auto& prop : props) {
         if (!getReporter()) {
-            LOGDEB1("OHRadio::evtCallback: " << it->first << " -> "
-                    << it->second << endl);
+            LOGDEB1("OHRadio::evtCallback: " << prop.first << " -> "
+                                             << prop.second << endl);
             continue;
         }
 
-        if (!it->first.compare("Id") ||
-                !it->first.compare("ChannelsMax")) {
-            getReporter()->changed(it->first.c_str(), atoi(it->second.c_str()));
-        } else if (!it->first.compare("IdArray")) {
+        if (!prop.first.compare("Id") || !prop.first.compare("ChannelsMax")) {
+            getReporter()->changed(prop.first.c_str(), atoi(prop.second.c_str()));
+        } else if (!prop.first.compare("IdArray")) {
             // Decode IdArray. See how we call the client
             vector<int> v;
-            ohplIdArrayToVec(it->second, &v);
-            getReporter()->changed(it->first.c_str(), v);
-        } else if (!it->first.compare("ProtocolInfo") ||
-                   !it->first.compare("Uri")) {
-            getReporter()->changed(it->first.c_str(), it->second.c_str());
-        } else if (!it->first.compare("Metadata")) {
+            ohplIdArrayToVec(prop.second, &v);
+            getReporter()->changed(prop.first.c_str(), v);
+        } else if (!prop.first.compare("ProtocolInfo") || !prop.first.compare("Uri")) {
+            getReporter()->changed(prop.first.c_str(), prop.second.c_str());
+        } else if (!prop.first.compare("Metadata")) {
             /* Metadata is a didl-lite string */
             UPnPDirObject dirent;
-            if (decodeMetadata("evt", it->second, &dirent) == 0) {
-                getReporter()->changed(it->first.c_str(), dirent);
+            if (decodeMetadata("evt", prop.second, &dirent) == 0) {
+                getReporter()->changed(prop.first.c_str(), dirent);
             } else {
                 LOGDEB("OHRadio:evtCallback: bad metadata in event\n");
             }
-        } else if (!it->first.compare("TransportState")) {
+        } else if (!prop.first.compare("TransportState")) {
             OHPlaylist::TPState tp;
-            OHPlaylist::stringToTpState(it->second, &tp);
-            getReporter()->changed(it->first.c_str(), int(tp));
+            OHPlaylist::stringToTpState(prop.second, &tp);
+            getReporter()->changed(prop.first.c_str(), int(tp));
         } else {
-            LOGERR("OHRadio event: unknown variable: name [" <<
-                   it->first << "] value [" << it->second << endl);
-            getReporter()->changed(it->first.c_str(), it->second.c_str());
+            LOGERR("OHRadio event: unknown variable: name [" << prop.first << "] value [" << prop.second << endl);
+            getReporter()->changed(prop.first.c_str(), prop.second.c_str());
         }
     }
 }
@@ -257,7 +253,8 @@ public:
     }
 
 protected:
-    virtual void EndElement(const XML_Char *name) {
+    void EndElement(const XML_Char* name) override
+    {
         if (!strcmp(name, "Entry")) {
             UPnPDirContent dir;
             if (!dir.parse(m_tdidl)) {
@@ -276,7 +273,8 @@ protected:
             m_tdidl.clear();
         }
     }
-    virtual void CharacterData(const XML_Char *s, int len) {
+    void CharacterData(const XML_Char* s, int len) override
+    {
         if (s == 0 || *s == 0)
             return;
         string str(s, len);
@@ -298,8 +296,8 @@ int OHRadio::readList(const std::vector<int>& ids,
                       vector<OHPlaylist::TrackListEntry>* entsp)
 {
     string idsparam;
-    for (vector<int>::const_iterator it = ids.begin(); it != ids.end(); it++) {
-        idsparam += SoapHelp::i2s(*it) + " ";
+    for (int id : ids) {
+        idsparam += SoapHelp::i2s(id) + " ";
     }
     entsp->clear();
 

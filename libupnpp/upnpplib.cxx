@@ -410,11 +410,8 @@ string LibUPnP::makeDevUUID(const std::string& name, const std::string& hw)
     // Make very sure that there are no colons in the hw because this
     // trips some CPs (kazoo as usual...)
     std::string nhw;
-    for (unsigned int i = 0;i < hw.size();i++) {
-        if (hw[i] != ':')
-            nhw += hw[i];
-    }
-    
+    std::remove_copy(hw.begin(), hw.end(), std::back_inserter(nhw), ':');
+
     char uuid[100];
     sprintf(uuid, "%02x%02x%02x%02x-%02x%02x-%02x%02x-%02x%02x-%s",
             digest[0]&0xff, digest[1]&0xff, digest[2]&0xff, digest[3]&0xff,
@@ -471,11 +468,11 @@ string caturl(const string& base, const string& rel)
         return rel;
     
     string out(base);
-    if (out[out.size()-1] == '/') {
-        if (rel[0] == '/')
-            out.erase(out.size()-1);
+    if (out.back() == '/') {
+        if (rel.front() == '/')
+            out.pop_back();
     } else {
-        if (rel[0] != '/')
+        if (rel.front() != '/')
             out.push_back('/');
     }
     out += rel;
@@ -497,8 +494,8 @@ string baseurl(const string& url)
 }
 
 static void path_catslash(string &s) {
-    if (s.empty() || s[s.length() - 1] != '/')
-        s += '/';
+    if (s.empty() || s.back() != '/')
+        s.push_back('/');
 }
 string path_getfather(const string &s)
 {
@@ -508,11 +505,11 @@ string path_getfather(const string &s)
     if (father.empty())
         return "./";
 
-    if (father[father.length() - 1] == '/') {
+    if (father.back() == '/') {
         // Input ends with /. Strip it, handle special case for root
         if (father.length() == 1)
             return father;
-        father.erase(father.length()-1);
+        father.pop_back();
     }
 
     string::size_type slp = father.rfind('/');
@@ -543,8 +540,8 @@ template <class T> bool csvToStrings(const string &s, T &tokens)
     tokens.clear();
     enum states {TOKEN, ESCAPE};
     states state = TOKEN;
-    for (unsigned int i = 0; i < s.length(); i++) {
-        switch (s[i]) {
+    for (char i : s) {
+        switch (i) {
         case ',':
             switch(state) {
             case TOKEN:
@@ -552,7 +549,7 @@ template <class T> bool csvToStrings(const string &s, T &tokens)
                 current.clear();
                 continue;
             case ESCAPE:
-                current += ',';
+                current.push_back(',');
                 state = TOKEN;
                 continue;
             }
@@ -563,7 +560,7 @@ template <class T> bool csvToStrings(const string &s, T &tokens)
                 state=ESCAPE;
                 continue;
             case ESCAPE:
-                current += '\\';
+                current.push_back('\\');
                 state = TOKEN;
                 continue;
             }
@@ -577,7 +574,7 @@ template <class T> bool csvToStrings(const string &s, T &tokens)
             case TOKEN:
                 break;
             }
-            current += s[i];
+            current.push_back(i);
         }
     }
     switch(state) {
@@ -635,11 +632,11 @@ std::string reSanitizeURL(const std::string& in)
     for (unsigned char c : in) {
         const char *h = "0123456789ABCDEF";
         if (c <= 0x20 || c >= 0x7f || options.resanitizedchars.find(c) != std::string::npos) {
-            out += '%';
-            out += h[(c >> 4) & 0xf];
-            out += h[c & 0xf];
+            out.push_back('%');
+            out.push_back(h[(c >> 4) & 0xf]);
+            out.push_back(h[c & 0xf]);
         } else {
-            out += char(c);
+            out.push_back(char(c));
         }
     }
     return out;

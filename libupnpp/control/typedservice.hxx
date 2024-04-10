@@ -47,10 +47,10 @@ public:
      */
     TypedService(const std::string& tp);
 
-    virtual ~TypedService();
+    ~TypedService() override;
 
     /** Check if the input matches our service type */
-    virtual bool serviceTypeMatch(const std::string& tp);
+    bool serviceTypeMatch(const std::string& tp) override;
 
     /** Run an action specified by name, with specified input return output.
      * @param name the action name (e.g. SetAVTransportURI)
@@ -68,8 +68,8 @@ protected:
     /** Service-specific part of initialization. This downloads and parses 
      * the service description data. This is called from initFromDescription(),
      * typically in findTypedService() in our case. */
-    virtual bool serviceInit(const UPnPDeviceDesc& device,
-                             const UPnPServiceDesc& service);
+    bool serviceInit(const UPnPDeviceDesc& device,
+                     const UPnPServiceDesc& service) override;
 
 private:
     // Suppress warning about the normal Service class runAction being
@@ -77,11 +77,10 @@ private:
     // (it's called by our own runAction()).
     using Service::runAction;
     class UPNPP_LOCAL Internal;
-    Internal *m{0};
-    TypedService();
+    Internal* m{0};
     void UPNPP_LOCAL evtCallback(
         const std::unordered_map<std::string, std::string>&);
-    void UPNPP_LOCAL registerCallback();
+    void UPNPP_LOCAL registerCallback() override;
 };
 
 

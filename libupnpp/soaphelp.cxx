@@ -177,13 +177,13 @@ const string& SoapOutgoing::getName() const
 
 SoapOutgoing& SoapOutgoing::addarg(const string& k, const string& v)
 {
-    m->data.push_back(pair<string, string>(k, v));
+    m->data.emplace_back(k, v);
     return *this;
 }
 
 SoapOutgoing& SoapOutgoing::operator()(const string& k, const string& v)
 {
-    m->data.push_back(pair<string, string>(k, v));
+    m->data.emplace_back(k, v);
     return *this;
 }
 

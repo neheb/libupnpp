@@ -25,13 +25,14 @@ namespace UPnPProvider {
 class UpnpService::Internal {
 public:
     Internal(bool noevs)
-        : noevents(noevs), dev(0) {
+        : noevents(noevs)
+    {
     }
     std::string serviceType;
     std::string serviceId;
     std::string xmlfn;
     bool noevents;
-    UpnpDevice *dev;
+    UpnpDevice* dev{0};
 };
 
 UpnpService::UpnpService(

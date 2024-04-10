@@ -55,8 +55,8 @@ public:
     }
     UPnPDirContent& m_dir;
 protected:
-
-    virtual void StartElement(const XML_Char *name, const XML_Char **) {
+    void StartElement(const XML_Char* name, const XML_Char**) override
+    {
         //LOGDEB("startElement: name [" << name << "]" << " bpos " <<
         //             XML_GetCurrentByteIndex(expat_parser) << endl);
         auto& mapattrs = m_path.back().attributes;
@@ -112,7 +112,8 @@ protected:
         return ok;
     }
 
-    virtual void EndElement(const XML_Char *name) {
+    void EndElement(const XML_Char* name) override
+    {
         string parentname;
         if (m_path.size() == 1) {
             parentname = "root";
@@ -180,7 +181,8 @@ protected:
         }
     }
 
-    virtual void CharacterData(const XML_Char *s, int len) {
+    void CharacterData(const XML_Char* s, int len) override
+    {
         if (s == 0 || *s == 0)
             return;
         string str(s, len);
@@ -197,8 +199,7 @@ private:
         auto& mapattrs = m_path.back().attributes;
 
         if (m_tobj.m_allprops) {
-            (*m_tobj.m_allprops)[nm].push_back(
-                UPnPDirObject::PropertyValue(data, mapattrs));
+            (*m_tobj.m_allprops)[nm].emplace_back(data, mapattrs);
             return;
         }
         // "old" format with concatenated string output

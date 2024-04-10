@@ -19,6 +19,7 @@
 #define _UPNPDIRCONTENT_H_X_INCLUDED_
 
 #include <map>
+#include <memory>
 #include <sstream>
 #include <string>
 #include <utility>
@@ -86,7 +87,6 @@ public:
     /// no attributes, so the attributes storage is dynamically
     /// allocated to save space. Beware that attrs can be the nullptr.
     struct PropertyValue {
-        PropertyValue() {}
         PropertyValue(const std::string& v,
                       const std::map<std::string, std::string>& a)
             : value(v) {
@@ -236,7 +236,7 @@ public:
         m_iclass = ITC_unknown;
         m_props.clear();
         if (detailed) {
-            m_allprops = std::shared_ptr<PropertyMap>(new PropertyMap);
+            m_allprops = std::make_shared<PropertyMap>();
         } else {
             m_allprops = std::shared_ptr<PropertyMap>();
         }
@@ -250,21 +250,16 @@ public:
            " id [" << m_id << "] pid [" << m_pid <<
            "] title [" << m_title << "]" << std::endl;
         os << "Properties: " << std::endl;
-        for (std::map<std::string,std::string>::const_iterator it =
-                    m_props.begin();
-                it != m_props.end(); it++) {
-            os << "[" << it->first << "]->[" << it->second << "] "
+        for (const auto& m_prop : m_props) {
+            os << "[" << m_prop.first << "]->[" << m_prop.second << "] "
                << std::endl;
         }
         os << "Resources:" << std::endl;
-        for (std::vector<UPnPResource>::const_iterator it =
-                    m_resources.begin(); it != m_resources.end(); it++) {
-            os << "  Uri [" << it->m_uri << "]" << std::endl;
+        for (const auto& m_resource : m_resources) {
+            os << "  Uri [" << m_resource.m_uri << "]" << std::endl;
             os << "  Resource attributes:" << std::endl;
-            for (std::map<std::string, std::string>::const_iterator it1 =
-                        it->m_props.begin();
-                    it1 != it->m_props.end(); it1++) {
-                os << "    [" << it1->first << "]->[" << it1->second << "] "
+            for (const auto& m_prop : m_resource.m_props) {
+                os << "    [" << m_prop.first << "]->[" << m_prop.second << "] "
                    << std::endl;
             }
         }

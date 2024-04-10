@@ -34,7 +34,8 @@ public:
         : inputRefXMLParser(input), m_props(props) {}
 
 protected:
-    virtual void StartElement(const XML_Char *name, const XML_Char **attrs) {
+    void StartElement(const XML_Char* name, const XML_Char** attrs) override
+    {
         if (!strcmp(name, "Event"))
             return;
         LOGDEB1("LastchangeParser: " << name << "\n");
@@ -53,6 +54,7 @@ protected:
             m_props[std::string(name) + "-" + channel] = value;
         }
     }
+
 private:
     std::unordered_map<string, string>& m_props;
 };

@@ -37,13 +37,7 @@ typedef std::shared_ptr<AVTransport> AVTH;
  */
 class UPNPP_API AVTransport : public Service {
 public:
-
-    /** Construct by copying data from device and service objects. */
-    AVTransport(const UPnPDeviceDesc& dev, const UPnPServiceDesc& srv)
-        : Service(dev, srv) {
-    }
-    AVTransport() {}
-    virtual ~AVTransport() {}
+    using Service::Service;
 
     int setAVTransportURI(const std::string& uri, const std::string& metadata,
                           int instanceID=0)
@@ -136,7 +130,7 @@ public:
 
     /** Test service type from discovery message */
     static bool isAVTService(const std::string& st);
-    virtual bool serviceTypeMatch(const std::string& tp);
+    bool serviceTypeMatch(const std::string& tp) override;
 
 protected:
     /* My service type string */
@@ -149,7 +143,7 @@ protected:
 private:
     void UPNPP_LOCAL evtCallback(
         const std::unordered_map<std::string, std::string>&);
-    void UPNPP_LOCAL registerCallback();
+    void UPNPP_LOCAL registerCallback() override;
 };
 
 } // namespace UPnPClient

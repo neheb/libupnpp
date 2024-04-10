@@ -36,7 +36,7 @@ public:
                         std::vector<UPnPP::ProtocolinfoEntry>& sinkEntries);
     
     static bool isConManService(const std::string& st);
-    virtual bool serviceTypeMatch(const std::string& tp);
+    bool serviceTypeMatch(const std::string& tp) override;
 };
     
 } // namespace

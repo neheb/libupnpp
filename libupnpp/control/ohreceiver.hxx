@@ -39,16 +39,11 @@ typedef std::shared_ptr<OHReceiver> OHRCH;
  */
 class UPNPP_API OHReceiver : public Service {
 public:
-
-    OHReceiver(const UPnPDeviceDesc& device, const UPnPServiceDesc& service)
-        : Service(device, service) {
-    }
-    OHReceiver() {}
-    virtual ~OHReceiver() {}
+    using Service::Service;
 
     /** Test service type from discovery message */
     static bool isOHRcService(const std::string& st);
-    virtual bool serviceTypeMatch(const std::string& tp);
+    bool serviceTypeMatch(const std::string& tp) override;
 
     int play();
     int stop();
@@ -64,7 +59,7 @@ protected:
 private:
     void UPNPP_LOCAL evtCallback(
         const std::unordered_map<std::string, std::string>&);
-    void UPNPP_LOCAL registerCallback();
+    void UPNPP_LOCAL registerCallback() override;
 };
 
 } // namespace UPnPClient

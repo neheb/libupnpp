@@ -58,8 +58,8 @@ static std::mutex dirsmutex;
 
 static void pathcatslash(string& path)
 {
-    if (path.empty() || path[path.size() - 1] != '/') {
-        path += '/';
+    if (path.empty() || path.back() != '/') {
+        path.push_back('/');
     }
 }
 
@@ -139,13 +139,14 @@ bool VirtualDir::addVDir(const std::string& _path, FileOps fops)
 // Methods for the libupnp interface:
 
 struct Handle {
-    Handle(FileEnt *e, DirEnt *d = nullptr, void *vh = 0)
-        : entry(e), dir(d), vhandle(vh), offset(0) {
+    Handle(FileEnt* e, DirEnt* d = nullptr, void* vh = 0)
+        : entry(e), dir(d), vhandle(vh)
+    {
     }
     FileEnt *entry;
     DirEnt *dir;
     void *vhandle;
-    int64_t offset;
+    int64_t offset{0};
 };
 
 static int vdclose(UpnpWebFileHandle fileHnd, const void*, const void*)

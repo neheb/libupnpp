@@ -54,12 +54,11 @@ struct UPNPP_API SenderState {
     std::string uri;
     std::string meta;
     std::string reason;
-    bool has_sender;
+    bool has_sender{false};
 
     OHPRH prod;
     OHSNH sender;
 
-    SenderState() : has_sender(false) { }
     void reset() {
         nm = UDN = uri = meta = reason = std::string();
         has_sender = false;
@@ -84,8 +83,8 @@ struct UPNPP_API ReceiverState {
     enum SCState {SCRS_GENERROR, SCRS_NOOH, SCRS_NOTRECEIVER,
                   SCRS_STOPPED, SCRS_PLAYING
     };
-    SCState state;
-    int receiverSourceIndex;
+    SCState state{SCRS_GENERROR};
+    int receiverSourceIndex{-1};
     std::string nm;
     std::string UDN;
     std::string uri;
@@ -94,10 +93,6 @@ struct UPNPP_API ReceiverState {
 
     OHPRH prod;
     OHRCH rcv;
-
-    ReceiverState()
-        : state(SCRS_GENERROR), receiverSourceIndex(-1) {
-    }
 
     void reset() {
         state = ReceiverState::SCRS_GENERROR;

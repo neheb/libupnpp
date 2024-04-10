@@ -58,13 +58,15 @@ public:
         : inputRefXMLParser(input), m_sources(sources) {}
 
 protected:
-    virtual void EndElement(const XML_Char *name) {
+    void EndElement(const XML_Char* name) override
+    {
         if (!strcmp(name, "Source")) {
             m_sources.push_back(m_tsrc);
             m_tsrc = OHProduct::Source();
         }
     }
-    virtual void CharacterData(const XML_Char *s, int len) {
+    void CharacterData(const XML_Char* s, int len) override
+    {
         if (s == 0 || *s == 0)
             return;
         std::string str(s, len);

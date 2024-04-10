@@ -134,9 +134,9 @@ bool parseProtocolInfo(const std::string& pinfo,
 {
     vector<string> rawentries;
     stringToTokens(pinfo, rawentries, ",");
-    for (unsigned int i = 0; i < rawentries.size(); i++) {
+    for (const auto& rawentrie : rawentries) {
         ProtocolinfoEntry e;
-        if (parseProtoInfEntry(rawentries[i], e)) {
+        if (parseProtoInfEntry(rawentrie, e)) {
             entries.push_back(std::move(e));
         }
     }
