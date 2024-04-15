@@ -20,8 +20,8 @@
 
 #include "libupnpp/control/ohtime.hxx"
 
-#include <stdlib.h>
-#include <string.h>
+#include <cstdlib>
+#include <cstring>
 #include <upnp.h>
 
 #include <functional>
@@ -65,15 +65,14 @@ void OHTime::evtCallback(
             continue;
         }
 
-        if (!ent.first.compare("TrackCount") ||
-                !ent.first.compare("Duration") ||
-                !ent.first.compare("Seconds")) {
+        if (ent.first == "TrackCount" ||
+                ent.first == "Duration" ||
+                ent.first == "Seconds") {
 
             reporter->changed(ent.first.c_str(), atoi(ent.second.c_str()));
 
         } else {
-            LOGERR("OHTime event: unknown variable: name [" <<
-                   ent.first << "] value [" << ent.second << endl);
+            LOGERR("OHTime event: unknown variable: name [" << ent.first << "] value [" << ent.second << '\n');
             reporter->changed(ent.first.c_str(), ent.second.c_str());
         }
     }
@@ -93,15 +92,15 @@ int OHTime::time(Time& out)
         return ret;
     }
     if (!data.get("TrackCount", &out.trackCount)) {
-        LOGERR("OHPlaylist::insert: missing 'TrackCount' in response" << endl);
+        LOGERR("OHPlaylist::insert: missing 'TrackCount' in response" << '\n');
         return UPNP_E_BAD_RESPONSE;
     }
     if (!data.get("Duration", &out.duration)) {
-        LOGERR("OHPlaylist::insert: missing 'Duration' in response" << endl);
+        LOGERR("OHPlaylist::insert: missing 'Duration' in response" << '\n');
         return UPNP_E_BAD_RESPONSE;
     }
     if (!data.get("Seconds", &out.seconds)) {
-        LOGERR("OHPlaylist::insert: missing 'Seconds' in response" << endl);
+        LOGERR("OHPlaylist::insert: missing 'Seconds' in response" << '\n');
         return UPNP_E_BAD_RESPONSE;
     }
     return UPNP_E_SUCCESS;

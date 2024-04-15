@@ -20,8 +20,8 @@
 #include "libupnpp/control/ohsender.hxx"
 #include "libupnpp/control/cdircontent.hxx"
 
-#include <stdlib.h>
-#include <string.h>
+#include <cstdlib>
+#include <cstring>
 #include <upnp.h>
 
 #include <functional>
@@ -68,18 +68,17 @@ void OHSender::evtCallback(
             continue;
         }
 
-        if (!it->first.compare("Audio")) {
+        if (it->first == "Audio") {
             bool val = false;
             stringToBool(it->second, &val);
             getReporter()->changed(it->first.c_str(), val ? 1 : 0);
-        } else if (!it->first.compare("Metadata") ||
-                   !it->first.compare("Attributes") ||
-                   !it->first.compare("PresentationUrl") ||
-                   !it->first.compare("Status")) {
+        } else if (it->first == "Metadata" ||
+                   it->first == "Attributes" ||
+                   it->first == "PresentationUrl" ||
+                   it->first == "Status") {
             getReporter()->changed(it->first.c_str(), it->second.c_str());
         } else {
-            LOGERR("OHSender event: unknown variable: name [" <<
-                   it->first << "] value [" << it->second << endl);
+            LOGERR("OHSender event: unknown variable: name [" << it->first << "] value [" << it->second << '\n');
             getReporter()->changed(it->first.c_str(), it->second.c_str());
         }
     }
@@ -99,24 +98,23 @@ int OHSender::metadata(string& uri, string& didl)
         return ret;
     }
     if (!data.get("Value", &didl)) {
-        LOGERR("OHSender::Sender: missing Value in response" << endl);
+        LOGERR("OHSender::Sender: missing Value in response" << '\n');
         return UPNP_E_BAD_RESPONSE;
     }
 
     // Try to parse the metadata and extract the Uri.
     UPnPDirContent dir;
     if (!dir.parse(didl)) {
-        LOGERR("OHSender::Metadata: didl parse failed: " << didl << endl);
+        LOGERR("OHSender::Metadata: didl parse failed: " << didl << '\n');
         return UPNP_E_BAD_RESPONSE;
     }
     if (dir.m_items.size() != 1) {
-        LOGERR("OHSender::Metadata: " << dir.m_items.size() <<
-               " in response!" << endl);
+        LOGERR("OHSender::Metadata: " << dir.m_items.size() << " in response!" << '\n');
         return UPNP_E_BAD_RESPONSE;
     }
-    UPnPDirObject *dirent = &dir.m_items[0];
+    UPnPDirObject* dirent = dir.m_items.data();
     if (dirent->m_resources.size() < 1) {
-        LOGERR("OHSender::Metadata: no resources in metadata!" << endl);
+        LOGERR("OHSender::Metadata: no resources in metadata!" << '\n');
         return UPNP_E_BAD_RESPONSE;
     }
     uri = dirent->m_resources[0].m_uri;

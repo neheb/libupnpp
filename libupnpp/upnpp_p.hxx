@@ -29,6 +29,7 @@
 #include <string>
 #include <mutex>
 #include <unordered_map>
+#include <utility>
 #include <vector>
 #include <utility>
 
@@ -53,8 +54,8 @@ public:
 class SoapOutgoing::Internal {
 public:
     Internal() = default;
-    Internal(const std::string& st, const std::string& nm)
-        : serviceType(st), name(nm) {}
+    Internal(std::string st, std::string nm)
+        : serviceType(std::move(st)), name(std::move(nm)) {}
     std::string serviceType;
     std::string name;
     std::vector<std::pair<std::string, std::string> > data;

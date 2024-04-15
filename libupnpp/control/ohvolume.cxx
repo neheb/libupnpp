@@ -20,9 +20,9 @@
 
 #include "libupnpp/control/ohvolume.hxx"
 
-#include <stdlib.h>
-#include <string.h>
-#include <math.h>
+#include <cstdlib>
+#include <cstring>
+#include <cmath>
 #include <upnp.h>
 
 #include <functional>
@@ -65,13 +65,13 @@ void OHVolume::evtCallback(
             continue;
         }
 
-        if (!prop.first.compare("Volume")) {
+        if (prop.first == "Volume") {
             int vol = devVolTo0100(atoi(prop.second.c_str()));
             getReporter()->changed(prop.first.c_str(), vol);
-        } else if (!prop.first.compare("VolumeLimit")) {
+        } else if (prop.first == "VolumeLimit") {
             m_volmax = atoi(prop.second.c_str());
             LOGDEB1("OHVolume: event: VolumeLimit: " << m_volmax << endl);
-        } else if (!prop.first.compare("Mute")) {
+        } else if (prop.first == "Mute") {
             bool val = false;
             stringToBool(prop.second, &val);
             LOGDEB1("OHVolume: event: Mute: " << val << endl);

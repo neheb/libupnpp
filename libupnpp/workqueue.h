@@ -28,6 +28,7 @@
 #include <list>
 #include <mutex>
 #include <condition_variable>
+#include <utility>
 
 #ifdef MDU_INCLUDE_LOG
 #include MDU_INCLUDE_LOG
@@ -63,8 +64,8 @@ public:
      *    meaning no limit. hi == -1 means that the queue is disabled.
      * @param lo minimum count of tasks before worker starts. Default 1.
      */
-    WorkQueue(const std::string& name, size_t hi = 0, size_t lo = 1)
-        : m_name(name), m_high(hi), m_low(lo)
+    WorkQueue(std::string name, size_t hi = 0, size_t lo = 1)
+        : m_name(std::move(name)), m_high(hi), m_low(lo)
     {
     }
 

@@ -20,8 +20,8 @@
 #include "libupnpp/upnpp_p.hxx"
 #include "libupnpp/soaphelp.hxx"
 
-#include <stdio.h>
-#include <stdlib.h>
+#include <cstdio>
+#include <cstdlib>
 
 #include <iostream>
 #include <vector>
@@ -128,15 +128,15 @@ string SoapHelp::xmlUnquote(const string& in)
             }
             string entname = in.substr(i + 1, j - i - 1);
             //cerr << "entname [" << entname << "]" << endl;
-            if (!entname.compare("quot")) {
+            if (entname == "quot") {
                 out += '"';
-            } else if (!entname.compare("amp")) {
+            } else if (entname == "amp") {
                 out += '&';
-            } else if (!entname.compare("lt")) {
+            } else if (entname == "lt") {
                 out += '<';
-            } else if (!entname.compare("gt")) {
+            } else if (entname == "gt") {
                 out += '>';
-            } else if (!entname.compare("apos")) {
+            } else if (entname == "apos") {
                 out += '\'';
             } else {
                 out += in.substr(i, j - i + 1);

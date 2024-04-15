@@ -19,9 +19,9 @@
 
 #include "device.hxx"
 
-#include <errno.h>
-#include <time.h>
-#include <string.h>
+#include <cerrno>
+#include <ctime>
+#include <cstring>
 
 #include <iostream>
 #include <sstream>
@@ -143,7 +143,7 @@ static bool vectorstoargslists(const vector<string>& names,
                                vector<const char *>& cvalues)
 {
     if (names.size() != values.size()) {
-        LOGERR("vectorstoargslists: bad sizes" << endl);
+        LOGERR("vectorstoargslists: bad sizes" << '\n');
         return false;
     }
 
@@ -168,11 +168,11 @@ static string replchars{"\"#%;<>?[\\]^`{|}:/ "};
 UpnpDevice::UpnpDevice(const string& deviceId)
 {
     if (o == 0 && (o = new InternalStatic()) == 0) {
-        LOGERR("UpnpDevice::UpnpDevice: out of memory" << endl);
+        LOGERR("UpnpDevice::UpnpDevice: out of memory" << '\n');
         return;
     }
     if ((m = new Internal(this)) == 0) {
-        LOGERR("UpnpDevice::UpnpDevice: out of memory" << endl);
+        LOGERR("UpnpDevice::UpnpDevice: out of memory" << '\n');
         return;
     }
     m->deviceId = deviceId;
@@ -182,12 +182,11 @@ UpnpDevice::UpnpDevice(const string& deviceId)
 
     m->lib = LibUPnP::getLibUPnP(true);
     if (!m->lib) {
-        LOGFAT(" Can't get LibUPnP" << endl);
+        LOGFAT(" Can't get LibUPnP" << '\n');
         return;
     }
     if (!m->lib->ok()) {
-        LOGFAT("Lib init failed: " <<
-               m->lib->errAsString("main", m->lib->getInitError()) << endl);
+        LOGFAT("Lib init failed: " << m->lib->errAsString("main", m->lib->getInitError()) << '\n');
         m->lib = 0;
         return;
     }
@@ -332,7 +331,7 @@ bool UpnpDevice::Internal::start()
     unsigned short port = UpnpGetServerPort();
     string url = ipv4tostrurl(host, port) + devsubd + "description.xml";
     if ((ret = lib->m->setupWebServer(url, &dvh)) != 0) {
-        LOGERR("UpnpDevice: libupnp can't start service. Err " << ret << endl);
+        LOGERR("UpnpDevice: libupnp can't start service. Err " << ret << '\n');
         return false;
     }
 #endif
@@ -342,9 +341,7 @@ bool UpnpDevice::Internal::start()
     }
 #endif
     if ((ret = UpnpSendAdvertisement(dvh, expiretime)) != 0) {
-        LOGERR("UpnpDevice::Internal::start(): sendAvertisement failed: " <<
-               lib->errAsString("UpnpDevice: UpnpSendAdvertisement", ret) <<
-               endl);
+        LOGERR("UpnpDevice::Internal::start(): sendAvertisement failed: " << lib->errAsString("UpnpDevice: UpnpSendAdvertisement", ret) << '\n');
         return false;
     }
     return true;
@@ -389,7 +386,7 @@ int UpnpDevice::InternalStatic::sCallBack(
         break;
 
     default:
-        LOGERR("UpnpDevice::sCallBack: unknown event " << et << endl);
+        LOGERR("UpnpDevice::sCallBack: unknown event " << et << '\n');
         return UPNP_E_INVALID_PARAM;
     }
     // LOGDEB("UpnpDevice::sCallBack: deviceid[" << deviceid << "]" << endl);
@@ -401,8 +398,7 @@ int UpnpDevice::InternalStatic::sCallBack(
         it = o->devices.find(deviceid);
 
         if (it == o->devices.end()) {
-            LOGERR("UpnpDevice::sCallBack: Device not found: [" <<
-                   deviceid << "]" << endl);
+            LOGERR("UpnpDevice::sCallBack: Device not found: [" << deviceid << "]" << '\n');
             return UPNP_E_INVALID_PARAM;
         }
     }
@@ -434,9 +430,7 @@ int UpnpDevice::Internal::callBack(Upnp_EventType et, const void* evp)
     {
         UpnpActionRequest *act = (UpnpActionRequest *)evp;
 
-        LOGDEB("UPNP_CONTROL_ACTION_REQUEST: " <<
-               UpnpActionRequest_get_ActionName_cstr(act) << " args: " <<
-               SoapHelp::argsToStr(act->args.begin(), act->args.end()) << endl);
+        LOGDEB("UPNP_CONTROL_ACTION_REQUEST: " << UpnpActionRequest_get_ActionName_cstr(act) << " args: " << SoapHelp::argsToStr(act->args.begin(), act->args.end()) << '\n');
 
         auto servit = findService(UpnpActionRequest_get_ServiceID_cstr(act));
         if (servit == servicemap.end()) {
@@ -451,7 +445,7 @@ int UpnpDevice::Internal::callBack(Upnp_EventType et, const void* evp)
             auto callit = calls.find(
                 actname + UpnpActionRequest_get_ServiceID_cstr(act));
             if (callit == calls.end()) {
-                LOGINF("UpnpDevice: No such action: " << actname << endl);
+                LOGINF("UpnpDevice: No such action: " << actname << '\n');
                 return UPNP_E_INVALID_PARAM;
             }
 
@@ -468,8 +462,7 @@ int UpnpDevice::Internal::callBack(Upnp_EventType et, const void* evp)
                         servit->second->errString(ret).c_str(), LINE_SIZE-1);
                     act->ErrStr[LINE_SIZE-1] = 0;
                 }
-                LOGERR("UpnpDevice: Action failed: " << sc.getName() <<
-                       " code " << ret << endl);
+                LOGERR("UpnpDevice: Action failed: " << sc.getName() << " code " << ret << '\n');
                 return ret;
             }
         }
@@ -478,7 +471,8 @@ int UpnpDevice::Internal::callBack(Upnp_EventType et, const void* evp)
         UpnpActionRequest_set_ErrCode(act, UPNP_E_SUCCESS);
         act->resdata = dt.m->data;
         LOGDEB("Response data: " << SoapHelp::argsToStr(
-                   act->resdata.begin(), act->resdata.end()) << endl);
+                   act->resdata.begin(), act->resdata.end())
+                                 << '\n');
         return UPNP_E_SUCCESS;
     }
     break;
@@ -494,8 +488,7 @@ int UpnpDevice::Internal::callBack(Upnp_EventType et, const void* evp)
     case UPNP_EVENT_SUBSCRIPTION_REQUEST:
     {
         UpnpSubscriptionRequest *act = (UpnpSubscriptionRequest*)evp;
-        LOGDEB("UPNP_EVENT_SUBSCRIPTION_REQUEST: " <<
-               UpnpSubscriptionRequest_get_ServiceId_cstr(act) << endl);
+        LOGDEB("UPNP_EVENT_SUBSCRIPTION_REQUEST: " << UpnpSubscriptionRequest_get_ServiceId_cstr(act) << '\n');
 
         auto servit=findService(UpnpSubscriptionRequest_get_ServiceId_cstr(act));
         if (servit == servicemap.end()) {
@@ -515,12 +508,14 @@ int UpnpDevice::Internal::callBack(Upnp_EventType et, const void* evp)
         int ret = UpnpAcceptSubscription(
             dvh, UpnpSubscriptionRequest_get_UDN_cstr(act),
             UpnpSubscriptionRequest_get_ServiceId_cstr(act),
-            cnames.size()?&cnames[0]:nullptr,
-            cnames.size()?&cvalues[0]:nullptr, int(cnames.size()),
+            cnames.size() ? cnames.data() : nullptr,
+            cnames.size() ? cvalues.data() : nullptr, int(cnames.size()),
             UpnpSubscriptionRequest_get_SID_cstr(act));
         if (ret != UPNP_E_SUCCESS) {
             LOGERR(lib->errAsString("UpnpDevice::callBack: "
-                                    "UpnpAcceptSubscription", ret) << endl);
+                                    "UpnpAcceptSubscription",
+                                    ret)
+                   << '\n');
         }
 
         return ret;
@@ -528,8 +523,7 @@ int UpnpDevice::Internal::callBack(Upnp_EventType et, const void* evp)
     break;
 
     default:
-        LOGINF("UpnpDevice::callBack: unknown libupnp event type: " <<
-               evTypeAsString(et).c_str() << endl);
+        LOGINF("UpnpDevice::callBack: unknown libupnp event type: " << evTypeAsString(et).c_str() << '\n');
         return UPNP_E_INVALID_PARAM;
     }
     return UPNP_E_INVALID_PARAM;
@@ -549,8 +543,7 @@ bool UpnpDevice::addService(UpnpService *serv)
     } else {
         auto it = m->rootdev->m->embedxml.find(m->deviceId);
         if (it == m->rootdev->m->embedxml.end()) {
-            LOGERR("UpnpDevice::addservice: my Id " << m->deviceId <<
-                   " not found in root dev " << m->rootdev->m->deviceId << endl);
+            LOGERR("UpnpDevice::addservice: my Id " << m->deviceId << " not found in root dev " << m->rootdev->m->deviceId << '\n');
             return false;
         }
         propsxml = &it->second.propsxml;
@@ -598,7 +591,7 @@ bool UpnpDevice::addService(UpnpService *serv)
 
 void UpnpDevice::forgetService(const std::string& serviceId)
 {
-    LOGDEB("UpnpDevice::forgetService: " << serviceId << endl);
+    LOGDEB("UpnpDevice::forgetService: " << serviceId << '\n');
     std::unique_lock<std::mutex> lock(m->devlock);
 
     std::unordered_map<string, UpnpService*>::iterator servit =
@@ -618,7 +611,7 @@ void UpnpDevice::addActionMapping(const UpnpService* serv,
 {
     std::unique_lock<std::mutex> lock(m->devlock);
     // LOGDEB("UpnpDevice::addActionMapping:" << actName << endl);
-    m->calls[actName + serv->getServiceId()] = fun;
+    m->calls[actName + serv->getServiceId()] = std::move(fun);
 }
 
 void UpnpDevice::Internal::notifyEvent(const string& serviceId,
@@ -640,11 +633,10 @@ void UpnpDevice::Internal::notifyEvent(const string& serviceId,
     vectorstoargslists(names, values, qvalues, cnames, cvalues);
 
     int ret = UpnpNotify(dvh, deviceId.c_str(),
-                         serviceId.c_str(), &cnames[0], &cvalues[0],
+                         serviceId.c_str(), cnames.data(), cvalues.data(),
                          int(cnames.size()));
     if (ret != UPNP_E_SUCCESS) {
-        LOGERR("UpnpDevice::notifyEvent: " <<
-               lib->errAsString("UpnpNotify", ret)<<" for "<< serviceId << endl);
+        LOGERR("UpnpDevice::notifyEvent: " << lib->errAsString("UpnpNotify", ret) << " for " << serviceId << '\n');
     }
 }
 
@@ -662,7 +654,7 @@ void UpnpDevice::startloop()
 void UpnpDevice::eventloop()
 {
     if (!m->start()) {
-        LOGERR("Device would not start" << endl);
+        LOGERR("Device would not start" << '\n');
         return;
     }
     
@@ -712,8 +704,7 @@ void UpnpDevice::eventloop()
             // LOGDEB("eventloop: normal wakeup" << endl);
             didearly = false;
         } else {
-            LOGINF("UpnpDevice:eventloop: wait returned unexpected value" <<
-                   int(err) << endl);
+            LOGINF("UpnpDevice:eventloop: wait returned unexpected value" << int(err) << '\n');
             break;
         }
 
@@ -754,7 +745,7 @@ void UpnpDevice::eventloop()
 bool UpnpDevice::start()
 {
     if (!m->start()) {
-        LOGERR("Device would not start" << endl);
+        LOGERR("Device would not start" << '\n');
         return false;
     }
     return true;

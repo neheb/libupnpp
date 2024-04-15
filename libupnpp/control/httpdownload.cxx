@@ -21,7 +21,7 @@
  ***************************************************************************/
 #include "config.h"
 
-#include <stdio.h>
+#include <cstdio>
 #include <string>
 #include <sys/types.h>
 
@@ -58,7 +58,7 @@ bool downloadUrlWithCurl(const string& url, string& out, long timeoutsecs,
 
     curl = curl_easy_init();
     if(!curl) {
-        LOGERR("downloadUrlWithCurl: curl_easy_init failed" << endl);
+        LOGERR("downloadUrlWithCurl: curl_easy_init failed" << '\n');
         return false;
     }
     long scopeid{-1};
@@ -77,8 +77,7 @@ bool downloadUrlWithCurl(const string& url, string& out, long timeoutsecs,
     }
     res = curl_easy_perform(curl);
     if(res != CURLE_OK) {
-        LOGERR("downloadUrlWithCurl: curl_easy_perform(): " <<
-               curl_easy_strerror(res) << endl);
+        LOGERR("downloadUrlWithCurl: curl_easy_perform(): " << curl_easy_strerror(res) << '\n');
     } else {
         ret = true;
     }

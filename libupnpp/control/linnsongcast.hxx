@@ -39,7 +39,7 @@ namespace Songcast {
  * Search the device for a Sender service and, if found, create and
  * return a service object.
  */
-OHSNH UPNPP_API senderService(DVCH dev);
+OHSNH UPNPP_API senderService(const DVCH& dev);
 
 /**
  * Find device with given name (try friendly, then uuid), and

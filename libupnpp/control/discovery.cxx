@@ -17,9 +17,9 @@
  */
 #include "config.h"
 
-#include <stdlib.h>
-#include <time.h>
-#include <stdio.h>
+#include <cstdlib>
+#include <ctime>
+#include <cstdio>
 
 #include <upnp.h>
 #include <netif.h>
@@ -80,16 +80,16 @@ static void expireDevices();
 static string cluDiscoveryToStr(const UpnpDiscovery *disco)
 {
     stringstream ss;
-    ss << "ErrCode: " << UpnpDiscovery_get_ErrCode(disco) << endl;
-    ss << "Expires: " << UpnpDiscovery_get_Expires(disco) << endl;
-    ss << "DeviceId: " << UpnpDiscovery_get_DeviceID_cstr(disco) << endl;
-    ss << "DeviceType: " << UpnpDiscovery_get_DeviceType_cstr(disco) << endl;
-    ss << "ServiceType: " << UpnpDiscovery_get_ServiceType_cstr(disco) << endl;
-    ss << "ServiceVer: " << UpnpDiscovery_get_ServiceVer_cstr(disco)    << endl;
-    ss << "Location: " << UpnpDiscovery_get_Location_cstr(disco) << endl;
-    ss << "Os: " << UpnpDiscovery_get_Os_cstr(disco) << endl;
-    ss << "Date: " << UpnpDiscovery_get_Date_cstr(disco) << endl;
-    ss << "Ext: " << UpnpDiscovery_get_Ext_cstr(disco) << endl;
+    ss << "ErrCode: " << UpnpDiscovery_get_ErrCode(disco) << '\n';
+    ss << "Expires: " << UpnpDiscovery_get_Expires(disco) << '\n';
+    ss << "DeviceId: " << UpnpDiscovery_get_DeviceID_cstr(disco) << '\n';
+    ss << "DeviceType: " << UpnpDiscovery_get_DeviceType_cstr(disco) << '\n';
+    ss << "ServiceType: " << UpnpDiscovery_get_ServiceType_cstr(disco) << '\n';
+    ss << "ServiceVer: " << UpnpDiscovery_get_ServiceVer_cstr(disco) << '\n';
+    ss << "Location: " << UpnpDiscovery_get_Location_cstr(disco) << '\n';
+    ss << "Os: " << UpnpDiscovery_get_Os_cstr(disco) << '\n';
+    ss << "Date: " << UpnpDiscovery_get_Date_cstr(disco) << '\n';
+    ss << "Ext: " << UpnpDiscovery_get_Ext_cstr(disco) << '\n';
 
     /** The host address of the device responding to the search. */
     // struct sockaddr_storage DestAddr;
@@ -184,8 +184,7 @@ static int cluCallBack(Upnp_EventType et, CBCONST void* evp, void*)
         
         LOGDEB1("discovery:cluCallback:: downloading " << tp->url << endl);
         if (!downloadUrlWithCurl(tp->url, tp->description,DISCO_HTTP_TIMEOUT, &disco->DestAddr)) {
-            LOGERR("discovery:cllb: downloadUrlWithCurl error for: " <<
-                   tp->url << endl);
+            LOGERR("discovery:cllb: downloadUrlWithCurl error for: " << tp->url << '\n');
             {   std::unique_lock<std::mutex> lock(o_downloading_mutex);
                 o_downloading.erase(tp->url);
             }
@@ -218,8 +217,7 @@ static int cluCallBack(Upnp_EventType et, CBCONST void* evp, void*)
     }
     default:
         // Ignore other events for now
-        LOGDEB("discovery:cluCallBack: unprocessed evt type: [" <<
-               evTypeAsString(et) << "]"  << endl);
+        LOGDEB("discovery:cluCallBack: unprocessed evt type: [" << evTypeAsString(et) << "]" << '\n');
         break;
     }
 
@@ -232,10 +230,10 @@ static int cluCallBack(Upnp_EventType et, CBCONST void* evp, void*)
 static vector<UPnPDeviceDirectory::Visitor> o_callbacks;
 static vector<UPnPDeviceDirectory::Visitor> o_lostCallbacks;
 static std::mutex o_callbacks_mutex;
-static bool simpleTraverse(UPnPDeviceDirectory::Visitor visit);
-static bool simpleVisit(const UPnPDeviceDesc&, UPnPDeviceDirectory::Visitor);
+static bool simpleTraverse(const UPnPDeviceDirectory::Visitor& visit);
+static bool simpleVisit(const UPnPDeviceDesc&, const UPnPDeviceDirectory::Visitor&);
 
-unsigned int UPnPDeviceDirectory::addCallback(UPnPDeviceDirectory::Visitor v)
+unsigned int UPnPDeviceDirectory::addCallback(const UPnPDeviceDirectory::Visitor& v)
 {
     std::unique_lock<std::mutex> lock(o_callbacks_mutex);
     o_callbacks.push_back(v);
@@ -255,7 +253,7 @@ void UPnPDeviceDirectory::delCallback(unsigned int idx)
     o_callbacks.erase(o_callbacks.begin() + idx);
 }
 
-unsigned int UPnPDeviceDirectory::addLostCallback(Visitor v)
+unsigned int UPnPDeviceDirectory::addLostCallback(const Visitor& v)
 {
     std::unique_lock<std::mutex> lock(o_callbacks_mutex);
     o_lostCallbacks.push_back(v);
@@ -336,7 +334,7 @@ static void *discoExplorer(void *)
             DeviceDescriptor d(
                 tsk->url, tsk->description, std::chrono::steady_clock::now(), tsk->expires);
             if (!d.device.ok) {
-                LOGERR("discoExplorer: description parse failed for " << tsk->deviceId << endl);
+                LOGERR("discoExplorer: description parse failed for " << tsk->deviceId << '\n');
                 LOGINF("discoExplorer: description data: [" << tsk->description << "]\n");
                 delete tsk;
                 continue;
@@ -540,7 +538,7 @@ static std::mutex devWaitLock;
 static std::condition_variable devWaitCond;
 
 // Call user function on one device (for all services)
-static bool simpleVisit(const UPnPDeviceDesc& dev, UPnPDeviceDirectory::Visitor visit)
+static bool simpleVisit(const UPnPDeviceDesc& dev, const UPnPDeviceDirectory::Visitor& visit)
 {
     for (const auto& service : dev.services) {
         if (!visit(dev, service)) {
@@ -558,7 +556,7 @@ static bool simpleVisit(const UPnPDeviceDesc& dev, UPnPDeviceDirectory::Visitor 
 }
 
 // Walk the device list and call simpleVisit() on each.
-static bool simpleTraverse(UPnPDeviceDirectory::Visitor visit)
+static bool simpleTraverse(const UPnPDeviceDirectory::Visitor& visit)
 {
     std::unique_lock<std::mutex> lock(o_pool.m_mutex);
 
@@ -570,7 +568,7 @@ static bool simpleTraverse(UPnPDeviceDirectory::Visitor visit)
     return true;
 }
 
-bool UPnPDeviceDirectory::traverse(UPnPDeviceDirectory::Visitor visit)
+bool UPnPDeviceDirectory::traverse(const UPnPDeviceDirectory::Visitor& visit)
 {
     //LOGDEB("UPnPDeviceDirectory::traverse" << endl);
     if (!o_ok)
@@ -642,7 +640,7 @@ static bool getDevBySelector(bool cmp(const UPnPDeviceDesc& ddesc, const string&
 
 static bool cmpFName(const UPnPDeviceDesc& ddesc, const string& fname)
 {
-    return ddesc.friendlyName.compare(fname) != 0;
+    return ddesc.friendlyName != fname;
 }
 
 bool UPnPDeviceDirectory::getDevByFName(const string& fname, UPnPDeviceDesc& ddesc)
@@ -652,7 +650,7 @@ bool UPnPDeviceDirectory::getDevByFName(const string& fname, UPnPDeviceDesc& dde
 
 static bool cmpUDN(const UPnPDeviceDesc& ddesc, const string& value)
 {
-    return ddesc.UDN.compare(value) != 0;
+    return ddesc.UDN != value;
 }
 
 bool UPnPDeviceDirectory::getDevByUDN(const string& value, UPnPDeviceDesc& ddesc)

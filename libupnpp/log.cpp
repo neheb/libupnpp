@@ -17,9 +17,9 @@
  */
 #include "log.h"
 
-#include <errno.h>
+#include <cerrno>
 #include <fstream>
-#include <time.h>
+#include <ctime>
 
 #ifdef _MSC_VER
 #define localtime_r(A,B) localtime_s(B,A)

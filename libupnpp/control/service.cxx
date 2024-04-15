@@ -334,7 +334,7 @@ bool Service::registerCallback(evtCBFunc c)
     }
     std::unique_lock<std::mutex> lock(cblock);
     LOGDEB1("Service::registerCallback: " << m->eventURL << " SID " << m->SID << "\n");
-    o_calls[m->SID] = c;
+    o_calls[m->SID] = std::move(c);
     return true;
 }
 

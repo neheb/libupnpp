@@ -17,7 +17,7 @@
  */
 #include "config.h"
 
-#include <string.h>
+#include <cstring>
 
 #include <unordered_map>
 #include <string>
@@ -95,8 +95,7 @@ protected:
                 // Only log this if the record comes from an MS as e.g. naims
                 // send records with empty classes (and empty id/pid)
                 if (!m_tobj.m_id.empty()) {
-                    LOGINF("checkobjok: found object of unknown class: [" <<
-                           m_tobj.m_props["upnp:class"] << "]" << endl);
+                    LOGINF("checkobjok: found object of unknown class: [" << m_tobj.m_props["upnp:class"] << "]" << '\n');
                 }
                 m_tobj.m_iclass = UPnPDirObject::ITC_unknown;
             } else {
@@ -105,9 +104,8 @@ protected:
         }
 
         if (!ok) {
-            LOGINF("checkobjok:skip: id ["<< m_tobj.m_id<<"] pid ["<<
-                   m_tobj.m_pid << "] clss [" << m_tobj.m_props["upnp:class"]
-                   << "] tt [" << m_tobj.m_title << "]" << endl);
+            LOGINF("checkobjok:skip: id [" << m_tobj.m_id << "] pid [" << m_tobj.m_pid << "] clss [" << m_tobj.m_props["upnp:class"]
+                                           << "] tt [" << m_tobj.m_title << "]" << '\n');
         }
         return ok;
     }
@@ -136,8 +134,8 @@ protected:
                 }
                 m_dir.m_items.push_back(m_tobj);
             }
-        } else if (!parentname.compare("item") ||
-                   !parentname.compare("container")) {
+        } else if (parentname == "item" ||
+                   parentname == "container") {
             switch (name[0]) {
             case 'd':
                 if (!strcmp(name, "dc:title")) {
@@ -206,7 +204,7 @@ private:
         auto roleit = mapattrs.find("role");
         string rolevalue;
         if (roleit != mapattrs.end()) {
-            if (roleit->second.compare("AlbumArtist")) {
+            if (roleit->second != "AlbumArtist") {
                 // AlbumArtist is not useful for the user
                 rolevalue = string(" (") + roleit->second + string(")");
             }
@@ -219,7 +217,7 @@ private:
             // to do this properly we'd need to only build the string
             // at the end when we have all the entries
             string &current(it->second);
-            if (current.compare(data)) {
+            if (current != data) {
                 current += string(", ") + data + rolevalue;
             }
         }
@@ -237,17 +235,16 @@ bool UPnPDirContent::parse(const std::string& input, bool detailed)
     // Double-quoting happens. Just deal with it...
     string unquoted;
     if (input[0] == '&') {
-        LOGDEB0("UPnPDirContent::parse: unquoting over-quoted input: " <<
-                input << endl);
+        LOGDEB0("UPnPDirContent::parse: unquoting over-quoted input: " << input << '\n');
         unquoted = SoapHelp::xmlUnquote(input);
         ipp = &unquoted;
     }
 
     UPnPDirParser parser(*this, *ipp, detailed);
     bool ret = parser.Parse();
-    if (ret == false) {
-        LOGERR("UPnPDirContent::parse: parser failed: " <<
-               parser.getLastErrorMessage() << " for:\n" << *ipp << endl);
+    if (!ret) {
+        LOGERR("UPnPDirContent::parse: parser failed: " << parser.getLastErrorMessage() << " for:\n"
+                                                        << *ipp << '\n');
     }
     return ret;
 }

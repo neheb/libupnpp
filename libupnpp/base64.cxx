@@ -17,8 +17,8 @@
  */
 #include "base64.hxx"
 
-#include <ctype.h>                      // for isspace
-#include <stdio.h>                      // for fprintf, stderr
+#include <cctype>                      // for isspace
+#include <cstdio>                      // for fprintf, stderr
 #include <string>                       // for string
 
 using std::string;

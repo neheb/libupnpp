@@ -19,7 +19,7 @@
 
 #include "vdir.hxx"
 
-#include <string.h>
+#include <cstring>
 #include <upnp.h>
 
 #include <iostream>
@@ -81,7 +81,7 @@ static FileEnt *vdgetentry(const char *pathname, DirEnt **de)
     
     auto dir = m_dirs.find(path);
     if (dir == m_dirs.end()) {
-        LOGERR("VirtualDir::vdgetentry: no dir: " << path << endl);
+        LOGERR("VirtualDir::vdgetentry: no dir: " << path << '\n');
         return 0;
     }
     *de = &dir->second;
@@ -90,7 +90,7 @@ static FileEnt *vdgetentry(const char *pathname, DirEnt **de)
     } else {
         auto f = dir->second.files.find(name);
         if (f == dir->second.files.end()) {
-            LOGERR("VirtualDir::vdgetentry: no file: " << path << endl);
+            LOGERR("VirtualDir::vdgetentry: no file: " << path << '\n');
             return 0;
         }
         return &(f->second);
@@ -130,7 +130,7 @@ bool VirtualDir::addVDir(const std::string& _path, FileOps fops)
         m_dirs[path] = DirEnt(true);
         UpnpAddVirtualDir(path.c_str(), 0, 0);
     }
-    m_dirs[path].ops = fops;
+    m_dirs[path].ops = std::move(fops);
     return true;
 }
 
@@ -180,7 +180,7 @@ static int vdgetinfo(
         return ret;
     }
     if (entry == 0) {
-        LOGERR("vdgetinfo: no entry for " << fn << endl);
+        LOGERR("vdgetinfo: no entry for " << fn << '\n');
         return -1;
     }
 
@@ -211,7 +211,7 @@ static UpnpWebFileHandle vdopen(
     }
 
     if (entry == 0) {
-        LOGERR("vdopen: no entry for " << fn << endl);
+        LOGERR("vdopen: no entry for " << fn << '\n');
         return NULL;
     }
     return new Handle(entry);
@@ -264,7 +264,7 @@ static int vdseek(UpnpWebFileHandle fileHnd, int64_t offset, int origin,
 
 static int vdwrite(UpnpWebFileHandle, char*, size_t, const void*, const void*)
 {
-    LOGERR("vdwrite" << endl);
+    LOGERR("vdwrite" << '\n');
     return -1;
 }
 
@@ -278,7 +278,7 @@ VirtualDir *VirtualDir::getVirtualDir()
             UpnpVirtualDir_set_WriteCallback(vdwrite) ||
             UpnpVirtualDir_set_SeekCallback(vdseek) ||
             UpnpVirtualDir_set_CloseCallback(vdclose)) {
-            LOGERR("SetVirtualDirCallbacks failed" << endl);
+            LOGERR("SetVirtualDirCallbacks failed" << '\n');
             delete theDir;
             theDir = 0;
             return 0;

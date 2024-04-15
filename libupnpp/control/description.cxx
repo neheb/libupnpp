@@ -23,7 +23,7 @@
 
 #include <algorithm>
 
-#include <string.h>
+#include <cstring>
 #include <upnp.h>
 
 #include "libupnpp/upnpplib.hxx"
@@ -62,7 +62,7 @@ protected:
             dev->services.push_back(m_tservice);
             m_tservice.clear();
         } else if (!strcmp(name, "device")) {
-            if (ismain == false) {
+            if (!ismain) {
                 m_device.embedded.push_back(m_tdevice);
             }
             m_tdevice.clear();
@@ -197,11 +197,7 @@ protected:
             break;
         case 'd':
             if (!strcmp(name, "direction")) {
-                if (!lastelt.data.compare("in")) {
-                    m_targ.todevice = true;
-                } else {
-                    m_targ.todevice = false;
-                }
+                m_targ.todevice = lastelt.data == "in";
             } else if (!strcmp(name, "dataType")) {
                 m_tvar.dataType = lastelt.data;
                 trimstring(m_tvar.dataType);
@@ -218,13 +214,13 @@ protected:
             break;
         case 'n':
             if (!strcmp(name, "name")) {
-                if (!parentname.compare("argument")) {
+                if (parentname == "argument") {
                     m_targ.name = lastelt.data;
                     trimstring(m_targ.name);
-                } else if (!parentname.compare("action")) {
+                } else if (parentname == "action") {
                     m_tact.name = lastelt.data;
                     trimstring(m_tact.name);
-                } else if (!parentname.compare("stateVariable")) {
+                } else if (parentname == "stateVariable") {
                     m_tvar.name = lastelt.data;
                     trimstring(m_tvar.name);
                 }
@@ -269,8 +265,7 @@ bool UPnPServiceDesc::fetchAndParseDesc(const string& urlbase,
     string url = caturl(urlbase, SCPDURL);
     int code = UpnpDownloadUrlItem(url.c_str(), &buf, contentType);
     if (code != UPNP_E_SUCCESS) {
-        LOGERR("UPnPServiceDesc::fetchAndParseDesc: error fetching " <<
-               url << " : " << LibUPnP::errAsString("", code) << endl);
+        LOGERR("UPnPServiceDesc::fetchAndParseDesc: error fetching " << url << " : " << LibUPnP::errAsString("", code) << '\n');
         return false;
     }
     if (xmltxt) {

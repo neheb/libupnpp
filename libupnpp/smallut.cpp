@@ -976,7 +976,7 @@ std::string SimpleRegexp::simpleSub(const std::string& in, const std::string& re
     if (!ok()) {
         return {};
     }
-    if (int err = regexec(&m->expr, in.c_str(), m->nmatch + 1, &m->matches[0], 0)) {
+    if (int err = regexec(&m->expr, in.c_str(), m->nmatch + 1, m->matches.data(), 0)) {
         PRETEND_USE(err);
 #if SIMPLESUB_DBG
         const int ERRSIZE = 200;
@@ -1000,7 +1000,7 @@ bool SimpleRegexp::simpleMatch(const std::string& val) const
 {
     if (!ok())
         return false;
-    return regexec(&m->expr, val.c_str(), m->nmatch + 1, &m->matches[0], 0) == 0;
+    return regexec(&m->expr, val.c_str(), m->nmatch + 1, m->matches.data(), 0) == 0;
 }
 
 std::string SimpleRegexp::getMatch(const std::string& val, int i) const

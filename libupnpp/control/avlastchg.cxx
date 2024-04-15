@@ -17,7 +17,7 @@
  */
 #include "config.h"
 
-#include <string.h>
+#include <cstring>
 
 #include "libupnpp/control/avlastchg.hxx"
 #include "libupnpp/expatmm.h"
@@ -63,9 +63,7 @@ private:
 bool decodeAVLastChange(const string& xml, std::unordered_map<string, string>& props)
 {
     LastchangeParser mparser(xml, props);
-    if (!mparser.Parse())
-        return false;
-    return true;
+    return mparser.Parse();
 }
 
 

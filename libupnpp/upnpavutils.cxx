@@ -95,7 +95,7 @@ bool parseProtoInfEntry(const string& protoinfo, ProtocolinfoEntry& e)
     e.network = stringtolower((const std::string&)toks[1]);
     e.additional = stringtolower((const std::string&)toks[3]);
 
-    if (e.protocol.compare("http-get")) {
+    if (e.protocol != "http-get") {
         e.contentFormat = stringtolower((const std::string&)toks[2]);
     } else {
         // Parse MIME type
