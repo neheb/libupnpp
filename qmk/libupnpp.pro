@@ -68,7 +68,6 @@ windows {
       DEFINES += NOMINMAX
       INCLUDEPATH += $$PWD/../../expat.v140.2.4.1.1/build/native/include
       INCLUDEPATH += $$PWD/../../curl-7.70.0/include
-      INCLUDEPATH += $$PWD/../../libmicrohttpd-0.9.65-w32-bin/x86_64/VS2019/Release-dll/
     }
 }
 
