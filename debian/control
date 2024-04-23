@@ -5,8 +5,16 @@ Homepage: https://www.lesbonscomptes.com/upmpdcli
 Vcs-Browser: https://framagit.org/medoc92/libupnpp
 Vcs-Git: https://framagit.org/medoc92/libupnpp.git
 Maintainer: Jean-Francois Dockes <jf@dockes.org>
-Build-Depends: debhelper-compat (= 13), pkg-config, meson, ninja-build,
- libnpupnp-dev (>= 6.0.0), libexpat1-dev, libcurl4-gnutls-dev | libcurl-dev
+# Note: libmicrohttpd-dev should not be needed (not used directly), but at least on jammy, meson
+# generates a bogus dep on it.
+Build-Depends: debhelper-compat (= 13),
+               pkg-config,
+               meson,
+               ninja-build,
+               libnpupnp-dev (>= 6.0.0),
+               libexpat1-dev,
+               libcurl4-gnutls-dev | libcurl-dev,
+               libmicrohttpd-dev 
 Rules-Requires-Root: no
 Standards-Version: 4.6.2
 
