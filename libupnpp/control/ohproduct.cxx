@@ -18,7 +18,7 @@
 #include "config.h"
 #include "libupnpp/control/ohproduct.hxx"
 
-#include <string.h>
+#include <cstring>
 #include <upnp.h>
 #include <ostream>
 #include <string>
@@ -153,9 +153,7 @@ int OHProduct::getSources(std::vector<Source>& sources)
 bool OHProduct::parseSourceXML(std::string& sxml, std::vector<Source>& sources)
 {
     OHSourceParser mparser(sxml, sources);
-    if (!mparser.Parse())
-        return false;
-    return true;
+    return mparser.Parse();
 }
 
 int OHProduct::sourceIndex(int *index)

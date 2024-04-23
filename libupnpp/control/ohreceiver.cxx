@@ -1,4 +1,4 @@
-/* Copyright (C) 2006-2016 J.F.Dockes
+/* Copyright (C) 2006-2024 J.F.Dockes
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -20,8 +20,8 @@
 
 #include "libupnpp/control/ohreceiver.hxx"
 
-#include <stdlib.h>
-#include <string.h>
+#include <cstdlib>
+#include <cstring>
 #include <upnp.h>
 
 #include <functional>
@@ -59,10 +59,10 @@ bool OHReceiver::serviceTypeMatch(const std::string& tp)
 
 void OHReceiver::evtCallback(const std::unordered_map<std::string, std::string>& props)
 {
-    LOGDEB1("OHReceiver::evtCallback:getReporter(): " << getReporter() << endl);
+    LOGDEB1("OHReceiver::evtCallback:getReporter(): " << getReporter() << '\n');
     for (const auto& [propname, propvalue] : props) {
         if (!getReporter()) {
-            LOGDEB1("OHReceiver::evtCallback: " << propname << " -> " << propvalue << endl);
+            LOGDEB1("OHReceiver::evtCallback: " << propname << " -> " << propvalue << '\n');
             continue;
         }
 
@@ -78,7 +78,7 @@ void OHReceiver::evtCallback(const std::unordered_map<std::string, std::string>&
             getReporter()->changed(propname.c_str(), propvalue.c_str());
         } else {
             LOGERR("OHReceiver event: unknown variable: name [" << propname << "] value [" <<
-                   propvalue << endl);
+                   propvalue << '\n');
             getReporter()->changed(propname.c_str(), propvalue.c_str());
         }
     }
@@ -116,11 +116,11 @@ int OHReceiver::sender(string& uri, string& meta)
         return ret;
     }
     if (!data.get("Uri", &uri)) {
-        LOGERR("OHReceiver::Sender: missing Uri in response" << endl);
+        LOGERR("OHReceiver::Sender: missing Uri in response" << '\n');
         return UPNP_E_BAD_RESPONSE;
     }
     if (!data.get("Metadata", &meta)) {
-        LOGERR("OHReceiver::Sender: missing Metadata in response" << endl);
+        LOGERR("OHReceiver::Sender: missing Metadata in response" << '\n');
         return UPNP_E_BAD_RESPONSE;
     }
     return 0;
@@ -147,7 +147,7 @@ int OHReceiver::protocolInfo(std::string *proto)
         return ret;
     }
     if (!data.get("Value", proto)) {
-        LOGERR("OHReceiver::protocolInfo: missing Value in response" << endl);
+        LOGERR("OHReceiver::protocolInfo: missing Value in response" << '\n');
         return UPNP_E_BAD_RESPONSE;
     }
     return 0;

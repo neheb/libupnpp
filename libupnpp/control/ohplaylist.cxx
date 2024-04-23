@@ -1,4 +1,4 @@
-/* Copyright (C) 2006-2016 J.F.Dockes
+/* Copyright (C) 2006-2024 J.F.Dockes
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -19,8 +19,8 @@
 
 #include "libupnpp/control/ohplaylist.hxx"
 
-#include <stdlib.h>
-#include <string.h>
+#include <cstdlib>
+#include <cstring>
 #include <upnp.h>
 
 #include <functional>
@@ -59,16 +59,16 @@ bool OHPlaylist::serviceTypeMatch(const std::string& tp)
 
 int OHPlaylist::stringToTpState(const string& value, OHPlaylist::TPState *tpp)
 {
-    if (!value.compare("Buffering") || !value.compare("Waiting")) {
+    if (value == "Buffering" || value == "Waiting") {
         *tpp = OHPlaylist::TPS_Buffering;
         return 0;
-    } else if (!value.compare("Paused")) {
+    } else if (value == "Paused") {
         *tpp = OHPlaylist::TPS_Paused;
         return 0;
-    } else if (!value.compare("Playing")) {
+    } else if (value == "Playing") {
         *tpp = OHPlaylist::TPS_Playing;
         return 0;
-    } else if (!value.compare("Stopped")) {
+    } else if (value == "Stopped") {
         *tpp = OHPlaylist::TPS_Stopped;
         return 0;
     }
@@ -78,7 +78,7 @@ int OHPlaylist::stringToTpState(const string& value, OHPlaylist::TPState *tpp)
 
 void OHPlaylist::evtCallback(const std::unordered_map<std::string, std::string>& props)
 {
-    LOGDEB1("OHPlaylist::evtCallback: getReporter(): " << getReporter() << endl);
+    LOGDEB1("OHPlaylist::evtCallback: getReporter(): " << getReporter() << '\n');
     auto reporter = getReporter();
     if (reporter && props.empty()) {
         // Subscription renewal failed
@@ -88,7 +88,7 @@ void OHPlaylist::evtCallback(const std::unordered_map<std::string, std::string>&
     for (const auto& [varnm, varvalue] : props) {
         if (!reporter) {
             // For logging with no reporter set
-            LOGDEB1("OHPlaylist::evtCallback: " << varnm << " -> " << varvalue << endl);
+            LOGDEB1("OHPlaylist::evtCallback: " << varnm << " -> " << varvalue << '\n');
             continue;
         }
 
@@ -111,7 +111,7 @@ void OHPlaylist::evtCallback(const std::unordered_map<std::string, std::string>&
             getReporter()->changed(varnm.c_str(), v);
         } else {
             LOGERR("OHPlaylist event: unknown variable: name [" <<
-                   varnm << "] value [" << varvalue << endl);
+                   varnm << "] value [" << varvalue << '\n');
             getReporter()->changed(varnm.c_str(), varvalue.c_str());
         }
     }
@@ -206,24 +206,23 @@ int OHPlaylist::read(int id, std::string* urip, UPnPDirObject *dirent)
         return ret;
     }
     if (!data.get("Uri", urip)) {
-        LOGERR("OHPlaylist::Read: missing Uri in response" << endl);
+        LOGERR("OHPlaylist::Read: missing Uri in response" << '\n');
         return UPNP_E_BAD_RESPONSE;
     }
     string didl;
     if (!data.get("Metadata", &didl)) {
-        LOGERR("OHPlaylist::Read: missing Uri in response" << endl);
+        LOGERR("OHPlaylist::Read: missing Uri in response" << '\n');
         return UPNP_E_BAD_RESPONSE;
     }
     didl = SoapHelp::xmlUnquote(didl);
 
     UPnPDirContent dir;
     if (!dir.parse(didl)) {
-        LOGERR("OHPlaylist::Read: didl parse failed: " << didl << endl);
+        LOGERR("OHPlaylist::Read: didl parse failed: " << didl << '\n');
         return UPNP_E_BAD_RESPONSE;
     }
     if (dir.m_items.size() != 1) {
-        LOGERR("OHPlaylist::Read: " << dir.m_items.size() << " in response!" <<
-               endl);
+        LOGERR("OHPlaylist::Read: " << dir.m_items.size() << " in response!" << '\n');
         return UPNP_E_BAD_RESPONSE;
     }
     *dirent = dir.m_items[0];
@@ -242,11 +241,10 @@ int OHPlaylist::read(int id, std::string* urip, UPnPDirObject *dirent)
 
 class OHTrackListParser : public inputRefXMLParser {
 public:
-    OHTrackListParser(const string& input,
-                      vector<OHPlaylist::TrackListEntry>* vp)
+    OHTrackListParser(const string& input, vector<OHPlaylist::TrackListEntry>* vp)
         : inputRefXMLParser(input), m_v(vp)
     {
-        //LOGDEB("OHTrackListParser: input: " << input << endl);
+        //LOGDEB("OHTrackListParser: input: " << input << '\n');
     }
 
 protected:
@@ -255,13 +253,11 @@ protected:
         if (!strcmp(name, "Entry")) {
             UPnPDirContent dir;
             if (!dir.parse(m_tdidl)) {
-                LOGERR("OHPlaylist::ReadList: didl parse failed: "
-                       << m_tdidl << endl);
+                LOGERR("OHPlaylist::ReadList: didl parse failed: " << m_tdidl << '\n');
                 return;
             }
             if (dir.m_items.size() != 1) {
-                LOGERR("OHPlaylist::ReadList: " << dir.m_items.size()
-                       << " in response!" << endl);
+                LOGERR("OHPlaylist::ReadList: " << dir.m_items.size() << " in response!" << '\n');
                 return;
             }
             m_tt.dirent = dir.m_items[0];
@@ -275,11 +271,11 @@ protected:
         if (s == 0 || *s == 0)
             return;
         string str(s, len);
-        if (!m_path.back().name.compare("Id"))
+        if (m_path.back().name == "Id")
             m_tt.id = atoi(str.c_str());
-        else if (!m_path.back().name.compare("Uri"))
+        else if (m_path.back().name == "Uri")
             m_tt.url = str;
-        else if (!m_path.back().name.compare("Metadata"))
+        else if (m_path.back().name == "Metadata")
             m_tdidl += str;
     }
 
@@ -307,7 +303,7 @@ int OHPlaylist::readList(const std::vector<int>& ids,
     }
     string xml;
     if (!data.get("TrackList", &xml)) {
-        LOGERR("OHPlaylist::readlist: missing TrackList in response" << endl);
+        LOGERR("OHPlaylist::readlist: missing TrackList in response" << '\n');
         return UPNP_E_BAD_RESPONSE;
     }
     OHTrackListParser mparser(xml, entsp);
@@ -316,8 +312,7 @@ int OHPlaylist::readList(const std::vector<int>& ids,
     return 0;
 }
 
-int OHPlaylist::insert(int afterid, const string& uri, const string& didl,
-                       int *nid)
+int OHPlaylist::insert(int afterid, const string& uri, const string& didl, int *nid)
 {
     SoapOutgoing args(getServiceType(), "Insert");
     args("AfterId", SoapHelp::i2s(afterid))
@@ -330,7 +325,7 @@ int OHPlaylist::insert(int afterid, const string& uri, const string& didl,
     }
     int lnid;
     if (!data.get("NewId", &lnid)) {
-        LOGERR("OHPlaylist::insert: missing Newid in response" << endl);
+        LOGERR("OHPlaylist::insert: missing Newid in response" << '\n');
         return UPNP_E_BAD_RESPONSE;
     }
     if (nid) {
@@ -363,7 +358,7 @@ int OHPlaylist::idArray(vector<int> *ids, int *tokp)
     }
     int ltok;
     if (!data.get("Token", &ltok)) {
-        LOGERR("OHPlaylist::idArray: missing Token in response" << endl);
+        LOGERR("OHPlaylist::idArray: missing Token in response" << '\n');
         return UPNP_E_BAD_RESPONSE;
     }
     if (tokp) {
@@ -371,7 +366,7 @@ int OHPlaylist::idArray(vector<int> *ids, int *tokp)
     }
     string arraydata;
     if (!data.get("Array", &arraydata)) {
-        LOGINF("OHPlaylist::idArray: missing Array in response" << endl);
+        LOGINF("OHPlaylist::idArray: missing Array in response" << '\n');
         // We get this for an empty array ? This would need to be investigated
     }
     ohplIdArrayToVec(arraydata, ids);
@@ -388,7 +383,7 @@ int OHPlaylist::idArrayChanged(int token, bool *changed)
         return ret;
     }
     if (!data.get("Value", changed)) {
-        LOGERR("OHPlaylist::idArrayChanged: missing Value in response" << endl);
+        LOGERR("OHPlaylist::idArrayChanged: missing Value in response" << '\n');
         return UPNP_E_BAD_RESPONSE;
     }
     return 0;
@@ -403,7 +398,7 @@ int OHPlaylist::protocolInfo(std::string *proto)
         return ret;
     }
     if (!data.get("Value", proto)) {
-        LOGERR("OHPlaylist::protocolInfo: missing Value in response" << endl);
+        LOGERR("OHPlaylist::protocolInfo: missing Value in response" << '\n');
         return UPNP_E_BAD_RESPONSE;
     }
     return 0;

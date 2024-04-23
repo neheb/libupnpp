@@ -19,9 +19,9 @@
 
 #include "libupnpp/control/renderingcontrol.hxx"
 
-#include <stdlib.h>
+#include <cstdlib>
 #include <upnp.h>
-#include <math.h>
+#include <cmath>
 
 #include <functional>
 #include <ostream>
@@ -105,7 +105,7 @@ void RenderingControl::evtCallback(const std::unordered_map<std::string, std::st
         return;
 
     for (const auto& [varnm, varvalue] : vars) {
-        if (varnm.compare("LastChange")) {
+        if (varnm != "LastChange") {
             LOGINF("RenderingControl:event: not LastChange? "<< varnm << "," << varvalue << "\n");
             continue;
         }

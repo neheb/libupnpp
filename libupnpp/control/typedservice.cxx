@@ -1,4 +1,4 @@
-/* Copyright (C) 2006-2016 J.F.Dockes
+/* Copyright (C) 2006-2024 J.F.Dockes
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -49,14 +49,14 @@ public:
 TypedService::TypedService(const string& tp)
     : m(new Internal())
 {
-    string::size_type colon = tp.find_last_of(":");
+    string::size_type colon = tp.find_last_of(':');
     m->servicetype = tp.substr(0, colon);
     if (colon != string::npos && colon != tp.size() -1) {
         m->version = atoi(tp.substr(colon+1).c_str());
     } else {
         m->version = 0;
     }
-    LOGDEB2("TypedService::TypedService: tp " << m->servicetype <<" version " << m->version << endl);
+    LOGDEB2("TypedService::TypedService: tp " << m->servicetype <<" version " << m->version <<'\n');
 };
 
 TypedService::~TypedService()
@@ -67,13 +67,13 @@ TypedService::~TypedService()
 bool TypedService::serviceTypeMatch(const string& _tp)
 {
     LOGDEB2("TypedService::serviceTypeMatch: [" << _tp << "]\n");
-    string::size_type colon = _tp.find_last_of(":");
+    string::size_type colon = _tp.find_last_of(':');
     string tp = _tp.substr(0, colon);
     int version = 0;
     if (colon != string::npos && colon != _tp.size() -1) {
         version = atoi(_tp.substr(colon+1).c_str());
     }
-    return !m->servicetype.compare(tp) && m->version >= version;
+    return m->servicetype == tp && m->version >= version;
 }
 
 
@@ -100,8 +100,8 @@ int TypedService::runAction(const string& actnm, vector<string> args, map<string
         }
     }
     if (outargcnt != args.size()) {
-        LOGERR("TypedService::runAction: expected " << outargcnt <<
-               " outgoing arguments, got " << args.size() << endl);
+        LOGERR("TypedService::runAction: expected " << outargcnt << " outgoing arguments, got " <<
+               args.size() << '\n');
         return UPNP_SOAP_E_INVALID_ARGS;
     }
     SoapOutgoing soapargs(getServiceType(), actnm);
@@ -122,10 +122,10 @@ int TypedService::runAction(const string& actnm, vector<string> args, map<string
 void TypedService::evtCallback(const std::unordered_map<std::string, std::string>& props)
 {
     VarEventReporter *reporter = getReporter();
-    LOGDEB1("TypedService::evtCallback: reporter: " << reporter << endl);
+    LOGDEB1("TypedService::evtCallback: reporter: " << reporter << '\n');
     for (const auto& ent : props) {
         if (!reporter) {
-            LOGDEB1("TypedService::evtCallback: " << ent.first << " -> " << ent.second << endl);
+            LOGDEB1("TypedService::evtCallback: " << ent.first << " -> " << ent.second << '\n');
         } else {
             reporter->changed(ent.first.c_str(), ent.second.c_str());
         }
@@ -158,14 +158,14 @@ public:
     
     bool visit(const UPnPDeviceDesc& dev, const UPnPServiceDesc& serv) {
         LOGDEB2("findTypedService:visit: got " << dev.friendlyName << " " <<
-               dev.UDN << " " << serv.serviceType << endl);
-        bool matched = !dev.UDN.compare(dvname) || !stringlowercmp(ldvname, dev.friendlyName);
+               dev.UDN << " " << serv.serviceType << '\n');
+        bool matched = dev.UDN == dvname || !stringlowercmp(ldvname, dev.friendlyName);
         if (matched) {
             if (fuzzy) {
                 string ltp = stringtolower(serv.serviceType);
                 matched = matched && (ltp.find(stype) != string::npos);
             } else {
-                matched =  matched && !stype.compare(serv.serviceType);
+                matched =  matched && stype == serv.serviceType;
             }
         }
         if (matched) {
@@ -224,9 +224,8 @@ TypedService *findTypedService(
         // string sdesc = cb.founddev.dump();
         return service;
     }
-    LOGDEB("Service not found: " << devname << "/" << servicetype << " fuzzy " << fuzzy << endl);
+    LOGDEB("Service not found: " << devname << "/" << servicetype << " fuzzy " << fuzzy << '\n');
     return 0;
 }
-
 
 }

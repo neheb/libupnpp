@@ -1,4 +1,4 @@
-/* Copyright (C) 2006-2016 J.F.Dockes
+/* Copyright (C) 2006-2024 J.F.Dockes
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -42,7 +42,7 @@ static MRDH getRenderer(const string& name)
     } else if (UPnPDeviceDirectory::getTheDir()->getDevByFName(name, ddesc)) {
         return std::make_shared<MediaRenderer>(ddesc);
     }
-    LOGERR("getRenderer: getDevByFname failed for " << name << endl);
+    LOGERR("getRenderer: getDevByFname failed for " << name << '\n');
     return MRDH();
 }
 
@@ -54,7 +54,7 @@ static DVCH getDevice(const string& name)
     } else if (UPnPDeviceDirectory::getTheDir()->getDevByFName(name, ddesc)) {
         return std::make_shared<MediaRenderer>(ddesc);
     }
-    LOGERR("getDevice: getDevByFname failed for " << name << endl);
+    LOGERR("getDevice: getDevByFname failed for " << name << '\n');
     return DVCH();
 }
 
@@ -147,7 +147,7 @@ void getReceiverState(const string& nm, ReceiverState& st, bool live)
     }
     unsigned int rcvi = 0;
     for (; rcvi < sources.size(); rcvi++) {
-        if (!sources[rcvi].type.compare("Receiver"))
+        if (sources[rcvi].type == "Receiver")
             break;
     }
     if (rcvi == sources.size()) {
@@ -212,36 +212,34 @@ out:
 }
 
 bool setSourceIndex(const string& nm, int sourceindex) {
-    LOGDEB("setSourceIndex: nm " << nm << " index " << sourceindex << endl);
+    LOGDEB("setSourceIndex: nm " << nm << " index " << sourceindex << '\n');
 
     MRDH rdr = getRenderer(nm);
     if (!rdr) {
-        LOGDEB("setSourceIndex: device " << nm << " is not renderer " << endl);
+        LOGDEB("setSourceIndex: device " << nm << " is not renderer " << '\n');
         return false;
     }
     OHPRH prod = rdr->ohpr();
     if (!prod) {
-        LOGDEB("setSourceIndex: device " << nm
-                << " has no OHProduct service " << endl);
+        LOGDEB("setSourceIndex: device " << nm << " has no OHProduct service " << '\n');
         return false;
     }
     vector<OHProduct::Source> sources;
     if (prod->getSources(sources) || sources.size() == 0) {
-        LOGDEB("setSourceIndex: getSources failed" << endl);
+        LOGDEB("setSourceIndex: getSources failed" << '\n');
         return false;
     }
     if (sourceindex < 0 || sourceindex >= int(sources.size())) {
-        LOGDEB("setSourceIndex: bad index " << SoapHelp::i2s(sourceindex)
-                << endl);
+        LOGDEB("setSourceIndex: bad index " << SoapHelp::i2s(sourceindex) << '\n');
         return false;
     }
     int currentindex;
     if (prod->sourceIndex(&currentindex)) {
-        LOGDEB("setSourceIndex: sourceIndex failed" << endl);
+        LOGDEB("setSourceIndex: sourceIndex failed" << '\n');
         return false;
     }
     if (currentindex < 0 || currentindex >= int(sources.size())) {
-        LOGDEB("setSourceIndex: bad index " << currentindex << endl);
+        LOGDEB("setSourceIndex: bad index " << currentindex << '\n');
         return false;
     }
 
@@ -252,18 +250,16 @@ bool setSourceIndex(const string& nm, int sourceindex) {
 }
 
 bool setSourceIndexByName(const string& rdrnm, const string& name) {
-    LOGDEB("setSourceIndexByName: rdrnm " << rdrnm << " name " << name << endl);
+    LOGDEB("setSourceIndexByName: rdrnm " << rdrnm << " name " << name << '\n');
 
     MRDH rdr = getRenderer(rdrnm);
     if (!rdr) {
-        LOGDEB("setSourceIndexByName: device " << rdrnm << " is not renderer "
-                << endl);
+        LOGDEB("setSourceIndexByName: device " << rdrnm << " is not a renderer " << '\n');
         return false;
     }
     OHPRH prod = rdr->ohpr();
     if (!prod) {
-        LOGDEB("setSourceIndexByName: device " << rdrnm
-                << " has no OHProduct service " << endl);
+        LOGDEB("setSourceIndexByName: device " << rdrnm << " has no OHProduct service " << '\n');
         return false;
     }
     return prod->setSourceIndexByName(name) == 0;
@@ -274,7 +270,7 @@ void listReceivers(vector<ReceiverState>& vreceivers)
     vreceivers.clear();
     vector<UPnPDeviceDesc> vdds;
     if (!MediaRenderer::getDeviceDescs(vdds)) {
-        LOGERR("listReceivers::getDeviceDescs failed" << endl);
+        LOGERR("listReceivers::getDeviceDescs failed" << '\n');
         return;
     }
 
@@ -282,8 +278,7 @@ void listReceivers(vector<ReceiverState>& vreceivers)
         ReceiverState st;
         getReceiverState(entry.UDN, st, false);
         if (st.state == ReceiverState::SCRS_NOTRECEIVER ||
-                st.state == ReceiverState::SCRS_PLAYING ||
-                st.state == ReceiverState::SCRS_STOPPED) {
+            st.state == ReceiverState::SCRS_PLAYING || st.state == ReceiverState::SCRS_STOPPED) {
             vreceivers.push_back(st);
         }
     }
@@ -306,14 +301,13 @@ void listSenders(vector<SenderState>& vsenders)
     vsenders.clear();
     // Search the directory for all devices with a Sender service
     vector<string> sndudns;
-    UPnPDeviceDirectory::Visitor visitor =
-        bind(lookForSenders, &sndudns, _1, _2);
+    UPnPDeviceDirectory::Visitor visitor = bind(lookForSenders, &sndudns, _1, _2);
     UPnPDeviceDirectory::getTheDir()->traverse(visitor);
     sort(sndudns.begin(), sndudns.end());
     sndudns.erase(unique(sndudns.begin(), sndudns.end()), sndudns.end());
 
     // Get the details
-    for (auto udn : sndudns) {
+    for (const auto& udn : sndudns) {
         SenderState st;
         getSenderState(udn, st, false);
         if (st.has_sender) {
@@ -334,8 +328,7 @@ bool setReceiverPlaying(ReceiverState& st)
     }
 
     if (st.prod->setSourceIndex(st.receiverSourceIndex)) {
-        st.reason = st.nm + " : can't set source index to " +
-                    SoapHelp::i2s(st.receiverSourceIndex);
+        st.reason = st.nm + " : can't set source index to " + SoapHelp::i2s(st.receiverSourceIndex);
         return false;
     }
     if (st.rcv->play()) {
@@ -345,8 +338,7 @@ bool setReceiverPlaying(ReceiverState& st)
     return true;
 }
 
-bool setReceiverPlaying(ReceiverState& st,
-                        const string& uri, const string& meta)
+bool setReceiverPlaying(ReceiverState& st, const string& uri, const string& meta)
 {
     if (!st.rcv || !st.prod) {
         string uuid = st.UDN;
@@ -362,8 +354,7 @@ bool setReceiverPlaying(ReceiverState& st,
         return false;
     }
     if (st.prod->setSourceIndex(st.receiverSourceIndex)) {
-        st.reason = st.nm + " : can't set source index to " +
-                    SoapHelp::i2s(st.receiverSourceIndex);
+        st.reason = st.nm + " : can't set source index to " + SoapHelp::i2s(st.receiverSourceIndex);
         return false;
     }
     if (st.rcv->play()) {
@@ -375,7 +366,7 @@ bool setReceiverPlaying(ReceiverState& st,
 
 bool stopReceiver(ReceiverState& st)
 {
-    LOGDEB("stopReceiver: st.nm " << st.nm << " st.UDN " << st.UDN << endl);
+    LOGDEB("stopReceiver: st.nm " << st.nm << " st.UDN " << st.UDN << '\n');
     if (!st.rcv || !st.prod) {
         string uuid = st.UDN;
         getReceiverState(uuid, st, true);
@@ -389,8 +380,7 @@ bool stopReceiver(ReceiverState& st)
         return false;
     }
     if (st.prod->setSourceIndex(0)) {
-        st.reason = st.nm + " : can't set source index to " +
-                    SoapHelp::i2s(st.receiverSourceIndex);
+        st.reason = st.nm + " : can't set source index to " + SoapHelp::i2s(st.receiverSourceIndex);
         return false;
     }
     return true;
@@ -416,16 +406,15 @@ bool setReceiversFromSenderWithStatus(const string& sendernm,
     string reason;
     OHSNH sender = getSender(sendernm, reason);
     if (!sender) {
-        LOGERR("setReceiversFromSender: " << reason << endl);
+        LOGERR("setReceiversFromSender: " << reason << '\n');
         reasons[0] = reason;
         return false;
     }
     string uri, meta;
     int iret;
     if ((iret = sender->metadata(uri, meta)) != 0) {
-        reasons[0] = string("Can't retrieve sender metadata. Error: ") +
-            SoapHelp::i2s(iret);
-        LOGERR(reasons[0] << endl);
+        reasons[0] = string("Can't retrieve sender metadata. Error: ") + SoapHelp::i2s(iret);
+        LOGERR(reasons[0] << '\n');
         return false;
     }
 
@@ -437,23 +426,23 @@ bool setReceiversFromSenderWithStatus(const string& sendernm,
     reasons.resize(rcvs.size());
     for (unsigned int i = 0; i < rcvs.size(); i++) {
         auto& sl = rcvs[i];
-        LOGDEB("Setting up " << sl << endl);
+        LOGDEB("Setting up " << sl << '\n');
         ReceiverState sstate;
         getReceiverState(sl, sstate);
 
         switch (sstate.state) {
         case ReceiverState::SCRS_GENERROR:
         case ReceiverState::SCRS_NOOH:
-            LOGERR(sl << sstate.reason << endl);
+            LOGERR(sl << sstate.reason << '\n');
             reasons[i] = sstate.reason;
             continue;
         case ReceiverState::SCRS_STOPPED:
         case ReceiverState::SCRS_PLAYING:
         case ReceiverState::SCRS_NOTRECEIVER:
             if (setReceiverPlaying(sstate, uri, meta)) {
-                LOGDEB(sl << " set up for playing " << uri << endl);
+                LOGDEB(sl << " set up for playing " << uri << '\n');
             } else {
-                LOGERR(sstate.reason << endl);
+                LOGERR(sstate.reason << '\n');
                 reasons[i] = sstate.reason;
             }
         }
@@ -461,8 +450,7 @@ bool setReceiversFromSenderWithStatus(const string& sendernm,
     return true;
 }
 
-void setReceiversFromReceiver(const string& masterName,
-                              const vector<string>& slaves)
+void setReceiversFromReceiver(const string& masterName, const vector<string>& slaves)
 {
     vector<string> reasons;
     setReceiversFromReceiverWithStatus(masterName, slaves, reasons);
@@ -483,7 +471,7 @@ bool setReceiversFromReceiverWithStatus(const string& masterName,
     getReceiverState(masterName, mstate);
     if (mstate.state != ReceiverState::SCRS_PLAYING) {
         reasons[0] = "Required master not in Receiver Playing mode";
-        LOGERR(reasons[0] << endl);
+        LOGERR(reasons[0] << '\n');
         return false;
     }
 
@@ -493,25 +481,25 @@ bool setReceiversFromReceiverWithStatus(const string& masterName,
     //   Receiver::Stop / Product::SetStandby
     for (unsigned int i = 0; i < slaves.size(); i++) {
         auto& sl(slaves[i]);
-        LOGERR("Setting up " << sl << endl);
+        LOGERR("Setting up " << sl << '\n');
         ReceiverState sstate;
         getReceiverState(sl, sstate);
 
         switch (sstate.state) {
         case ReceiverState::SCRS_GENERROR:
         case ReceiverState::SCRS_NOOH:
-            LOGERR(sl << sstate.reason << endl);
+            LOGERR(sl << sstate.reason << '\n');
             reasons[i] = sstate.reason;
             continue;
         case ReceiverState::SCRS_STOPPED:
         case ReceiverState::SCRS_PLAYING:
-            LOGERR(sl << ": already in receiver mode" << endl);
+            LOGERR(sl << ": already in receiver mode" << '\n');
             continue;
         case ReceiverState::SCRS_NOTRECEIVER:
             if (setReceiverPlaying(sstate, mstate.uri, mstate.meta)) {
-                LOGDEB(sl << " set up for playing " << mstate.uri << endl);
+                LOGDEB(sl << " set up for playing " << mstate.uri << '\n');
             } else {
-                LOGERR(sstate.reason << endl);
+                LOGERR(sstate.reason << '\n');
                 reasons[i] = sstate.reason;
             }
         }
@@ -525,36 +513,34 @@ void stopReceivers(const vector<string>& slaves)
     stopReceiversWithStatus(slaves, reasons);
 }
 
-bool stopReceiversWithStatus(const vector<string>& slaves,
-                             vector<string>& reasons)
+bool stopReceiversWithStatus(const vector<string>& slaves, vector<string>& reasons)
 {
     reasons.clear();
     reasons.resize(slaves.size());
     for (unsigned int i = 0; i < slaves.size(); i++) {
         auto& sl(slaves[i]);
-        LOGERR("Songcast: resetting " << sl << endl);
+        LOGERR("Songcast: resetting " << sl << '\n');
         ReceiverState sstate;
         getReceiverState(sl, sstate);
 
         switch (sstate.state) {
         case ReceiverState::SCRS_GENERROR:
         case ReceiverState::SCRS_NOOH:
-            LOGERR(sl << sstate.reason << endl);
+            LOGERR(sl << sstate.reason << '\n');
             reasons[i] = sstate.reason;
             continue;
         case ReceiverState::SCRS_NOTRECEIVER:
-            LOGERR(sl << ": not in receiver mode" << endl);
+            LOGERR(sl << ": not in receiver mode" << '\n');
             // Consider this as success
             continue;
         case ReceiverState::SCRS_STOPPED:
         case ReceiverState::SCRS_PLAYING:
             if (stopReceiver(sstate)) {
-                LOGERR(sl << " back from receiver mode " << endl);
+                LOGERR(sl << " back from receiver mode " << '\n');
             } else {
-                LOGERR(sstate.reason << endl);
+                LOGERR(sstate.reason << '\n');
                 reasons[i] = sstate.reason;
             }
-            
         }
     }
     return true;
@@ -566,30 +552,29 @@ void setReceiversPlaying(const vector<string>& slaves)
     setReceiversPlayingWithStatus(slaves, reasons);
 }
 
-bool setReceiversPlayingWithStatus(const vector<string>& rcvs,
-                                   vector<string>& reasons)
+bool setReceiversPlayingWithStatus(const vector<string>& rcvs, vector<string>& reasons)
 {
     reasons.clear();
     reasons.resize(rcvs.size());
     for (unsigned int i = 0; i < rcvs.size(); i++) {
         auto& sl = rcvs[i];
-        LOGDEB("Setting up " << sl << endl);
+        LOGDEB("Setting up " << sl << '\n');
         ReceiverState sstate;
         getReceiverState(sl, sstate);
 
         switch (sstate.state) {
         case ReceiverState::SCRS_GENERROR:
         case ReceiverState::SCRS_NOOH:
-            LOGERR(sl << sstate.reason << endl);
+            LOGERR(sl << sstate.reason << '\n');
             reasons[i] = sstate.reason;
             continue;
         case ReceiverState::SCRS_STOPPED:
         case ReceiverState::SCRS_PLAYING:
         case ReceiverState::SCRS_NOTRECEIVER:
             if (setReceiverPlaying(sstate)) {
-                LOGDEB(sl << " set up for playing " << endl);
+                LOGDEB(sl << " set up for playing " << '\n');
             } else {
-                LOGERR(sstate.reason << endl);
+                LOGERR(sstate.reason << '\n');
                 reasons[i] = sstate.reason;
             }
         }
@@ -599,4 +584,3 @@ bool setReceiversPlayingWithStatus(const vector<string>& rcvs,
 
 }
 }
-

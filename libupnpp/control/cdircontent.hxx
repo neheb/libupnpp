@@ -1,4 +1,4 @@
-/* Copyright (C) 2006-2019 J.F.Dockes
+/* Copyright (C) 2006-2024 J.F.Dockes
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -87,9 +87,9 @@ public:
     /// no attributes, so the attributes storage is dynamically
     /// allocated to save space. Beware that attrs can be the nullptr.
     struct PropertyValue {
-        PropertyValue(const std::string& v,
-                      const std::map<std::string, std::string>& a)
-            : value(v) {
+        PropertyValue(const std::string &v, const std::map<std::string, std::string>& a)
+            : value(v)
+        {
             if (!a.empty()) {
                 attrs = new std::map<std::string, std::string>(a);
             }
@@ -246,24 +246,23 @@ public:
 
     std::string dump() const {
         std::ostringstream os;
-        os << "UPnPDirObject: " << (m_type == item ? "item" : "container") <<
-           " id [" << m_id << "] pid [" << m_pid <<
-           "] title [" << m_title << "]" << std::endl;
-        os << "Properties: " << std::endl;
+        os << "UPnPDirObject: " << (m_type == item ? "item" : "container") << " id [" << m_id <<
+            "] pid [" << m_pid << "] title [" << m_title << "]" << '\n';
+        os << "Properties: " << '\n';
         for (const auto& m_prop : m_props) {
             os << "[" << m_prop.first << "]->[" << m_prop.second << "] "
-               << std::endl;
+               << '\n';
         }
-        os << "Resources:" << std::endl;
+        os << "Resources:" << '\n';
         for (const auto& m_resource : m_resources) {
-            os << "  Uri [" << m_resource.m_uri << "]" << std::endl;
-            os << "  Resource attributes:" << std::endl;
+            os << "  Uri [" << m_resource.m_uri << "]" << '\n';
+            os << "  Resource attributes:" << '\n';
             for (const auto& m_prop : m_resource.m_props) {
                 os << "    [" << m_prop.first << "]->[" << m_prop.second << "] "
-                   << std::endl;
+                   << '\n';
             }
         }
-        os << std::endl;
+        os << '\n';
         return os.str();
     }
 

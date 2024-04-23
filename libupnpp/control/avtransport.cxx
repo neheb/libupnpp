@@ -1,4 +1,4 @@
-/* Copyright (C) 2006-2016 J.F.Dockes
+/* Copyright (C) 2006-2024 J.F.Dockes
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -19,7 +19,7 @@
 
 #include "libupnpp/control/avtransport.hxx"
 
-#include <stdlib.h>
+#include <cstdlib>
 #include <upnp.h>
 
 #include <ostream>
@@ -140,35 +140,35 @@ void AVTransport::evtCallback(const std::unordered_map<std::string, std::string>
         }
 
         for (const auto& [varnm, varvalue] : changes) {
-            if (!varnm.compare("TransportState")) {
+            if (varnm == "TransportState") {
                 reporter->changed(varnm.c_str(), stringToTpState(varvalue));
-            } else if (!varnm.compare("TransportStatus")) {
+            } else if (varnm == "TransportStatus") {
                 reporter->changed(varnm.c_str(), stringToTpStatus(varvalue));
-            } else if (!varnm.compare("CurrentPlayMode")) {
+            } else if (varnm == "CurrentPlayMode") {
                 reporter->changed(varnm.c_str(), stringToPlayMode(varvalue));
-            } else if (!varnm.compare("CurrentTransportActions")) {
+            } else if (varnm == "CurrentTransportActions") {
                 int iacts;
                 if (!CTAStringToBits(varvalue, iacts))
                     reporter->changed(varnm.c_str(), iacts);
-            } else if (!varnm.compare("CurrentTrackURI") ||
-                       !varnm.compare("AVTransportURI") ||
-                       !varnm.compare("NextAVTransportURI")) {
+            } else if (varnm == "CurrentTrackURI" ||
+                       varnm == "AVTransportURI" ||
+                       varnm == "NextAVTransportURI") {
                 reporter->changed(varnm.c_str(), varvalue.c_str());
-            } else if (!varnm.compare("TransportPlaySpeed") ||
-                       !varnm.compare("CurrentTrack") ||
-                       !varnm.compare("NumberOfTracks") ||
-                       !varnm.compare("RelativeCounterPosition") ||
-                       !varnm.compare("AbsoluteCounterPosition") ||
-                       !varnm.compare("InstanceID")) {
+            } else if (varnm == "TransportPlaySpeed" ||
+                       varnm == "CurrentTrack" ||
+                       varnm == "NumberOfTracks" ||
+                       varnm == "RelativeCounterPosition" ||
+                       varnm == "AbsoluteCounterPosition" ||
+                       varnm == "InstanceID") {
                 reporter->changed(varnm.c_str(), atoi(varvalue.c_str()));
-            } else if (!varnm.compare("CurrentMediaDuration") ||
-                       !varnm.compare("CurrentTrackDuration") ||
-                       !varnm.compare("RelativeTimePosition") ||
-                       !varnm.compare("AbsoluteTimePosition")) {
+            } else if (varnm == "CurrentMediaDuration" ||
+                       varnm == "CurrentTrackDuration" ||
+                       varnm == "RelativeTimePosition" ||
+                       varnm == "AbsoluteTimePosition") {
                 reporter->changed(varnm.c_str(), upnpdurationtos(varvalue));
-            } else if (!varnm.compare("AVTransportURIMetaData") ||
-                       !varnm.compare("NextAVTransportURIMetaData") ||
-                       !varnm.compare("CurrentTrackMetaData")) {
+            } else if (varnm == "AVTransportURIMetaData" ||
+                       varnm == "NextAVTransportURIMetaData" ||
+                       varnm == "CurrentTrackMetaData") {
                 UPnPDirContent meta;
                 if (!varvalue.empty() && !meta.parse(varvalue)) {
                     LOGERR("AVTransport event: bad metadata: [" << varvalue << "]" << "\n");
@@ -178,13 +178,13 @@ void AVTransport::evtCallback(const std::unordered_map<std::string, std::string>
                         reporter->changed(varnm.c_str(), meta.m_items[0]);
                     }
                 }
-            } else if (!varnm.compare("PlaybackStorageMedium") ||
-                       !varnm.compare("PossiblePlaybackStorageMedia") ||
-                       !varnm.compare("RecordStorageMedium") ||
-                       !varnm.compare("PossibleRecordStorageMedia") ||
-                       !varnm.compare("RecordMediumWriteStatus") ||
-                       !varnm.compare("CurrentRecordQualityMode") ||
-                       !varnm.compare("PossibleRecordQualityModes")) {
+            } else if (varnm == "PlaybackStorageMedium" ||
+                       varnm == "PossiblePlaybackStorageMedia" ||
+                       varnm == "RecordStorageMedium" ||
+                       varnm == "PossibleRecordStorageMedia" ||
+                       varnm == "RecordMediumWriteStatus" ||
+                       varnm == "CurrentRecordQualityMode" ||
+                       varnm == "PossibleRecordQualityModes") {
                 reporter->changed(varnm.c_str(), varvalue.c_str());
             } else {
                 LOGDEB1("AVTransport event: unknown variable: name [" <<

@@ -54,7 +54,7 @@ static bool MDAccum(std::unordered_map<string, UPnPDeviceDesc>* out,
     //LOGDEB("MDAccum: friendlyname: " << friendlyName <<
     //    " dev friendlyName " << device.friendlyName << endl);
     if (ContentDirectory::isCDService(service.serviceType) &&
-            (friendlyName.empty() ? true : !friendlyName.compare(device.friendlyName))) {
+            (friendlyName.empty() ? true : friendlyName == device.friendlyName)) {
         //LOGDEB("MDAccum setting " << device.UDN << endl);
         (*out)[device.UDN] = device;
     }

@@ -1,4 +1,4 @@
-/* Copyright (C) 2006-2016 J.F.Dockes
+/* Copyright (C) 2006-2024 J.F.Dockes
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -318,7 +318,7 @@ int ContentDirectory::getSearchCapabilities(set<string>& result)
     }
 
     result.clear();
-    if (!tbuf.compare("*")) {
+    if (tbuf == "*") {
         result.insert(result.end(), "*");
     } else if (!tbuf.empty()) {
         if (!csvToStrings(tbuf, result)) {

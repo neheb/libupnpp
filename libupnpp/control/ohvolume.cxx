@@ -1,4 +1,4 @@
-/* Copyright (C) 2006-2016 J.F.Dockes
+/* Copyright (C) 2006-2024 J.F.Dockes
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -20,9 +20,9 @@
 
 #include "libupnpp/control/ohvolume.hxx"
 
-#include <stdlib.h>
-#include <string.h>
-#include <math.h>
+#include <cstdlib>
+#include <cstring>
+#include <cmath>
 #include <upnp.h>
 
 #include <functional>
@@ -56,10 +56,10 @@ bool OHVolume::serviceTypeMatch(const std::string& tp)
 
 void OHVolume::evtCallback(const std::unordered_map<std::string, std::string>& props)
 {
-    LOGDEB1("OHVolume::evtCallback: getReporter(): " << getReporter() << endl);
+    LOGDEB1("OHVolume::evtCallback: getReporter(): " << getReporter() << '\n');
     for (const auto& [propname, propvalue] : props) {
         if (!getReporter()) {
-            LOGDEB1("OHVolume::evtCallback: " << propname << " -> " << propvalue << endl);
+            LOGDEB1("OHVolume::evtCallback: " << propname << " -> " << propvalue << '\n');
             continue;
         }
 
@@ -68,15 +68,15 @@ void OHVolume::evtCallback(const std::unordered_map<std::string, std::string>& p
             getReporter()->changed(propname.c_str(), vol);
         } else if (propname == "VolumeLimit") {
             m_volmax = atoi(propvalue.c_str());
-            LOGDEB1("OHVolume: event: VolumeLimit: " << m_volmax << endl);
+            LOGDEB1("OHVolume: event: VolumeLimit: " << m_volmax << '\n');
         } else if (propname == "Mute") {
             bool val = false;
             stringToBool(propvalue, &val);
-            LOGDEB1("OHVolume: event: Mute: " << val << endl);
+            LOGDEB1("OHVolume: event: Mute: " << val << '\n');
             getReporter()->changed(propname.c_str(), val ? 1 : 0);
         } else {
             LOGDEB1("OHVolume event: untracked variable: name [" <<
-                   it->first << "] value [" << it->second << endl);
+                    propname << "] value [" << propvalue << '\n');
             getReporter()->changed(propname.c_str(), propvalue.c_str());
         }
     }
@@ -141,8 +141,7 @@ int OHVolume::vol0100ToDev(int ivol)
         // Round up when going up, down when going down. Else the user
         // will be surprised by the GUI control going back if he does
         // not go a full step
-        desiredVolume = volmin + (goingUp ? int(ceil(ivol * fact)) :
-                                  int(floor(ivol * fact)));
+        desiredVolume = volmin + (goingUp ? int(ceil(ivol * fact)) : int(floor(ivol * fact)));
     }
     // Insure integer number of steps (are there devices where step != 1?)
     int remainder = (desiredVolume - volmin) % volstep;
@@ -165,21 +164,21 @@ int OHVolume::volume(int *value)
     } else {
         *value = 20;
     }
-    LOGDEB1("OHVolume::volume: " << *value << endl);
+    LOGDEB1("OHVolume::volume: " << *value << '\n');
     return ret;
 }
 
 int OHVolume::setVolume(int value)
 {
     int mval = vol0100ToDev(value);
-    LOGDEB1("OHVolume::setVolume: input " << value << " vol " << mval << endl);
+    LOGDEB1("OHVolume::setVolume: input " << value << " vol " << mval << '\n');
     return runSimpleAction("SetVolume", "Value", mval);
 }
 
 int OHVolume::volumeLimit(int *value)
 {
     int ret = runSimpleGet("VolumeLimit", "Value", value);
-    LOGDEB1("OHVolume::volumeLimit(): " << *value << endl);
+    LOGDEB1("OHVolume::volumeLimit(): " << *value << '\n');
     return ret;
 }
 
@@ -210,7 +209,7 @@ int OHVolume::characteristics(OHVCharacteristics* c)
     LOGDEB1("OHVolume::characteristics: max " << c->volumeMax << " unity " <<
             c->volumeUnity << " steps " << c->volumeSteps << " mdbps " <<
             c->volumeMilliDbPerStep << " balmx " << c->balanceMax <<
-            " fademx " << c->fadeMax << endl);
+            " fademx " << c->fadeMax << '\n');
     return UPNP_E_SUCCESS;
 }
   

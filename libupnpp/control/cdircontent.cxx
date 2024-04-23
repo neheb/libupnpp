@@ -1,4 +1,4 @@
-/* Copyright (C) 2006-2016 J.F.Dockes
+/* Copyright (C) 2006-2024 J.F.Dockes
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -17,7 +17,7 @@
  */
 #include "config.h"
 
-#include <string.h>
+#include <cstring>
 
 #include <unordered_map>
 #include <string>
@@ -44,43 +44,40 @@ public:
         : inputRefXMLParser(input), m_dir(dir), m_detailed(detailed) {
         //LOGDEB("UPnPDirParser: input: " << input << endl);
         m_okitems["object.item.audioItem"] = UPnPDirObject::ITC_audioItem;
-        m_okitems["object.item.audioItem.musicTrack"] =
-            UPnPDirObject::ITC_audioItem;
-        m_okitems["object.item.audioItem.audioBroadcast"] =
-            UPnPDirObject::ITC_audioItem;
-        m_okitems["object.item.audioItem.audioBook"] =
-            UPnPDirObject::ITC_audioItem;
+        m_okitems["object.item.audioItem.musicTrack"] = UPnPDirObject::ITC_audioItem;
+        m_okitems["object.item.audioItem.audioBroadcast"] = UPnPDirObject::ITC_audioItem;
+        m_okitems["object.item.audioItem.audioBook"] = UPnPDirObject::ITC_audioItem;
         m_okitems["object.item.playlistItem"] = UPnPDirObject::ITC_playlist;
         m_okitems["object.item.videoItem"] = UPnPDirObject::ITC_videoItem;
     }
     UPnPDirContent& m_dir;
 protected:
     void StartElement(const XML_Char* name, const XML_Char**) override
-    {
-        //LOGDEB("startElement: name [" << name << "]" << " bpos " <<
-        //             XML_GetCurrentByteIndex(expat_parser) << endl);
-        auto& mapattrs = m_path.back().attributes;
-        switch (name[0]) {
-        case 'c':
-            if (!strcmp(name, "container")) {
-                m_tobj.clear(m_detailed);
-                m_tobj.m_type = UPnPDirObject::container;
-                m_tobj.m_id = mapattrs["id"];
-                m_tobj.m_pid = mapattrs["parentID"];
+        {
+            //LOGDEB("startElement: name [" << name << "]" << " bpos " <<
+            //             XML_GetCurrentByteIndex(expat_parser) << endl);
+            auto& mapattrs = m_path.back().attributes;
+            switch (name[0]) {
+            case 'c':
+                if (!strcmp(name, "container")) {
+                    m_tobj.clear(m_detailed);
+                    m_tobj.m_type = UPnPDirObject::container;
+                    m_tobj.m_id = mapattrs["id"];
+                    m_tobj.m_pid = mapattrs["parentID"];
+                }
+                break;
+            case 'i':
+                if (!strcmp(name, "item")) {
+                    m_tobj.clear(m_detailed);
+                    m_tobj.m_type = UPnPDirObject::item;
+                    m_tobj.m_id = mapattrs["id"];
+                    m_tobj.m_pid = mapattrs["parentID"];
+                }
+                break;
+            default:
+                break;
             }
-            break;
-        case 'i':
-            if (!strcmp(name, "item")) {
-                m_tobj.clear(m_detailed);
-                m_tobj.m_type = UPnPDirObject::item;
-                m_tobj.m_id = mapattrs["id"];
-                m_tobj.m_pid = mapattrs["parentID"];
-            }
-            break;
-        default:
-            break;
         }
-    }
 
     virtual bool checkobjok() {
         // We used to check id and pid not empty, but this is ok if we
@@ -96,7 +93,7 @@ protected:
                 // send records with empty classes (and empty id/pid)
                 if (!m_tobj.m_id.empty()) {
                     LOGINF("checkobjok: found object of unknown class: [" <<
-                           m_tobj.m_props["upnp:class"] << "]" << endl);
+                           m_tobj.m_props["upnp:class"] << "]" << '\n');
                 }
                 m_tobj.m_iclass = UPnPDirObject::ITC_unknown;
             } else {
@@ -105,89 +102,87 @@ protected:
         }
 
         if (!ok) {
-            LOGINF("checkobjok:skip: id ["<< m_tobj.m_id<<"] pid ["<<
-                   m_tobj.m_pid << "] clss [" << m_tobj.m_props["upnp:class"]
-                   << "] tt [" << m_tobj.m_title << "]" << endl);
+            LOGINF("checkobjok:skip: id [" << m_tobj.m_id << "] pid [" << m_tobj.m_pid <<
+                   "] clss [" << m_tobj.m_props["upnp:class"] << "] tt [" << m_tobj.m_title <<
+                   "]" << '\n');
         }
         return ok;
     }
 
     void EndElement(const XML_Char* name) override
-    {
-        string parentname;
-        if (m_path.size() == 1) {
-            parentname = "root";
-        } else {
-            parentname = m_path[m_path.size()-2].name;
-        }
-        //LOGDEB("Closing element " << name << " inside element " <<
-        //       parentname << " data " << m_path.back().data << endl);
-        if (!strcmp(name, "container")) {
-            if (checkobjok()) {
-                m_dir.m_containers.push_back(m_tobj);
+        {
+            string parentname;
+            if (m_path.size() == 1) {
+                parentname = "root";
+            } else {
+                parentname = m_path[m_path.size()-2].name;
             }
-        } else if (!strcmp(name, "item")) {
-            if (checkobjok()) {
-                size_t len = XML_GetCurrentByteIndex(expat_parser) -
-                    m_path.back().start_index;
-                if (len > 0) {
-                    m_tobj.m_didlfrag = m_input.substr(
-                        m_path.back().start_index, len) +  "</item>";
+            //LOGDEB("Closing element " << name << " inside element " <<
+            //       parentname << " data " << m_path.back().data << endl);
+            if (!strcmp(name, "container")) {
+                if (checkobjok()) {
+                    m_dir.m_containers.push_back(m_tobj);
                 }
-                m_dir.m_items.push_back(m_tobj);
-            }
-        } else if (!parentname.compare("item") ||
-                   !parentname.compare("container")) {
-            switch (name[0]) {
-            case 'd':
-                if (!strcmp(name, "dc:title")) {
-                    m_tobj.m_title = m_path.back().data;
-                } else {
-                    addprop(name, m_path.back().data);
-                }
-                break;
-            case 'r':
-                if (!strcmp(name, "res")) {
-                    // <res protocolInfo="http-get:*:audio/mpeg:*" size="517149"
-                    // bitrate="24576" duration="00:03:35"
-                    // sampleFrequency="44100" nrAudioChannels="2">
-                    UPnPResource res;
-                    if (LibUPnP::getLibUPnP()->m->reSanitizeURLs()) {
-                        res.m_uri = reSanitizeURL(m_path.back().data);
-                    } else {
-                        res.m_uri = m_path.back().data;
+            } else if (!strcmp(name, "item")) {
+                if (checkobjok()) {
+                    size_t len = XML_GetCurrentByteIndex(expat_parser) - m_path.back().start_index;
+                    if (len > 0) {
+                        m_tobj.m_didlfrag = m_input.substr(m_path.back().start_index, len) +
+                            "</item>";
                     }
-                    res.m_props = m_path.back().attributes;
-                    m_tobj.m_resources.push_back(res);
-                } else {
-                    addprop(name, m_path.back().data);
+                    m_dir.m_items.push_back(m_tobj);
                 }
-                break;
-            case 'u':
-                if (!strcmp(name, "upnp:albumArtURI")) {
-                    if (LibUPnP::getLibUPnP()->m->reSanitizeURLs()) {
-                        addprop(name, reSanitizeURL(m_path.back().data));
+            } else if (parentname == "item" || parentname == "container") {
+                switch (name[0]) {
+                case 'd':
+                    if (!strcmp(name, "dc:title")) {
+                        m_tobj.m_title = m_path.back().data;
                     } else {
                         addprop(name, m_path.back().data);
                     }
-                } else {
+                    break;
+                case 'r':
+                    if (!strcmp(name, "res")) {
+                        // <res protocolInfo="http-get:*:audio/mpeg:*" size="517149"
+                        // bitrate="24576" duration="00:03:35"
+                        // sampleFrequency="44100" nrAudioChannels="2">
+                        UPnPResource res;
+                        if (LibUPnP::getLibUPnP()->m->reSanitizeURLs()) {
+                            res.m_uri = reSanitizeURL(m_path.back().data);
+                        } else {
+                            res.m_uri = m_path.back().data;
+                        }
+                        res.m_props = m_path.back().attributes;
+                        m_tobj.m_resources.push_back(res);
+                    } else {
+                        addprop(name, m_path.back().data);
+                    }
+                    break;
+                case 'u':
+                    if (!strcmp(name, "upnp:albumArtURI")) {
+                        if (LibUPnP::getLibUPnP()->m->reSanitizeURLs()) {
+                            addprop(name, reSanitizeURL(m_path.back().data));
+                        } else {
+                            addprop(name, m_path.back().data);
+                        }
+                    } else {
+                        addprop(name, m_path.back().data);
+                    }
+                    break;
+                default:
                     addprop(name, m_path.back().data);
+                    break;
                 }
-                break;
-            default:
-                addprop(name, m_path.back().data);
-                break;
             }
         }
-    }
 
     void CharacterData(const XML_Char* s, int len) override
-    {
-        if (s == 0 || *s == 0)
-            return;
-        string str(s, len);
-        m_path.back().data += str;
-    }
+        {
+            if (s == 0 || *s == 0)
+                return;
+            string str(s, len);
+            m_path.back().data += str;
+        }
 
 private:
     UPnPDirObject m_tobj;
@@ -206,7 +201,7 @@ private:
         auto roleit = mapattrs.find("role");
         string rolevalue;
         if (roleit != mapattrs.end()) {
-            if (roleit->second.compare("AlbumArtist")) {
+            if (roleit->second != "AlbumArtist") {
                 // AlbumArtist is not useful for the user
                 rolevalue = string(" (") + roleit->second + string(")");
             }
@@ -219,7 +214,7 @@ private:
             // to do this properly we'd need to only build the string
             // at the end when we have all the entries
             string &current(it->second);
-            if (current.compare(data)) {
+            if (current != data) {
                 current += string(", ") + data + rolevalue;
             }
         }
@@ -237,17 +232,16 @@ bool UPnPDirContent::parse(const std::string& input, bool detailed)
     // Double-quoting happens. Just deal with it...
     string unquoted;
     if (input[0] == '&') {
-        LOGDEB0("UPnPDirContent::parse: unquoting over-quoted input: " <<
-                input << endl);
+        LOGDEB0("UPnPDirContent::parse: unquoting over-quoted input: " << input << '\n');
         unquoted = SoapHelp::xmlUnquote(input);
         ipp = &unquoted;
     }
 
     UPnPDirParser parser(*this, *ipp, detailed);
     bool ret = parser.Parse();
-    if (ret == false) {
-        LOGERR("UPnPDirContent::parse: parser failed: " <<
-               parser.getLastErrorMessage() << " for:\n" << *ipp << endl);
+    if (!ret) {
+        LOGERR("UPnPDirContent::parse: parser failed: " << parser.getLastErrorMessage() <<
+               " for:\n" << *ipp << '\n');
     }
     return ret;
 }

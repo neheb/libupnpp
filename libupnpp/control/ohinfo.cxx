@@ -1,4 +1,4 @@
-/* Copyright (C) 2006-2016 J.F.Dockes
+/* Copyright (C) 2006-2024 J.F.Dockes
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -18,7 +18,7 @@
 #include "config.h"
 #include "libupnpp/control/ohinfo.hxx"
 
-#include <string.h>                     // for strcmp
+#include <cstring>                     // for strcmp
 #include <upnp.h>                  // for UPNP_E_BAD_RESPONSE, etc
 #include <ostream>                      // for endl
 #include <string>                       // for string
@@ -49,10 +49,10 @@ bool OHInfo::serviceTypeMatch(const std::string& tp)
 
 void OHInfo::evtCallback(const std::unordered_map<std::string, std::string>& props)
 {
-    LOGDEB1("OHInfo::evtCallback: getReporter(): " << getReporter() << endl);
+    LOGDEB1("OHInfo::evtCallback: getReporter(): " << getReporter() << '\n');
     for (const auto& [propname, propvalue] : props) {
         if (!getReporter()) {
-            LOGDEB1("OHInfo::evtCallback: " << propname << " -> " << propvalue << endl);
+            LOGDEB1("OHInfo::evtCallback: " << propname << " -> " << propvalue << '\n');
             continue;
         }
 
@@ -66,7 +66,7 @@ void OHInfo::evtCallback(const std::unordered_map<std::string, std::string>& pro
             }
         } else {
             LOGDEB1("OHInfo event: unknown variable: name [" <<
-                    propname << "] value [" << propvalue << endl);
+                    propname << "] value [" << propvalue << '\n');
             getReporter()->changed(propname.c_str(), propvalue.c_str());
         }
     }
@@ -88,7 +88,7 @@ int OHInfo::metatext(UPnPDirObject *dirent)
     }
     string didl;
     if (!data.get("Value", &didl)) {
-        LOGERR("OHInfo::metatext: missing Value in response" << endl);
+        LOGERR("OHInfo::metatext: missing Value in response" << '\n');
         return UPNP_E_BAD_RESPONSE;
     }
     if (didl.empty()) {
@@ -109,14 +109,14 @@ int OHInfo::track(std::string *uri, UPnPDirObject *dirent)
     }
     if (uri) {
         if (!data.get("Uri", uri)) {
-            LOGERR("OHInfo::track: missing Uri in response" << endl);
+            LOGERR("OHInfo::track: missing Uri in response" << '\n');
             return UPNP_E_BAD_RESPONSE;
         }
     }
     if (dirent) {
         string didl;
         if (!data.get("Metadata", &didl)) {
-            LOGERR("OHInfo::track: missing Metadata in response" << endl);
+            LOGERR("OHInfo::track: missing Metadata in response" << '\n');
             return UPNP_E_BAD_RESPONSE;
         }
         return OHRadio::decodeMetadata("OHInfo::metatext", didl, dirent);
@@ -136,21 +136,21 @@ int OHInfo::counters(int *trackcount, int *detailscount, int *metatextcount)
     if (trackcount) {
         const char *nm = "TrackCount";
         if (!data.get(nm, trackcount)) {
-            LOGERR("OHInfo::counters: missing " << nm << " in response" << endl);
+            LOGERR("OHInfo::counters: missing " << nm << " in response" << '\n');
             return UPNP_E_BAD_RESPONSE;
         }
     }
     if (detailscount) {
         const char *nm = "DetailsCount";
         if (!data.get(nm, detailscount)) {
-            LOGERR("OHInfo::counters: missing " << nm << " in response" << endl);
+            LOGERR("OHInfo::counters: missing " << nm << " in response" << '\n');
             return UPNP_E_BAD_RESPONSE;
         }
     }
     if (metatextcount) {
         const char *nm = "MetatextCount";
         if (!data.get(nm, metatextcount)) {
-            LOGERR("OHInfo::counters: missing " << nm << " in response" << endl);
+            LOGERR("OHInfo::counters: missing " << nm << " in response" << '\n');
             return UPNP_E_BAD_RESPONSE;
         }
     }
@@ -171,42 +171,42 @@ int OHInfo::details(int *duration, int *bitrate, int *bitdepth, int *samplerate,
     if (duration) {
         const char *nm = "Duration";
         if (!data.get(nm, duration)) {
-            LOGERR("OHInfo::counters: missing " << nm << " in response" << endl);
+            LOGERR("OHInfo::counters: missing " << nm << " in response" << '\n');
             return UPNP_E_BAD_RESPONSE;
         }
     }
     if (bitrate) {
         const char *nm = "BitRate";
         if (!data.get(nm, bitrate)) {
-            LOGERR("OHInfo::counters: missing " << nm << " in response" << endl);
+            LOGERR("OHInfo::counters: missing " << nm << " in response" << '\n');
             return UPNP_E_BAD_RESPONSE;
         }
     }
     if (bitdepth) {
         const char *nm = "BitDepth";
         if (!data.get(nm, bitdepth)) {
-            LOGERR("OHInfo::counters: missing " << nm << " in response" << endl);
+            LOGERR("OHInfo::counters: missing " << nm << " in response" << '\n');
             return UPNP_E_BAD_RESPONSE;
         }
     }
     if (samplerate) {
         const char *nm = "SampleRate";
         if (!data.get(nm, samplerate)) {
-            LOGERR("OHInfo::counters: missing " << nm << " in response" << endl);
+            LOGERR("OHInfo::counters: missing " << nm << " in response" << '\n');
             return UPNP_E_BAD_RESPONSE;
         }
     }
     if (lossless) {
         const char *nm = "Lossless";
         if (!data.get(nm, lossless)) {
-            LOGERR("OHInfo::counters: missing " << nm << " in response" << endl);
+            LOGERR("OHInfo::counters: missing " << nm << " in response" << '\n');
             return UPNP_E_BAD_RESPONSE;
         }
     }
     if (codecname) {
         const char *nm = "Codecname";
         if (!data.get(nm, codecname)) {
-            LOGERR("OHInfo::counters: missing " << nm << " in response" << endl);
+            LOGERR("OHInfo::counters: missing " << nm << " in response" << '\n');
             return UPNP_E_BAD_RESPONSE;
         }
     }

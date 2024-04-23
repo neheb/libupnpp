@@ -1,4 +1,4 @@
-/* Copyright (C) 2006-2016 J.F.Dockes
+/* Copyright (C) 2006-2024 J.F.Dockes
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -17,9 +17,9 @@
  */
 #include "config.h"
 
-#include <stdlib.h>
-#include <time.h>
-#include <stdio.h>
+#include <cstdlib>
+#include <ctime>
+#include <cstdio>
 
 #include <upnp.h>
 #include <netif.h>
@@ -80,16 +80,16 @@ static void expireDevices();
 static string cluDiscoveryToStr(const UpnpDiscovery *disco)
 {
     stringstream ss;
-    ss << "ErrCode: " << UpnpDiscovery_get_ErrCode(disco) << endl;
-    ss << "Expires: " << UpnpDiscovery_get_Expires(disco) << endl;
-    ss << "DeviceId: " << UpnpDiscovery_get_DeviceID_cstr(disco) << endl;
-    ss << "DeviceType: " << UpnpDiscovery_get_DeviceType_cstr(disco) << endl;
-    ss << "ServiceType: " << UpnpDiscovery_get_ServiceType_cstr(disco) << endl;
-    ss << "ServiceVer: " << UpnpDiscovery_get_ServiceVer_cstr(disco)    << endl;
-    ss << "Location: " << UpnpDiscovery_get_Location_cstr(disco) << endl;
-    ss << "Os: " << UpnpDiscovery_get_Os_cstr(disco) << endl;
-    ss << "Date: " << UpnpDiscovery_get_Date_cstr(disco) << endl;
-    ss << "Ext: " << UpnpDiscovery_get_Ext_cstr(disco) << endl;
+    ss << "ErrCode: " << UpnpDiscovery_get_ErrCode(disco) << '\n';
+    ss << "Expires: " << UpnpDiscovery_get_Expires(disco) << '\n';
+    ss << "DeviceId: " << UpnpDiscovery_get_DeviceID_cstr(disco) << '\n';
+    ss << "DeviceType: " << UpnpDiscovery_get_DeviceType_cstr(disco) << '\n';
+    ss << "ServiceType: " << UpnpDiscovery_get_ServiceType_cstr(disco) << '\n';
+    ss << "ServiceVer: " << UpnpDiscovery_get_ServiceVer_cstr(disco) << '\n';
+    ss << "Location: " << UpnpDiscovery_get_Location_cstr(disco) << '\n';
+    ss << "Os: " << UpnpDiscovery_get_Os_cstr(disco) << '\n';
+    ss << "Date: " << UpnpDiscovery_get_Date_cstr(disco) << '\n';
+    ss << "Ext: " << UpnpDiscovery_get_Ext_cstr(disco) << '\n';
 
     /** The host address of the device responding to the search. */
     // struct sockaddr_storage DestAddr;
@@ -150,7 +150,7 @@ static int cluCallBack(Upnp_EventType et, CBCONST void* evp, void*)
 
         // Get rid of unused warnings (the func is only used conditionally)
         (void)&cluDiscoveryToStr;
-        LOGDEB1("discovery:cllb:SearchRes/Alive: " << cluDiscoveryToStr(disco) << endl);
+        LOGDEB1("discovery:cllb:SearchRes/Alive: " << cluDiscoveryToStr(disco) << '\n');
 
         // Device signals its existence and well-being. Perform the
         // UPnP "description" phase by downloading and decoding the
@@ -166,7 +166,7 @@ static int cluCallBack(Upnp_EventType et, CBCONST void* evp, void*)
             std::unique_lock<std::mutex> lock(o_downloading_mutex);
             pair<std::unordered_set<string>::iterator,bool> res = o_downloading.insert(tp->url);
             if (!res.second) {
-                LOGDEB1("discovery:cllb: already downloading " << tp->url << endl);
+                LOGDEB1("discovery:cllb: already downloading " << tp->url << '\n');
                 delete tp;
                 return UPNP_E_SUCCESS;
             }
@@ -182,10 +182,9 @@ static int cluCallBack(Upnp_EventType et, CBCONST void* evp, void*)
         }
 #endif
         
-        LOGDEB1("discovery:cluCallback:: downloading " << tp->url << endl);
+        LOGDEB1("discovery:cluCallback:: downloading " << tp->url << '\n');
         if (!downloadUrlWithCurl(tp->url, tp->description,DISCO_HTTP_TIMEOUT, &disco->DestAddr)) {
-            LOGERR("discovery:cllb: downloadUrlWithCurl error for: " <<
-                   tp->url << endl);
+            LOGERR("discovery:cllb: downloadUrlWithCurl error for: " << tp->url << '\n');
             {   std::unique_lock<std::mutex> lock(o_downloading_mutex);
                 o_downloading.erase(tp->url);
             }
@@ -193,7 +192,7 @@ static int cluCallBack(Upnp_EventType et, CBCONST void* evp, void*)
             return UPNP_E_SUCCESS;
         }
         LOGDEB1("discovery:cllb: downloaded description document of " <<
-                tp->description.size() << " bytes" << endl);
+                tp->description.size() << " bytes" << '\n');
 
         {   std::unique_lock<std::mutex> lock(o_downloading_mutex);
             o_downloading.erase(tp->url);
@@ -208,7 +207,7 @@ static int cluCallBack(Upnp_EventType et, CBCONST void* evp, void*)
     case UPNP_DISCOVERY_ADVERTISEMENT_BYEBYE:
     {
         UpnpDiscovery *disco = (UpnpDiscovery *)evp;
-        LOGDEB1("discovery:cllB:BYEBYE: " << cluDiscoveryToStr(disco) << endl);
+        LOGDEB1("discovery:cllB:BYEBYE: " << cluDiscoveryToStr(disco) << '\n');
         DiscoveredTask *tp = new DiscoveredTask(0, disco);
         if (!discoveredQueue.put(tp)) {
             delete tp;
@@ -218,8 +217,7 @@ static int cluCallBack(Upnp_EventType et, CBCONST void* evp, void*)
     }
     default:
         // Ignore other events for now
-        LOGDEB("discovery:cluCallBack: unprocessed evt type: [" <<
-               evTypeAsString(et) << "]"  << endl);
+        LOGDEB("discovery:cluCallBack: unprocessed evt type: [" << evTypeAsString(et) << "]"<<'\n');
         break;
     }
 
@@ -316,7 +314,7 @@ static void *discoExplorer(void *)
         }
 
         LOGDEB1("discoExplorer: got task: alive " << tsk->alive << " deviceId ["
-                << tsk->deviceId << " URL [" << tsk->url << "]" << endl);
+                << tsk->deviceId << " URL [" << tsk->url << "]" << '\n');
 
         if (!tsk->alive) {
             // Device signals it is going off.
@@ -329,14 +327,14 @@ static void *discoExplorer(void *)
                 }
 
                 o_pool.m_devices.erase(it);
-                LOGDEB2("discoExplorer: delete " << tsk->deviceId.c_str() << endl);
+                LOGDEB2("discoExplorer: delete " << tsk->deviceId.c_str() << '\n');
             }
         } else {
             // Update or insert the device
             DeviceDescriptor d(
                 tsk->url, tsk->description, std::chrono::steady_clock::now(), tsk->expires);
             if (!d.device.ok) {
-                LOGERR("discoExplorer: description parse failed for " << tsk->deviceId << endl);
+                LOGERR("discoExplorer: description parse failed for " << tsk->deviceId << '\n');
                 LOGINF("discoExplorer: description data: [" << tsk->description << "]\n");
                 delete tsk;
                 continue;
@@ -344,11 +342,11 @@ static void *discoExplorer(void *)
             LOGDEB1("discoExplorer: found id [" << tsk->deviceId  << "]"
                     << " name " << d.device.friendlyName
                     << " devtype " << d.device.deviceType << " expires " <<
-                    tsk->expires << endl);
+                    tsk->expires << '\n');
             {
                 std::unique_lock<std::mutex> lock(o_pool.m_mutex);
                 LOGDEB1("discoExplorer: inserting device id "<< tsk->deviceId
-                        << " description: " << endl << d.device.dump() << endl);
+                        << " description: " << '\n' << d.device.dump() << '\n');
                 o_pool.m_devices[tsk->deviceId] = d;
             }
 
@@ -368,17 +366,17 @@ static void *discoExplorer(void *)
 // worker.
 static void expireDevices()
 {
-    LOGDEB1("discovery: expireDevices:" << endl);
+    LOGDEB1("discovery: expireDevices:" << '\n');
     std::unique_lock<std::mutex> lock(o_pool.m_mutex);
     auto now = std::chrono::steady_clock::now();
     bool didsomething = false;
 
     for (auto it = o_pool.m_devices.begin(); it != o_pool.m_devices.end();) {
         LOGDEB1("Dev in pool: type: " << it->second.device.deviceType <<
-                " friendlyName " << it->second.device.friendlyName << endl);
+                " friendlyName " << it->second.device.friendlyName << '\n');
         if (now - it->second.last_seen > it->second.expires) {
             LOGDEB1("expireDevices: deleting " <<  it->first.c_str() << " " <<
-                    it->second.device.friendlyName.c_str() << endl);
+                    it->second.device.friendlyName.c_str() << '\n');
 
             {
                 std::unique_lock<std::mutex> lock(o_callbacks_mutex);
@@ -463,7 +461,7 @@ bool UPnPDeviceDirectory::uniSearch(const std::string& url)
 
 static bool search()
 {
-    LOGDEB1("UPnPDeviceDirectory::search" << endl);
+    LOGDEB1("UPnPDeviceDirectory::search" << '\n');
 
     if (std::chrono::steady_clock::now() - o_lastSearch < std::chrono::seconds(o_searchTimeout)) {
         LOGDEB1("UPnPDeviceDirectory: last search too close\n");
@@ -572,7 +570,7 @@ static bool simpleTraverse(UPnPDeviceDirectory::Visitor visit)
 
 bool UPnPDeviceDirectory::traverse(UPnPDeviceDirectory::Visitor visit)
 {
-    //LOGDEB("UPnPDeviceDirectory::traverse" << endl);
+    //LOGDEB("UPnPDeviceDirectory::traverse" << '\n');
     if (!o_ok)
         return false;
 
@@ -642,7 +640,7 @@ static bool getDevBySelector(bool cmp(const UPnPDeviceDesc& ddesc, const string&
 
 static bool cmpFName(const UPnPDeviceDesc& ddesc, const string& fname)
 {
-    return ddesc.friendlyName.compare(fname) != 0;
+    return ddesc.friendlyName != fname;
 }
 
 bool UPnPDeviceDirectory::getDevByFName(const string& fname, UPnPDeviceDesc& ddesc)
@@ -652,7 +650,7 @@ bool UPnPDeviceDirectory::getDevByFName(const string& fname, UPnPDeviceDesc& dde
 
 static bool cmpUDN(const UPnPDeviceDesc& ddesc, const string& value)
 {
-    return ddesc.UDN.compare(value) != 0;
+    return ddesc.UDN != value;
 }
 
 bool UPnPDeviceDirectory::getDevByUDN(const string& value, UPnPDeviceDesc& ddesc)

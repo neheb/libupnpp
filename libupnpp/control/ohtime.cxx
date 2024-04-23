@@ -1,4 +1,4 @@
-/* Copyright (C) 2006-2016 J.F.Dockes
+/* Copyright (C) 2006-2024 J.F.Dockes
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -20,8 +20,8 @@
 
 #include "libupnpp/control/ohtime.hxx"
 
-#include <stdlib.h>
-#include <string.h>
+#include <cstdlib>
+#include <cstring>
 #include <upnp.h>
 
 #include <functional>
@@ -56,10 +56,10 @@ bool OHTime::serviceTypeMatch(const std::string& tp)
 void OHTime::evtCallback(const std::unordered_map<std::string, std::string>& props)
 {
     VarEventReporter *reporter = getReporter();
-    LOGDEB1("OHTime::evtCallback: reporter: " << reporter << endl);
+    LOGDEB1("OHTime::evtCallback: reporter: " << reporter << '\n');
     for (const auto& [propname, propvalue] : props) {
         if (!reporter) {
-            LOGDEB1("OHTime::evtCallback: " << propname << " -> " << propvalue << endl);
+            LOGDEB1("OHTime::evtCallback: " << propname << " -> " << propvalue << '\n');
             continue;
         }
 
@@ -67,7 +67,7 @@ void OHTime::evtCallback(const std::unordered_map<std::string, std::string>& pro
             reporter->changed(propname.c_str(), atoi(propvalue.c_str()));
         } else {
             LOGERR("OHTime event: unknown variable: name [" <<
-                   propname << "] value [" << propvalue << endl);
+                   propname << "] value [" << propvalue << '\n');
             reporter->changed(propname.c_str(), propvalue.c_str());
         }
     }
@@ -87,15 +87,15 @@ int OHTime::time(Time& out)
         return ret;
     }
     if (!data.get("TrackCount", &out.trackCount)) {
-        LOGERR("OHPlaylist::insert: missing 'TrackCount' in response" << endl);
+        LOGERR("OHPlaylist::insert: missing 'TrackCount' in response" << '\n');
         return UPNP_E_BAD_RESPONSE;
     }
     if (!data.get("Duration", &out.duration)) {
-        LOGERR("OHPlaylist::insert: missing 'Duration' in response" << endl);
+        LOGERR("OHPlaylist::insert: missing 'Duration' in response" << '\n');
         return UPNP_E_BAD_RESPONSE;
     }
     if (!data.get("Seconds", &out.seconds)) {
-        LOGERR("OHPlaylist::insert: missing 'Seconds' in response" << endl);
+        LOGERR("OHPlaylist::insert: missing 'Seconds' in response" << '\n');
         return UPNP_E_BAD_RESPONSE;
     }
     return UPNP_E_SUCCESS;

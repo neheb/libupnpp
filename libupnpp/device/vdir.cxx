@@ -1,4 +1,4 @@
-/* Copyright (C) 2006-2016 J.F.Dockes
+/* Copyright (C) 2006-2024 J.F.Dockes
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -19,7 +19,7 @@
 
 #include "vdir.hxx"
 
-#include <string.h>
+#include <cstring>
 #include <upnp.h>
 
 #include <iostream>
@@ -66,7 +66,7 @@ static void pathcatslash(string& path)
 // Look up entry for pathname. Call with lock held
 static FileEnt *vdgetentry(const char *pathname, DirEnt **de)
 {
-    //LOGDEB("vdgetentry: [" << pathname << "]" << endl);
+    //LOGDEB("vdgetentry: [" << pathname << "]" << '\n');
     *de = nullptr;
     
     VirtualDir *thedir = VirtualDir::getVirtualDir();
@@ -81,7 +81,7 @@ static FileEnt *vdgetentry(const char *pathname, DirEnt **de)
     
     auto dir = m_dirs.find(path);
     if (dir == m_dirs.end()) {
-        LOGERR("VirtualDir::vdgetentry: no dir: " << path << endl);
+        LOGERR("VirtualDir::vdgetentry: no dir: " << path << '\n');
         return 0;
     }
     *de = &dir->second;
@@ -90,7 +90,7 @@ static FileEnt *vdgetentry(const char *pathname, DirEnt **de)
     } else {
         auto f = dir->second.files.find(name);
         if (f == dir->second.files.end()) {
-            LOGERR("VirtualDir::vdgetentry: no file: " << path << endl);
+            LOGERR("VirtualDir::vdgetentry: no file: " << path << '\n');
             return 0;
         }
         return &(f->second);
@@ -103,7 +103,7 @@ bool VirtualDir::addFile(const string& _path, const string& name,
     string path(_path);
     pathcatslash(path);
     
-    //LOGDEB("VirtualDir::addFile: path " << path << " name " << name << endl);
+    //LOGDEB("VirtualDir::addFile: path " << path << " name " << name << '\n');
 
     std::lock_guard<std::mutex> lock(dirsmutex);
     if (m_dirs.find(path) == m_dirs.end()) {
@@ -117,7 +117,7 @@ bool VirtualDir::addFile(const string& _path, const string& name,
     entry.content = content;
     m_dirs[path].files[name] = entry;
     // LOGDEB("VirtualDir::addFile: added entry for dir " <<
-    // path << " name " << name << endl);
+    // path << " name " << name << '\n');
     return true;
 }
 
@@ -130,7 +130,7 @@ bool VirtualDir::addVDir(const std::string& _path, FileOps fops)
         m_dirs[path] = DirEnt(true);
         UpnpAddVirtualDir(path.c_str(), 0, 0);
     }
-    m_dirs[path].ops = fops;
+    m_dirs[path].ops = std::move(fops);
     return true;
 }
 
@@ -163,7 +163,7 @@ static int vdgetinfo(
     const char *fn, UpnpFileInfo* info, const void*, const void**)
 {
     //LOGDEB("vdgetinfo: [" << fn << "] off_t " << sizeof(off_t) <<
-    // " time_t " << sizeof(time_t) << endl);
+    // " time_t " << sizeof(time_t) << '\n');
     std::lock_guard<std::mutex> lock(dirsmutex);
     DirEnt *dir;
     FileEnt *entry = vdgetentry(fn, &dir);
@@ -180,7 +180,7 @@ static int vdgetinfo(
         return ret;
     }
     if (entry == 0) {
-        LOGERR("vdgetinfo: no entry for " << fn << endl);
+        LOGERR("vdgetinfo: no entry for " << fn << '\n');
         return -1;
     }
 
@@ -196,7 +196,7 @@ static int vdgetinfo(
 static UpnpWebFileHandle vdopen(
     const char* fn, enum UpnpOpenFileMode, const void*, const void*)
 {
-    //LOGDEB("vdopen: " << fn << endl);
+    //LOGDEB("vdopen: " << fn << '\n');
     std::lock_guard<std::mutex> lock(dirsmutex);
     DirEnt *dir;
     FileEnt *entry = vdgetentry(fn, &dir);
@@ -211,7 +211,7 @@ static UpnpWebFileHandle vdopen(
     }
 
     if (entry == 0) {
-        LOGERR("vdopen: no entry for " << fn << endl);
+        LOGERR("vdopen: no entry for " << fn << '\n');
         return NULL;
     }
     return new Handle(entry);
@@ -220,7 +220,7 @@ static UpnpWebFileHandle vdopen(
 static int vdread(UpnpWebFileHandle fileHnd, char* buf, size_t buflen,
                   const void*, const void*)
 {
-    // LOGDEB("vdread: " << endl);
+    // LOGDEB("vdread: " << '\n');
     std::lock_guard<std::mutex> lock(dirsmutex);
     if (buflen == 0) {
         return 0;
@@ -243,7 +243,7 @@ static int vdread(UpnpWebFileHandle fileHnd, char* buf, size_t buflen,
 static int vdseek(UpnpWebFileHandle fileHnd, int64_t offset, int origin,
                   const void*, const void*)
 {
-    // LOGDEB("vdseek: " << endl);
+    // LOGDEB("vdseek: " << '\n');
     std::lock_guard<std::mutex> lock(dirsmutex);
     Handle *h = (Handle *)fileHnd;
     if (h->vhandle) {
@@ -264,7 +264,7 @@ static int vdseek(UpnpWebFileHandle fileHnd, int64_t offset, int origin,
 
 static int vdwrite(UpnpWebFileHandle, char*, size_t, const void*, const void*)
 {
-    LOGERR("vdwrite" << endl);
+    LOGERR("vdwrite" << '\n');
     return -1;
 }
 
@@ -278,7 +278,7 @@ VirtualDir *VirtualDir::getVirtualDir()
             UpnpVirtualDir_set_WriteCallback(vdwrite) ||
             UpnpVirtualDir_set_SeekCallback(vdseek) ||
             UpnpVirtualDir_set_CloseCallback(vdclose)) {
-            LOGERR("SetVirtualDirCallbacks failed" << endl);
+            LOGERR("SetVirtualDirCallbacks failed" << '\n');
             delete theDir;
             theDir = 0;
             return 0;

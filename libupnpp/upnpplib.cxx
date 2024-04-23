@@ -1,4 +1,4 @@
-/* Copyright (C) 2006-2016 J.F.Dockes
+/* Copyright (C) 2006-2024 J.F.Dockes
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -18,10 +18,10 @@
 #define  LIBUPNPP_NEED_PACKAGE_VERSION
 #include "config.h"
 
-#include <ctype.h>
-#include <stdio.h>
-#include <string.h>
-#include <time.h>
+#include <cctype>
+#include <cstdio>
+#include <cstring>
+#include <ctime>
 #include <cstdarg>
 
 #ifdef __MACH__
@@ -132,9 +132,8 @@ bool LibUPnP::init(unsigned int flags, ...)
     return nullptr != theLib;
 }
 
-LibUPnP *LibUPnP::getLibUPnP(bool serveronly, string* hwaddr,
-                             const string ifname, const string ip,
-                             unsigned short port)
+LibUPnP *LibUPnP::getLibUPnP(
+    bool serveronly, string* hwaddr, const string ifname, const string ip, unsigned short port)
 {
     if (nullptr == theLib) {
         init(serveronly?UPNPPINIT_FLAG_SERVERONLY:0,
@@ -158,7 +157,7 @@ static int o_callback(Upnp_EventType et, CBCONST void* evp, void* cookie)
     LibUPnP *ulib = (LibUPnP *)cookie;
     if (ulib == 0) {
         // Because the asyncsearch calls uses a null cookie.
-        cerr << "o_callback: NULL ulib!" << endl;
+        cerr << "o_callback: NULL ulib!" << '\n';
         ulib = theLib;
     }
     LOGDEB1("LibUPnP::o_callback: event type: " << evTypeAsString(et) << endl);
@@ -227,12 +226,11 @@ bool LibUPnP::Internal::reSanitizeURLs()
 LibUPnP::LibUPnP()
 {
     bool serveronly = 0 != (options.flags&UPNPPINIT_FLAG_SERVERONLY);
-    LOGDEB("LibUPnP: serveronly " << serveronly << " ifnames [" <<
-           options.ifnames << "] inip [" << options.ipv4 << "] port " <<
-           options.port << endl);
+    LOGDEB("LibUPnP: serveronly " << serveronly << " ifnames [" << options.ifnames << "] inip [" <<
+           options.ipv4 << "] port " << options.port << '\n');
 
     if ((m = new Internal()) == 0) {
-        LOGERR("LibUPnP::LibUPnP: out of memory" << endl);
+        LOGERR("LibUPnP::LibUPnP: out of memory" << '\n');
         return;
     }
 
@@ -258,18 +256,17 @@ LibUPnP::LibUPnP()
             UPNP_OPTION_END);
     }
     if (m->init_error != UPNP_E_SUCCESS) {
-        LOGERR(errAsString("UpnpInit", m->init_error) << endl);
+        LOGERR(errAsString("UpnpInit", m->init_error) << '\n');
         return;
     }
     setMaxContentLength(2000*1024);
 
 #ifdef UPNP_ENABLE_IPV6
-    LOGINF("LibUPnP: Using IPV4 " << UpnpGetServerIpAddress() << " port " <<
-           UpnpGetServerPort() << " IPV6 " << UpnpGetServerIp6Address() <<
-           " port " << UpnpGetServerPort6() << endl);
+    LOGINF("LibUPnP: Using IPV4 " << UpnpGetServerIpAddress() << " port " << UpnpGetServerPort() <<
+           " IPV6 " << UpnpGetServerIp6Address() << " port " << UpnpGetServerPort6() << '\n');
 #else
     LOGINF("LibUPnP: Using IPV4 " << UpnpGetServerIpAddress() << " port " <<
-           UpnpGetServerPort() << endl);
+           UpnpGetServerPort() << '\n');
 #endif
 
     // Client initialization is simple, just do it. Defer device
@@ -293,7 +290,7 @@ LibUPnP::LibUPnP()
 #endif
             m->ok = true;
         } else {
-            LOGERR(errAsString("UpnpRegisterClient", m->init_error) << endl);
+            LOGERR(errAsString("UpnpRegisterClient", m->init_error) << '\n');
         }
     }
 }
@@ -317,8 +314,7 @@ string LibUPnP::port()
     return ulltodecstr(prt);
 }
 
-int LibUPnP::Internal::setupWebServer(const string& description,
-                                      UpnpDevice_Handle *dvh)
+int LibUPnP::Internal::setupWebServer(const string& description, UpnpDevice_Handle *dvh)
 {
     // If we send description as a string (UPNPREG_BUF_DESC), libupnp
     // wants config_baseURL to be set, and it will serve the edited
@@ -338,9 +334,8 @@ int LibUPnP::Internal::setupWebServer(const string& description,
         o_callback, (void *)theLib, dvh);
 
     if (res != UPNP_E_SUCCESS) {
-        LOGERR("LibUPnP::setupWebServer(): " <<
-               errAsString("UpnpRegisterRootDevice2", res) << " description " <<
-               description << endl);
+        LOGERR("LibUPnP::setupWebServer(): " << errAsString("UpnpRegisterRootDevice2", res) <<
+               " description " << description << '\n');
     }
     return res;
 }
@@ -356,7 +351,7 @@ bool LibUPnP::setLogFileName(const std::string& fn, LogLevel level)
     UpnpSetLogFileNames(fn.c_str(), "");
     int code = UpnpInitLog();
     if (code != UPNP_E_SUCCESS) {
-        LOGERR(errAsString("UpnpInitLog", code) << endl);
+        LOGERR(errAsString("UpnpInitLog", code) << '\n');
         return false;
     }
     return true;
@@ -368,8 +363,7 @@ bool LibUPnP::setLogLevel(LogLevel level)
     return true;
 }
 
-void LibUPnP::Internal::registerHandler(Upnp_EventType et, Upnp_FunPtr handler,
-                                        void *cookie)
+void LibUPnP::Internal::registerHandler(Upnp_EventType et, Upnp_FunPtr handler, void *cookie)
 {
     std::unique_lock<std::mutex> lock(mutex);
     if (handler == 0) {
@@ -391,12 +385,11 @@ LibUPnP::~LibUPnP()
 {
     int error = UpnpFinish();
     if (error != UPNP_E_SUCCESS) {
-        LOGINF("LibUPnP::~LibUPnP: " << errAsString("UpnpFinish", error)
-               << endl);
+        LOGINF("LibUPnP::~LibUPnP: " << errAsString("UpnpFinish", error) << '\n');
     }
     delete m;
     m = 0;
-    LOGDEB1("LibUPnP: done" << endl);
+    LOGDEB1("LibUPnP: done" << '\n');
 }
 
 string LibUPnP::makeDevUUID(const std::string& name, const std::string& hw)
@@ -485,7 +478,7 @@ string baseurl(const string& url)
     if (pos == string::npos)
         return url;
 
-    pos = url.find_first_of("/", pos + 3);
+    pos = url.find_first_of('/', pos + 3);
     if (pos == string::npos) {
         return url;
     } else {

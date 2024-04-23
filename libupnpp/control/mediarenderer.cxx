@@ -1,4 +1,4 @@
-/* Copyright (C) 2006-2016 J.F.Dockes
+/* Copyright (C) 2006-2024 J.F.Dockes
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -82,13 +82,11 @@ static bool MDAccum(std::unordered_map<string, UPnPDeviceDesc>* out,
     return true;
 }
 
-bool MediaRenderer::getDeviceDescs(vector<UPnPDeviceDesc>& devices,
-                                   const string& friendlyName)
+bool MediaRenderer::getDeviceDescs(vector<UPnPDeviceDesc>& devices, const string& friendlyName)
 {
     std::unordered_map<string, UPnPDeviceDesc> mydevs;
 
-    UPnPDeviceDirectory::Visitor visitor = bind(
-        MDAccum, &mydevs, friendlyName, _1, _2);
+    UPnPDeviceDirectory::Visitor visitor = bind(MDAccum, &mydevs, friendlyName, _1, _2);
     UPnPDeviceDirectory::getTheDir()->traverse(visitor);
     for (const auto& dev : mydevs) {
         devices.push_back(dev.second);
@@ -100,7 +98,7 @@ MediaRenderer::MediaRenderer(const UPnPDeviceDesc& desc)
     : Device(desc)
 {
     if ((m = new Internal()) == 0) {
-        LOGERR("MediaRenderer::MediaRenderer: out of memory" << endl);
+        LOGERR("MediaRenderer::MediaRenderer: out of memory" << '\n');
         return;
     }
 }
@@ -112,7 +110,7 @@ MediaRenderer::~MediaRenderer()
 
 bool MediaRenderer::hasOpenHome()
 {
-    return ohpr() ? true : false;
+    return static_cast<bool>(ohpr());
 }
 
 
@@ -159,7 +157,7 @@ RDCH MediaRenderer::rdc()
         }
     }
     if (!rdcl)
-        LOGDEB("MediaRenderer: RenderingControl service not found" << endl);
+        LOGDEB("MediaRenderer: RenderingControl service not found" << '\n');
     m->rdc = rdcl;
     return rdcl;
 }
@@ -176,7 +174,7 @@ AVTH MediaRenderer::avt()
         }
     }
     if (!avtl)
-        LOGDEB("MediaRenderer: AVTransport service not found" << endl);
+        LOGDEB("MediaRenderer: AVTransport service not found" << '\n');
     m->avt = avtl;
     return avtl;
 }
@@ -194,7 +192,7 @@ CNMH MediaRenderer::conman()
         }
     }
     if (!cnml)
-        LOGDEB("MediaRenderer: ConnectionManager service not found" << endl);
+        LOGDEB("MediaRenderer: ConnectionManager service not found" << '\n');
     m->cnm = cnml;
     return cnml;
 }
@@ -211,7 +209,7 @@ OHPRH MediaRenderer::ohpr()
         }
     }
     if (!ohprl)
-        LOGDEB("MediaRenderer: OHProduct service not found" << endl);
+        LOGDEB("MediaRenderer: OHProduct service not found" << '\n');
     m->ohpr = ohprl;
     return ohprl;
 }
@@ -228,7 +226,7 @@ OHPLH MediaRenderer::ohpl()
         }
     }
     if (!ohpll)
-        LOGDEB("MediaRenderer: OHPlaylist service not found" << endl);
+        LOGDEB("MediaRenderer: OHPlaylist service not found" << '\n');
     m->ohpl = ohpll;
     return ohpll;
 }
@@ -245,7 +243,7 @@ OHRCH MediaRenderer::ohrc()
         }
     }
     if (!ohrcl)
-        LOGDEB("MediaRenderer: OHReceiver service not found" << endl);
+        LOGDEB("MediaRenderer: OHReceiver service not found" << '\n');
     m->ohrc = ohrcl;
     return ohrcl;
 }
@@ -262,7 +260,7 @@ OHRDH MediaRenderer::ohrd()
         }
     }
     if (!handle)
-        LOGDEB("MediaRenderer: OHRadio service not found" << endl);
+        LOGDEB("MediaRenderer: OHRadio service not found" << '\n');
     m->ohrd = handle;
     return handle;
 }
@@ -279,7 +277,7 @@ OHIFH MediaRenderer::ohif()
         }
     }
     if (!handle)
-        LOGDEB("MediaRenderer: OHInfo service not found" << endl);
+        LOGDEB("MediaRenderer: OHInfo service not found" << '\n');
     m->ohif = handle;
     return handle;
 }
@@ -296,7 +294,7 @@ OHSNH MediaRenderer::ohsn()
         }
     }
     if (!handle)
-        LOGDEB("MediaRenderer: OHSender service not found" << endl);
+        LOGDEB("MediaRenderer: OHSender service not found" << '\n');
     m->ohsn = handle;
     return handle;
 }
@@ -313,7 +311,7 @@ OHTMH MediaRenderer::ohtm()
         }
     }
     if (!ohtml)
-        LOGDEB("MediaRenderer: OHTime service not found" << endl);
+        LOGDEB("MediaRenderer: OHTime service not found" << '\n');
     m->ohtm = ohtml;
     return ohtml;
 }
@@ -330,7 +328,7 @@ OHVLH MediaRenderer::ohvl()
         }
     }
     if (!ohvll)
-        LOGDEB("MediaRenderer: OHVolume service not found" << endl);
+        LOGDEB("MediaRenderer: OHVolume service not found" << '\n');
     m->ohvl = ohvll;
     return ohvll;
 }

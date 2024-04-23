@@ -1,4 +1,4 @@
-/* Copyright (C) 2006-2016 J.F.Dockes
+/* Copyright (C) 2006-2024 J.F.Dockes
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -68,12 +68,9 @@ public:
     /// Debug: return the basic parsed data as a string
     std::string dump() const {
         std::ostringstream os;
-        os << "SERVICE {serviceType [" << serviceType <<
-            "] serviceId [" << serviceId <<
-            "] SCPDURL [" << SCPDURL <<
-            "] controlURL [" << controlURL <<
-            "] eventSubURL [" << eventSubURL <<
-            "] }" << std::endl;
+        os << "SERVICE {serviceType [" << serviceType << "] serviceId [" << serviceId <<
+            "] SCPDURL [" << SCPDURL << "] controlURL [" << controlURL << "] eventSubURL [" <<
+            eventSubURL << "] }" << '\n';
         return os.str();
     }
 
@@ -190,17 +187,15 @@ public:
     }
     std::string dump() const {
         std::ostringstream os;
-        os << "DEVICE " << " {deviceType [" << deviceType <<
-            "] friendlyName [" << friendlyName <<
-            "] UDN [" << UDN <<
-            "] URLBase [" << URLBase << "] Services:" << std::endl;
+        os << "DEVICE " << " {deviceType [" << deviceType << "] friendlyName [" << friendlyName <<
+            "] UDN [" << UDN << "] URLBase [" << URLBase << "] Services:" << '\n';
         for (const auto& service : services) {
             os << "    " << service.dump();
         }
         for (const auto& it: embedded) {
             os << it.dump();
         }
-        os << "}" << std::endl;
+        os << "}" << '\n';
         return os.str();
     }
 };
