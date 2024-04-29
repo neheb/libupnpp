@@ -23,6 +23,7 @@
 #include <cstring>
 #include <ctime>
 #include <cstdarg>
+#include <algorithm>
 
 #ifdef __MACH__
 #include <mach/clock.h>

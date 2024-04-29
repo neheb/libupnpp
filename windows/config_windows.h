@@ -1,5 +1,5 @@
 
-#define PACKAGE_VERSION "0.26.3"
+#define LIBUPNPP_VERSION "0.26.4"
 
 #define CONFIG_WINDOWS_INCLUDED 1
 
