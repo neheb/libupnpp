@@ -23,6 +23,7 @@
 #endif
 
 #include <cstdio>
+#include <cstring>
 #include <string>
 
 #include "libupnpp/upnpavutils.hxx"
@@ -76,8 +77,9 @@ bool ohplIdArrayToVec(const string& _data, vector<int> *ids)
     }
     const char *cp = data.c_str();
     while (cp - data.c_str() <= int(data.size()) - 4) {
-        unsigned int *ip = (unsigned int *)cp;
-        ids->push_back(ntohl(*ip));
+        uint32_t i;
+        std::memcpy(&i, cp, sizeof(uint32_t));
+        ids->push_back(ntohl(i));
         cp += 4;
     }
     return true;
